@@ -22,12 +22,12 @@ namespace jackalope {
 class node : public baseobj_t, public lockable_t {
 
 public:
-    pool_map_t<string_t, component *> components;
+    pool_map_t<string_t, component_t *> components;
 
     virtual ~node();
 
     template <class T, typename... Args>
-    component& add_component(Args... args)
+    component_t& add_component(Args... args)
     {
         auto new_component = new T(args...);
         auto&& new_component_type = new_component->get_type();
@@ -37,13 +37,13 @@ public:
             throw runtime_error_t("duplicate component name");
         }
 
-        components[new_component_type] = dynamic_cast<component *>(new_component);
+        components[new_component_type] = dynamic_cast<component_t *>(new_component);
 
         return *new_component;
     }
 
-    component& get_component(const string_t& type_in);
-    component::input& add_input(const string_t& type_in, const string_t& name_in);
+    component_t& get_component(const string_t& type_in);
+    component_t::input& add_input(const string_t& type_in, const string_t& name_in);
 };
 
 } // namespace jackalope

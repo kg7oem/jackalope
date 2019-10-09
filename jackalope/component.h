@@ -19,34 +19,34 @@
 
 namespace jackalope {
 
-struct component : public baseobj_t, public lockable_t {
+struct component_t : public baseobj_t, public lockable_t {
     class input : public baseobj_t, public lockable_t {
 
     protected:
-        component& parent;
+        component_t& parent;
 
     public:
         const string_t name;
 
-        input(const string_t& name_in, component& parent_in);
+        input(const string_t& name_in, component_t& parent_in);
         virtual const string_t& get_type() = 0;
     };
 
     class output : public baseobj_t, public lockable_t {
     protected:
-        component& parent;
+        component_t& parent;
 
     public:
         const string_t name;
 
-        output(const string_t& name_in, component& parent_in);
+        output(const string_t& name_in, component_t& parent_in);
         virtual const string_t& get_type() = 0;
     };
 
     pool_map_t<string_t, input *> inputs;
     pool_map_t<string_t, output *> outputs;
 
-    virtual ~component();
+    virtual ~component_t();
     static const string_t extract_component_name(const string_t& type_in) noexcept;
     static const string_t extract_component_extra(const string_t& type_in) noexcept;
     virtual const string_t& get_type() = 0;

@@ -19,8 +19,8 @@ using namespace jackalope;
 
 static void type_parsing()
 {
-    test_case(component::extract_component_name("foo[bar]") == "foo");
-    test_case(component::extract_component_extra("blah[baz]") == "baz");
+    test_case(component_t::extract_component_name("foo[bar]") == "foo");
+    test_case(component_t::extract_component_extra("blah[baz]") == "baz");
 }
 
 int main(void)
