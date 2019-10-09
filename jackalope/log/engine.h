@@ -39,7 +39,7 @@ enum class level_type {
 struct event : public baseobj {
     using timestamp = std::chrono::time_point<std::chrono::system_clock>;
 
-    const char_type * source = nullptr;
+    const char_t * source = nullptr;
     const level_type level = level_type::uninit;
     const timestamp when;
     const thread_type::id tid;
@@ -59,12 +59,12 @@ protected:
     pool_vector_type<shared_type<dest>> destinations;
 
     void update_min_level__e() noexcept;
-    bool should_log__e(const level_type& level_in, const char_type * source_in) noexcept;
+    bool should_log__e(const level_type& level_in, const char_t * source_in) noexcept;
     void deliver__e(const event& event_in) noexcept;
     void add_destination__e(shared_type<dest> dest_in);
 
 public:
-    bool should_log(const level_type& level_in, const char_type * source_in) noexcept;
+    bool should_log(const level_type& level_in, const char_t * source_in) noexcept;
     void deliver(const event& event_in) noexcept;
     void add_destination(shared_type<dest> dest_in);
 };

@@ -30,13 +30,13 @@ event::event(const char * source_in, const level_type& level_in, const timestamp
 : source(source_in), level(level_in), when(when_in), tid(tid_in), function(function_in), file(file_in), line(line_in), message(message_in)
 { }
 
-bool engine::should_log(const level_type& level_in, const char_type * source_in) noexcept
+bool engine::should_log(const level_type& level_in, const char_t * source_in) noexcept
 {
     auto lock = get_object_lock();
     return should_log__e(level_in, source_in);
 }
 
-bool engine::should_log__e(const level_type& level_in, const char_type *) noexcept
+bool engine::should_log__e(const level_type& level_in, const char_t *) noexcept
 {
     assert_lockable_owner();
 
