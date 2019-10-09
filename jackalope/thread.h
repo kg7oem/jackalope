@@ -31,7 +31,7 @@ using thread_type = std::thread;
 class debug_mutex : public baseobj {
 public:
     using lock_type = std::unique_lock<std::mutex>;
-    using waiters_type = pool_map_type<thread_type::id, bool>;
+    using waiters_type = pool_map_t<thread_type::id, bool>;
 
 protected:
     std::mutex mutex;

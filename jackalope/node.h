@@ -22,7 +22,7 @@ namespace jackalope {
 class node : public baseobj, public lockable {
 
 public:
-    pool_map_type<string_type, component *> components;
+    pool_map_t<string_type, component *> components;
 
     virtual ~node();
 
