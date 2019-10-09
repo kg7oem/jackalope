@@ -18,16 +18,16 @@
 using namespace std::chrono_literals;
 using namespace jackalope;
 
-struct test_debug_mutex : public debug_mutex {
+struct test_debug_mutex_t : public debug_mutex_t {
     const waiters_type& get_waiters()
     {
         return waiters;
     }
 };
 
-static void debug_mutex_lock()
+static void debug_mutex_t_lock()
 {
-    test_debug_mutex test_mutex;
+    test_debug_mutex_t test_mutex;
 
     test_case(test_mutex.get_owner_id() == thread_t::id());
     test_case(test_mutex.get_waiters().size() == 0);
@@ -44,9 +44,9 @@ static void debug_mutex_lock()
     test_case(test_mutex.is_available());
 }
 
-static void debug_mutex_try_lock()
+static void debug_mutex_t_try_lock()
 {
-    debug_mutex test_mutex;
+    debug_mutex_t test_mutex;
 
     test_case(test_mutex.is_available());
     test_case(test_mutex.try_lock());
@@ -59,9 +59,9 @@ static void debug_mutex_try_lock()
     test_case(! test_mutex.try_lock());
 }
 
-static void debug_mutex_waiting()
+static void debug_mutex_t_waiting()
 {
-    test_debug_mutex test_mutex;
+    test_debug_mutex_t test_mutex;
     std::mutex continue_mutex;
     std::unique_lock continue_lock(continue_mutex);
     std::condition_variable continue_condition;
@@ -101,7 +101,7 @@ int main()
 {
     start_testing(23);
 
-    run_test(debug_mutex_lock);
-    run_test(debug_mutex_try_lock);
-    run_test(debug_mutex_waiting);
+    run_test(debug_mutex_t_lock);
+    run_test(debug_mutex_t_try_lock);
+    run_test(debug_mutex_t_waiting);
 }
