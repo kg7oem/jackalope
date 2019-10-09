@@ -13,7 +13,7 @@
 
 #include <cstring>
 
-#include <jackalope/log/log_dest.h>
+#include <jackalope/log/dest.h>
 
 #include "tests.h"
 
@@ -30,9 +30,9 @@ static const auto test_tid = thread_type::id();
 static const string_type test_message("This is a fine test message");
 static const log::log_event test_log_event(TEST_SOURCE, TEST_LEVEL, test_when, test_tid, TEST_FUNCTION, TEST_FILE, TEST_LINE, test_message);
 
-struct test_log_dest : public log::log_dest {
-    test_log_dest(const log::log_level min_level_in)
-    : log::log_dest(min_level_in)
+struct test_dest : public log::dest {
+    test_dest(const log::log_level min_level_in)
+    : log::dest(min_level_in)
     { }
 
     virtual void handle_event__e(const log::log_event& event_in) noexcept
@@ -50,9 +50,9 @@ struct test_log_dest : public log::log_dest {
     }
 };
 
-static void log_dest_subclass()
+static void dest_subclass()
 {
-    test_log_dest test_dest(log::log_level::trace);
+    test_dest test_dest(log::log_level::trace);
 
     test_dest.handle_deliver(test_log_event);
 }
@@ -61,5 +61,5 @@ int main()
 {
     start_testing(9);
 
-    run_test(log_dest_subclass);
+    run_test(dest_subclass);
 }

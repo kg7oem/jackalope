@@ -13,7 +13,7 @@
 
 #pragma once
 
-#include <jackalope/log/log_dest.forward.h>
+#include <jackalope/log/dest.forward.h>
 #include <jackalope/log/log_engine.h>
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
@@ -22,7 +22,7 @@ namespace jackalope {
 
 namespace log {
 
-class log_dest : public baseobj, public lockable {
+class dest : public baseobj, public lockable {
 
 protected:
     log_level min_level = log_level::uninit;
@@ -32,12 +32,12 @@ protected:
     virtual void handle_deliver__e(const log_event& event_in) noexcept;
 
 public:
-    log_dest(const log_level min_level_in);
+    dest(const log_level min_level_in);
     log_level get_min_level() noexcept;
     virtual void handle_deliver(const log_event& event_in) noexcept;
 };
 
-class log_console : public log_dest {
+class log_console : public dest {
 
 protected:
     mutex_type console_mutex;

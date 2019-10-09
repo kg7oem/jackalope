@@ -29,7 +29,7 @@ find_package(Threads REQUIRED)
 add_library(
     jackalope SHARED
 
-    jackalope/log/log_dest.cxx
+    jackalope/log/dest.cxx
     jackalope/log/log_engine.cxx
     jackalope/logging.cxx
     jackalope/thread.cxx

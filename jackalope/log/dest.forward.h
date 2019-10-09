@@ -17,7 +17,7 @@ namespace jackalope {
 
 namespace log {
 
-class log_dest;
+class dest;
 
 } // namespace log
 

@@ -13,7 +13,7 @@
 
 #include <iostream>
 
-#include <jackalope/log/log_dest.h>
+#include <jackalope/log/dest.h>
 #include <jackalope/log/log_engine.h>
 
 namespace jackalope {
@@ -56,25 +56,25 @@ void log_engine::deliver__e(const log_event& event_in) noexcept
     }
 }
 
-void log_engine::add_destination(shared_type<log_dest> dest_in)
+void log_engine::add_destination(shared_type<dest> dest_in)
 {
     auto lock = get_object_lock();
     add_destination__e(dest_in);
 }
 
-void log_engine::add_destination__e(shared_type<log_dest> dest_in)
+void log_engine::add_destination__e(shared_type<dest> dest_in)
 {
     assert_lockable_owner();
 
     if (dest_in->get_min_level() == log_level::uninit) {
-        throw runtime_error("log_dest min_log_level was not initialized");
+        throw runtime_error("dest min_log_level was not initialized");
     }
 
     destinations.push_back(dest_in);
     update_min_level__e();
 }
 
-static log_level find_min_level(const pool_vector_type<shared_type<log_dest>>& destinations_in) noexcept
+static log_level find_min_level(const pool_vector_type<shared_type<dest>>& destinations_in) noexcept
 {
     if (destinations_in.size() == 0) {
         return log_level::uninit;

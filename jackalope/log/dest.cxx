@@ -13,36 +13,36 @@
 
 #include <iostream>
 
-#include <jackalope/log/log_dest.h>
+#include <jackalope/log/dest.h>
 
 namespace jackalope {
 
 namespace log {
 
-log_dest::log_dest(const log_level min_level_in)
+dest::dest(const log_level min_level_in)
 : min_level(min_level_in)
 { }
 
-log_level log_dest::get_min_level() noexcept
+log_level dest::get_min_level() noexcept
 {
     auto lock = get_object_lock();
     return get_min_level__e();
 }
 
-log_level log_dest::get_min_level__e() noexcept
+log_level dest::get_min_level__e() noexcept
 {
     assert_lockable_owner();
 
     return min_level;
 }
 
-void log_dest::handle_deliver(const log_event& event_in) noexcept
+void dest::handle_deliver(const log_event& event_in) noexcept
 {
     auto lock = get_object_lock();
     return handle_deliver__e(event_in);
 }
 
-void log_dest::handle_deliver__e(const log_event& event_in) noexcept
+void dest::handle_deliver__e(const log_event& event_in) noexcept
 {
     assert_lockable_owner();
 
@@ -54,7 +54,7 @@ void log_dest::handle_deliver__e(const log_event& event_in) noexcept
 }
 
 log_console::log_console(const log_level min_level_in)
-: log_dest(min_level_in)
+: dest(min_level_in)
 { }
 
 void log_console::handle_event__e(const log_event& event_in) noexcept
