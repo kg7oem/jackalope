@@ -31,13 +31,13 @@ using thread_t = std::thread;
 class debug_mutex_t : public baseobj_t {
 public:
     using lock_t = std::unique_lock<std::mutex>;
-    using waiters_type = pool_map_t<thread_t::id, bool>;
+    using waiters_t = pool_map_t<thread_t::id, bool>;
 
 protected:
     std::mutex mutex;
     condition_t available_cond;
     thread_t::id owner = std::thread::id();
-    waiters_type waiters;
+    waiters_t waiters;
     bool is_available__e() noexcept;
     void take__e() noexcept;
     void release__e() noexcept;

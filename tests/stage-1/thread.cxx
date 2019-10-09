@@ -19,7 +19,7 @@ using namespace std::chrono_literals;
 using namespace jackalope;
 
 struct test_debug_mutex_t : public debug_mutex_t {
-    const waiters_type& get_waiters()
+    const waiters_t& get_waiters()
     {
         return waiters;
     }
