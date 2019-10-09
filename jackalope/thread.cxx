@@ -21,7 +21,7 @@ namespace jackalope {
 
 void debug_mutex_t::lock() noexcept
 {
-    debug_mutex_t::lock_type lock(mutex);
+    debug_mutex_t::lock_t lock(mutex);
 
     if (! is_available__e()) {
         wait__e(lock);
@@ -32,7 +32,7 @@ void debug_mutex_t::lock() noexcept
 
 bool debug_mutex_t::try_lock() noexcept
 {
-    debug_mutex_t::lock_type lock(mutex);
+    debug_mutex_t::lock_t lock(mutex);
 
     if (! is_available__e()) {
         return false;
@@ -44,21 +44,21 @@ bool debug_mutex_t::try_lock() noexcept
 
 void debug_mutex_t::unlock() noexcept
 {
-    debug_mutex_t::lock_type lock(mutex);
+    debug_mutex_t::lock_t lock(mutex);
 
     release__e();
 }
 
 thread_t::id debug_mutex_t::get_owner_id() noexcept
 {
-    debug_mutex_t::lock_type lock(mutex);
+    debug_mutex_t::lock_t lock(mutex);
 
     return owner;
 }
 
 bool debug_mutex_t::is_available() noexcept
 {
-    debug_mutex_t::lock_type lock(mutex);
+    debug_mutex_t::lock_t lock(mutex);
     return is_available__e();
 }
 
@@ -81,7 +81,7 @@ void debug_mutex_t::release__e() noexcept
     available_cond.notify_one();
 }
 
-void debug_mutex_t::wait__e(lock_type& lock_in) noexcept
+void debug_mutex_t::wait__e(lock_t& lock_in) noexcept
 {
     auto this_thread_id = std::this_thread::get_id();
     assert(owner != this_thread_id);
@@ -92,9 +92,9 @@ void debug_mutex_t::wait__e(lock_type& lock_in) noexcept
     waiters.erase(this_thread_id);
 }
 
-lock_type lockable::get_object_lock()
+lock_t lockable::get_object_lock()
 {
-    return lock_type(object_mutex);
+    return lock_t(object_mutex);
 }
 
 } // namespace jackalope

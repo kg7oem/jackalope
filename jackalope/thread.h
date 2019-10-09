@@ -30,7 +30,7 @@ using thread_t = std::thread;
 
 class debug_mutex_t : public baseobj_t {
 public:
-    using lock_type = std::unique_lock<std::mutex>;
+    using lock_t = std::unique_lock<std::mutex>;
     using waiters_type = pool_map_t<thread_t::id, bool>;
 
 protected:
@@ -41,7 +41,7 @@ protected:
     bool is_available__e() noexcept;
     void take__e() noexcept;
     void release__e() noexcept;
-    void wait__e(lock_type& lock_in) noexcept;
+    void wait__e(lock_t& lock_in) noexcept;
 
 public:
     void lock() noexcept;
@@ -52,13 +52,13 @@ public:
 };
 
 using mutex_type = debug_mutex_t;
-using lock_type = std::unique_lock<mutex_type>;
+using lock_t = std::unique_lock<mutex_type>;
 
 class lockable {
 
 protected:
     mutex_type object_mutex;
-    lock_type get_object_lock();
+    lock_t get_object_lock();
 };
 
 } // namespace jackalope

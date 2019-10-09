@@ -61,7 +61,7 @@ void console_dest::handle_event__e(const event& event_in) noexcept
 {
     assert_lockable_owner();
 
-    lock_type console_lock(console_mutex);
+    lock_t console_lock(console_mutex);
     std::cout << event_in.message << std::endl;
 }
 
