@@ -46,9 +46,9 @@ shared_t<T> make_shared(Args&&... args) noexcept
     return std::allocate_shared<T>(pool, args...);
 }
 
-struct runtime_error : public std::runtime_error {
-    runtime_error(const std::string& what_in);
-    runtime_error(const char * what_in);
+struct runtime_error_t : public std::runtime_error {
+    runtime_error_t(const std::string& what_in);
+    runtime_error_t(const char * what_in);
 };
 
 struct baseobj {

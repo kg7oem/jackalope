@@ -73,7 +73,7 @@ void engine::add_destination__e(shared_t<dest> dest_in)
     assert_lockable_owner();
 
     if (dest_in->get_min_level() == level_type::uninit) {
-        throw runtime_error("dest min_level_type was not initialized");
+        throw runtime_error_t("dest min_level_type was not initialized");
     }
 
     destinations.push_back(dest_in);

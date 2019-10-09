@@ -15,11 +15,11 @@
 
 namespace jackalope {
 
-runtime_error::runtime_error(const std::string& what_in)
+runtime_error_t::runtime_error_t(const std::string& what_in)
 : std::runtime_error(what_in)
 { }
 
-runtime_error::runtime_error(const char * what_in)
+runtime_error_t::runtime_error_t(const char * what_in)
 : std::runtime_error(what_in)
 { }
 

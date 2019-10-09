@@ -34,7 +34,7 @@ public:
 
         if (components.find(new_component_type) != components.end()) {
             delete new_component;
-            throw runtime_error("duplicate component name");
+            throw runtime_error_t("duplicate component name");
         }
 
         components[new_component_type] = dynamic_cast<component *>(new_component);
