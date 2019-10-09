@@ -42,7 +42,7 @@ public:
         virtual const string_type& get_type();
     };
 
-    class complex_input : public input<complex_type> {
+    class complex_input : public input<complex_t> {
     public:
         complex_input(const string_type& name_in, component& parent_in);
         virtual const string_type& get_type();
@@ -59,7 +59,7 @@ public:
         virtual const string_type& get_type();
     };
 
-    class complex_output : public output<complex_type> {
+    class complex_output : public output<complex_t> {
 
     public:
         virtual const string_type& get_type();
