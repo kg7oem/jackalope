@@ -31,7 +31,7 @@ level_t dest_t::get_min_level() noexcept
 
 level_t dest_t::get_min_level__e() noexcept
 {
-    assert_lockable_t_owner();
+    assert_lockable_owner();
 
     return min_level;
 }
@@ -44,7 +44,7 @@ void dest_t::handle_deliver(const event_t& event_in) noexcept
 
 void dest_t::handle_deliver__e(const event_t& event_in) noexcept
 {
-    assert_lockable_t_owner();
+    assert_lockable_owner();
 
     if (event_in.level < min_level) {
         return;
@@ -59,7 +59,7 @@ console_dest_t::console_dest_t(const level_t min_level_in)
 
 void console_dest_t::handle_event__e(const event_t& event_in) noexcept
 {
-    assert_lockable_t_owner();
+    assert_lockable_owner();
 
     lock_t console_lock(console_mutex);
     std::cout << event_in.message << std::endl;

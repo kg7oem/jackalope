@@ -38,7 +38,7 @@ bool engine_t::should_log(const level_t& level_in, const char_t * source_in) noe
 
 bool engine_t::should_log__e(const level_t& level_in, const char_t *) noexcept
 {
-    assert_lockable_t_owner();
+    assert_lockable_owner();
 
     return level_in >= min_level;
 }
@@ -51,7 +51,7 @@ void engine_t::deliver(const event_t& event_in) noexcept
 
 void engine_t::deliver__e(const event_t& event_in) noexcept
 {
-    assert_lockable_t_owner();
+    assert_lockable_owner();
 
     if (! should_log__e(event_in.level, event_in.source)) {
         return;
@@ -70,7 +70,7 @@ void engine_t::add_destination(shared_t<dest_t> dest_in)
 
 void engine_t::add_destination__e(shared_t<dest_t> dest_in)
 {
-    assert_lockable_t_owner();
+    assert_lockable_owner();
 
     if (dest_in->get_min_level() == level_t::uninit) {
         throw runtime_error_t("dest min_level_t was not initialized");
@@ -100,7 +100,7 @@ static level_t find_min_level(const pool_vector_t<shared_t<dest_t>>& destination
 
 void engine_t::update_min_level__e() noexcept
 {
-    assert_lockable_t_owner();
+    assert_lockable_owner();
 
     auto new_min_level = find_min_level(destinations);
     min_level = new_min_level;
