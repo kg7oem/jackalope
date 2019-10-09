@@ -19,7 +19,7 @@
 
 namespace jackalope {
 
-class node : public baseobj, public lockable {
+class node : public baseobj_t, public lockable {
 
 public:
     pool_map_t<string_type, component *> components;

@@ -22,7 +22,7 @@ namespace jackalope {
 
 namespace log {
 
-class dest : public baseobj, public lockable {
+class dest : public baseobj_t, public lockable {
 
 protected:
     level_type min_level = level_type::uninit;

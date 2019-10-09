@@ -51,13 +51,13 @@ struct runtime_error_t : public std::runtime_error {
     runtime_error_t(const char * what_in);
 };
 
-struct baseobj {
-    baseobj(const baseobj&) = delete;
-    baseobj(const baseobj&&) = delete;
-    baseobj& operator=(const baseobj&);
+struct baseobj_t {
+    baseobj_t(const baseobj_t&) = delete;
+    baseobj_t(const baseobj_t&&) = delete;
+    baseobj_t& operator=(const baseobj_t&);
 
-    baseobj() = default;
-    virtual ~baseobj() = default;
+    baseobj_t() = default;
+    virtual ~baseobj_t() = default;
 };
 
 }

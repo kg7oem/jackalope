@@ -19,8 +19,8 @@
 
 namespace jackalope {
 
-struct component : public baseobj, public lockable {
-    class input : public baseobj, public lockable {
+struct component : public baseobj_t, public lockable {
+    class input : public baseobj_t, public lockable {
 
     protected:
         component& parent;
@@ -32,7 +32,7 @@ struct component : public baseobj, public lockable {
         virtual const string_type& get_type() = 0;
     };
 
-    class output : public baseobj, public lockable {
+    class output : public baseobj_t, public lockable {
     protected:
         component& parent;
 
