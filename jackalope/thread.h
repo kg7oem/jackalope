@@ -25,7 +25,7 @@
 
 namespace jackalope {
 
-using condition_type = std::condition_variable;
+using condition_t = std::condition_variable;
 using thread_type = std::thread;
 
 class debug_mutex : public baseobj_t {
@@ -35,7 +35,7 @@ public:
 
 protected:
     std::mutex mutex;
-    condition_type available_cond;
+    condition_t available_cond;
     thread_type::id owner = std::thread::id();
     waiters_type waiters;
     bool is_available__e() noexcept;
