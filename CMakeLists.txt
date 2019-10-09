@@ -29,8 +29,11 @@ find_package(Threads REQUIRED)
 add_library(
     jackalope SHARED
 
+    jackalope/component.cxx
     jackalope/log/dest.cxx
     jackalope/log/engine.cxx
+    jackalope/node.cxx
+    jackalope/pcm.cxx
     jackalope/thread.cxx
     jackalope/types.cxx
 )

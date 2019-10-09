@@ -11,26 +11,27 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
-#include <iostream>
-#include <string>
+#include <jackalope/component.h>
 
-#include <jackalope/log/dest.h>
-#include <jackalope/logging.h>
-#include <jackalope/node.h>
-#include <jackalope/pcm.h>
+namespace jackalope {
 
-using namespace jackalope;
-
-int main(void)
+const string_type component::extract_component_name(const string_type& type_in) noexcept
 {
-    auto dest = make_shared<log::log_console>(log::log_level::info);
-    log::get_engine()->add_destination(dest);
+    auto subtype_at = type_in.find('[');
 
-    node foo;
-    foo.add_component<pcm::component>();
-    foo.add_input("pcm[real]", "test");
+    if (subtype_at == string_type::npos) {
+        return type_in;
+    }
 
-    log_info("Hello ", 123);
-
-    return(0);
+    return type_in.substr(0, subtype_at);
 }
+
+component::input::input(const string_type& name_in, component& parent_in)
+: parent(parent_in), name(name_in)
+{ }
+
+component::output::output(const string_type& name_in, component& parent_in)
+: parent(parent_in), name(name_in)
+{ }
+
+} // namespace jackalope

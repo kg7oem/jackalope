@@ -11,26 +11,10 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
-#include <iostream>
-#include <string>
+#pragma once
 
-#include <jackalope/log/dest.h>
-#include <jackalope/logging.h>
-#include <jackalope/node.h>
-#include <jackalope/pcm.h>
+#include <jackalope/string.h>
+#include <jackalope/types.h>
 
-using namespace jackalope;
-
-int main(void)
-{
-    auto dest = make_shared<log::log_console>(log::log_level::info);
-    log::get_engine()->add_destination(dest);
-
-    node foo;
-    foo.add_component<pcm::component>();
-    foo.add_input("pcm[real]", "test");
-
-    log_info("Hello ", 123);
-
-    return(0);
-}
+#define throw_vargs(exception_type, ...) { throw exception_type(jackalope::vaargs_to_string(__VA_ARGS__).c_str()); }
+#define throw_runtime_error(...) throw_vargs(jackalope::runtime_error, __VA_ARGS__)
