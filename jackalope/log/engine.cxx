@@ -62,13 +62,13 @@ void engine::deliver__e(const event& event_in) noexcept
     }
 }
 
-void engine::add_destination(shared_type<dest> dest_in)
+void engine::add_destination(shared_t<dest> dest_in)
 {
     auto lock = get_object_lock();
     add_destination__e(dest_in);
 }
 
-void engine::add_destination__e(shared_type<dest> dest_in)
+void engine::add_destination__e(shared_t<dest> dest_in)
 {
     assert_lockable_owner();
 
@@ -80,7 +80,7 @@ void engine::add_destination__e(shared_type<dest> dest_in)
     update_min_level__e();
 }
 
-static level_type find_min_level(const pool_vector_t<shared_type<dest>>& destinations_in) noexcept
+static level_type find_min_level(const pool_vector_t<shared_t<dest>>& destinations_in) noexcept
 {
     if (destinations_in.size() == 0) {
         return level_type::uninit;

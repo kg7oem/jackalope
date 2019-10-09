@@ -38,9 +38,9 @@ template <typename T>
 using pool_vector_t = std::vector<T, pool_allocator_t<T>>;
 
 template <typename T>
-using shared_type = std::shared_ptr<T>;
+using shared_t = std::shared_ptr<T>;
 template <class T, class... Args>
-shared_type<T> make_shared(Args&&... args) noexcept
+shared_t<T> make_shared(Args&&... args) noexcept
 {
     static pool_allocator_t<T> pool;
     return std::allocate_shared<T>(pool, args...);
