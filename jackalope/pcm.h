@@ -27,18 +27,24 @@ struct component : public jackalope::component {
 
 public:
     template <class T>
-    class input : public jackalope::component::input {
+    struct input : public jackalope::component::input {
         using sample_type = T;
+
+        input(const string_type& name_in, component& parent_in)
+        : jackalope::component::input(name_in, parent_in)
+        { }
     };
 
     class real_input : public input<real_type> {
 
     public:
+        real_input(const string_type& name_in, component& parent_in);
         virtual const string_type& get_type();
     };
 
     class complex_input : public input<complex_type> {
     public:
+        complex_input(const string_type& name_in, component& parent_in);
         virtual const string_type& get_type();
     };
 
@@ -60,6 +66,8 @@ public:
     };
 
     virtual jackalope::component::input& add_input(const string_type& type_in, const string_type& name_in);
+    jackalope::component::input& add_real_input(const string_type& name_in);
+    jackalope::component::input& add_complex_input(const string_type& name_in);
     const string_type& get_type();
 };
 

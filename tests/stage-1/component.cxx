@@ -11,27 +11,21 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
-#include <iostream>
-#include <string>
+#include <jackalope/component.h>
 
-#include <jackalope/log/dest.h>
-#include <jackalope/logging.h>
-#include <jackalope/node.h>
-#include <jackalope/pcm.h>
+#include "tests.h"
 
 using namespace jackalope;
 
+static void type_parsing()
+{
+    test_case(component::extract_component_name("foo[bar]") == "foo");
+    test_case(component::extract_component_extra("blah[baz]") == "baz");
+}
+
 int main(void)
 {
-    auto dest = make_shared<log::log_console>(log::log_level::info);
-    log::get_engine()->add_destination(dest);
+    start_testing(0);
 
-    node foo;
-    foo.add_component<pcm::component>();
-    foo.add_input("pcm[real]", "test");
-    foo.add_input("pcm[complex]", "blaz");
-
-    log_info("Hello ", 123);
-
-    return(0);
+    run_test(type_parsing);
 }

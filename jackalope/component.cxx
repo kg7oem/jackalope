@@ -15,15 +15,42 @@
 
 namespace jackalope {
 
+component::~component()
+{
+    for(auto&& i : inputs) {
+        delete i.second;
+    }
+
+    for(auto&& i : outputs) {
+        delete i.second;
+    }
+}
+
 const string_type component::extract_component_name(const string_type& type_in) noexcept
 {
-    auto subtype_at = type_in.find('[');
+    auto extra_at = type_in.find('[');
 
-    if (subtype_at == string_type::npos) {
+    if (extra_at == string_type::npos) {
         return type_in;
     }
 
-    return type_in.substr(0, subtype_at);
+    return type_in.substr(0, extra_at);
+}
+
+const string_type component::extract_component_extra(const string_type& type_in) noexcept
+{
+    auto extra_start_char_at = type_in.find('[');
+    auto extra_end_char_at = type_in.find(']');
+
+    if (extra_start_char_at == string_type::npos) {
+        return "";
+    }
+
+    if (extra_end_char_at == string_type::npos) {
+        return "";
+    }
+
+    return type_in.substr(extra_start_char_at + 1, extra_end_char_at - extra_start_char_at - 1);
 }
 
 component::input::input(const string_type& name_in, component& parent_in)

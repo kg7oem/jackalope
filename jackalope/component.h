@@ -43,7 +43,12 @@ struct component : public baseobj, public lockable {
         virtual const string_type& get_type() = 0;
     };
 
+    pool_map_type<string_type, input *> inputs;
+    pool_map_type<string_type, output *> outputs;
+
+    virtual ~component();
     static const string_type extract_component_name(const string_type& type_in) noexcept;
+    static const string_type extract_component_extra(const string_type& type_in) noexcept;
     virtual const string_type& get_type() = 0;
     virtual input& add_input(const string_type& type_in, const string_type& name_in) = 0;
 };

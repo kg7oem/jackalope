@@ -11,6 +11,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
+#include <jackalope/exception.h>
 #include <jackalope/logging.h>
 #include <jackalope/pcm.h>
 
@@ -26,10 +27,38 @@ const string_type& component::get_type()
 
 jackalope::component::input& component::add_input(const string_type& type_in, const string_type& name_in)
 {
-    log_info("adding ", type_in, " input named ", name_in);
+    auto found = inputs.find(name_in);
+    auto subtype_name = jackalope::component::extract_component_extra(type_in);
 
-    // FIXME placeholde
-    return * static_cast<jackalope::component::input *>(nullptr);
+    if (found != inputs.end()) {
+        throw_runtime_error("duplicate input name: ", name_in);
+    }
+
+    if (subtype_name == "") {
+        throw_runtime_error("could not parse input type: ", type_in);
+    } else if (subtype_name == "real") {
+        return add_real_input(name_in);
+    } else if (subtype_name == "complex") {
+        return add_complex_input(name_in);
+    }
+
+    throw_runtime_error("unknown pcm subtype: ", subtype_name);
+}
+
+jackalope::component::input& component::add_real_input(const string_type& name_in)
+{
+    auto new_input = new component::real_input(name_in, *this);
+
+    inputs[name_in] = new_input;
+    return *new_input;
+}
+
+jackalope::component::input& component::add_complex_input(const string_type& name_in)
+{
+    auto new_input = new component::complex_input(name_in, *this);
+
+    inputs[name_in] = new_input;
+    return *new_input;
 }
 
 const string_type& component::real_input::get_type()
@@ -37,6 +66,10 @@ const string_type& component::real_input::get_type()
     static const string_type type(JACKALOPE_PCM_REAL_TYPE);
     return type;
 }
+
+component::real_input::real_input(const string_type& name_in, component& parent_in)
+: input<sample_type>(name_in, parent_in)
+{ }
 
 const string_type& component::real_output::get_type()
 {
@@ -49,6 +82,10 @@ const string_type& component::complex_input::get_type()
     static const string_type type(JACKALOPE_PCM_COMPLEX_TYPE);
     return type;
 }
+
+component::complex_input::complex_input(const string_type& name_in, component& parent_in)
+: input<sample_type>(name_in, parent_in)
+{ }
 
 const string_type& component::complex_output::get_type()
 {
