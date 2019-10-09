@@ -33,6 +33,7 @@ add_library(
     jackalope/log_dest.cxx
     jackalope/log_engine.cxx
     jackalope/thread.cxx
+    jackalope/types.cxx
 )
 add_dependencies(jackalope jackalope-boost)
 target_link_libraries(jackalope ${CMAKE_THREAD_LIBS_INIT})

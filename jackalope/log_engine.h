@@ -55,15 +55,16 @@ class log_engine : public baseobj, public lockable {
 protected:
     log_level min_level = log_level::uninit;
     pool_vector_type<shared_type<log_dest>> destinations;
+
     void update_min_level__e() noexcept;
     bool should_log__e(const log_level& level_in, const char_type * source_in) noexcept;
     void deliver__e(const log_event& event_in) noexcept;
-    void add_destination__e(shared_type<log_dest> dest_in) noexcept;
+    void add_destination__e(shared_type<log_dest> dest_in);
 
 public:
     bool should_log(const log_level& level_in, const char_type * source_in) noexcept;
     void deliver(const log_event& event_in) noexcept;
-    void add_destination(shared_type<log_dest> dest_in) noexcept;
+    void add_destination(shared_type<log_dest> dest_in);
 };
 
 } // namespace jackalope

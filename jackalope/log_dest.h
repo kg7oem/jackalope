@@ -21,15 +21,16 @@
 namespace jackalope {
 
 class log_dest : public baseobj, public lockable {
-private:
-    log_level min_level = log_level::uninit;
 
 protected:
+    log_level min_level = log_level::uninit;
+
     log_level get_min_level__e() noexcept;
     virtual void handle_event__e(const log_event& event_in) noexcept = 0;
     virtual void handle_deliver__e(const log_event& event_in) noexcept;
 
 public:
+    log_dest(const log_level min_level_in);
     log_level get_min_level() noexcept;
     virtual void handle_deliver(const log_event& event_in) noexcept;
 };
@@ -40,6 +41,7 @@ protected:
     mutex_type console_mutex;
 
 public:
+    log_console(const log_level min_level_in);
     void handle_event__e(const log_event& event_in) noexcept;
 };
 

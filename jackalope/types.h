@@ -14,6 +14,7 @@
 #pragma once
 
 #include <boost/pool/pool_alloc.hpp>
+#include <exception>
 #include <list>
 #include <map>
 #include <memory>
@@ -41,6 +42,11 @@ shared_type<T> make_shared(Args&&... args) noexcept
     static allocator_type<T> pool;
     return std::allocate_shared<T>(pool, args...);
 }
+
+struct runtime_error : public std::runtime_error {
+    runtime_error(const std::string& what_in);
+    runtime_error(const char * what_in);
+};
 
 struct baseobj {
     baseobj(const baseobj&) = delete;

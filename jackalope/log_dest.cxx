@@ -17,6 +17,10 @@
 
 namespace jackalope {
 
+log_dest::log_dest(const log_level min_level_in)
+: min_level(min_level_in)
+{ }
+
 log_level log_dest::get_min_level() noexcept
 {
     auto lock = get_object_lock();
@@ -46,6 +50,10 @@ void log_dest::handle_deliver__e(const log_event& event_in) noexcept
 
     handle_event__e(event_in);
 }
+
+log_console::log_console(const log_level min_level_in)
+: log_dest(min_level_in)
+{ }
 
 void log_console::handle_event__e(const log_event& event_in) noexcept
 {

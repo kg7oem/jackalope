@@ -54,15 +54,19 @@ void log_engine::deliver__e(const log_event& event_in) noexcept
     }
 }
 
-void log_engine::add_destination(shared_type<log_dest> dest_in) noexcept
+void log_engine::add_destination(shared_type<log_dest> dest_in)
 {
     auto lock = get_object_lock();
     add_destination__e(dest_in);
 }
 
-void log_engine::add_destination__e(shared_type<log_dest> dest_in) noexcept
+void log_engine::add_destination__e(shared_type<log_dest> dest_in)
 {
     assert_lockable_owner();
+
+    if (dest_in->get_min_level() == log_level::uninit) {
+        throw runtime_error("log_dest min_log_level was not initialized");
+    }
 
     destinations.push_back(dest_in);
     update_min_level__e();

@@ -11,20 +11,16 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
-#include <iostream>
-#include <string>
+#include <jackalope/types.h>
 
-#include <jackalope/log_dest.h>
-#include <jackalope/logging.h>
+namespace jackalope {
 
-using namespace jackalope;
+runtime_error::runtime_error(const std::string& what_in)
+: std::runtime_error(what_in)
+{ }
 
-int main(void)
-{
-    auto dest = make_shared<log_console>(log_level::info);
-    logging::get_engine()->add_destination(dest);
+runtime_error::runtime_error(const char * what_in)
+: std::runtime_error(what_in)
+{ }
 
-    log_info("Hello ", 123);
-
-    return(0);
-}
+} // namespace jackalope

@@ -31,6 +31,10 @@ static const string_type test_message("This is a fine test message");
 static const log_event test_log_event(TEST_SOURCE, TEST_LEVEL, test_when, test_tid, TEST_FUNCTION, TEST_FILE, TEST_LINE, test_message);
 
 struct test_log_dest : public log_dest {
+    test_log_dest(const log_level min_level_in)
+    : log_dest(min_level_in)
+    { }
+
     virtual void handle_event__e(const log_event& event_in) noexcept
     {
         const log_event& test_log_event_ref = test_log_event;
@@ -48,7 +52,7 @@ struct test_log_dest : public log_dest {
 
 static void log_dest_subclass()
 {
-    test_log_dest test_dest;
+    test_log_dest test_dest(log_level::trace);
 
     test_dest.handle_deliver(test_log_event);
 }
