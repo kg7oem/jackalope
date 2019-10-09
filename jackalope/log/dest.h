@@ -40,7 +40,7 @@ public:
 class console_dest : public dest {
 
 protected:
-    mutex_type console_mutex;
+    mutex_t console_mutex;
 
 public:
     console_dest(const level_type min_level_in);

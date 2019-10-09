@@ -51,13 +51,13 @@ public:
     thread_t::id get_owner_id() noexcept;
 };
 
-using mutex_type = debug_mutex_t;
-using lock_t = std::unique_lock<mutex_type>;
+using mutex_t = debug_mutex_t;
+using lock_t = std::unique_lock<mutex_t>;
 
 class lockable {
 
 protected:
-    mutex_type object_mutex;
+    mutex_t object_mutex;
     lock_t get_object_lock();
 };
 
