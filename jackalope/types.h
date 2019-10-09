@@ -29,20 +29,20 @@ using real_t = float;
 using complex_t = std::complex<real_t>;
 
 template <typename T>
-using allocator_type = boost::pool_allocator<T>;
+using pool_allocator_t = boost::pool_allocator<T>;
 template <typename T>
-using pool_list_type = std::list<T, allocator_type<T>>;
+using pool_list_type = std::list<T, pool_allocator_t<T>>;
 template <class Key, class T, class Compare = std::less<Key>>
-using pool_map_type = std::map<Key, T, Compare, allocator_type<std::pair<const Key, T>>>;
+using pool_map_type = std::map<Key, T, Compare, pool_allocator_t<std::pair<const Key, T>>>;
 template <typename T>
-using pool_vector_type = std::vector<T, allocator_type<T>>;
+using pool_vector_type = std::vector<T, pool_allocator_t<T>>;
 
 template <typename T>
 using shared_type = std::shared_ptr<T>;
 template <class T, class... Args>
 shared_type<T> make_shared(Args&&... args) noexcept
 {
-    static allocator_type<T> pool;
+    static pool_allocator_t<T> pool;
     return std::allocate_shared<T>(pool, args...);
 }
 
