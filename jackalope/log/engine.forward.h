@@ -17,8 +17,8 @@ namespace jackalope {
 
 namespace log {
 
-struct event;
-class engine;
+struct event_t;
+class engine_t;
 
 } // namespace log
 

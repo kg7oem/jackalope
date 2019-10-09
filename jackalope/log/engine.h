@@ -56,17 +56,17 @@ class engine_t : public baseobj_t, public lockable_t {
 
 protected:
     level_t min_level = level_t::uninit;
-    pool_vector_t<shared_t<dest>> destinations;
+    pool_vector_t<shared_t<dest_t>> destinations;
 
     void update_min_level__e() noexcept;
     bool should_log__e(const level_t& level_in, const char_t * source_in) noexcept;
     void deliver__e(const event_t& event_in) noexcept;
-    void add_destination__e(shared_t<dest> dest_in);
+    void add_destination__e(shared_t<dest_t> dest_in);
 
 public:
     bool should_log(const level_t& level_in, const char_t * source_in) noexcept;
     void deliver(const event_t& event_in) noexcept;
-    void add_destination(shared_t<dest> dest_in);
+    void add_destination(shared_t<dest_t> dest_in);
 };
 
 engine_t * get_engine() noexcept;

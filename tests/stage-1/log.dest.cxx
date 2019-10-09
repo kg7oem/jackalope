@@ -30,9 +30,9 @@ static const auto test_tid = thread_t::id();
 static const string_t test_message("This is a fine test message");
 static const log::event_t test_event(TEST_SOURCE, TEST_LEVEL, test_when, test_tid, TEST_FUNCTION, TEST_FILE, TEST_LINE, test_message);
 
-struct test_dest : public log::dest {
-    test_dest(const log::level_t min_level_in)
-    : log::dest(min_level_in)
+struct test_dest_t : public log::dest_t {
+    test_dest_t(const log::level_t min_level_in)
+    : log::dest_t(min_level_in)
     { }
 
     virtual void handle_event__e(const log::event_t& event_in) noexcept
@@ -52,7 +52,7 @@ struct test_dest : public log::dest {
 
 static void dest_subclass()
 {
-    test_dest test_dest(log::level_t::trace);
+    test_dest_t test_dest(log::level_t::trace);
 
     test_dest.handle_deliver(test_event);
 }

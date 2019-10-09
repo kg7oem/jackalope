@@ -22,7 +22,7 @@ namespace jackalope {
 
 namespace log {
 
-class dest : public baseobj_t, public lockable_t {
+class dest_t : public baseobj_t, public lockable_t {
 
 protected:
     level_t min_level = level_t::uninit;
@@ -32,18 +32,18 @@ protected:
     virtual void handle_deliver__e(const event_t& event_in) noexcept;
 
 public:
-    dest(const level_t min_level_in);
+    dest_t(const level_t min_level_in);
     level_t get_min_level() noexcept;
     virtual void handle_deliver(const event_t& event_in) noexcept;
 };
 
-class console_dest : public dest {
+class console_dest_t : public dest_t {
 
 protected:
     mutex_t console_mutex;
 
 public:
-    console_dest(const level_t min_level_in);
+    console_dest_t(const level_t min_level_in);
     void handle_event__e(const event_t& event_in) noexcept;
 };
 
