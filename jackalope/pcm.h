@@ -35,7 +35,7 @@ public:
         { }
     };
 
-    class real_input : public input<real_type> {
+    class real_input : public input<real_t> {
 
     public:
         real_input(const string_type& name_in, component& parent_in);
@@ -53,7 +53,7 @@ public:
         using sample_type = T;
     };
 
-    class real_output : public output<real_type> {
+    class real_output : public output<real_t> {
 
     public:
         virtual const string_type& get_type();

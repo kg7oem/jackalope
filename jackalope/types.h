@@ -25,8 +25,8 @@ namespace jackalope {
 
 using char_t = char;
 using size_t = unsigned long;
-using real_type = float;
-using complex_type = std::complex<real_type>;
+using real_t = float;
+using complex_type = std::complex<real_t>;
 
 template <typename T>
 using allocator_type = boost::pool_allocator<T>;
