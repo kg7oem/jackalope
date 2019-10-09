@@ -19,8 +19,8 @@
 #include <jackalope/string.h>
 #include <jackalope/types.h>
 
-static jackalope::size_type expected_test_cases = 0;
-static jackalope::size_type completed_test_cases = 0;
+static jackalope::size_t expected_test_cases = 0;
+static jackalope::size_t completed_test_cases = 0;
 
 #define run_test(name) { std::cout << #name << " "; name(); }
 // FIXME assert() is not the right way to do this
@@ -36,7 +36,7 @@ static void exit_handler()
     }
 }
 
-static void start_testing(const jackalope::size_type expected_test_cases_in)
+static void start_testing(const jackalope::size_t expected_test_cases_in)
 {
     expected_test_cases = expected_test_cases_in;
     std::atexit(exit_handler);
