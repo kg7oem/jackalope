@@ -68,7 +68,7 @@ const string_t& component_t::real_input_t::get_type()
 }
 
 component_t::real_input_t::real_input_t(const string_t& name_in, component_t& parent_in)
-: input_t<sample_type_t_t_t>(name_in, parent_in)
+: input_t<sample_t>(name_in, parent_in)
 { }
 
 const string_t& component_t::real_output::get_type()
@@ -84,7 +84,7 @@ const string_t& component_t::complex_input_t::get_type()
 }
 
 component_t::complex_input_t::complex_input_t(const string_t& name_in, component_t& parent_in)
-: input_t<sample_type_t_t_t>(name_in, parent_in)
+: input_t<sample_t>(name_in, parent_in)
 { }
 
 const string_t& component_t::complex_output::get_type()

@@ -28,7 +28,7 @@ struct component_t : public jackalope::component_t {
 public:
     template <class T>
     struct input_t : public jackalope::component_t::input_t {
-        using sample_type_t_t_t = T;
+        using sample_t = T;
 
         input_t(const string_t& name_in, component_t& parent_in)
         : jackalope::component_t::input_t(name_in, parent_in)
@@ -50,7 +50,7 @@ public:
 
     template <class T>
     class output_t : public jackalope::component_t::output_t {
-        using sample_type_t_t_t = T;
+        using sample_t = T;
     };
 
     class real_output : public output_t<real_t> {
