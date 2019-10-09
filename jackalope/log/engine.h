@@ -16,7 +16,7 @@
 #include <chrono>
 
 #include <jackalope/log/dest.forward.h>
-#include <jackalope/log/log_engine.forward.h>
+#include <jackalope/log/engine.forward.h>
 #include <jackalope/string.h>
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
@@ -52,7 +52,7 @@ struct log_event : public baseobj {
     ~log_event() = default;
 };
 
-class log_engine : public baseobj, public lockable {
+class engine : public baseobj, public lockable {
 
 protected:
     log_level min_level = log_level::uninit;

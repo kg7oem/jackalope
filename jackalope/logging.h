@@ -13,7 +13,7 @@
 
 #pragma once
 
-#include <jackalope/log/log_engine.h>
+#include <jackalope/log/engine.h>
 
 #define JACKALOPE_LOG_NAME "jackalope"
 
@@ -26,7 +26,7 @@ namespace jackalope {
 
 namespace log {
 
-log_engine * get_engine() noexcept;
+engine * get_engine() noexcept;
 
 template<typename... Args>
 void send_vargs_log_event(const char * source_in, const log_level& level_in, const char *function_in, const char *path_in, const int& line_in, Args&&... args_in) noexcept

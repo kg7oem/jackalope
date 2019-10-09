@@ -14,7 +14,7 @@
 #include <iostream>
 
 #include <jackalope/log/dest.h>
-#include <jackalope/log/log_engine.h>
+#include <jackalope/log/engine.h>
 
 namespace jackalope {
 
@@ -24,26 +24,26 @@ log_event::log_event(const char * source_in, const log_level& level_in, const ti
 : source(source_in), level(level_in), when(when_in), tid(tid_in), function(function_in), file(file_in), line(line_in), message(message_in)
 { }
 
-bool log_engine::should_log(const log_level& level_in, const char_type * source_in) noexcept
+bool engine::should_log(const log_level& level_in, const char_type * source_in) noexcept
 {
     auto lock = get_object_lock();
     return should_log__e(level_in, source_in);
 }
 
-bool log_engine::should_log__e(const log_level& level_in, const char_type *) noexcept
+bool engine::should_log__e(const log_level& level_in, const char_type *) noexcept
 {
     assert_lockable_owner();
 
     return level_in >= min_level;
 }
 
-void log_engine::deliver(const log_event& event_in) noexcept
+void engine::deliver(const log_event& event_in) noexcept
 {
     auto lock = get_object_lock();
     deliver__e(event_in);
 }
 
-void log_engine::deliver__e(const log_event& event_in) noexcept
+void engine::deliver__e(const log_event& event_in) noexcept
 {
     assert_lockable_owner();
 
@@ -56,13 +56,13 @@ void log_engine::deliver__e(const log_event& event_in) noexcept
     }
 }
 
-void log_engine::add_destination(shared_type<dest> dest_in)
+void engine::add_destination(shared_type<dest> dest_in)
 {
     auto lock = get_object_lock();
     add_destination__e(dest_in);
 }
 
-void log_engine::add_destination__e(shared_type<dest> dest_in)
+void engine::add_destination__e(shared_type<dest> dest_in)
 {
     assert_lockable_owner();
 
@@ -92,7 +92,7 @@ static log_level find_min_level(const pool_vector_type<shared_type<dest>>& desti
     return min_level;
 }
 
-void log_engine::update_min_level__e() noexcept
+void engine::update_min_level__e() noexcept
 {
     assert_lockable_owner();
 

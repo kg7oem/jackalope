@@ -14,7 +14,7 @@
 #pragma once
 
 #include <jackalope/log/dest.forward.h>
-#include <jackalope/log/log_engine.h>
+#include <jackalope/log/engine.h>
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
 

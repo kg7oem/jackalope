@@ -30,7 +30,7 @@ add_library(
     jackalope SHARED
 
     jackalope/log/dest.cxx
-    jackalope/log/log_engine.cxx
+    jackalope/log/engine.cxx
     jackalope/logging.cxx
     jackalope/thread.cxx
     jackalope/types.cxx
