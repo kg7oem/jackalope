@@ -26,7 +26,7 @@ engine * get_engine() noexcept
     return &global_engine;
 }
 
-log_event::log_event(const char * source_in, const level_type& level_in, const timestamp& when_in, const thread_type::id& tid_in, const char* function_in, const char *file_in, const int& line_in, const string_type& message_in)
+event::event(const char * source_in, const level_type& level_in, const timestamp& when_in, const thread_type::id& tid_in, const char* function_in, const char *file_in, const int& line_in, const string_type& message_in)
 : source(source_in), level(level_in), when(when_in), tid(tid_in), function(function_in), file(file_in), line(line_in), message(message_in)
 { }
 
@@ -43,13 +43,13 @@ bool engine::should_log__e(const level_type& level_in, const char_type *) noexce
     return level_in >= min_level;
 }
 
-void engine::deliver(const log_event& event_in) noexcept
+void engine::deliver(const event& event_in) noexcept
 {
     auto lock = get_object_lock();
     deliver__e(event_in);
 }
 
-void engine::deliver__e(const log_event& event_in) noexcept
+void engine::deliver__e(const event& event_in) noexcept
 {
     assert_lockable_owner();
 

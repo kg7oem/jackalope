@@ -36,7 +36,7 @@ enum class level_type {
     fatal = 100,
 };
 
-struct log_event : public baseobj {
+struct event : public baseobj {
     using timestamp = std::chrono::time_point<std::chrono::system_clock>;
 
     const char_type * source = nullptr;
@@ -48,8 +48,8 @@ struct log_event : public baseobj {
     const size_type line = 0;
     const string_type message;
 
-    log_event(const char * source_in, const level_type& level_in, const timestamp& when_in, const thread_type::id& tid_in, const char* function_in, const char *file_in, const int& line_in, const string_type& message_in);
-    ~log_event() = default;
+    event(const char * source_in, const level_type& level_in, const timestamp& when_in, const thread_type::id& tid_in, const char* function_in, const char *file_in, const int& line_in, const string_type& message_in);
+    ~event() = default;
 };
 
 class engine : public baseobj, public lockable {
@@ -60,26 +60,26 @@ protected:
 
     void update_min_level__e() noexcept;
     bool should_log__e(const level_type& level_in, const char_type * source_in) noexcept;
-    void deliver__e(const log_event& event_in) noexcept;
+    void deliver__e(const event& event_in) noexcept;
     void add_destination__e(shared_type<dest> dest_in);
 
 public:
     bool should_log(const level_type& level_in, const char_type * source_in) noexcept;
-    void deliver(const log_event& event_in) noexcept;
+    void deliver(const event& event_in) noexcept;
     void add_destination(shared_type<dest> dest_in);
 };
 
 engine * get_engine() noexcept;
 
 template<typename... Args>
-void send_vargs_log_event(const char * source_in, const level_type& level_in, const char *function_in, const char *path_in, const int& line_in, Args&&... args_in) noexcept
+void send_vargs_event(const char * source_in, const level_type& level_in, const char *function_in, const char *path_in, const int& line_in, Args&&... args_in) noexcept
 {
     if (get_engine()->should_log(level_in, source_in)) {
         auto when = std::chrono::system_clock::now();
 
         auto tid = std::this_thread::get_id();
         auto message = vaargs_to_string(args_in...);
-        log_event event(source_in, level_in, when, tid, function_in, path_in, line_in, message);
+        event event(source_in, level_in, when, tid, function_in, path_in, line_in, message);
 
         get_engine()->deliver(event);
     }

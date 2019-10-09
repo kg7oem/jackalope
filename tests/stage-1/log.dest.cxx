@@ -28,17 +28,17 @@ using namespace jackalope;
 static const auto test_when = std::chrono::system_clock::now();
 static const auto test_tid = thread_type::id();
 static const string_type test_message("This is a fine test message");
-static const log::log_event test_log_event(TEST_SOURCE, TEST_LEVEL, test_when, test_tid, TEST_FUNCTION, TEST_FILE, TEST_LINE, test_message);
+static const log::event test_event(TEST_SOURCE, TEST_LEVEL, test_when, test_tid, TEST_FUNCTION, TEST_FILE, TEST_LINE, test_message);
 
 struct test_dest : public log::dest {
     test_dest(const log::level_type min_level_in)
     : log::dest(min_level_in)
     { }
 
-    virtual void handle_event__e(const log::log_event& event_in) noexcept
+    virtual void handle_event__e(const log::event& event_in) noexcept
     {
-        const log::log_event& test_log_event_ref = test_log_event;
-        test_case(&test_log_event_ref == &event_in);
+        const log::event& test_event_ref = test_event;
+        test_case(&test_event_ref == &event_in);
         test_case(std::strcmp(event_in.source, TEST_SOURCE) == 0);
         test_case(event_in.level == TEST_LEVEL);
         test_case(event_in.when == test_when);
@@ -54,7 +54,7 @@ static void dest_subclass()
 {
     test_dest test_dest(log::level_type::trace);
 
-    test_dest.handle_deliver(test_log_event);
+    test_dest.handle_deliver(test_event);
 }
 
 int main()

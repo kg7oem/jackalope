@@ -28,13 +28,13 @@ protected:
     level_type min_level = level_type::uninit;
 
     level_type get_min_level__e() noexcept;
-    virtual void handle_event__e(const log_event& event_in) noexcept = 0;
-    virtual void handle_deliver__e(const log_event& event_in) noexcept;
+    virtual void handle_event__e(const event& event_in) noexcept = 0;
+    virtual void handle_deliver__e(const event& event_in) noexcept;
 
 public:
     dest(const level_type min_level_in);
     level_type get_min_level() noexcept;
-    virtual void handle_deliver(const log_event& event_in) noexcept;
+    virtual void handle_deliver(const event& event_in) noexcept;
 };
 
 class log_console : public dest {
@@ -44,7 +44,7 @@ protected:
 
 public:
     log_console(const level_type min_level_in);
-    void handle_event__e(const log_event& event_in) noexcept;
+    void handle_event__e(const event& event_in) noexcept;
 };
 
 } // namespace log
