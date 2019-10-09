@@ -53,11 +53,11 @@ const string_t component_t::extract_component_extra(const string_t& type_in) noe
     return type_in.substr(extra_start_char_at + 1, extra_end_char_at - extra_start_char_at - 1);
 }
 
-component_t::input::input(const string_t& name_in, component_t& parent_in)
+component_t::input_t::input_t(const string_t& name_in, component_t& parent_in)
 : parent(parent_in), name(name_in)
 { }
 
-component_t::output::output(const string_t& name_in, component_t& parent_in)
+component_t::output_t::output_t(const string_t& name_in, component_t& parent_in)
 : parent(parent_in), name(name_in)
 { }
 

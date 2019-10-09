@@ -43,7 +43,7 @@ public:
     }
 
     component_t& get_component(const string_t& type_in);
-    component_t::input& add_input(const string_t& type_in, const string_t& name_in);
+    component_t::input_t& add_input(const string_t& type_in, const string_t& name_in);
 };
 
 } // namespace jackalope
