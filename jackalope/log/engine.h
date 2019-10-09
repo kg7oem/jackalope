@@ -45,7 +45,7 @@ struct event : public baseobj {
     const thread_type::id tid;
     const char *function = nullptr;
     const char *file = nullptr;
-    const size_type line = 0;
+    const size_t line = 0;
     const string_type message;
 
     event(const char * source_in, const level_type& level_in, const timestamp& when_in, const thread_type::id& tid_in, const char* function_in, const char *file_in, const int& line_in, const string_type& message_in);

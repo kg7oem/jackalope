@@ -24,7 +24,7 @@
 namespace jackalope {
 
 using char_t = char;
-using size_type = unsigned long;
+using size_t = unsigned long;
 using real_type = float;
 using complex_type = std::complex<real_type>;
 
