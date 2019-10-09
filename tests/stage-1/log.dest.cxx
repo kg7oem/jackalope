@@ -20,7 +20,7 @@
 using namespace jackalope;
 
 #define TEST_SOURCE "test source"
-#define TEST_LEVEL log::level_type::info
+#define TEST_LEVEL log::level_t::info
 #define TEST_FUNCTION "foo::bar()"
 #define TEST_FILE "fakefile.cxx"
 #define TEST_LINE 8675309
@@ -31,7 +31,7 @@ static const string_t test_message("This is a fine test message");
 static const log::event test_event(TEST_SOURCE, TEST_LEVEL, test_when, test_tid, TEST_FUNCTION, TEST_FILE, TEST_LINE, test_message);
 
 struct test_dest : public log::dest {
-    test_dest(const log::level_type min_level_in)
+    test_dest(const log::level_t min_level_in)
     : log::dest(min_level_in)
     { }
 
@@ -52,7 +52,7 @@ struct test_dest : public log::dest {
 
 static void dest_subclass()
 {
-    test_dest test_dest(log::level_type::trace);
+    test_dest test_dest(log::level_t::trace);
 
     test_dest.handle_deliver(test_event);
 }

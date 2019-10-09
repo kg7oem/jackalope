@@ -25,15 +25,15 @@ namespace log {
 class dest : public baseobj_t, public lockable_t {
 
 protected:
-    level_type min_level = level_type::uninit;
+    level_t min_level = level_t::uninit;
 
-    level_type get_min_level__e() noexcept;
+    level_t get_min_level__e() noexcept;
     virtual void handle_event__e(const event& event_in) noexcept = 0;
     virtual void handle_deliver__e(const event& event_in) noexcept;
 
 public:
-    dest(const level_type min_level_in);
-    level_type get_min_level() noexcept;
+    dest(const level_t min_level_in);
+    level_t get_min_level() noexcept;
     virtual void handle_deliver(const event& event_in) noexcept;
 };
 
@@ -43,7 +43,7 @@ protected:
     mutex_t console_mutex;
 
 public:
-    console_dest(const level_type min_level_in);
+    console_dest(const level_t min_level_in);
     void handle_event__e(const event& event_in) noexcept;
 };
 

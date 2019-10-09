@@ -17,7 +17,7 @@
 
 #define JACKALOPE_LOG_NAME "jackalope"
 
-#define JACKALOPE_LOG_VARGS(logname, level_type, ...) jackalope::log::send_vargs_event(logname, level_type, __PRETTY_FUNCTION__, __FILE__, __LINE__, __VA_ARGS__)
-// #define JACKALOPE_LOG_LAMBDA(logname, level_type, block) jackalope::send_lambda_event(logname, level_type, __PRETTY_FUNCTION__, __FILE__, __LINE__, [&]() -> jackalope::string_t block)
+#define JACKALOPE_LOG_VARGS(logname, level_t, ...) jackalope::log::send_vargs_event(logname, level_t, __PRETTY_FUNCTION__, __FILE__, __LINE__, __VA_ARGS__)
+// #define JACKALOPE_LOG_LAMBDA(logname, level_t, block) jackalope::send_lambda_event(logname, level_t, __PRETTY_FUNCTION__, __FILE__, __LINE__, [&]() -> jackalope::string_t block)
 
-#define log_info(...)     JACKALOPE_LOG_VARGS(JACKALOPE_LOG_NAME, jackalope::log::level_type::info, __VA_ARGS__)
+#define log_info(...)     JACKALOPE_LOG_VARGS(JACKALOPE_LOG_NAME, jackalope::log::level_t::info, __VA_ARGS__)

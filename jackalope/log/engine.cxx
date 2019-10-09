@@ -26,17 +26,17 @@ engine * get_engine() noexcept
     return &global_engine;
 }
 
-event::event(const char * source_in, const level_type& level_in, const timestamp& when_in, const thread_t::id& tid_in, const char* function_in, const char *file_in, const int& line_in, const string_t& message_in)
+event::event(const char * source_in, const level_t& level_in, const timestamp& when_in, const thread_t::id& tid_in, const char* function_in, const char *file_in, const int& line_in, const string_t& message_in)
 : source(source_in), level(level_in), when(when_in), tid(tid_in), function(function_in), file(file_in), line(line_in), message(message_in)
 { }
 
-bool engine::should_log(const level_type& level_in, const char_t * source_in) noexcept
+bool engine::should_log(const level_t& level_in, const char_t * source_in) noexcept
 {
     auto lock = get_object_lock();
     return should_log__e(level_in, source_in);
 }
 
-bool engine::should_log__e(const level_type& level_in, const char_t *) noexcept
+bool engine::should_log__e(const level_t& level_in, const char_t *) noexcept
 {
     assert_lockable_t_owner();
 
@@ -72,21 +72,21 @@ void engine::add_destination__e(shared_t<dest> dest_in)
 {
     assert_lockable_t_owner();
 
-    if (dest_in->get_min_level() == level_type::uninit) {
-        throw runtime_error_t("dest min_level_type was not initialized");
+    if (dest_in->get_min_level() == level_t::uninit) {
+        throw runtime_error_t("dest min_level_t was not initialized");
     }
 
     destinations.push_back(dest_in);
     update_min_level__e();
 }
 
-static level_type find_min_level(const pool_vector_t<shared_t<dest>>& destinations_in) noexcept
+static level_t find_min_level(const pool_vector_t<shared_t<dest>>& destinations_in) noexcept
 {
     if (destinations_in.size() == 0) {
-        return level_type::uninit;
+        return level_t::uninit;
     }
 
-    auto min_level = level_type::fatal;
+    auto min_level = level_t::fatal;
 
     for(auto&& i : destinations_in) {
         auto&& dest_min_level = i->get_min_level();
