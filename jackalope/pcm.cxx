@@ -19,13 +19,13 @@ namespace jackalope {
 
 namespace pcm {
 
-const string_type& component::get_type()
+const string_t& component::get_type()
 {
-    static const string_type type(JACKALOPE_PCM_COMPONENT_TYPE);
+    static const string_t type(JACKALOPE_PCM_COMPONENT_TYPE);
     return type;
 }
 
-jackalope::component::input& component::add_input(const string_type& type_in, const string_type& name_in)
+jackalope::component::input& component::add_input(const string_t& type_in, const string_t& name_in)
 {
     auto found = inputs.find(name_in);
     auto subtype_name = jackalope::component::extract_component_extra(type_in);
@@ -45,7 +45,7 @@ jackalope::component::input& component::add_input(const string_type& type_in, co
     throw_runtime_error("unknown pcm subtype: ", subtype_name);
 }
 
-jackalope::component::input& component::add_real_input(const string_type& name_in)
+jackalope::component::input& component::add_real_input(const string_t& name_in)
 {
     auto new_input = new component::real_input(name_in, *this);
 
@@ -53,7 +53,7 @@ jackalope::component::input& component::add_real_input(const string_type& name_i
     return *new_input;
 }
 
-jackalope::component::input& component::add_complex_input(const string_type& name_in)
+jackalope::component::input& component::add_complex_input(const string_t& name_in)
 {
     auto new_input = new component::complex_input(name_in, *this);
 
@@ -61,35 +61,35 @@ jackalope::component::input& component::add_complex_input(const string_type& nam
     return *new_input;
 }
 
-const string_type& component::real_input::get_type()
+const string_t& component::real_input::get_type()
 {
-    static const string_type type(JACKALOPE_PCM_REAL_TYPE);
+    static const string_t type(JACKALOPE_PCM_REAL_TYPE);
     return type;
 }
 
-component::real_input::real_input(const string_type& name_in, component& parent_in)
+component::real_input::real_input(const string_t& name_in, component& parent_in)
 : input<sample_type>(name_in, parent_in)
 { }
 
-const string_type& component::real_output::get_type()
+const string_t& component::real_output::get_type()
 {
-    static const string_type type(JACKALOPE_PCM_REAL_TYPE);
+    static const string_t type(JACKALOPE_PCM_REAL_TYPE);
     return type;
 }
 
-const string_type& component::complex_input::get_type()
+const string_t& component::complex_input::get_type()
 {
-    static const string_type type(JACKALOPE_PCM_COMPLEX_TYPE);
+    static const string_t type(JACKALOPE_PCM_COMPLEX_TYPE);
     return type;
 }
 
-component::complex_input::complex_input(const string_type& name_in, component& parent_in)
+component::complex_input::complex_input(const string_t& name_in, component& parent_in)
 : input<sample_type>(name_in, parent_in)
 { }
 
-const string_type& component::complex_output::get_type()
+const string_t& component::complex_output::get_type()
 {
-    static const string_type type(JACKALOPE_PCM_COMPLEX_TYPE);
+    static const string_t type(JACKALOPE_PCM_COMPLEX_TYPE);
     return type;
 }
 

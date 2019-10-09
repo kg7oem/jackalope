@@ -26,10 +26,10 @@ struct component : public baseobj_t, public lockable_t {
         component& parent;
 
     public:
-        const string_type name;
+        const string_t name;
 
-        input(const string_type& name_in, component& parent_in);
-        virtual const string_type& get_type() = 0;
+        input(const string_t& name_in, component& parent_in);
+        virtual const string_t& get_type() = 0;
     };
 
     class output : public baseobj_t, public lockable_t {
@@ -37,20 +37,20 @@ struct component : public baseobj_t, public lockable_t {
         component& parent;
 
     public:
-        const string_type name;
+        const string_t name;
 
-        output(const string_type& name_in, component& parent_in);
-        virtual const string_type& get_type() = 0;
+        output(const string_t& name_in, component& parent_in);
+        virtual const string_t& get_type() = 0;
     };
 
-    pool_map_t<string_type, input *> inputs;
-    pool_map_t<string_type, output *> outputs;
+    pool_map_t<string_t, input *> inputs;
+    pool_map_t<string_t, output *> outputs;
 
     virtual ~component();
-    static const string_type extract_component_name(const string_type& type_in) noexcept;
-    static const string_type extract_component_extra(const string_type& type_in) noexcept;
-    virtual const string_type& get_type() = 0;
-    virtual input& add_input(const string_type& type_in, const string_type& name_in) = 0;
+    static const string_t extract_component_name(const string_t& type_in) noexcept;
+    static const string_t extract_component_extra(const string_t& type_in) noexcept;
+    virtual const string_t& get_type() = 0;
+    virtual input& add_input(const string_t& type_in, const string_t& name_in) = 0;
 };
 
 } // namespace jackalope

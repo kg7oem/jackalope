@@ -26,38 +26,38 @@ component::~component()
     }
 }
 
-const string_type component::extract_component_name(const string_type& type_in) noexcept
+const string_t component::extract_component_name(const string_t& type_in) noexcept
 {
     auto extra_at = type_in.find('[');
 
-    if (extra_at == string_type::npos) {
+    if (extra_at == string_t::npos) {
         return type_in;
     }
 
     return type_in.substr(0, extra_at);
 }
 
-const string_type component::extract_component_extra(const string_type& type_in) noexcept
+const string_t component::extract_component_extra(const string_t& type_in) noexcept
 {
     auto extra_start_char_at = type_in.find('[');
     auto extra_end_char_at = type_in.find(']');
 
-    if (extra_start_char_at == string_type::npos) {
+    if (extra_start_char_at == string_t::npos) {
         return "";
     }
 
-    if (extra_end_char_at == string_type::npos) {
+    if (extra_end_char_at == string_t::npos) {
         return "";
     }
 
     return type_in.substr(extra_start_char_at + 1, extra_end_char_at - extra_start_char_at - 1);
 }
 
-component::input::input(const string_type& name_in, component& parent_in)
+component::input::input(const string_t& name_in, component& parent_in)
 : parent(parent_in), name(name_in)
 { }
 
-component::output::output(const string_type& name_in, component& parent_in)
+component::output::output(const string_t& name_in, component& parent_in)
 : parent(parent_in), name(name_in)
 { }
 

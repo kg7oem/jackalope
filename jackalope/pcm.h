@@ -30,7 +30,7 @@ public:
     struct input : public jackalope::component::input {
         using sample_type = T;
 
-        input(const string_type& name_in, component& parent_in)
+        input(const string_t& name_in, component& parent_in)
         : jackalope::component::input(name_in, parent_in)
         { }
     };
@@ -38,14 +38,14 @@ public:
     class real_input : public input<real_t> {
 
     public:
-        real_input(const string_type& name_in, component& parent_in);
-        virtual const string_type& get_type();
+        real_input(const string_t& name_in, component& parent_in);
+        virtual const string_t& get_type();
     };
 
     class complex_input : public input<complex_t> {
     public:
-        complex_input(const string_type& name_in, component& parent_in);
-        virtual const string_type& get_type();
+        complex_input(const string_t& name_in, component& parent_in);
+        virtual const string_t& get_type();
     };
 
     template <class T>
@@ -56,19 +56,19 @@ public:
     class real_output : public output<real_t> {
 
     public:
-        virtual const string_type& get_type();
+        virtual const string_t& get_type();
     };
 
     class complex_output : public output<complex_t> {
 
     public:
-        virtual const string_type& get_type();
+        virtual const string_t& get_type();
     };
 
-    virtual jackalope::component::input& add_input(const string_type& type_in, const string_type& name_in);
-    jackalope::component::input& add_real_input(const string_type& name_in);
-    jackalope::component::input& add_complex_input(const string_type& name_in);
-    const string_type& get_type();
+    virtual jackalope::component::input& add_input(const string_t& type_in, const string_t& name_in);
+    jackalope::component::input& add_real_input(const string_t& name_in);
+    jackalope::component::input& add_complex_input(const string_t& name_in);
+    const string_t& get_type();
 };
 
 } // namespace pcm

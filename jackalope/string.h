@@ -19,7 +19,7 @@
 
 namespace jackalope {
 
-using string_type = std::basic_string<char_t, std::char_traits<char_t>, pool_allocator_t<char_t>>;
+using string_t = std::basic_string<char_t, std::char_traits<char_t>, pool_allocator_t<char_t>>;
 using stringstream_type = std::basic_stringstream<char_t, std::char_traits<char_t>, pool_allocator_t<char_t>>;
 
 template <typename T>
@@ -34,7 +34,7 @@ void sstream_accumulate_vaargs(stringstream_type& sstream, T&& t, Args&&... args
 }
 
 template <typename... Args>
-string_type vaargs_to_string(Args&&... args) {
+string_t vaargs_to_string(Args&&... args) {
     stringstream_type buf;
     sstream_accumulate_vaargs(buf, args...);
     return buf.str();

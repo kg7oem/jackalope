@@ -22,7 +22,7 @@ namespace jackalope {
 class node : public baseobj_t, public lockable_t {
 
 public:
-    pool_map_t<string_type, component *> components;
+    pool_map_t<string_t, component *> components;
 
     virtual ~node();
 
@@ -42,8 +42,8 @@ public:
         return *new_component;
     }
 
-    component& get_component(const string_type& type_in);
-    component::input& add_input(const string_type& type_in, const string_type& name_in);
+    component& get_component(const string_t& type_in);
+    component::input& add_input(const string_t& type_in, const string_t& name_in);
 };
 
 } // namespace jackalope
