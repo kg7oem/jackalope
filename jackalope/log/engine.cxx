@@ -80,7 +80,7 @@ void engine::add_destination__e(shared_type<dest> dest_in)
     update_min_level__e();
 }
 
-static level_type find_min_level(const pool_vector_type<shared_type<dest>>& destinations_in) noexcept
+static level_type find_min_level(const pool_vector_t<shared_type<dest>>& destinations_in) noexcept
 {
     if (destinations_in.size() == 0) {
         return level_type::uninit;

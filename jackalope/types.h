@@ -35,7 +35,7 @@ using pool_list_t = std::list<T, pool_allocator_t<T>>;
 template <class Key, class T, class Compare = std::less<Key>>
 using pool_map_t = std::map<Key, T, Compare, pool_allocator_t<std::pair<const Key, T>>>;
 template <typename T>
-using pool_vector_type = std::vector<T, pool_allocator_t<T>>;
+using pool_vector_t = std::vector<T, pool_allocator_t<T>>;
 
 template <typename T>
 using shared_type = std::shared_ptr<T>;
