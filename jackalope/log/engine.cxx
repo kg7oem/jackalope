@@ -20,36 +20,36 @@ namespace jackalope {
 
 namespace log {
 
-engine * get_engine() noexcept
+engine_t * get_engine() noexcept
 {
-    static engine global_engine;
+    static engine_t global_engine;
     return &global_engine;
 }
 
-event::event(const char * source_in, const level_t& level_in, const timestamp& when_in, const thread_t::id& tid_in, const char* function_in, const char *file_in, const int& line_in, const string_t& message_in)
+event_t::event_t(const char * source_in, const level_t& level_in, const timestamp_t& when_in, const thread_t::id& tid_in, const char* function_in, const char *file_in, const int& line_in, const string_t& message_in)
 : source(source_in), level(level_in), when(when_in), tid(tid_in), function(function_in), file(file_in), line(line_in), message(message_in)
 { }
 
-bool engine::should_log(const level_t& level_in, const char_t * source_in) noexcept
+bool engine_t::should_log(const level_t& level_in, const char_t * source_in) noexcept
 {
     auto lock = get_object_lock();
     return should_log__e(level_in, source_in);
 }
 
-bool engine::should_log__e(const level_t& level_in, const char_t *) noexcept
+bool engine_t::should_log__e(const level_t& level_in, const char_t *) noexcept
 {
     assert_lockable_t_owner();
 
     return level_in >= min_level;
 }
 
-void engine::deliver(const event& event_in) noexcept
+void engine_t::deliver(const event_t& event_in) noexcept
 {
     auto lock = get_object_lock();
     deliver__e(event_in);
 }
 
-void engine::deliver__e(const event& event_in) noexcept
+void engine_t::deliver__e(const event_t& event_in) noexcept
 {
     assert_lockable_t_owner();
 
@@ -62,13 +62,13 @@ void engine::deliver__e(const event& event_in) noexcept
     }
 }
 
-void engine::add_destination(shared_t<dest> dest_in)
+void engine_t::add_destination(shared_t<dest> dest_in)
 {
     auto lock = get_object_lock();
     add_destination__e(dest_in);
 }
 
-void engine::add_destination__e(shared_t<dest> dest_in)
+void engine_t::add_destination__e(shared_t<dest> dest_in)
 {
     assert_lockable_t_owner();
 
@@ -98,7 +98,7 @@ static level_t find_min_level(const pool_vector_t<shared_t<dest>>& destinations_
     return min_level;
 }
 
-void engine::update_min_level__e() noexcept
+void engine_t::update_min_level__e() noexcept
 {
     assert_lockable_t_owner();
 

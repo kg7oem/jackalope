@@ -36,23 +36,23 @@ enum class level_t {
     fatal = 100,
 };
 
-struct event : public baseobj_t {
-    using timestamp = std::chrono::time_point<std::chrono::system_clock>;
+struct event_t : public baseobj_t {
+    using timestamp_t = std::chrono::time_point<std::chrono::system_clock>;
 
     const char_t * source = nullptr;
     const level_t level = level_t::uninit;
-    const timestamp when;
+    const timestamp_t when;
     const thread_t::id tid;
     const char *function = nullptr;
     const char *file = nullptr;
     const size_t line = 0;
     const string_t message;
 
-    event(const char * source_in, const level_t& level_in, const timestamp& when_in, const thread_t::id& tid_in, const char* function_in, const char *file_in, const int& line_in, const string_t& message_in);
-    ~event() = default;
+    event_t(const char * source_in, const level_t& level_in, const timestamp_t& when_in, const thread_t::id& tid_in, const char* function_in, const char *file_in, const int& line_in, const string_t& message_in);
+    ~event_t() = default;
 };
 
-class engine : public baseobj_t, public lockable_t {
+class engine_t : public baseobj_t, public lockable_t {
 
 protected:
     level_t min_level = level_t::uninit;
@@ -60,16 +60,16 @@ protected:
 
     void update_min_level__e() noexcept;
     bool should_log__e(const level_t& level_in, const char_t * source_in) noexcept;
-    void deliver__e(const event& event_in) noexcept;
+    void deliver__e(const event_t& event_in) noexcept;
     void add_destination__e(shared_t<dest> dest_in);
 
 public:
     bool should_log(const level_t& level_in, const char_t * source_in) noexcept;
-    void deliver(const event& event_in) noexcept;
+    void deliver(const event_t& event_in) noexcept;
     void add_destination(shared_t<dest> dest_in);
 };
 
-engine * get_engine() noexcept;
+engine_t * get_engine() noexcept;
 
 template<typename... Args>
 void send_vargs_event(const char * source_in, const level_t& level_in, const char *function_in, const char *path_in, const int& line_in, Args&&... args_in) noexcept
@@ -79,7 +79,7 @@ void send_vargs_event(const char * source_in, const level_t& level_in, const cha
 
         auto tid = std::this_thread::get_id();
         auto message = vaargs_to_string(args_in...);
-        event event(source_in, level_in, when, tid, function_in, path_in, line_in, message);
+        event_t event(source_in, level_in, when, tid, function_in, path_in, line_in, message);
 
         get_engine()->deliver(event);
     }

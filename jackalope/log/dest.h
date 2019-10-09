@@ -28,13 +28,13 @@ protected:
     level_t min_level = level_t::uninit;
 
     level_t get_min_level__e() noexcept;
-    virtual void handle_event__e(const event& event_in) noexcept = 0;
-    virtual void handle_deliver__e(const event& event_in) noexcept;
+    virtual void handle_event__e(const event_t& event_in) noexcept = 0;
+    virtual void handle_deliver__e(const event_t& event_in) noexcept;
 
 public:
     dest(const level_t min_level_in);
     level_t get_min_level() noexcept;
-    virtual void handle_deliver(const event& event_in) noexcept;
+    virtual void handle_deliver(const event_t& event_in) noexcept;
 };
 
 class console_dest : public dest {
@@ -44,7 +44,7 @@ protected:
 
 public:
     console_dest(const level_t min_level_in);
-    void handle_event__e(const event& event_in) noexcept;
+    void handle_event__e(const event_t& event_in) noexcept;
 };
 
 } // namespace log
