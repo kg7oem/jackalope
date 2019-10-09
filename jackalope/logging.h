@@ -21,29 +21,3 @@
 // #define JACKALOPE_LOG_LAMBDA(logname, log_level, block) jackalope::send_lambda_log_event(logname, log_level, __PRETTY_FUNCTION__, __FILE__, __LINE__, [&]() -> jackalope::string_type block)
 
 #define log_info(...)     JACKALOPE_LOG_VARGS(JACKALOPE_LOG_NAME, jackalope::log::log_level::info, __VA_ARGS__)
-
-namespace jackalope {
-
-namespace log {
-
-engine * get_engine() noexcept;
-
-template<typename... Args>
-void send_vargs_log_event(const char * source_in, const log_level& level_in, const char *function_in, const char *path_in, const int& line_in, Args&&... args_in) noexcept
-{
-    if (get_engine()->should_log(level_in, source_in)) {
-        auto when = std::chrono::system_clock::now();
-
-        auto tid = std::this_thread::get_id();
-        auto message = vaargs_to_string(args_in...);
-        log_event event(source_in, level_in, when, tid, function_in, path_in, line_in, message);
-
-        get_engine()->deliver(event);
-    }
-
-    return;
-}
-
-} // namespace logging
-
-} // namespace jackalope

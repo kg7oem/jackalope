@@ -31,7 +31,6 @@ add_library(
 
     jackalope/log/dest.cxx
     jackalope/log/engine.cxx
-    jackalope/logging.cxx
     jackalope/thread.cxx
     jackalope/types.cxx
 )

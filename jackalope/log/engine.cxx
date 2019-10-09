@@ -20,6 +20,12 @@ namespace jackalope {
 
 namespace log {
 
+engine * get_engine() noexcept
+{
+    static engine global_engine;
+    return &global_engine;
+}
+
 log_event::log_event(const char * source_in, const log_level& level_in, const timestamp& when_in, const thread_type::id& tid_in, const char* function_in, const char *file_in, const int& line_in, const string_type& message_in)
 : source(source_in), level(level_in), when(when_in), tid(tid_in), function(function_in), file(file_in), line(line_in), message(message_in)
 { }
