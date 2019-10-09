@@ -17,14 +17,14 @@
 
 #define JACKALOPE_LOG_NAME "jackalope"
 
-#define JACKALOPE_LOG_VARGS(logname, log_level, ...) jackalope::logging::send_vargs_log_event(logname, log_level, __PRETTY_FUNCTION__, __FILE__, __LINE__, __VA_ARGS__)
+#define JACKALOPE_LOG_VARGS(logname, log_level, ...) jackalope::log::send_vargs_log_event(logname, log_level, __PRETTY_FUNCTION__, __FILE__, __LINE__, __VA_ARGS__)
 // #define JACKALOPE_LOG_LAMBDA(logname, log_level, block) jackalope::send_lambda_log_event(logname, log_level, __PRETTY_FUNCTION__, __FILE__, __LINE__, [&]() -> jackalope::string_type block)
 
-#define log_info(...)     JACKALOPE_LOG_VARGS(JACKALOPE_LOG_NAME, jackalope::log_level::info, __VA_ARGS__)
+#define log_info(...)     JACKALOPE_LOG_VARGS(JACKALOPE_LOG_NAME, jackalope::log::log_level::info, __VA_ARGS__)
 
 namespace jackalope {
 
-namespace logging {
+namespace log {
 
 log_engine * get_engine() noexcept;
 

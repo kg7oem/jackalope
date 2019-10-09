@@ -21,8 +21,8 @@ using namespace jackalope;
 
 int main(void)
 {
-    auto dest = make_shared<log_console>(log_level::info);
-    logging::get_engine()->add_destination(dest);
+    auto dest = make_shared<log::log_console>(log::log_level::info);
+    log::get_engine()->add_destination(dest);
 
     log_info("Hello ", 123);
 

@@ -20,7 +20,7 @@
 using namespace jackalope;
 
 #define TEST_SOURCE "test source"
-#define TEST_LEVEL log_level::info
+#define TEST_LEVEL log::log_level::info
 #define TEST_FUNCTION "foo::bar()"
 #define TEST_FILE "fakefile.cxx"
 #define TEST_LINE 8675309
@@ -28,16 +28,16 @@ using namespace jackalope;
 static const auto test_when = std::chrono::system_clock::now();
 static const auto test_tid = thread_type::id();
 static const string_type test_message("This is a fine test message");
-static const log_event test_log_event(TEST_SOURCE, TEST_LEVEL, test_when, test_tid, TEST_FUNCTION, TEST_FILE, TEST_LINE, test_message);
+static const log::log_event test_log_event(TEST_SOURCE, TEST_LEVEL, test_when, test_tid, TEST_FUNCTION, TEST_FILE, TEST_LINE, test_message);
 
-struct test_log_dest : public log_dest {
-    test_log_dest(const log_level min_level_in)
-    : log_dest(min_level_in)
+struct test_log_dest : public log::log_dest {
+    test_log_dest(const log::log_level min_level_in)
+    : log::log_dest(min_level_in)
     { }
 
-    virtual void handle_event__e(const log_event& event_in) noexcept
+    virtual void handle_event__e(const log::log_event& event_in) noexcept
     {
-        const log_event& test_log_event_ref = test_log_event;
+        const log::log_event& test_log_event_ref = test_log_event;
         test_case(&test_log_event_ref == &event_in);
         test_case(std::strcmp(event_in.source, TEST_SOURCE) == 0);
         test_case(event_in.level == TEST_LEVEL);
@@ -52,7 +52,7 @@ struct test_log_dest : public log_dest {
 
 static void log_dest_subclass()
 {
-    test_log_dest test_dest(log_level::trace);
+    test_log_dest test_dest(log::log_level::trace);
 
     test_dest.handle_deliver(test_log_event);
 }

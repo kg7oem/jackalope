@@ -18,6 +18,8 @@
 
 namespace jackalope {
 
+namespace log {
+
 log_event::log_event(const char * source_in, const log_level& level_in, const timestamp& when_in, const thread_type::id& tid_in, const char* function_in, const char *file_in, const int& line_in, const string_type& message_in)
 : source(source_in), level(level_in), when(when_in), tid(tid_in), function(function_in), file(file_in), line(line_in), message(message_in)
 { }
@@ -97,5 +99,7 @@ void log_engine::update_min_level__e() noexcept
     auto new_min_level = find_min_level(destinations);
     min_level = new_min_level;
 }
+
+} // namespace log
 
 } // namespace jackalope

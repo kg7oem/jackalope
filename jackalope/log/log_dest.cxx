@@ -17,6 +17,8 @@
 
 namespace jackalope {
 
+namespace log {
+
 log_dest::log_dest(const log_level min_level_in)
 : min_level(min_level_in)
 { }
@@ -62,5 +64,7 @@ void log_console::handle_event__e(const log_event& event_in) noexcept
     lock_type console_lock(console_mutex);
     std::cout << event_in.message << std::endl;
 }
+
+} // namespace log
 
 } // namespace jackalope

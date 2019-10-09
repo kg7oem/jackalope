@@ -15,6 +15,10 @@
 
 namespace jackalope {
 
+namespace log {
+
 class log_dest;
+
+} // namespace log
 
 } // namespace jackalope

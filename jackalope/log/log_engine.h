@@ -23,6 +23,8 @@
 
 namespace jackalope {
 
+namespace log {
+
 enum class log_level {
     uninit = -1,
     unknown = 0,
@@ -66,5 +68,7 @@ public:
     void deliver(const log_event& event_in) noexcept;
     void add_destination(shared_type<log_dest> dest_in);
 };
+
+} // namespace log
 
 } // namespace jackalope

@@ -15,7 +15,7 @@
 
 namespace jackalope {
 
-namespace logging {
+namespace log {
 
 log_engine * get_engine() noexcept
 {

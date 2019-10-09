@@ -20,6 +20,8 @@
 
 namespace jackalope {
 
+namespace log {
+
 class log_dest : public baseobj, public lockable {
 
 protected:
@@ -44,5 +46,7 @@ public:
     log_console(const log_level min_level_in);
     void handle_event__e(const log_event& event_in) noexcept;
 };
+
+} // namespace log
 
 } // namespace jackalope
