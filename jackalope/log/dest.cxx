@@ -53,11 +53,11 @@ void dest::handle_deliver__e(const event& event_in) noexcept
     handle_event__e(event_in);
 }
 
-log_console::log_console(const level_type min_level_in)
+console_dest::console_dest(const level_type min_level_in)
 : dest(min_level_in)
 { }
 
-void log_console::handle_event__e(const event& event_in) noexcept
+void console_dest::handle_event__e(const event& event_in) noexcept
 {
     assert_lockable_owner();
 

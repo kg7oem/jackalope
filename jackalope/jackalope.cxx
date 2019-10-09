@@ -23,7 +23,7 @@ using namespace jackalope;
 
 int main(void)
 {
-    auto dest = make_shared<log::log_console>(log::level_type::info);
+    auto dest = make_shared<log::console_dest>(log::level_type::info);
     log::get_engine()->add_destination(dest);
 
     node foo;

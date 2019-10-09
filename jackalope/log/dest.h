@@ -37,13 +37,13 @@ public:
     virtual void handle_deliver(const event& event_in) noexcept;
 };
 
-class log_console : public dest {
+class console_dest : public dest {
 
 protected:
     mutex_type console_mutex;
 
 public:
-    log_console(const level_type min_level_in);
+    console_dest(const level_type min_level_in);
     void handle_event__e(const event& event_in) noexcept;
 };
 
