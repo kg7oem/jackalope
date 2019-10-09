@@ -13,44 +13,49 @@
 
 #pragma once
 
+#include <jackalope/component.forward.h>
 #include <jackalope/string.h>
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
 
 namespace jackalope {
 
-struct component_t : public baseobj_t, public lockable_t {
-    class input_t : public baseobj_t, public lockable_t {
+namespace component {
 
-    protected:
-        component_t& parent;
+class input_t : public baseobj_t, public lockable_t {
 
-    public:
-        const string_t name;
+protected:
+    base_t& parent;
 
-        input_t(const string_t& name_in, component_t& parent_in);
-        virtual const string_t& get_type() = 0;
-    };
+public:
+    const string_t name;
 
-    class output_t : public baseobj_t, public lockable_t {
-    protected:
-        component_t& parent;
+    input_t(const string_t& name_in, base_t& parent_in);
+    virtual const string_t& get_type() = 0;
+};
 
-    public:
-        const string_t name;
+class output_t : public baseobj_t, public lockable_t {
+protected:
+    base_t& parent;
 
-        output_t(const string_t& name_in, component_t& parent_in);
-        virtual const string_t& get_type() = 0;
-    };
+public:
+    const string_t name;
 
+    output_t(const string_t& name_in, base_t& parent_in);
+    virtual const string_t& get_type() = 0;
+};
+
+struct base_t : public baseobj_t, public lockable_t {
     pool_map_t<string_t, input_t *> inputs;
     pool_map_t<string_t, output_t *> outputs;
 
-    virtual ~component_t();
+    virtual ~base_t();
     static const string_t extract_component_name(const string_t& type_in) noexcept;
     static const string_t extract_component_extra(const string_t& type_in) noexcept;
     virtual const string_t& get_type() = 0;
     virtual input_t& add_input(const string_t& type_in, const string_t& name_in) = 0;
 };
+
+} // namespace component
 
 } // namespace jackalope

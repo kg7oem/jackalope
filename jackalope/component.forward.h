@@ -11,21 +11,20 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
-#include <jackalope/component.h>
+#pragma once
 
-#include "tests.h"
+#include <jackalope/string.h>
+#include <jackalope/thread.h>
+#include <jackalope/types.h>
 
-using namespace jackalope;
+namespace jackalope {
 
-static void type_parsing()
-{
-    test_case(component::base_t::extract_component_name("foo[bar]") == "foo");
-    test_case(component::base_t::extract_component_extra("blah[baz]") == "baz");
-}
+namespace component {
 
-int main(void)
-{
-    start_testing(0);
+struct base_t;
+struct input_t;
+struct output_t;
 
-    run_test(type_parsing);
-}
+} // namespace component
+
+} // namespace jackalope

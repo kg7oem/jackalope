@@ -23,15 +23,15 @@ namespace jackalope {
 
 namespace pcm {
 
-struct component_t : public jackalope::component_t {
+struct component_t : public component::base_t {
 
 public:
     template <class T>
-    struct input_t : public jackalope::component_t::input_t {
+    struct input_t : public component::input_t {
         using sample_t = T;
 
         input_t(const string_t& name_in, component_t& parent_in)
-        : jackalope::component_t::input_t(name_in, parent_in)
+        : component::input_t(name_in, parent_in)
         { }
     };
 
@@ -49,7 +49,7 @@ public:
     };
 
     template <class T>
-    class output_t : public jackalope::component_t::output_t {
+    class output_t : public component::output_t {
         using sample_t = T;
     };
 
@@ -65,9 +65,9 @@ public:
         virtual const string_t& get_type();
     };
 
-    virtual jackalope::component_t::input_t& add_input(const string_t& type_in, const string_t& name_in);
-    jackalope::component_t::input_t& add_real_input(const string_t& name_in);
-    jackalope::component_t::input_t& add_complex_input(const string_t& name_in);
+    virtual component::input_t& add_input(const string_t& type_in, const string_t& name_in);
+    component::input_t& add_real_input(const string_t& name_in);
+    component::input_t& add_complex_input(const string_t& name_in);
     const string_t& get_type();
 };
 
