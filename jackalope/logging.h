@@ -13,7 +13,7 @@
 
 #pragma once
 
-#include <jackalope/log_engine.h>
+#include <jackalope/log/log_engine.h>
 
 #define JACKALOPE_LOG_NAME "jackalope"
 

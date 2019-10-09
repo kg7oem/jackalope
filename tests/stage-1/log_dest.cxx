@@ -13,7 +13,7 @@
 
 #include <cstring>
 
-#include <jackalope/log_dest.h>
+#include <jackalope/log/log_dest.h>
 
 #include "tests.h"
 

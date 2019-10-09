@@ -14,7 +14,7 @@
 #include <iostream>
 #include <string>
 
-#include <jackalope/log_dest.h>
+#include <jackalope/log/log_dest.h>
 #include <jackalope/logging.h>
 
 using namespace jackalope;

@@ -13,7 +13,7 @@
 
 #include <iostream>
 
-#include <jackalope/log_dest.h>
+#include <jackalope/log/log_dest.h>
 
 namespace jackalope {
 

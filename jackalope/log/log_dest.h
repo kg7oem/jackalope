@@ -13,8 +13,8 @@
 
 #pragma once
 
-#include <jackalope/log_dest.forward.h>
-#include <jackalope/log_engine.h>
+#include <jackalope/log/log_dest.forward.h>
+#include <jackalope/log/log_engine.h>
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
 

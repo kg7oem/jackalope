@@ -13,8 +13,8 @@
 
 #include <iostream>
 
-#include <jackalope/log_dest.h>
-#include <jackalope/log_engine.h>
+#include <jackalope/log/log_dest.h>
+#include <jackalope/log/log_engine.h>
 
 namespace jackalope {
 
