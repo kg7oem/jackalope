@@ -14,6 +14,7 @@
 #pragma once
 
 #include <boost/pool/pool_alloc.hpp>
+#include <complex>
 #include <exception>
 #include <list>
 #include <map>
@@ -24,6 +25,8 @@ namespace jackalope {
 
 using char_type = char;
 using size_type = unsigned long;
+using real_type = float;
+using complex_type = std::complex<real_type>;
 
 template <typename T>
 using allocator_type = boost::pool_allocator<T>;
@@ -54,7 +57,7 @@ struct baseobj {
     baseobj& operator=(const baseobj&);
 
     baseobj() = default;
-    ~baseobj() = default;
+    virtual ~baseobj() = default;
 };
 
 }
