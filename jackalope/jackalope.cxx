@@ -26,7 +26,7 @@ int main(void)
     auto dest = make_shared<log::console_dest>(log::level_type::info);
     log::get_engine()->add_destination(dest);
 
-    node foo;
+    node_t foo;
     foo.add_component<pcm::component_t>();
     foo.add_input("pcm[real]", "test");
     foo.add_input("pcm[complex]", "blaz");

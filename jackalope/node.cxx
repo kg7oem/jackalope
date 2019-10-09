@@ -17,14 +17,14 @@
 
 namespace jackalope {
 
-node::~node()
+node_t::~node_t()
 {
     for(auto&& i : components) {
         delete i.second;
     }
 }
 
-component_t& node::get_component(const string_t& type_in)
+component_t& node_t::get_component(const string_t& type_in)
 {
     auto found = components.find(type_in);
 
@@ -35,7 +35,7 @@ component_t& node::get_component(const string_t& type_in)
     return *found->second;
 }
 
-component_t::input_t& node::add_input(const string_t& type_in, const string_t& name_in)
+component_t::input_t& node_t::add_input(const string_t& type_in, const string_t& name_in)
 {
     auto component_name = component_t::extract_component_name(type_in);
     auto& component = get_component(component_name);

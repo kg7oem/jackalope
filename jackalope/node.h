@@ -19,12 +19,12 @@
 
 namespace jackalope {
 
-class node : public baseobj_t, public lockable_t {
+class node_t : public baseobj_t, public lockable_t {
 
 public:
     pool_map_t<string_t, component_t *> components;
 
-    virtual ~node();
+    virtual ~node_t();
 
     template <class T, typename... Args>
     component_t& add_component(Args... args)
