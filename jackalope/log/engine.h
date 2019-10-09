@@ -52,7 +52,7 @@ struct event : public baseobj_t {
     ~event() = default;
 };
 
-class engine : public baseobj_t, public lockable {
+class engine : public baseobj_t, public lockable_t {
 
 protected:
     level_type min_level = level_type::uninit;

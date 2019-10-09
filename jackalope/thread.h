@@ -21,7 +21,7 @@
 
 #define assert_mutex_owner(mutex) assert(mutex.get_owner_id() == std::this_thread::get_id())
 #define assert_lock_owner(lock) assert_mutex_owner(*lock.mutex())
-#define assert_lockable_owner() assert_mutex_owner(this->object_mutex)
+#define assert_lockable_t_owner() assert_mutex_owner(this->object_mutex)
 
 namespace jackalope {
 
@@ -54,7 +54,7 @@ public:
 using mutex_t = debug_mutex_t;
 using lock_t = std::unique_lock<mutex_t>;
 
-class lockable {
+class lockable_t {
 
 protected:
     mutex_t object_mutex;
