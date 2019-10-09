@@ -29,7 +29,7 @@ static void debug_mutex_lock()
 {
     test_debug_mutex test_mutex;
 
-    test_case(test_mutex.get_owner_id() == thread_type::id());
+    test_case(test_mutex.get_owner_id() == thread_t::id());
     test_case(test_mutex.get_waiters().size() == 0);
     test_case(test_mutex.is_available());
 
@@ -39,7 +39,7 @@ static void debug_mutex_lock()
     test_case(! test_mutex.is_available());
 
     test_mutex.unlock();
-    test_case(test_mutex.get_owner_id() == thread_type::id());
+    test_case(test_mutex.get_owner_id() == thread_t::id());
     test_case(test_mutex.get_waiters().size() == 0);
     test_case(test_mutex.is_available());
 }
@@ -74,7 +74,7 @@ static void debug_mutex_waiting()
     test_case(test_mutex.get_waiters().size() == 0);
     test_case(! test_mutex.is_available());
 
-    thread_type waiting_thread([&]{
+    thread_t waiting_thread([&]{
         test_mutex.lock();
 
         continue_mutex.lock();

@@ -26,17 +26,17 @@
 namespace jackalope {
 
 using condition_t = std::condition_variable;
-using thread_type = std::thread;
+using thread_t = std::thread;
 
 class debug_mutex : public baseobj_t {
 public:
     using lock_type = std::unique_lock<std::mutex>;
-    using waiters_type = pool_map_t<thread_type::id, bool>;
+    using waiters_type = pool_map_t<thread_t::id, bool>;
 
 protected:
     std::mutex mutex;
     condition_t available_cond;
-    thread_type::id owner = std::thread::id();
+    thread_t::id owner = std::thread::id();
     waiters_type waiters;
     bool is_available__e() noexcept;
     void take__e() noexcept;
@@ -48,7 +48,7 @@ public:
     bool try_lock() noexcept;
     void unlock() noexcept;
     bool is_available() noexcept;
-    thread_type::id get_owner_id() noexcept;
+    thread_t::id get_owner_id() noexcept;
 };
 
 using mutex_type = debug_mutex;

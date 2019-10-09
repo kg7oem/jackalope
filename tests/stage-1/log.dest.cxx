@@ -26,7 +26,7 @@ using namespace jackalope;
 #define TEST_LINE 8675309
 
 static const auto test_when = std::chrono::system_clock::now();
-static const auto test_tid = thread_type::id();
+static const auto test_tid = thread_t::id();
 static const string_type test_message("This is a fine test message");
 static const log::event test_event(TEST_SOURCE, TEST_LEVEL, test_when, test_tid, TEST_FUNCTION, TEST_FILE, TEST_LINE, test_message);
 

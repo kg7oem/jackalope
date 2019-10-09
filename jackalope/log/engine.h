@@ -42,13 +42,13 @@ struct event : public baseobj_t {
     const char_t * source = nullptr;
     const level_type level = level_type::uninit;
     const timestamp when;
-    const thread_type::id tid;
+    const thread_t::id tid;
     const char *function = nullptr;
     const char *file = nullptr;
     const size_t line = 0;
     const string_type message;
 
-    event(const char * source_in, const level_type& level_in, const timestamp& when_in, const thread_type::id& tid_in, const char* function_in, const char *file_in, const int& line_in, const string_type& message_in);
+    event(const char * source_in, const level_type& level_in, const timestamp& when_in, const thread_t::id& tid_in, const char* function_in, const char *file_in, const int& line_in, const string_type& message_in);
     ~event() = default;
 };
 

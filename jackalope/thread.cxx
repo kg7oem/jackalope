@@ -49,7 +49,7 @@ void debug_mutex::unlock() noexcept
     release__e();
 }
 
-thread_type::id debug_mutex::get_owner_id() noexcept
+thread_t::id debug_mutex::get_owner_id() noexcept
 {
     debug_mutex::lock_type lock(mutex);
 
@@ -64,12 +64,12 @@ bool debug_mutex::is_available() noexcept
 
 bool debug_mutex::is_available__e() noexcept
 {
-    return owner == thread_type::id();
+    return owner == thread_t::id();
 }
 
 void debug_mutex::take__e() noexcept
 {
-    assert(owner == thread_type::id());
+    assert(owner == thread_t::id());
     owner = std::this_thread::get_id();
 }
 
@@ -77,7 +77,7 @@ void debug_mutex::release__e() noexcept
 {
     assert(owner == std::this_thread::get_id());
 
-    owner = thread_type::id();
+    owner = thread_t::id();
     available_cond.notify_one();
 }
 
