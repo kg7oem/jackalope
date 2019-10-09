@@ -26,17 +26,17 @@ engine * get_engine() noexcept
     return &global_engine;
 }
 
-log_event::log_event(const char * source_in, const log_level& level_in, const timestamp& when_in, const thread_type::id& tid_in, const char* function_in, const char *file_in, const int& line_in, const string_type& message_in)
+log_event::log_event(const char * source_in, const level_type& level_in, const timestamp& when_in, const thread_type::id& tid_in, const char* function_in, const char *file_in, const int& line_in, const string_type& message_in)
 : source(source_in), level(level_in), when(when_in), tid(tid_in), function(function_in), file(file_in), line(line_in), message(message_in)
 { }
 
-bool engine::should_log(const log_level& level_in, const char_type * source_in) noexcept
+bool engine::should_log(const level_type& level_in, const char_type * source_in) noexcept
 {
     auto lock = get_object_lock();
     return should_log__e(level_in, source_in);
 }
 
-bool engine::should_log__e(const log_level& level_in, const char_type *) noexcept
+bool engine::should_log__e(const level_type& level_in, const char_type *) noexcept
 {
     assert_lockable_owner();
 
@@ -72,21 +72,21 @@ void engine::add_destination__e(shared_type<dest> dest_in)
 {
     assert_lockable_owner();
 
-    if (dest_in->get_min_level() == log_level::uninit) {
-        throw runtime_error("dest min_log_level was not initialized");
+    if (dest_in->get_min_level() == level_type::uninit) {
+        throw runtime_error("dest min_level_type was not initialized");
     }
 
     destinations.push_back(dest_in);
     update_min_level__e();
 }
 
-static log_level find_min_level(const pool_vector_type<shared_type<dest>>& destinations_in) noexcept
+static level_type find_min_level(const pool_vector_type<shared_type<dest>>& destinations_in) noexcept
 {
     if (destinations_in.size() == 0) {
-        return log_level::uninit;
+        return level_type::uninit;
     }
 
-    auto min_level = log_level::fatal;
+    auto min_level = level_type::fatal;
 
     for(auto&& i : destinations_in) {
         auto&& dest_min_level = i->get_min_level();

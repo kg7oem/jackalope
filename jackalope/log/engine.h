@@ -25,7 +25,7 @@ namespace jackalope {
 
 namespace log {
 
-enum class log_level {
+enum class level_type {
     uninit = -1,
     unknown = 0,
     trace = 10,
@@ -40,7 +40,7 @@ struct log_event : public baseobj {
     using timestamp = std::chrono::time_point<std::chrono::system_clock>;
 
     const char_type * source = nullptr;
-    const log_level level = log_level::uninit;
+    const level_type level = level_type::uninit;
     const timestamp when;
     const thread_type::id tid;
     const char *function = nullptr;
@@ -48,23 +48,23 @@ struct log_event : public baseobj {
     const size_type line = 0;
     const string_type message;
 
-    log_event(const char * source_in, const log_level& level_in, const timestamp& when_in, const thread_type::id& tid_in, const char* function_in, const char *file_in, const int& line_in, const string_type& message_in);
+    log_event(const char * source_in, const level_type& level_in, const timestamp& when_in, const thread_type::id& tid_in, const char* function_in, const char *file_in, const int& line_in, const string_type& message_in);
     ~log_event() = default;
 };
 
 class engine : public baseobj, public lockable {
 
 protected:
-    log_level min_level = log_level::uninit;
+    level_type min_level = level_type::uninit;
     pool_vector_type<shared_type<dest>> destinations;
 
     void update_min_level__e() noexcept;
-    bool should_log__e(const log_level& level_in, const char_type * source_in) noexcept;
+    bool should_log__e(const level_type& level_in, const char_type * source_in) noexcept;
     void deliver__e(const log_event& event_in) noexcept;
     void add_destination__e(shared_type<dest> dest_in);
 
 public:
-    bool should_log(const log_level& level_in, const char_type * source_in) noexcept;
+    bool should_log(const level_type& level_in, const char_type * source_in) noexcept;
     void deliver(const log_event& event_in) noexcept;
     void add_destination(shared_type<dest> dest_in);
 };
@@ -72,7 +72,7 @@ public:
 engine * get_engine() noexcept;
 
 template<typename... Args>
-void send_vargs_log_event(const char * source_in, const log_level& level_in, const char *function_in, const char *path_in, const int& line_in, Args&&... args_in) noexcept
+void send_vargs_log_event(const char * source_in, const level_type& level_in, const char *function_in, const char *path_in, const int& line_in, Args&&... args_in) noexcept
 {
     if (get_engine()->should_log(level_in, source_in)) {
         auto when = std::chrono::system_clock::now();

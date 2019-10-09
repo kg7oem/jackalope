@@ -19,17 +19,17 @@ namespace jackalope {
 
 namespace log {
 
-dest::dest(const log_level min_level_in)
+dest::dest(const level_type min_level_in)
 : min_level(min_level_in)
 { }
 
-log_level dest::get_min_level() noexcept
+level_type dest::get_min_level() noexcept
 {
     auto lock = get_object_lock();
     return get_min_level__e();
 }
 
-log_level dest::get_min_level__e() noexcept
+level_type dest::get_min_level__e() noexcept
 {
     assert_lockable_owner();
 
@@ -53,7 +53,7 @@ void dest::handle_deliver__e(const log_event& event_in) noexcept
     handle_event__e(event_in);
 }
 
-log_console::log_console(const log_level min_level_in)
+log_console::log_console(const level_type min_level_in)
 : dest(min_level_in)
 { }
 
