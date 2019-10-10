@@ -26,10 +26,13 @@ namespace jackalope {
 
 struct pcm_input_t : public input_t {
     pcm_input_t(const string_t& name_in, node_t& parent_in);
+    virtual ~pcm_input_t() = default;
+    virtual void link(output_t& output_in) noexcept override;
 };
 
 struct pcm_output_t : public output_t {
     pcm_output_t(const string_t& name_in, node_t& parent_in);
+    virtual ~pcm_output_t() = default;
 };
 
 template <typename T>

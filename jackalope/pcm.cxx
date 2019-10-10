@@ -35,6 +35,14 @@ pcm_input_t::pcm_input_t(const string_t& name_in, node_t& parent_in)
 : input_t(name_in, parent_in)
 { }
 
+void pcm_input_t::link(output_t& output_in) noexcept
+{
+    auto new_link = new link_t(output_in, *this);
+
+    output_in.add_link(new_link);
+    add_link(new_link);
+}
+
 pcm_output_t::pcm_output_t(const string_t& name_in, node_t& parent_in)
 : output_t(name_in, parent_in)
 { }

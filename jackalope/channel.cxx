@@ -86,6 +86,15 @@ const string_t& channel_t::get_name() noexcept
     return name;
 }
 
+void channel_t::add_link(link_t * link_in)
+{
+    links.push_back(link_in);
+}
+
+link_t::link_t(output_t& from_in, input_t& to_in)
+: from(from_in), to(to_in)
+{ }
+
 input_t::input_t(const string_t& name_in, node_t& parent_in)
 : channel_t(name_in, parent_in)
 { }

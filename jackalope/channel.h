@@ -22,6 +22,7 @@ namespace jackalope {
 
 struct input_t;
 struct output_t;
+struct link_t;
 
 using input_constructor_t = function_t<input_t * (const string_t& name_in, node_t& parent_in)>;
 using output_constructor_t = function_t<output_t * (const string_t& name_in, node_t& parent_in)>;
@@ -29,15 +30,28 @@ using output_constructor_t = function_t<output_t * (const string_t& name_in, nod
 struct channel_t : public baseobj_t, public lockable_t {
     const string_t name;
     node_t& parent;
+    pool_list_t<link_t *> links;
 
     channel_t(const string_t& name_in, node_t& parent_in);
+    virtual ~channel_t() = default;
     node_t& get_parent() noexcept;
     const string_t& get_name() noexcept;
+    void add_link(link_t * link_in);
+};
+
+struct link_t : public baseobj_t, public lockable_t {
+    output_t& from;
+    input_t& to;
+    bool active = false;
+
+    link_t(output_t& from_in, input_t& to_in);
+    virtual ~link_t() = default;
 };
 
 struct input_t : public channel_t {
     input_t(const string_t& name_in, node_t& parent_in);
     virtual ~input_t() = default;
+    virtual void link(output_t& output_in) noexcept = 0;
 };
 
 struct output_t : public channel_t {
