@@ -28,11 +28,14 @@ struct pcm_input_t : public input_t {
     pcm_input_t(const string_t& name_in, node_t& parent_in);
     virtual ~pcm_input_t() = default;
     virtual void link(output_t& output_in) noexcept override;
+    virtual void unlink(link_t * link_in) override;
 };
 
 struct pcm_output_t : public output_t {
     pcm_output_t(const string_t& name_in, node_t& parent_in);
     virtual ~pcm_output_t() = default;
+    virtual void link(input_t& input_in) noexcept override;
+    virtual void unlink(link_t * link_in) override;
 };
 
 template <typename T>

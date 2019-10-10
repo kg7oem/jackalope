@@ -11,6 +11,8 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
+#include <algorithm>
+
 #include <jackalope/channel.h>
 #include <jackalope/exception.h>
 
@@ -89,6 +91,17 @@ const string_t& channel_t::get_name() noexcept
 void channel_t::add_link(link_t * link_in)
 {
     links.push_back(link_in);
+}
+
+void channel_t::remove_link(link_t * link_in)
+{
+    auto found = std::find(std::begin(links), std::end(links), link_in);
+
+    if (found == std::end(links)) {
+        throw_runtime_error("could not find channel link");
+    }
+
+    links.erase(found);
 }
 
 link_t::link_t(output_t& from_in, input_t& to_in)
