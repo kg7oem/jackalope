@@ -20,29 +20,29 @@
 
 namespace jackalope {
 
-struct input_interface_t;
-struct output_interface_t;
+struct input_t;
+struct output_t;
 
-using input_constructor_t = function_t<input_interface_t * (const string_t& name_in, node_t& parent_in)>;
-using output_constructor_t = function_t<output_interface_t * (const string_t& name_in, node_t& parent_in)>;
+using input_constructor_t = function_t<input_t * (const string_t& name_in, node_t& parent_in)>;
+using output_constructor_t = function_t<output_t * (const string_t& name_in, node_t& parent_in)>;
 
-struct channel_interface_t {
+struct channel_t : public baseobj_t, public lockable_t {
     const string_t name;
     node_t& parent;
 
-    channel_interface_t(const string_t& name_in, node_t& parent_in);
-    virtual node_t& get_parent() noexcept;
-    virtual const string_t& get_name() noexcept;
+    channel_t(const string_t& name_in, node_t& parent_in);
+    node_t& get_parent() noexcept;
+    const string_t& get_name() noexcept;
 };
 
-struct input_interface_t : public channel_interface_t {
-    input_interface_t(const string_t& name_in, node_t& parent_in);
-    virtual ~input_interface_t() = default;
+struct input_t : public channel_t {
+    input_t(const string_t& name_in, node_t& parent_in);
+    virtual ~input_t() = default;
 };
 
-struct output_interface_t : public channel_interface_t {
-    output_interface_t(const string_t& name_in, node_t& parent_in);
-    virtual ~output_interface_t() = default;
+struct output_t : public channel_t {
+    output_t(const string_t& name_in, node_t& parent_in);
+    virtual ~output_t() = default;
 };
 
 // example channel classes and classes with types
@@ -55,7 +55,7 @@ const string_t extract_channel_type(const string_t& class_in);
 
 void add_input_constructor(const string_t& class_in, input_constructor_t constructor_in);
 void add_output_constructor(const string_t& class_in, output_constructor_t constructor_in);
-input_interface_t * make_input_channel(const string_t& class_in, const string_t& name_in, node_t& parent_in);
-output_interface_t * make_output_channel(const string_t& class_in, const string_t& name_in, node_t& parent_in);
+input_t * make_input_channel(const string_t& class_in, const string_t& name_in, node_t& parent_in);
+output_t * make_output_channel(const string_t& class_in, const string_t& name_in, node_t& parent_in);
 
 } // namespace jackalope

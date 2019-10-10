@@ -15,12 +15,12 @@
 
 namespace jackalope {
 
-static input_interface_t * input_constructor(const string_t& name_in, node_t& parent_in)
+static input_t * input_constructor(const string_t& name_in, node_t& parent_in)
 {
     return new pcm_input_t(name_in, parent_in);
 }
 
-static output_interface_t * output_constructor(const string_t& name_in, node_t& parent_in)
+static output_t * output_constructor(const string_t& name_in, node_t& parent_in)
 {
     return new pcm_output_t(name_in, parent_in);
 }
@@ -32,11 +32,11 @@ void pcm_init()
 }
 
 pcm_input_t::pcm_input_t(const string_t& name_in, node_t& parent_in)
-: input_interface_t(name_in, parent_in)
+: input_t(name_in, parent_in)
 { }
 
 pcm_output_t::pcm_output_t(const string_t& name_in, node_t& parent_in)
-: output_interface_t(name_in, parent_in)
+: output_t(name_in, parent_in)
 { }
 
 } // namespace jackalope

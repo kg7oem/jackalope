@@ -29,11 +29,12 @@ int main(void)
     pcm_init();
 
     node_t foo;
+    auto& foo_input = foo.add_input("pcm[real]", "test");
 
-    foo.add_input("pcm[real]", "test");
-    foo.add_input("pcm[quad]", "blaz");
+    node_t bar;
+    auto& bar_output = bar.add_output("pcm[real]", "fiddle");
 
-    foo.add_output("pcm[real]", "fiddle");
+    foo_input.link(bar_output);
 
     log_info("Hello ", 123);
 

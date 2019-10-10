@@ -21,15 +21,15 @@
 namespace jackalope {
 
 struct node_t : public baseobj_t, public lockable_t {
-    pool_map_t<string_t, input_interface_t *> inputs;
-    pool_map_t<string_t, output_interface_t *> outputs;
+    pool_map_t<string_t, input_t *> inputs;
+    pool_map_t<string_t, output_t *> outputs;
 
     virtual ~node_t();
     const string_t& get_name() noexcept;
-    input_interface_t& add_input(const string_t& channel_class_in, const string_t& name_in);
-    input_interface_t& get_input(const string_t& name_in);
-    output_interface_t& add_output(const string_t& channel_class_in, const string_t& name_in);
-    output_interface_t& get_output(const string_t& name_in);
+    input_t& add_input(const string_t& channel_class_in, const string_t& name_in);
+    input_t& get_input(const string_t& name_in);
+    output_t& add_output(const string_t& channel_class_in, const string_t& name_in);
+    output_t& get_output(const string_t& name_in);
 };
 
 } // namespace jackalope

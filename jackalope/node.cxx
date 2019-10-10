@@ -28,7 +28,7 @@ node_t::~node_t()
     }
 }
 
-input_interface_t& node_t::add_input(const string_t& channel_class_in, const string_t& name_in)
+input_t& node_t::add_input(const string_t& channel_class_in, const string_t& name_in)
 {
     auto class_only = extract_channel_class(channel_class_in);
 
@@ -42,7 +42,7 @@ input_interface_t& node_t::add_input(const string_t& channel_class_in, const str
     return *new_channel;
 }
 
-output_interface_t& node_t::add_output(const string_t& channel_class_in, const string_t& name_in)
+output_t& node_t::add_output(const string_t& channel_class_in, const string_t& name_in)
 {
     auto class_only = extract_channel_class(channel_class_in);
 
