@@ -30,8 +30,8 @@ int main(void)
 
     node_t foo;
 
-    foo.add_input("pcm", "test");
-    foo.add_input("pcm", "blaz");
+    foo.add_input("pcm[real]", "test");
+    foo.add_input("pcm[quad]", "blaz");
 
     log_info("Hello ", 123);
 

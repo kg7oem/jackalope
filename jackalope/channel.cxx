@@ -18,6 +18,17 @@ namespace jackalope {
 
 static pool_map_t<string_t, input_constructor_t> input_constructors;
 
+const string_t extract_channel_class(const string_t& class_in)
+{
+    auto type_start_char_at = class_in.find('[');
+
+    if (type_start_char_at == string_t::npos) {
+        return class_in;
+    }
+
+    return class_in.substr(0, type_start_char_at);
+}
+
 void add_input_constructor(const string_t& class_in, input_constructor_t constructor_in)
 {
     if (input_constructors.find(class_in) != input_constructors.end()) {
@@ -29,10 +40,11 @@ void add_input_constructor(const string_t& class_in, input_constructor_t constru
 
 input_interface_t * make_input_channel(const string_t& class_in, const string_t& name_in, node_t& parent_in)
 {
-    auto found = input_constructors.find(class_in);
+    auto class_only = extract_channel_class(class_in);
+    auto found = input_constructors.find(class_only);
 
     if (found == input_constructors.end()) {
-        throw_runtime_error("unknown input channel class: ", class_in);
+        throw_runtime_error("unknown input channel class: ", class_only);
     }
 
     return found->second(name_in, parent_in);
