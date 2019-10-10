@@ -17,6 +17,7 @@
 namespace jackalope {
 
 static pool_map_t<string_t, input_constructor_t> input_constructors;
+static pool_map_t<string_t, output_constructor_t> output_constructors;
 
 const string_t extract_channel_class(const string_t& class_in)
 {
@@ -38,6 +39,15 @@ void add_input_constructor(const string_t& class_in, input_constructor_t constru
     input_constructors[class_in] = constructor_in;
 }
 
+void add_output_constructor(const string_t& class_in, output_constructor_t constructor_in)
+{
+    if (output_constructors.find(class_in) != output_constructors.end()) {
+        throw_runtime_error("constructor already exists for channel class: ", class_in);
+    }
+
+    output_constructors[class_in] = constructor_in;
+}
+
 input_interface_t * make_input_channel(const string_t& class_in, const string_t& name_in, node_t& parent_in)
 {
     auto class_only = extract_channel_class(class_in);
@@ -50,11 +60,37 @@ input_interface_t * make_input_channel(const string_t& class_in, const string_t&
     return found->second(name_in, parent_in);
 }
 
+output_interface_t * make_output_channel(const string_t& class_in, const string_t& name_in, node_t& parent_in)
+{
+    auto class_only = extract_channel_class(class_in);
+    auto found = output_constructors.find(class_only);
+
+    if (found == output_constructors.end()) {
+        throw_runtime_error("unknown output channel class: ", class_only);
+    }
+
+    return found->second(name_in, parent_in);
+}
+
 channel_interface_t::channel_interface_t(const string_t& name_in, node_t& parent_in)
 : name(name_in), parent(parent_in)
 { }
 
+node_t& channel_interface_t::get_parent() noexcept
+{
+    return parent;
+}
+
+const string_t& channel_interface_t::get_name() noexcept
+{
+    return name;
+}
+
 input_interface_t::input_interface_t(const string_t& name_in, node_t& parent_in)
+: channel_interface_t(name_in, parent_in)
+{ }
+
+output_interface_t::output_interface_t(const string_t& name_in, node_t& parent_in)
 : channel_interface_t(name_in, parent_in)
 { }
 

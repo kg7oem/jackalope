@@ -31,8 +31,8 @@ struct channel_interface_t {
     node_t& parent;
 
     channel_interface_t(const string_t& name_in, node_t& parent_in);
-    virtual node_t& get_parent() noexcept = 0;
-    virtual const string_t& get_name() noexcept = 0;
+    virtual node_t& get_parent() noexcept;
+    virtual const string_t& get_name() noexcept;
 };
 
 struct input_interface_t : public channel_interface_t {
@@ -41,6 +41,7 @@ struct input_interface_t : public channel_interface_t {
 };
 
 struct output_interface_t : public channel_interface_t {
+    output_interface_t(const string_t& name_in, node_t& parent_in);
     virtual ~output_interface_t() = default;
 };
 

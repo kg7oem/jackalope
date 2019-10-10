@@ -26,8 +26,10 @@ namespace jackalope {
 
 struct pcm_input_t : public input_interface_t, public baseobj_t, public lockable_t {
     pcm_input_t(const string_t& name_in, node_t& parent_in);
-    virtual node_t& get_parent() noexcept override;
-    virtual const string_t& get_name() noexcept override;
+};
+
+struct pcm_output_t : public output_interface_t, public baseobj_t, public lockable_t {
+    pcm_output_t(const string_t& name_in, node_t& parent_in);
 };
 
 template <typename T>

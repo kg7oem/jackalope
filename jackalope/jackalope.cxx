@@ -33,6 +33,8 @@ int main(void)
     foo.add_input("pcm[real]", "test");
     foo.add_input("pcm[quad]", "blaz");
 
+    foo.add_output("pcm[real]", "fiddle");
+
     log_info("Hello ", 123);
 
     return(0);

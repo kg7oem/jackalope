@@ -20,23 +20,23 @@ static input_interface_t * input_constructor(const string_t& name_in, node_t& pa
     return new pcm_input_t(name_in, parent_in);
 }
 
+static output_interface_t * output_constructor(const string_t& name_in, node_t& parent_in)
+{
+    return new pcm_output_t(name_in, parent_in);
+}
+
 void pcm_init()
 {
     add_input_constructor(JACKALOPE_PCM_CHANNEL_CLASS, input_constructor);
+    add_output_constructor(JACKALOPE_PCM_CHANNEL_CLASS, output_constructor);
 }
 
 pcm_input_t::pcm_input_t(const string_t& name_in, node_t& parent_in)
 : input_interface_t(name_in, parent_in)
 { }
 
-node_t& pcm_input_t::get_parent() noexcept
-{
-    return parent;
-}
-
-const string_t& pcm_input_t::get_name() noexcept
-{
-    return name;
-}
+pcm_output_t::pcm_output_t(const string_t& name_in, node_t& parent_in)
+: output_interface_t(name_in, parent_in)
+{ }
 
 } // namespace jackalope
