@@ -19,28 +19,25 @@ namespace jackalope {
 
 node_t::~node_t()
 {
-    for(auto&& i : components) {
+    for (auto i : inputs) {
+        delete i.second;
+    }
+
+    for (auto i : outputs) {
         delete i.second;
     }
 }
 
-component::base_t& node_t::get_component(const string_t& type_in)
+input_interface_t& node_t::add_input(const string_t& channel_class_in, const string_t& name_in)
 {
-    auto found = components.find(type_in);
-
-    if (found == components.end()) {
-        throw_runtime_error("unknown component type: ", type_in);
+    if (inputs.find(channel_class_in) != inputs.end()) {
+        throw_runtime_error("duplicate input name: ", name_in);
     }
 
-    return *found->second;
-}
+    auto new_channel = make_input_channel(channel_class_in, name_in, *this);
+    inputs[name_in] = new_channel;
 
-component::input_t& node_t::add_input(const string_t& type_in, const string_t& name_in)
-{
-    auto component_name = component::base_t::extract_component_name(type_in);
-    auto& component = get_component(component_name);
-
-    return component.add_input(type_in, name_in);
+    return *new_channel;
 }
 
 } // namespace jackalope

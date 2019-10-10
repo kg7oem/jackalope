@@ -1,4 +1,4 @@
-// Jackalope Audio Engine
+ // Jackalope Audio Engine
 // Copyright 2019 Tyler Riddle <kg7oem@gmail.com>
 
 // This program is free software: you can redistribute it and/or modify
@@ -13,18 +13,8 @@
 
 #pragma once
 
-#include <jackalope/string.h>
-#include <jackalope/thread.h>
-#include <jackalope/types.h>
-
 namespace jackalope {
 
-namespace component {
-
-struct base_t;
-struct input_t;
-struct output_t;
-
-} // namespace component
+struct node_t;
 
 } // namespace jackalope

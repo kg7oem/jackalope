@@ -13,37 +13,23 @@
 
 #pragma once
 
-#include <jackalope/component.h>
+#include <jackalope/channel.h>
+#include <jackalope/node.forward.h>
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
 
 namespace jackalope {
 
-class node_t : public baseobj_t, public lockable_t {
-
-public:
-    pool_map_t<string_t, component::base_t *> components;
+struct node_t : public baseobj_t, public lockable_t {
+    pool_map_t<string_t, input_interface_t *> inputs;
+    pool_map_t<string_t, output_interface_t *> outputs;
 
     virtual ~node_t();
-
-    template <class T, typename... Args>
-    component::base_t& add_component(Args... args)
-    {
-        auto new_component = new T(args...);
-        auto&& new_component_type = new_component->get_type();
-
-        if (components.find(new_component_type) != components.end()) {
-            delete new_component;
-            throw runtime_error_t("duplicate component name");
-        }
-
-        components[new_component_type] = dynamic_cast<component::base_t *>(new_component);
-
-        return *new_component;
-    }
-
-    component::base_t& get_component(const string_t& type_in);
-    component::input_t& add_input(const string_t& type_in, const string_t& name_in);
+    const string_t& get_name() noexcept;
+    input_interface_t& add_input(const string_t& channel_class_in, const string_t& name_in);
+    input_interface_t& get_input(const string_t& name_in);
+    output_interface_t& add_output(const string_t& channel_class_in, const string_t& name_in);
+    output_interface_t& get_output(const string_t& name_in);
 };
 
 } // namespace jackalope

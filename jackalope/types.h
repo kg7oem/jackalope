@@ -16,6 +16,7 @@
 #include <boost/pool/pool_alloc.hpp>
 #include <complex>
 #include <exception>
+#include <functional>
 #include <list>
 #include <map>
 #include <memory>
@@ -27,6 +28,8 @@ using char_t = char;
 using size_t = unsigned long;
 using real_t = float;
 using complex_t = std::complex<real_t>;
+template <typename T>
+using function_t = std::function<T>;
 
 template <typename T>
 using pool_allocator_t = boost::pool_allocator<T>;

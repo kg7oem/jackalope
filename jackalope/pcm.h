@@ -13,64 +13,82 @@
 
 #pragma once
 
-#include <jackalope/component.h>
+#include <cstdlib>
 
-#define JACKALOPE_PCM_COMPONENT_TYPE "pcm"
-#define JACKALOPE_PCM_REAL_TYPE "pcm[real]"
-#define JACKALOPE_PCM_COMPLEX_TYPE "pcm[complex]"
+#include <jackalope/channel.h>
+#include <jackalope/exception.h>
+#include <jackalope/thread.h>
+#include <jackalope/types.h>
+
+#define JACKALOPE_PCM_CHANNEL_CLASS "pcm"
 
 namespace jackalope {
 
-namespace pcm {
-
-struct component_t : public component::base_t {
-
-public:
-    template <class T>
-    struct input_t : public component::input_t {
-        using sample_t = T;
-
-        input_t(const string_t& name_in, component_t& parent_in)
-        : component::input_t(name_in, parent_in)
-        { }
-    };
-
-    class real_input_t : public input_t<real_t> {
-
-    public:
-        real_input_t(const string_t& name_in, component_t& parent_in);
-        virtual const string_t& get_type();
-    };
-
-    class complex_input_t : public input_t<complex_t> {
-    public:
-        complex_input_t(const string_t& name_in, component_t& parent_in);
-        virtual const string_t& get_type();
-    };
-
-    template <class T>
-    class output_t : public component::output_t {
-        using sample_t = T;
-    };
-
-    class real_output : public output_t<real_t> {
-
-    public:
-        virtual const string_t& get_type();
-    };
-
-    class complex_output : public output_t<complex_t> {
-
-    public:
-        virtual const string_t& get_type();
-    };
-
-    virtual component::input_t& add_input(const string_t& type_in, const string_t& name_in);
-    component::input_t& add_real_input(const string_t& name_in);
-    component::input_t& add_complex_input(const string_t& name_in);
-    const string_t& get_type();
+struct pcm_input_t : public input_interface_t, public baseobj_t, public lockable_t {
+    pcm_input_t(const string_t& name_in, node_t& parent_in);
+    virtual node_t& get_parent() noexcept override;
+    virtual const string_t& get_name() noexcept override;
 };
 
-} // namespace pcm
+template <typename T>
+struct pcm_buffer_t : public baseobj_t, public lockable_t {
+    using sample_t = T;
+
+    bool owns_memory = false;
+    sample_t * pointer = nullptr;
+    const size_t num_samples;
+
+    pcm_buffer_t(const size_t num_samples_in)
+    : num_samples(num_samples_in)
+    {
+        assert(owns_memory == false);
+
+        if (num_samples_in == 0) {
+            throw_runtime_error("num_samples must be positive");
+        }
+
+        // FIXME should use a pool allocator
+        pointer = std::malloc(get_num_bytes());
+        if (pointer == nullptr) {
+            throw_runtime_error("could not allocate memory");
+        }
+
+        owns_memory = true;
+    }
+
+    pcm_buffer_t(const size_t num_samples_in, sample_t * pointer_in)
+    : num_samples(num_samples_in)
+    {
+        assert(owns_memory == false);
+
+        pointer = pointer_in;
+    }
+
+    pcm_buffer_t(const size_t num_samples_in, sample_t * pointer_in, const bool owns_memory_in)
+    : num_samples(num_samples_in)
+    {
+        owns_memory = owns_memory_in;
+        pointer = pointer_in;
+    }
+
+    virtual ~pcm_buffer_t()
+    {
+        if (owns_memory) {
+            assert(pointer != nullptr);
+
+            free(pointer);
+            pointer = nullptr;
+        }
+
+        owns_memory = false;
+    }
+
+    size_t get_num_bytes() noexcept
+    {
+        return num_samples * sizeof(sample_t);
+    }
+};
+
+void pcm_init();
 
 } // namespace jackalope
