@@ -19,7 +19,7 @@
 
 namespace jackalope {
 
-void debug_mutex_t::lock() noexcept
+void debug_mutex_t::lock()
 {
     debug_mutex_t::lock_t lock(mutex);
 
@@ -30,7 +30,7 @@ void debug_mutex_t::lock() noexcept
     take__e();
 }
 
-bool debug_mutex_t::try_lock() noexcept
+bool debug_mutex_t::try_lock()
 {
     debug_mutex_t::lock_t lock(mutex);
 
@@ -42,38 +42,38 @@ bool debug_mutex_t::try_lock() noexcept
     return true;
 }
 
-void debug_mutex_t::unlock() noexcept
+void debug_mutex_t::unlock()
 {
     debug_mutex_t::lock_t lock(mutex);
 
     release__e();
 }
 
-thread_t::id debug_mutex_t::get_owner_id() noexcept
+thread_t::id debug_mutex_t::get_owner_id()
 {
     debug_mutex_t::lock_t lock(mutex);
 
     return owner;
 }
 
-bool debug_mutex_t::is_available() noexcept
+bool debug_mutex_t::is_available()
 {
     debug_mutex_t::lock_t lock(mutex);
     return is_available__e();
 }
 
-bool debug_mutex_t::is_available__e() noexcept
+bool debug_mutex_t::is_available__e()
 {
     return owner == thread_t::id();
 }
 
-void debug_mutex_t::take__e() noexcept
+void debug_mutex_t::take__e()
 {
     assert(owner == thread_t::id());
     owner = std::this_thread::get_id();
 }
 
-void debug_mutex_t::release__e() noexcept
+void debug_mutex_t::release__e()
 {
     assert(owner == std::this_thread::get_id());
 
@@ -81,7 +81,7 @@ void debug_mutex_t::release__e() noexcept
     available_cond.notify_one();
 }
 
-void debug_mutex_t::wait__e(lock_t& lock_in) noexcept
+void debug_mutex_t::wait__e(lock_t& lock_in)
 {
     auto this_thread_id = std::this_thread::get_id();
     assert(owner != this_thread_id);

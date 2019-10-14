@@ -34,8 +34,8 @@ struct channel_t : public baseobj_t, public lockable_t {
 
     channel_t(const string_t& name_in, node_t& parent_in);
     virtual ~channel_t() = default;
-    node_t& get_parent() noexcept;
-    const string_t& get_name() noexcept;
+    node_t& get_parent();
+    const string_t& get_name();
     void add_link(link_t * link_in);
     void remove_link(link_t * link_in);
     virtual void unlink(link_t * link_in) = 0;
@@ -53,13 +53,13 @@ struct link_t : public baseobj_t, public lockable_t {
 struct input_t : public channel_t {
     input_t(const string_t& name_in, node_t& parent_in);
     virtual ~input_t() = default;
-    virtual void link(output_t& output_in) noexcept = 0;
+    virtual void link(output_t& output_in) = 0;
 };
 
 struct output_t : public channel_t {
     output_t(const string_t& name_in, node_t& parent_in);
     virtual ~output_t() = default;
-    virtual void link(input_t& input_in) noexcept = 0;
+    virtual void link(input_t& input_in) = 0;
 };
 
 // example channel classes and classes with types

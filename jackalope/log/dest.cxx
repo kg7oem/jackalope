@@ -23,26 +23,26 @@ dest_t::dest_t(const level_t min_level_in)
 : min_level(min_level_in)
 { }
 
-level_t dest_t::get_min_level() noexcept
+level_t dest_t::get_min_level()
 {
     auto lock = get_object_lock();
     return get_min_level__e();
 }
 
-level_t dest_t::get_min_level__e() noexcept
+level_t dest_t::get_min_level__e()
 {
     assert_lockable_owner();
 
     return min_level;
 }
 
-void dest_t::handle_deliver(const event_t& event_in) noexcept
+void dest_t::handle_deliver(const event_t& event_in)
 {
     auto lock = get_object_lock();
     return handle_deliver__e(event_in);
 }
 
-void dest_t::handle_deliver__e(const event_t& event_in) noexcept
+void dest_t::handle_deliver__e(const event_t& event_in)
 {
     assert_lockable_owner();
 
@@ -57,7 +57,7 @@ console_dest_t::console_dest_t(const level_t min_level_in)
 : dest_t(min_level_in)
 { }
 
-void console_dest_t::handle_event__e(const event_t& event_in) noexcept
+void console_dest_t::handle_event__e(const event_t& event_in)
 {
     assert_lockable_owner();
 

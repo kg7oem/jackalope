@@ -78,12 +78,12 @@ channel_t::channel_t(const string_t& name_in, node_t& parent_in)
 : name(name_in), parent(parent_in)
 { }
 
-node_t& channel_t::get_parent() noexcept
+node_t& channel_t::get_parent()
 {
     return parent;
 }
 
-const string_t& channel_t::get_name() noexcept
+const string_t& channel_t::get_name()
 {
     return name;
 }

@@ -20,7 +20,7 @@ namespace jackalope {
 
 namespace log {
 
-engine_t * get_engine() noexcept
+engine_t * get_engine()
 {
     static engine_t global_engine;
     return &global_engine;
@@ -30,26 +30,26 @@ event_t::event_t(const char * source_in, const level_t& level_in, const timestam
 : source(source_in), level(level_in), when(when_in), tid(tid_in), function(function_in), file(file_in), line(line_in), message(message_in)
 { }
 
-bool engine_t::should_log(const level_t& level_in, const char_t * source_in) noexcept
+bool engine_t::should_log(const level_t& level_in, const char_t * source_in)
 {
     auto lock = get_object_lock();
     return should_log__e(level_in, source_in);
 }
 
-bool engine_t::should_log__e(const level_t& level_in, const char_t *) noexcept
+bool engine_t::should_log__e(const level_t& level_in, const char_t *)
 {
     assert_lockable_owner();
 
     return level_in >= min_level;
 }
 
-void engine_t::deliver(const event_t& event_in) noexcept
+void engine_t::deliver(const event_t& event_in)
 {
     auto lock = get_object_lock();
     deliver__e(event_in);
 }
 
-void engine_t::deliver__e(const event_t& event_in) noexcept
+void engine_t::deliver__e(const event_t& event_in)
 {
     assert_lockable_owner();
 
@@ -80,7 +80,7 @@ void engine_t::add_destination__e(shared_t<dest_t> dest_in)
     update_min_level__e();
 }
 
-static level_t find_min_level(const pool_vector_t<shared_t<dest_t>>& destinations_in) noexcept
+static level_t find_min_level(const pool_vector_t<shared_t<dest_t>>& destinations_in)
 {
     if (destinations_in.size() == 0) {
         return level_t::uninit;
@@ -98,7 +98,7 @@ static level_t find_min_level(const pool_vector_t<shared_t<dest_t>>& destination
     return min_level;
 }
 
-void engine_t::update_min_level__e() noexcept
+void engine_t::update_min_level__e()
 {
     assert_lockable_owner();
 

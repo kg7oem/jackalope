@@ -58,21 +58,21 @@ protected:
     level_t min_level = level_t::uninit;
     pool_vector_t<shared_t<dest_t>> destinations;
 
-    void update_min_level__e() noexcept;
-    bool should_log__e(const level_t& level_in, const char_t * source_in) noexcept;
-    void deliver__e(const event_t& event_in) noexcept;
+    void update_min_level__e();
+    bool should_log__e(const level_t& level_in, const char_t * source_in);
+    void deliver__e(const event_t& event_in);
     void add_destination__e(shared_t<dest_t> dest_in);
 
 public:
-    bool should_log(const level_t& level_in, const char_t * source_in) noexcept;
-    void deliver(const event_t& event_in) noexcept;
+    bool should_log(const level_t& level_in, const char_t * source_in);
+    void deliver(const event_t& event_in);
     void add_destination(shared_t<dest_t> dest_in);
 };
 
-engine_t * get_engine() noexcept;
+engine_t * get_engine();
 
 template<typename... Args>
-void send_vargs_event(const char * source_in, const level_t& level_in, const char *function_in, const char *path_in, const int& line_in, Args&&... args_in) noexcept
+void send_vargs_event(const char * source_in, const level_t& level_in, const char *function_in, const char *path_in, const int& line_in, Args&&... args_in)
 {
     if (get_engine()->should_log(level_in, source_in)) {
         auto when = std::chrono::system_clock::now();
