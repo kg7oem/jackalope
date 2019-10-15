@@ -46,57 +46,6 @@ void pcm_init()
     add_output_constructor(JACKALOPE_PCM_CHANNEL_CLASS_QUAD, pcm_quad_output_constructor);
 }
 
-static void cleanup_link(link_t * link_in)
-{
-    link_in->from.remove_link(link_in);
-    link_in->to.remove_link(link_in);
-
-    delete link_in;
-}
-
-pcm_input_t::pcm_input_t(const string_t& class_name_in, const string_t& name_in, node_t& parent_in)
-: input_t(class_name_in, name_in, parent_in)
-{ }
-
-void pcm_input_t::output_ready(output_t& output_in)
-{
-    log_info("Output is ready: ", output_in.get_name());
-
-    for (auto i : links) {
-        if (! i->is_enabled()) {
-            continue;
-        } else if (! i->from.is_ready()) {
-            return;
-        }
-    }
-
-    notify();
-}
-
-void pcm_input_t::notify()
-{
-    assert(ready_flag == false);
-
-    ready_flag = true;
-
-    parent.input_ready(*this);
-}
-
-void pcm_input_t::link(output_t& output_in)
-{
-    auto new_link = new link_t(output_in, *this);
-
-    output_in.add_link(new_link);
-    add_link(new_link);
-
-    new_link->enable();
-}
-
-void pcm_input_t::unlink(link_t * link_in)
-{
-    cleanup_link(link_in);
-}
-
 pcm_real_input_t::pcm_real_input_t(const string_t& name_in, node_t& parent_in)
 : pcm_input_t(JACKALOPE_PCM_CHANNEL_CLASS_REAL, name_in, parent_in)
 { }
@@ -104,38 +53,6 @@ pcm_real_input_t::pcm_real_input_t(const string_t& name_in, node_t& parent_in)
 pcm_quad_input_t::pcm_quad_input_t(const string_t& name_in, node_t& parent_in)
 : pcm_input_t(JACKALOPE_PCM_CHANNEL_CLASS_QUAD, name_in, parent_in)
 { }
-
-pcm_output_t::pcm_output_t(const string_t& class_name_in, const string_t& name_in, node_t& parent_in)
-: output_t(class_name_in, name_in, parent_in)
-{ }
-
-void pcm_output_t::notify()
-{
-    assert(ready_flag == false);
-
-    ready_flag = true;
-
-    for(auto i : links) {
-        if (i->is_enabled()) {
-            i->to.output_ready(*this);
-        }
-    }
-}
-
-void pcm_output_t::link(input_t& input_in)
-{
-    auto new_link = new link_t(*this, input_in);
-
-    add_link(new_link);
-    input_in.add_link(new_link);
-
-    new_link->enable();
-}
-
-void pcm_output_t::unlink(link_t * link_in)
-{
-    cleanup_link(link_in);
-}
 
 pcm_real_output_t::pcm_real_output_t(const string_t& name_in, node_t& parent_in)
 : pcm_output_t(JACKALOPE_PCM_CHANNEL_CLASS_REAL, name_in, parent_in)
