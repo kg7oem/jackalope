@@ -20,23 +20,10 @@
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
 
-#define JACKALOPE_PCM_CHANNEL_CLASS "pcm"
+#define JACKALOPE_PCM_CHANNEL_CLASS_REAL "pcm[real]"
+#define JACKALOPE_PCM_CHANNEL_CLASS_QUAD "pcm[quad]"
 
 namespace jackalope {
-
-struct pcm_input_t : public input_t {
-    pcm_input_t(const string_t& name_in, node_t& parent_in);
-    virtual ~pcm_input_t() = default;
-    virtual void link(output_t& output_in) override;
-    virtual void unlink(link_t * link_in) override;
-};
-
-struct pcm_output_t : public output_t {
-    pcm_output_t(const string_t& name_in, node_t& parent_in);
-    virtual ~pcm_output_t() = default;
-    virtual void link(input_t& input_in) override;
-    virtual void unlink(link_t * link_in) override;
-};
 
 template <typename T>
 struct pcm_buffer_t : public baseobj_t, public lockable_t {
@@ -56,7 +43,7 @@ struct pcm_buffer_t : public baseobj_t, public lockable_t {
         }
 
         // FIXME should use a pool allocator
-        pointer = std::malloc(get_num_bytes());
+        pointer = static_cast<T *>(std::malloc(get_num_bytes()));
         if (pointer == nullptr) {
             throw_runtime_error("could not allocate memory");
         }
@@ -95,6 +82,48 @@ struct pcm_buffer_t : public baseobj_t, public lockable_t {
     {
         return num_samples * sizeof(sample_t);
     }
+};
+
+struct pcm_input_t : public input_t {
+    pcm_input_t(const string_t& class_name_in, const string_t& name_in, node_t& parent_in);
+    virtual ~pcm_input_t() = default;
+};
+
+struct pcm_real_input_t : public pcm_input_t {
+    pcm_real_input_t(const string_t& name_in, node_t& parent_in);
+    virtual ~pcm_real_input_t() = default;
+    virtual void link(output_t& output_in) override;
+    virtual void unlink(link_t * link_in) override;
+};
+
+struct pcm_quad_input_t : public pcm_input_t {
+    pcm_quad_input_t(const string_t& name_in, node_t& parent_in);
+    virtual ~pcm_quad_input_t() = default;
+    virtual void link(output_t& output_in) override;
+    virtual void unlink(link_t * link_in) override;
+};
+
+struct pcm_output_t : public output_t {
+    pcm_output_t(const string_t& class_name_in, const string_t& name_in, node_t& parent_in);
+    virtual ~pcm_output_t() = default;
+};
+
+struct pcm_real_output_t : public pcm_output_t {
+    pcm_buffer_t<real_t> buffer{512};
+
+    pcm_real_output_t(const string_t& name_in, node_t& parent_in);
+    virtual ~pcm_real_output_t() = default;
+    virtual void link(input_t& input_in) override;
+    virtual void unlink(link_t * link_in) override;
+};
+
+struct pcm_quad_output_t : public pcm_output_t {
+    pcm_buffer_t<quad_t> buffer{512};
+
+    pcm_quad_output_t(const string_t& name_in, node_t& parent_in);
+    virtual ~pcm_quad_output_t() = default;
+    virtual void link(input_t& input_in) override;
+    virtual void unlink(link_t * link_in) override;
 };
 
 void pcm_init();

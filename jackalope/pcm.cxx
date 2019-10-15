@@ -15,20 +15,33 @@
 
 namespace jackalope {
 
-static input_t * input_constructor(const string_t& name_in, node_t& parent_in)
+static input_t * pcm_real_input_constructor(const string_t& name_in, node_t& parent_in)
 {
-    return new pcm_input_t(name_in, parent_in);
+    return new pcm_real_input_t(name_in, parent_in);
 }
 
-static output_t * output_constructor(const string_t& name_in, node_t& parent_in)
+static output_t * pcm_real_output_constructor(const string_t& name_in, node_t& parent_in)
 {
-    return new pcm_output_t(name_in, parent_in);
+    return new pcm_real_output_t(name_in, parent_in);
+}
+
+static input_t * pcm_quad_input_constructor(const string_t& name_in, node_t& parent_in)
+{
+    return new pcm_quad_input_t(name_in, parent_in);
+}
+
+static output_t * pcm_quad_output_constructor(const string_t& name_in, node_t& parent_in)
+{
+    return new pcm_quad_output_t(name_in, parent_in);
 }
 
 void pcm_init()
 {
-    add_input_constructor(JACKALOPE_PCM_CHANNEL_CLASS, input_constructor);
-    add_output_constructor(JACKALOPE_PCM_CHANNEL_CLASS, output_constructor);
+    add_input_constructor(JACKALOPE_PCM_CHANNEL_CLASS_REAL, pcm_real_input_constructor);
+    add_output_constructor(JACKALOPE_PCM_CHANNEL_CLASS_REAL, pcm_real_output_constructor);
+
+    add_input_constructor(JACKALOPE_PCM_CHANNEL_CLASS_QUAD, pcm_quad_input_constructor);
+    add_output_constructor(JACKALOPE_PCM_CHANNEL_CLASS_QUAD, pcm_quad_output_constructor);
 }
 
 static void cleanup_link(link_t * link_in)
@@ -39,11 +52,15 @@ static void cleanup_link(link_t * link_in)
     delete link_in;
 }
 
-pcm_input_t::pcm_input_t(const string_t& name_in, node_t& parent_in)
-: input_t(name_in, parent_in)
+pcm_input_t::pcm_input_t(const string_t& class_name_in, const string_t& name_in, node_t& parent_in)
+: input_t(class_name_in, name_in, parent_in)
 { }
 
-void pcm_input_t::link(output_t& output_in)
+pcm_real_input_t::pcm_real_input_t(const string_t& name_in, node_t& parent_in)
+: pcm_input_t(JACKALOPE_PCM_CHANNEL_CLASS_REAL, name_in, parent_in)
+{ }
+
+void pcm_real_input_t::link(output_t& output_in)
 {
     auto new_link = new link_t(output_in, *this);
 
@@ -51,16 +68,37 @@ void pcm_input_t::link(output_t& output_in)
     add_link(new_link);
 }
 
-void pcm_input_t::unlink(link_t * link_in)
+void pcm_real_input_t::unlink(link_t * link_in)
 {
     cleanup_link(link_in);
 }
 
-pcm_output_t::pcm_output_t(const string_t& name_in, node_t& parent_in)
-: output_t(name_in, parent_in)
+pcm_quad_input_t::pcm_quad_input_t(const string_t& name_in, node_t& parent_in)
+: pcm_input_t(JACKALOPE_PCM_CHANNEL_CLASS_QUAD, name_in, parent_in)
 { }
 
-void pcm_output_t::link(input_t& input_in)
+void pcm_quad_input_t::link(output_t& output_in)
+{
+    auto new_link = new link_t(output_in, *this);
+
+    output_in.add_link(new_link);
+    add_link(new_link);
+}
+
+void pcm_quad_input_t::unlink(link_t * link_in)
+{
+    cleanup_link(link_in);
+}
+
+pcm_output_t::pcm_output_t(const string_t& class_name_in, const string_t& name_in, node_t& parent_in)
+: output_t(class_name_in, name_in, parent_in)
+{ }
+
+pcm_real_output_t::pcm_real_output_t(const string_t& name_in, node_t& parent_in)
+: pcm_output_t(JACKALOPE_PCM_CHANNEL_CLASS_REAL, name_in, parent_in)
+{ }
+
+void pcm_real_output_t::link(input_t& input_in)
 {
     auto new_link = new link_t(*this, input_in);
 
@@ -68,7 +106,24 @@ void pcm_output_t::link(input_t& input_in)
     input_in.add_link(new_link);
 }
 
-void pcm_output_t::unlink(link_t * link_in)
+void pcm_real_output_t::unlink(link_t * link_in)
+{
+    cleanup_link(link_in);
+}
+
+pcm_quad_output_t::pcm_quad_output_t(const string_t& name_in, node_t& parent_in)
+: pcm_output_t(JACKALOPE_PCM_CHANNEL_CLASS_QUAD, name_in, parent_in)
+{ }
+
+void pcm_quad_output_t::link(input_t& input_in)
+{
+    auto new_link = new link_t(*this, input_in);
+
+    add_link(new_link);
+    input_in.add_link(new_link);
+}
+
+void pcm_quad_output_t::unlink(link_t * link_in)
 {
     cleanup_link(link_in);
 }

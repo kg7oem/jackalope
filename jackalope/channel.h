@@ -29,15 +29,17 @@ using output_constructor_t = function_t<output_t * (const string_t& name_in, nod
 
 struct channel_t : public baseobj_t, public lockable_t {
     const string_t name;
+    const string_t class_name;
     node_t& parent;
     pool_list_t<link_t *> links;
 
-    channel_t(const string_t& name_in, node_t& parent_in);
+    channel_t(const string_t& class_name_in, const string_t& name_in, node_t& parent_in);
     virtual ~channel_t() = default;
-    node_t& get_parent();
-    const string_t& get_name();
-    void add_link(link_t * link_in);
-    void remove_link(link_t * link_in);
+    virtual node_t& get_parent();
+    virtual const string_t& get_name();
+    virtual const string_t& get_class_name();
+    virtual void add_link(link_t * link_in);
+    virtual void remove_link(link_t * link_in);
     virtual void unlink(link_t * link_in) = 0;
 };
 
@@ -51,13 +53,13 @@ struct link_t : public baseobj_t, public lockable_t {
 };
 
 struct input_t : public channel_t {
-    input_t(const string_t& name_in, node_t& parent_in);
+    input_t(const string_t& class_name_in, const string_t& name_in, node_t& parent_in);
     virtual ~input_t() = default;
     virtual void link(output_t& output_in) = 0;
 };
 
 struct output_t : public channel_t {
-    output_t(const string_t& name_in, node_t& parent_in);
+    output_t(const string_t& class_name_in, const string_t& name_in, node_t& parent_in);
     virtual ~output_t() = default;
     virtual void link(input_t& input_in) = 0;
 };

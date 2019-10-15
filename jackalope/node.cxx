@@ -30,9 +30,7 @@ node_t::~node_t()
 
 input_t& node_t::add_input(const string_t& channel_class_in, const string_t& name_in)
 {
-    auto class_only = extract_channel_class(channel_class_in);
-
-    if (inputs.find(class_only) != inputs.end()) {
+    if (inputs.find(channel_class_in) != inputs.end()) {
         throw_runtime_error("duplicate input name: ", name_in);
     }
 
@@ -44,9 +42,7 @@ input_t& node_t::add_input(const string_t& channel_class_in, const string_t& nam
 
 output_t& node_t::add_output(const string_t& channel_class_in, const string_t& name_in)
 {
-    auto class_only = extract_channel_class(channel_class_in);
-
-    if (inputs.find(class_only) != inputs.end()) {
+    if (inputs.find(channel_class_in) != inputs.end()) {
         throw_runtime_error("duplicate input name: ", name_in);
     }
 

@@ -52,11 +52,10 @@ void add_output_constructor(const string_t& class_in, output_constructor_t const
 
 input_t * make_input_channel(const string_t& class_in, const string_t& name_in, node_t& parent_in)
 {
-    auto class_only = extract_channel_class(class_in);
-    auto found = input_constructors.find(class_only);
+    auto found = input_constructors.find(class_in);
 
     if (found == input_constructors.end()) {
-        throw_runtime_error("unknown input channel class: ", class_only);
+        throw_runtime_error("unknown input channel class: ", class_in);
     }
 
     return found->second(name_in, parent_in);
@@ -64,18 +63,17 @@ input_t * make_input_channel(const string_t& class_in, const string_t& name_in, 
 
 output_t * make_output_channel(const string_t& class_in, const string_t& name_in, node_t& parent_in)
 {
-    auto class_only = extract_channel_class(class_in);
-    auto found = output_constructors.find(class_only);
+    auto found = output_constructors.find(class_in);
 
     if (found == output_constructors.end()) {
-        throw_runtime_error("unknown output channel class: ", class_only);
+        throw_runtime_error("unknown output channel class: ", class_in);
     }
 
     return found->second(name_in, parent_in);
 }
 
-channel_t::channel_t(const string_t& name_in, node_t& parent_in)
-: name(name_in), parent(parent_in)
+channel_t::channel_t(const string_t& class_name_in, const string_t& name_in, node_t& parent_in)
+: name(name_in), class_name(class_name_in), parent(parent_in)
 { }
 
 node_t& channel_t::get_parent()
@@ -86,6 +84,11 @@ node_t& channel_t::get_parent()
 const string_t& channel_t::get_name()
 {
     return name;
+}
+
+const string_t& channel_t::get_class_name()
+{
+    return class_name;
 }
 
 void channel_t::add_link(link_t * link_in)
@@ -108,12 +111,12 @@ link_t::link_t(output_t& from_in, input_t& to_in)
 : from(from_in), to(to_in)
 { }
 
-input_t::input_t(const string_t& name_in, node_t& parent_in)
-: channel_t(name_in, parent_in)
+input_t::input_t(const string_t& class_name_in, const string_t& name_in, node_t& parent_in)
+: channel_t(class_name_in, name_in, parent_in)
 { }
 
-output_t::output_t(const string_t& name_in, node_t& parent_in)
-: channel_t(name_in, parent_in)
+output_t::output_t(const string_t& class_name_in, const string_t& name_in, node_t& parent_in)
+: channel_t(class_name_in, name_in, parent_in)
 { }
 
 } // namespace jackalope
