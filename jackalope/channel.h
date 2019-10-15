@@ -42,7 +42,6 @@ struct channel_t : public baseobj_t {
     virtual void add_link(link_t * link_in);
     virtual void remove_link(link_t * link_in);
     virtual void unlink(link_t * link_in) = 0;
-    virtual void notify() = 0;
     virtual bool is_ready();
     virtual void reset();
 };
@@ -63,12 +62,14 @@ struct input_t : public channel_t {
     input_t(const string_t& class_name_in, const string_t& name_in, node_t& parent_in);
     virtual ~input_t() = default;
     virtual void link(output_t& output_in) = 0;
+    virtual void notify();
     virtual void output_ready(output_t& output_in) = 0;
 };
 
 struct output_t : public channel_t {
     output_t(const string_t& class_name_in, const string_t& name_in, node_t& parent_in);
     virtual ~output_t() = default;
+    virtual void notify();
     virtual void link(input_t& input_in) = 0;
 };
 

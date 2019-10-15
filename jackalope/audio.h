@@ -18,7 +18,9 @@
 
 namespace jackalope {
 
-struct audio_node_t : public node_t {
+class audio_node_t : public node_t {
+
+protected:
     audio_node_t(const string_t& name_in);
     void input_ready(input_t& input_in);
     void pcm_ready();

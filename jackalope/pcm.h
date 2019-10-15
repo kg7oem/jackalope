@@ -114,15 +114,6 @@ struct pcm_input_t : public input_t {
         notify();
     }
 
-    void notify() override
-    {
-        assert(ready_flag == false);
-
-        ready_flag = true;
-
-        parent.input_ready(*this);
-    }
-
     void link(output_t& output_in) override
     {
         auto new_link = new link_t(output_in, *this);
@@ -180,21 +171,6 @@ struct pcm_output_t : public output_t {
         link_in->to.remove_link(link_in);
 
         delete link_in;
-    }
-
-    virtual void notify() override
-    {
-        assert(ready_flag == false);
-
-        ready_flag = true;
-
-        for (auto i : links) {
-            if (! i->is_enabled()) {
-                continue;
-            }
-
-            i->to.output_ready(*this);
-        }
     }
 };
 

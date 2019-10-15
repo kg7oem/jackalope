@@ -21,6 +21,22 @@
 
 using namespace jackalope;
 
+struct test_node : public audio_node_t {
+    test_node(const string_t& name_in)
+    : audio_node_t(name_in)
+    { }
+
+    virtual input_t& add_input(const string_t& class_in, const string_t& name_in)
+    {
+        return audio_node_t::add_input(class_in, name_in);
+    }
+
+    virtual output_t& add_output(const string_t& class_in, const string_t& name_in)
+    {
+        return audio_node_t::add_output(class_in, name_in);
+    }
+};
+
 int main(void)
 {
     auto dest = make_shared<log::console_dest_t>(log::level_t::info);
@@ -28,13 +44,13 @@ int main(void)
 
     jackalope_init();
 
-    audio_node_t foo("node 1");
+    test_node foo("node 1");
     auto& foo_input = foo.add_input("pcm[real]", "test");
 
-    audio_node_t bar("node 2");
+    test_node bar("node 2");
     auto& bar_output = bar.add_output("pcm[real]", "fiddle");
 
-    audio_node_t blah("node 3");
+    test_node blah("node 3");
     auto& blah_output = blah.add_output("pcm[real]", "booooze");
 
     bar_output.link(foo_input);

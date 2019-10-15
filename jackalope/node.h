@@ -20,7 +20,11 @@
 
 namespace jackalope {
 
-struct node_t : public baseobj_t {
+class node_t : public baseobj_t {
+
+protected:
+    friend void input_t::notify();
+
     const string_t name;
     pool_map_t<string_t, input_t *> inputs;
     pool_map_t<string_t, output_t *> outputs;

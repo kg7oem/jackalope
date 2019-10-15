@@ -15,6 +15,7 @@
 
 #include <jackalope/channel.h>
 #include <jackalope/exception.h>
+#include <jackalope/node.h>
 
 namespace jackalope {
 
@@ -142,8 +143,32 @@ input_t::input_t(const string_t& class_name_in, const string_t& name_in, node_t&
 : channel_t(class_name_in, name_in, parent_in)
 { }
 
+void input_t::notify()
+{
+    assert(ready_flag == false);
+
+    ready_flag = true;
+
+    parent.input_ready(*this);
+}
+
 output_t::output_t(const string_t& class_name_in, const string_t& name_in, node_t& parent_in)
 : channel_t(class_name_in, name_in, parent_in)
 { }
+
+void output_t::notify()
+{
+    assert(ready_flag == false);
+
+    ready_flag = true;
+
+    for (auto i : links) {
+        if (! i->is_enabled()) {
+            continue;
+        }
+
+        i->to.output_ready(*this);
+    }
+}
 
 } // namespace jackalope
