@@ -21,8 +21,9 @@
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
 
-#define JACKALOPE_PCM_CHANNEL_CLASS_REAL "pcm[real]"
-#define JACKALOPE_PCM_CHANNEL_CLASS_QUAD "pcm[quad]"
+#define JACKALOPE_PCM_CHANNEL_CLASS       "pcm"
+#define JACKALOPE_PCM_CHANNEL_CLASS_REAL  "pcm[real]"
+#define JACKALOPE_PCM_CHANNEL_CLASS_QUAD  "pcm[quad]"
 
 namespace jackalope {
 

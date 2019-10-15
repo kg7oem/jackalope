@@ -12,7 +12,9 @@
 // GNU Lesser General Public License for more details.
 
 #include <jackalope/audio.h>
+#include <jackalope/exception.h>
 #include <jackalope/logging.h>
+#include <jackalope/pcm.h>
 
 namespace jackalope {
 
@@ -20,9 +22,25 @@ audio_node_t::audio_node_t(const string_t& name_in)
 : node_t(name_in)
 { }
 
-void audio_node_t::input_ready(input_t& input_in)
+void audio_node_t::input_ready(input_t&)
 {
-    log_info("Input is ready: ", input_in.get_name());
+    for (auto i : inputs) {
+        auto input = i.second;
+        auto input_class = extract_channel_class(input->get_class_name());
+
+        if (input_class != JACKALOPE_PCM_CHANNEL_CLASS) {
+            continue;
+        } else if (! input->is_ready()) {
+            return;
+        }
+    }
+
+    pcm_ready();
+}
+
+void audio_node_t::pcm_ready()
+{
+    log_info("All pcm inputs are ready: ", name);
 }
 
 } // namespace jackalope
