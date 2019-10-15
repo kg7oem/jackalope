@@ -21,16 +21,18 @@
 namespace jackalope {
 
 struct node_t : public baseobj_t {
+    const string_t name;
     pool_map_t<string_t, input_t *> inputs;
     pool_map_t<string_t, output_t *> outputs;
 
+    node_t(const string_t& name_in);
     virtual ~node_t();
-    const string_t& get_name();
-    input_t& add_input(const string_t& channel_class_in, const string_t& name_in);
-    input_t& get_input(const string_t& name_in);
-    output_t& add_output(const string_t& channel_class_in, const string_t& name_in);
-    output_t& get_output(const string_t& name_in);
-    virtual void input_ready(input_t& input_in);
+    virtual const string_t& get_name();
+    virtual input_t& add_input(const string_t& channel_class_in, const string_t& name_in);
+    // virtual input_t& get_input(const string_t& name_in);
+    virtual output_t& add_output(const string_t& channel_class_in, const string_t& name_in);
+    // virtual output_t& get_output(const string_t& name_in);
+    virtual void input_ready(input_t& input_in) = 0;
 };
 
 } // namespace jackalope

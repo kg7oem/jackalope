@@ -11,10 +11,18 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
-#include <jackalope/exception.h>
+#include <jackalope/audio.h>
 #include <jackalope/logging.h>
-#include <jackalope/pcm.h>
 
 namespace jackalope {
+
+audio_node_t::audio_node_t(const string_t& name_in)
+: node_t(name_in)
+{ }
+
+void audio_node_t::input_ready(input_t& input_in)
+{
+    log_info("Input is ready: ", input_in.get_name());
+}
 
 } // namespace jackalope

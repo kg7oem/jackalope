@@ -13,10 +13,14 @@
 
 #pragma once
 
+#include <jackalope/node.h>
+#include <jackalope/string.h>
+
 namespace jackalope {
 
-namespace audio {
-
-} // namespace pcm
+struct audio_node_t : public node_t {
+    audio_node_t(const string_t& name_in);
+    void input_ready(input_t& input_in);
+};
 
 } // namespace jackalope

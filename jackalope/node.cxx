@@ -17,6 +17,10 @@
 
 namespace jackalope {
 
+node_t::node_t(const string_t& name_in)
+: name(name_in)
+{ }
+
 node_t::~node_t()
 {
     for (auto i : inputs) {
@@ -26,6 +30,11 @@ node_t::~node_t()
     for (auto i : outputs) {
         delete i.second;
     }
+}
+
+const string_t& node_t::get_name()
+{
+    return name;
 }
 
 input_t& node_t::add_input(const string_t& channel_class_in, const string_t& name_in)
@@ -50,11 +59,6 @@ output_t& node_t::add_output(const string_t& channel_class_in, const string_t& n
     outputs[name_in] = new_channel;
 
     return *new_channel;
-}
-
-void node_t::input_ready(input_t& input_in)
-{
-    log_info("Input is ready: ", input_in.get_name());
 }
 
 } // namespace jackalope

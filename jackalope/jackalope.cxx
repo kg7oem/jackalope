@@ -14,9 +14,9 @@
 #include <iostream>
 #include <string>
 
+#include <jackalope/audio.h>
 #include <jackalope/log/dest.h>
 #include <jackalope/logging.h>
-#include <jackalope/node.h>
 #include <jackalope/pcm.h>
 
 using namespace jackalope;
@@ -28,13 +28,13 @@ int main(void)
 
     pcm_init();
 
-    node_t foo;
+    audio_node_t foo("node 1");
     auto& foo_input = foo.add_input("pcm[real]", "test");
 
-    node_t bar;
+    audio_node_t bar("node 2");
     auto& bar_output = bar.add_output("pcm[real]", "fiddle");
 
-    node_t blah;
+    audio_node_t blah("node 3");
     auto& blah_output = blah.add_output("pcm[real]", "booooze");
 
     bar_output.link(foo_input);
