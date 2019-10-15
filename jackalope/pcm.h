@@ -87,25 +87,28 @@ struct pcm_buffer_t : public baseobj_t, public lockable_t {
 struct pcm_input_t : public input_t {
     pcm_input_t(const string_t& class_name_in, const string_t& name_in, node_t& parent_in);
     virtual ~pcm_input_t() = default;
+    virtual void output_ready(output_t& output_in) override;
+    virtual void link(output_t& output_in) override;
+    virtual void unlink(link_t * link_in) override;
+    virtual void notify() override;
 };
 
 struct pcm_real_input_t : public pcm_input_t {
     pcm_real_input_t(const string_t& name_in, node_t& parent_in);
     virtual ~pcm_real_input_t() = default;
-    virtual void link(output_t& output_in) override;
-    virtual void unlink(link_t * link_in) override;
 };
 
 struct pcm_quad_input_t : public pcm_input_t {
     pcm_quad_input_t(const string_t& name_in, node_t& parent_in);
     virtual ~pcm_quad_input_t() = default;
-    virtual void link(output_t& output_in) override;
-    virtual void unlink(link_t * link_in) override;
 };
 
 struct pcm_output_t : public output_t {
     pcm_output_t(const string_t& class_name_in, const string_t& name_in, node_t& parent_in);
     virtual ~pcm_output_t() = default;
+    virtual void link(input_t& input_in) override;
+    virtual void unlink(link_t * link_in) override;
+    virtual void notify() override;
 };
 
 struct pcm_real_output_t : public pcm_output_t {
@@ -113,8 +116,6 @@ struct pcm_real_output_t : public pcm_output_t {
 
     pcm_real_output_t(const string_t& name_in, node_t& parent_in);
     virtual ~pcm_real_output_t() = default;
-    virtual void link(input_t& input_in) override;
-    virtual void unlink(link_t * link_in) override;
 };
 
 struct pcm_quad_output_t : public pcm_output_t {
@@ -122,8 +123,6 @@ struct pcm_quad_output_t : public pcm_output_t {
 
     pcm_quad_output_t(const string_t& name_in, node_t& parent_in);
     virtual ~pcm_quad_output_t() = default;
-    virtual void link(input_t& input_in) override;
-    virtual void unlink(link_t * link_in) override;
 };
 
 void pcm_init();

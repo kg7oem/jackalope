@@ -34,7 +34,14 @@ int main(void)
     node_t bar;
     auto& bar_output = bar.add_output("pcm[real]", "fiddle");
 
-    foo_input.link(bar_output);
+    node_t blah;
+    auto& blah_output = blah.add_output("pcm[real]", "booooze");
+
+    bar_output.link(foo_input);
+    blah_output.link(foo_input);
+
+    bar_output.notify();
+    blah_output.notify();
 
     log_info("Hello ", 123);
 

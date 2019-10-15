@@ -32,6 +32,7 @@ struct channel_t : public baseobj_t, public lockable_t {
     const string_t class_name;
     node_t& parent;
     pool_list_t<link_t *> links;
+    bool ready_flag = false;
 
     channel_t(const string_t& class_name_in, const string_t& name_in, node_t& parent_in);
     virtual ~channel_t() = default;
@@ -41,21 +42,28 @@ struct channel_t : public baseobj_t, public lockable_t {
     virtual void add_link(link_t * link_in);
     virtual void remove_link(link_t * link_in);
     virtual void unlink(link_t * link_in) = 0;
+    virtual void notify() = 0;
+    virtual bool is_ready();
+    virtual void reset();
 };
 
 struct link_t : public baseobj_t, public lockable_t {
     output_t& from;
     input_t& to;
-    bool active = false;
+    bool enabled_flag = false;
 
     link_t(output_t& from_in, input_t& to_in);
     virtual ~link_t() = default;
+    bool is_enabled();
+    void enable();
+    void disable();
 };
 
 struct input_t : public channel_t {
     input_t(const string_t& class_name_in, const string_t& name_in, node_t& parent_in);
     virtual ~input_t() = default;
     virtual void link(output_t& output_in) = 0;
+    virtual void output_ready(output_t& output_in) = 0;
 };
 
 struct output_t : public channel_t {
@@ -68,7 +76,8 @@ struct output_t : public channel_t {
 //   midi
 //   pcm[real]
 //   pcm[quad]
-//   bitmap
+//   bitmap[rgb]
+//   bitmap[cmyk]
 const string_t extract_channel_class(const string_t& class_in);
 const string_t extract_channel_type(const string_t& class_in);
 

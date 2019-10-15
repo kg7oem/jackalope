@@ -30,6 +30,7 @@ struct node_t : public baseobj_t, public lockable_t {
     input_t& get_input(const string_t& name_in);
     output_t& add_output(const string_t& channel_class_in, const string_t& name_in);
     output_t& get_output(const string_t& name_in);
+    virtual void input_ready(input_t& input_in);
 };
 
 } // namespace jackalope

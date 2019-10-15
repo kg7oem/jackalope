@@ -52,4 +52,9 @@ output_t& node_t::add_output(const string_t& channel_class_in, const string_t& n
     return *new_channel;
 }
 
+void node_t::input_ready(input_t& input_in)
+{
+    log_info("Input is ready: ", input_in.get_name());
+}
+
 } // namespace jackalope

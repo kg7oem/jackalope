@@ -107,9 +107,36 @@ void channel_t::remove_link(link_t * link_in)
     links.erase(found);
 }
 
+bool channel_t::is_ready()
+{
+    return ready_flag;
+}
+
+void channel_t::reset()
+{
+    assert(ready_flag == true);
+
+    ready_flag = false;
+}
+
 link_t::link_t(output_t& from_in, input_t& to_in)
 : from(from_in), to(to_in)
 { }
+
+bool link_t::is_enabled()
+{
+    return enabled_flag;
+}
+
+void link_t::enable()
+{
+    enabled_flag = true;
+}
+
+void link_t::disable()
+{
+    enabled_flag = false;
+}
 
 input_t::input_t(const string_t& class_name_in, const string_t& name_in, node_t& parent_in)
 : channel_t(class_name_in, name_in, parent_in)
