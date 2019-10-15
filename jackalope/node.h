@@ -21,18 +21,31 @@
 
 namespace jackalope {
 
+/* node life cycle
+ *
+ *   construct
+ *   init
+ *   activate
+ *   start
+ */
+
 class node_t : public baseobj_t {
 
 protected:
     friend void input_t::notify();
 
     const string_t name;
+    bool activated_flag = false;
+    bool started_flag = false;
     pool_map_t<string_t, property_t> properties;
     pool_map_t<string_t, input_t *> inputs;
     pool_map_t<string_t, output_t *> outputs;
 
     node_t(const string_t& name_in);
     virtual ~node_t();
+    virtual void init();
+    virtual void activate();
+    virtual void start();
     virtual const string_t& get_name();
     virtual property_t& add_property(const string_t& name_in, property_t::type_t type_in);
     property_t& get_property(const string_t& name_in);
@@ -41,6 +54,11 @@ protected:
     virtual output_t& add_output(const string_t& channel_class_in, const string_t& name_in);
     // virtual output_t& get_output(const string_t& name_in);
     virtual void input_ready(input_t& input_in) = 0;
+
+public:
+    bool virtual is_activated();
+    bool virtual is_started();
+
 };
 
 } // namespace jackalope

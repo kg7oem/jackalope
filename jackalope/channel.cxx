@@ -160,6 +160,10 @@ void output_t::notify()
 {
     assert(ready_flag == false);
 
+    if (! parent.is_started()) {
+        throw_runtime_error("output can not notify a node that has not been started");
+    }
+
     ready_flag = true;
 
     for (auto i : links) {

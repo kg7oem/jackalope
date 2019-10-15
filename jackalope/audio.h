@@ -16,14 +16,50 @@
 #include <jackalope/node.h>
 #include <jackalope/string.h>
 
+#define JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE "audio:sample_rate"
+#define JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE "audio:buffer_size"
+
 namespace jackalope {
+
+struct audio_node_t;
+struct audio_domain_t;
 
 class audio_node_t : public node_t {
 
 protected:
     audio_node_t(const string_t& name_in);
-    void input_ready(input_t& input_in);
-    void pcm_ready();
+    virtual void activate() override;
+    virtual void input_ready(input_t& input_in);
+    virtual void pcm_ready();
+};
+
+class audio_domain_t : public baseobj_t {
+
+protected:
+    size_t sample_rate = 0;
+    size_t buffer_size = 0;
+    pool_list_t<audio_node_t *> audio_nodes;
+
+public:
+    audio_domain_t(const size_t sample_rate_in, const size_t buffer_size_in);
+    ~audio_domain_t();
+    size_t get_sample_rate();
+    size_t get_buffer_size();
+
+    template <class T, typename... Args>
+    T& make_node(Args... args)
+    {
+        auto new_node = new T(args...);
+
+        new_node->get_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE).set(sample_rate);
+        new_node->get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE).set(buffer_size);
+
+        new_node->activate();
+
+        audio_nodes.push_back(new_node);
+
+        return *new_node;
+    }
 };
 
 } // namespace jackalope

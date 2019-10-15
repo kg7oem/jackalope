@@ -32,6 +32,41 @@ node_t::~node_t()
     }
 }
 
+void node_t::init()
+{ }
+
+void node_t::activate()
+{
+    if (activated_flag) {
+        throw_runtime_error("can not activate a node that has already been activated");
+    }
+
+    activated_flag = true;
+}
+
+void node_t::start()
+{
+    if (! activated_flag) {
+        throw_runtime_error("can not start a node that has not been activated");
+    }
+
+    if (started_flag) {
+        throw_runtime_error("can not start a node that has already been started");
+    }
+
+    started_flag = true;
+}
+
+bool node_t::is_activated()
+{
+    return activated_flag;
+}
+
+bool node_t::is_started()
+{
+    return started_flag;
+}
+
 const string_t& node_t::get_name()
 {
     return name;

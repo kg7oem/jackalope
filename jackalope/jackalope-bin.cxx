@@ -26,6 +26,16 @@ struct dev_node : public audio_node_t {
     : audio_node_t(name_in)
     { }
 
+    virtual void activate()
+    {
+        audio_node_t::activate();
+    }
+
+    virtual void start()
+    {
+        audio_node_t::start();
+    }
+
     virtual property_t& add_property(const string_t& name_in, property_t::type_t type_in)
     {
         return audio_node_t::add_property(name_in, type_in);
@@ -54,14 +64,19 @@ int main(void)
 
     jackalope_init();
 
-    dev_node foo("node 1");
+    audio_domain_t domain(48000, 128);
+
+    auto& foo = domain.make_node<dev_node>("node 1");
     auto& foo_input = foo.add_input("pcm[real]", "test");
+    foo.start();
 
-    dev_node bar("node 2");
+    auto& bar = domain.make_node<dev_node>("node 2");
     auto& bar_output = bar.add_output("pcm[real]", "fiddle");
+    bar.start();
 
-    dev_node blah("node 3");
+    auto& blah = domain.make_node<dev_node>("node 3");
     auto& blah_output = blah.add_output("pcm[real]", "booooze");
+    blah.start();
 
     bar_output.link(foo_input);
     blah_output.link(foo_input);
@@ -69,8 +84,7 @@ int main(void)
     bar_output.notify();
     blah_output.notify();
 
-    foo.add_property("config:blah", property_t::type_t::integer);
-    log_info("Property value: ", foo.get_property("config:blah").get_real());
+    log_info("Done running");
 
     return(0);
 }
