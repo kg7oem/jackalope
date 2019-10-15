@@ -20,7 +20,7 @@
 
 namespace jackalope {
 
-struct node_t : public baseobj_t, public lockable_t {
+struct node_t : public baseobj_t {
     pool_map_t<string_t, input_t *> inputs;
     pool_map_t<string_t, output_t *> outputs;
 

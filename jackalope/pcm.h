@@ -26,7 +26,7 @@
 namespace jackalope {
 
 template <typename T>
-struct pcm_buffer_t : public baseobj_t, public lockable_t {
+struct pcm_buffer_t : public baseobj_t {
     using sample_t = T;
 
     bool owns_memory = false;

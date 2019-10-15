@@ -27,7 +27,7 @@ struct link_t;
 using input_constructor_t = function_t<input_t * (const string_t& name_in, node_t& parent_in)>;
 using output_constructor_t = function_t<output_t * (const string_t& name_in, node_t& parent_in)>;
 
-struct channel_t : public baseobj_t, public lockable_t {
+struct channel_t : public baseobj_t {
     const string_t name;
     const string_t class_name;
     node_t& parent;
@@ -47,7 +47,7 @@ struct channel_t : public baseobj_t, public lockable_t {
     virtual void reset();
 };
 
-struct link_t : public baseobj_t, public lockable_t {
+struct link_t : public baseobj_t {
     output_t& from;
     input_t& to;
     bool enabled_flag = false;
