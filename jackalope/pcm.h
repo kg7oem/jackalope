@@ -100,10 +100,8 @@ struct pcm_input_t : public input_t {
 
     virtual ~pcm_input_t() = default;
 
-    virtual void output_ready(output_t& output_in) override
+    virtual void output_ready(output_t&) override
     {
-        log_info("Output is ready: ", output_in.get_name());
-
         for (auto i : links) {
             if (! i->is_enabled()) {
                 continue;

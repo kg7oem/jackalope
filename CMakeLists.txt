@@ -31,6 +31,7 @@ add_library(
 
     jackalope/audio.cxx
     jackalope/channel.cxx
+    jackalope/jackalope.cxx
     jackalope/log/dest.cxx
     jackalope/log/engine.cxx
     jackalope/node.cxx
@@ -44,5 +45,5 @@ target_link_libraries(jackalope ${CMAKE_THREAD_LIBS_INIT})
 enable_testing()
 add_subdirectory(tests/stage-1)
 
-add_executable(jackalope-bin jackalope/jackalope.cxx)
+add_executable(jackalope-bin jackalope/jackalope-bin.cxx)
 target_link_libraries(jackalope-bin jackalope)

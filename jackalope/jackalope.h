@@ -11,10 +11,6 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
-#include <jackalope/jackalope.h>
-#include <jackalope/pcm.h>
+#pragma once
 
-void jackalope_init()
-{
-    jackalope::pcm_init();
-}
+void jackalope_init();
