@@ -183,6 +183,10 @@ struct pcm_output_t : public output_t {
 
     virtual void notify() override
     {
+        assert(ready_flag == false);
+
+        ready_flag = true;
+
         for (auto i : links) {
             if (! i->is_enabled()) {
                 continue;
