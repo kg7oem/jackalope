@@ -37,6 +37,28 @@ const string_t& node_t::get_name()
     return name;
 }
 
+property_t& node_t::add_property(const string_t& name_in, property_t::type_t type_in)
+{
+    auto result = properties.emplace(std::make_pair(name_in, type_in));
+
+    if (! result.second) {
+        throw_runtime_error("Attempt to add duplicate property name: ", name_in);
+    }
+
+    return result.first->second;
+}
+
+property_t& node_t::get_property(const string_t& name_in)
+{
+    auto found = properties.find(name_in);
+
+    if (found == properties.end()) {
+        throw_runtime_error("Could not find property: ", name_in);
+    }
+
+    return found->second;
+}
+
 input_t& node_t::add_input(const string_t& channel_class_in, const string_t& name_in)
 {
     if (inputs.find(channel_class_in) != inputs.end()) {

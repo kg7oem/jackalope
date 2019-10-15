@@ -36,6 +36,7 @@ add_library(
     jackalope/log/engine.cxx
     jackalope/node.cxx
     jackalope/pcm.cxx
+    jackalope/property.cxx
     jackalope/thread.cxx
     jackalope/types.cxx
 )

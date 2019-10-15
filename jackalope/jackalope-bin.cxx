@@ -21,10 +21,20 @@
 
 using namespace jackalope;
 
-struct test_node : public audio_node_t {
-    test_node(const string_t& name_in)
+struct dev_node : public audio_node_t {
+    dev_node(const string_t& name_in)
     : audio_node_t(name_in)
     { }
+
+    virtual property_t& add_property(const string_t& name_in, property_t::type_t type_in)
+    {
+        return audio_node_t::add_property(name_in, type_in);
+    }
+
+    virtual property_t& get_property(const string_t& name_in)
+    {
+        return audio_node_t::get_property(name_in);
+    }
 
     virtual input_t& add_input(const string_t& class_in, const string_t& name_in)
     {
@@ -44,13 +54,13 @@ int main(void)
 
     jackalope_init();
 
-    test_node foo("node 1");
+    dev_node foo("node 1");
     auto& foo_input = foo.add_input("pcm[real]", "test");
 
-    test_node bar("node 2");
+    dev_node bar("node 2");
     auto& bar_output = bar.add_output("pcm[real]", "fiddle");
 
-    test_node blah("node 3");
+    dev_node blah("node 3");
     auto& blah_output = blah.add_output("pcm[real]", "booooze");
 
     bar_output.link(foo_input);
@@ -59,7 +69,8 @@ int main(void)
     bar_output.notify();
     blah_output.notify();
 
-    log_info("Hello ", 123);
+    foo.add_property("config:blah", property_t::type_t::integer);
+    log_info("Property value: ", foo.get_property("config:blah").get_real());
 
     return(0);
 }
