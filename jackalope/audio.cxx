@@ -154,6 +154,17 @@ void audio_domain_t::activate()
     node_t::activate();
 }
 
+void audio_domain_t::reset()
+{
+    for(auto i : outputs) {
+        i.second->reset();
+    }
+
+    for(auto i : audio_nodes) {
+        i->reset();
+    }
+}
+
 audio_node_t& audio_domain_t::make_node(const string_t& name_in, const string_t& class_name_in)
 {
     auto new_node = make_audio_node(name_in, class_name_in);
@@ -173,12 +184,46 @@ void audio_node_t::notify()
 
 void audio_domain_t::input_ready(input_t&)
 {
-    throw_runtime_error("Audio domain can not yet handle a ready input");
+    for(auto i : inputs) {
+        if (! i.second->is_ready()) {
+            return;
+        }
+    }
+
+    pcm_ready();
+}
+
+void audio_domain_t::pcm_ready()
+{
+    log_info("All PCM inputs are ready for audio domain");
 }
 
 void audio_domain_t::notify()
 {
-    throw_runtime_error("Audio domain nodes can not yet notify");
+    for(auto i : outputs) {
+        auto pcm_output = dynamic_cast<pcm_real_output_t *>(i.second);
+        pcm_output->notify();
+    }
+}
+
+user_audio_domain_t::user_audio_domain_t(const string_t& name_in)
+: audio_domain_t(name_in)
+{ }
+
+void user_audio_domain_t::process()
+{
+    notify();
+
+    reset();
+}
+
+void user_audio_domain_t::notify()
+{
+    for(auto i : outputs) {
+        i.second->set_dirty();
+    }
+
+    audio_domain_t::notify();
 }
 
 } // namespace jackalope

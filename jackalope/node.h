@@ -51,6 +51,7 @@ struct node_t : public baseobj_t {
     virtual void init();
     virtual void activate();
     virtual void start();
+    virtual void reset();
     virtual property_t& add_property(const string_t& name_in, property_t::type_t type_in);
     property_t& get_property(const string_t& name_in);
     virtual input_t& add_input(const string_t& channel_class_in, const string_t& name_in);

@@ -32,7 +32,6 @@ struct channel_t : public baseobj_t {
     const string_t class_name;
     node_t& parent;
     pool_list_t<link_t *> links;
-    bool ready_flag = false;
 
     channel_t(const string_t& class_name_in, const string_t& name_in, node_t& parent_in);
     virtual ~channel_t() = default;
@@ -42,7 +41,7 @@ struct channel_t : public baseobj_t {
     virtual void add_link(link_t * link_in);
     virtual void remove_link(link_t * link_in);
     virtual void unlink(link_t * link_in) = 0;
-    virtual bool is_ready();
+    virtual bool is_ready() = 0;
     virtual void reset();
 };
 
@@ -57,16 +56,23 @@ struct link_t : public baseobj_t {
 struct input_t : public channel_t {
     input_t(const string_t& class_name_in, const string_t& name_in, node_t& parent_in);
     virtual ~input_t() = default;
+    virtual bool is_ready();
     virtual void link(output_t& output_in) = 0;
     virtual void notify();
     virtual void output_ready(output_t& output_in) = 0;
 };
 
 struct output_t : public channel_t {
+    bool dirty_flag = false;
+
     output_t(const string_t& class_name_in, const string_t& name_in, node_t& parent_in);
     virtual ~output_t() = default;
+    virtual void set_dirty();
+    virtual bool is_dirty();
+    virtual bool is_ready();
     virtual void notify();
     virtual void link(input_t& input_in) = 0;
+    virtual void reset() override;
 };
 
 // example channel classes and classes with types

@@ -65,7 +65,7 @@ int main(void)
 
     jackalope_init();
 
-    audio_domain_t domain("main");
+    user_audio_domain_t domain("main");
     domain.get_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE).set(48000);
     domain.get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE).set(128);
     auto& domain_output = domain.add_output(JACKALOPE_PCM_CHANNEL_CLASS_REAL, "some output");
@@ -92,7 +92,8 @@ int main(void)
     node1.get_output("Audio Output 1").link(domain.get_input("input 1"));
     node2.get_output("Audio Output 1").link(domain.get_input("input 2"));
 
-    domain_output.notify();
+    domain.process();
+    domain.process();
 
     return(0);
 }

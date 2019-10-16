@@ -77,6 +77,9 @@ channel_t::channel_t(const string_t& class_name_in, const string_t& name_in, nod
 : name(name_in), class_name(class_name_in), parent(parent_in)
 { }
 
+void channel_t::reset()
+{ }
+
 node_t& channel_t::get_parent()
 {
     return parent;
@@ -108,18 +111,6 @@ void channel_t::remove_link(link_t * link_in)
     links.erase(found);
 }
 
-bool channel_t::is_ready()
-{
-    return ready_flag;
-}
-
-void channel_t::reset()
-{
-    assert(ready_flag == true);
-
-    ready_flag = false;
-}
-
 link_t::link_t(output_t& from_in, input_t& to_in)
 : from(from_in), to(to_in)
 { }
@@ -128,12 +119,23 @@ input_t::input_t(const string_t& class_name_in, const string_t& name_in, node_t&
 : channel_t(class_name_in, name_in, parent_in)
 { }
 
+bool input_t::is_ready()
+{
+    if (links.size() == 0) {
+        return true;
+    }
+
+    for(auto i : links) {
+        if (! i->from.is_ready()) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 void input_t::notify()
 {
-    assert(ready_flag == false);
-
-    ready_flag = true;
-
     parent.input_ready(*this);
 }
 
@@ -141,19 +143,45 @@ output_t::output_t(const string_t& class_name_in, const string_t& name_in, node_
 : channel_t(class_name_in, name_in, parent_in)
 { }
 
+void output_t::set_dirty()
+{
+    assert(dirty_flag == false);
+
+    dirty_flag = true;
+}
+
+bool output_t::is_dirty()
+{
+    return dirty_flag;
+}
+
+bool output_t::is_ready()
+{
+    return is_dirty();
+}
+
 void output_t::notify()
 {
-    assert(ready_flag == false);
-
     if (! parent.is_started()) {
-        throw_runtime_error("output can not notify a node that has not been started");
+        throw_runtime_error("output can not notify from a node that has not been started");
     }
 
-    ready_flag = true;
+    if (! dirty_flag) {
+        throw_runtime_error("attempt to notify from an output that was not dirty: ", name);
+    }
 
     for (auto i : links) {
         i->to.output_ready(*this);
     }
+}
+
+void output_t::reset()
+{
+    assert(dirty_flag == true);
+
+    dirty_flag = false;
+
+    channel_t::reset();
 }
 
 } // namespace jackalope

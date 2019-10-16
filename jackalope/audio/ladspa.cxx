@@ -218,6 +218,10 @@ void ladspa_node_t::pcm_ready()
         }
     }
 
+    for(auto i : outputs) {
+        i.second->set_dirty();
+    }
+
     notify();
 }
 

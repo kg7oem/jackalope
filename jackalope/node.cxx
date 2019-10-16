@@ -70,6 +70,13 @@ void node_t::start()
     started_flag = true;
 }
 
+void node_t::reset()
+{
+    for(auto i : outputs) {
+        i.second->reset();
+    }
+}
+
 bool node_t::is_initialized()
 {
     return initialized_flag;
