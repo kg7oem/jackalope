@@ -129,7 +129,16 @@ input_t& node_t::add_input(const string_t& channel_class_in, const string_t& nam
         throw_runtime_error("duplicate input name: ", name_in);
     }
 
+    auto property_name = vaargs_to_string("input:", name_in);
+
+    if (properties.find(property_name) != properties.end()) {
+        throw_runtime_error("property existed for new input: ", property_name);
+    }
+
+    add_property(property_name, property_t::type_t::string).set(channel_class_in);
+
     auto new_channel = make_input_channel(channel_class_in, name_in, *this);
+
     inputs[name_in] = new_channel;
 
     return *new_channel;
@@ -144,6 +153,14 @@ output_t& node_t::add_output(const string_t& channel_class_in, const string_t& n
     if (inputs.find(channel_class_in) != inputs.end()) {
         throw_runtime_error("duplicate input name: ", name_in);
     }
+
+    auto property_name = vaargs_to_string("output:", name_in);
+
+    if (properties.find(property_name) != properties.end()) {
+        throw_runtime_error("property existed for new output: ", property_name);
+    }
+
+    add_property(property_name, property_t::type_t::string).set(channel_class_in);
 
     auto new_channel = make_output_channel(channel_class_in, name_in, *this);
     outputs[name_in] = new_channel;

@@ -18,6 +18,7 @@
 
 #include <boost/filesystem.hpp>
 
+#include <jackalope/audio.h>
 #include <jackalope/audio/ladspa.h>
 #include <jackalope/exception.h>
 #include <jackalope/logging.h>
@@ -129,14 +130,21 @@ void ladspa_node_t::init_instance()
 
     for(size_t port_num = 0; port_num < instance->get_num_ports(); port_num++) {
         auto descriptor = instance->get_port_descriptor(port_num);
+        auto port_name = instance->get_port_name(port_num);
 
         if (LADSPA_IS_PORT_CONTROL(descriptor)) {
             if (LADSPA_IS_PORT_INPUT(descriptor)) {
-                auto property_name = vaargs_to_string("config:", instance->get_port_name(port_num));
+                auto property_name = vaargs_to_string("config:", port_name);
                 add_property(property_name, property_t::type_t::real).set(instance->get_port_default(port_num));
             } else if (LADSPA_IS_PORT_OUTPUT(descriptor)) {
-                auto property_name = vaargs_to_string("state:", instance->get_port_name(port_num));
+                auto property_name = vaargs_to_string("state:", port_name);
                 add_property(property_name, property_t::type_t::real).set(0);
+            }
+        } else if(LADSPA_IS_PORT_AUDIO(descriptor)) {
+            if (LADSPA_IS_PORT_INPUT(descriptor)) {
+                add_input(JACKALOPE_PCM_CHANNEL_CLASS_REAL, port_name);
+            } else if (LADSPA_IS_PORT_OUTPUT(descriptor)) {
+                add_output(JACKALOPE_PCM_CHANNEL_CLASS_REAL, port_name);
             }
         }
     }

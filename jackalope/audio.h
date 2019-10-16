@@ -14,6 +14,7 @@
 #pragma once
 
 #include <jackalope/node.h>
+#include <jackalope/pcm.h>
 #include <jackalope/string.h>
 
 #define JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE "audio:sample_rate"
