@@ -67,13 +67,14 @@ int main(void)
 
     auto ladspa_node = make_audio_node(JACKALOPE_AUDIO_LADSPA_CLASS, "ladspa test");
 
-    ladspa_node->get_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_FILE).set("/usr/lib/ladspa/gverb_1216.so");
+    ladspa_node->get_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_FILE).set("/usr/local/lib/ladspa/ZamComp-ladspa.so");
 
     ladspa_node->init();
 
     log_info("Got node: ", ladspa_node->get_name());
-    log_info("plugin:file = ", ladspa_node->get_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_FILE).get());
-    log_info("plugin:type = ", ladspa_node->get_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_TYPE).get());
+    for(auto& i : ladspa_node->properties) {
+        log_info("  ", i.first, " = ", i.second.get());
+    }
 
     return(0);
 }

@@ -45,7 +45,7 @@ bool property_t::is_defined()
 string_t property_t::get()
 {
     if (! defined_flag) {
-        throw_runtime_error("Use of undefined property");
+        return "(undefined)";
     }
 
     switch(type) {

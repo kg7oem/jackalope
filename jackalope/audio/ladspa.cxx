@@ -11,6 +11,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
+#include <cmath>
 #include <cstdlib>
 #include <dlfcn.h>
 #include <iostream>
@@ -52,7 +53,7 @@ ladspa_node_t::ladspa_node_t(const string_t& node_name_in)
 : audio_node_t(node_name_in, JACKALOPE_AUDIO_LADSPA_CLASS)
 {
     add_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_FILE, property_t::type_t::string);
-    add_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_TYPE, property_t::type_t::size);
+    add_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_ID, property_t::type_t::size);
 }
 
 ladspa_node_t::~ladspa_node_t()
@@ -91,7 +92,15 @@ static ladspa_file_t * make_file_by_id(const ladspa_id_t id_in)
 
 void ladspa_node_t::init()
 {
-    auto& type_property = get_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_TYPE);
+    init_file();
+    init_instance();
+
+    audio_node_t::init();
+}
+
+void ladspa_node_t::init_file()
+{
+    auto& type_property = get_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_ID);
     auto type_is_defined = type_property.is_defined();
     auto& file_property = get_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_FILE);
     auto file_is_defined = file_property.is_defined();
@@ -112,8 +121,25 @@ void ladspa_node_t::init()
 
         type_property.set_size(descriptors[0]->UniqueID);
     }
+}
 
-    audio_node_t::init();
+void ladspa_node_t::init_instance()
+{
+    instance = new ladspa_instance_t(*file, get_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_ID).get_size());
+
+    for(size_t port_num = 0; port_num < instance->get_num_ports(); port_num++) {
+        auto descriptor = instance->get_port_descriptor(port_num);
+
+        if (LADSPA_IS_PORT_CONTROL(descriptor)) {
+            if (LADSPA_IS_PORT_INPUT(descriptor)) {
+                auto property_name = vaargs_to_string("config:", instance->get_port_name(port_num));
+                add_property(property_name, property_t::type_t::real).set(instance->get_port_default(port_num));
+            } else if (LADSPA_IS_PORT_OUTPUT(descriptor)) {
+                auto property_name = vaargs_to_string("state:", instance->get_port_name(port_num));
+                add_property(property_name, property_t::type_t::real).set(0);
+            }
+        }
+    }
 }
 
 ladspa_file_t::ladspa_file_t(const string_t& path_in)
@@ -159,6 +185,95 @@ const pool_vector_t<const ladspa_descriptor_t *> ladspa_file_t::get_descriptors(
     }
 
     return descriptors;
+}
+
+const ladspa_descriptor_t * ladspa_file_t::get_descriptor(const ladspa_id_t id_in)
+{
+    auto found = id_to_descriptor.find(id_in);
+
+    if (found == id_to_descriptor.end()) {
+        throw_runtime_error("Could not find descriptor for LADSPA ID: ", id_in);
+    }
+
+    return found->second;
+}
+
+ladspa_instance_t::ladspa_instance_t(ladspa_file_t& file_in, const ladspa_id_t id_in)
+: file(file_in), id(id_in)
+{
+    descriptor = file.get_descriptor(id_in);
+}
+
+ladspa_instance_t::~ladspa_instance_t()
+{ }
+
+size_t ladspa_instance_t::get_num_ports()
+{
+    return descriptor->PortCount;
+}
+
+ladspa_port_descriptor_t ladspa_instance_t::get_port_descriptor(const size_t port_num_in)
+{
+    if (port_num_in >= get_num_ports()) {
+        throw_runtime_error("port number was greater than LADSPA port count: ", port_num_in);
+    }
+
+    return descriptor->PortDescriptors[port_num_in];
+}
+
+const string_t ladspa_instance_t::get_port_name(const size_t port_num_in)
+{
+    if (port_num_in >= get_num_ports()) {
+        throw_runtime_error("port number was greater than LADSPA port count: ", port_num_in);
+    }
+
+    return descriptor->PortNames[port_num_in];
+}
+
+ladspa_data_t ladspa_instance_t::get_port_default(const size_t port_num_in)
+{
+    if (port_num_in >= get_num_ports()) {
+        throw_runtime_error("port number was greater than LADSPA port count: ", port_num_in);
+    }
+
+    auto port_hints = descriptor->PortRangeHints[port_num_in];
+    auto hint_descriptor = port_hints.HintDescriptor;
+
+    if (! LADSPA_IS_HINT_HAS_DEFAULT(hint_descriptor)) {
+        return 0;
+    } else if (LADSPA_IS_HINT_DEFAULT_0(hint_descriptor)) {
+        return 0;
+    } else if (LADSPA_IS_HINT_DEFAULT_1(hint_descriptor)) {
+        return 1;
+    } else if (LADSPA_IS_HINT_DEFAULT_100(hint_descriptor)) {
+        return 100;
+    } else if (LADSPA_IS_HINT_DEFAULT_440(hint_descriptor)) {
+        return 440;
+    } else if (LADSPA_IS_HINT_DEFAULT_MINIMUM(hint_descriptor)) {
+        return port_hints.LowerBound;
+    } else if (LADSPA_IS_HINT_DEFAULT_LOW(hint_descriptor)) {
+        if (LADSPA_IS_HINT_LOGARITHMIC(hint_descriptor)) {
+            return std::exp(std::log(port_hints.LowerBound) * 0.75 + std::log(port_hints.UpperBound) * 0.25);
+        } else {
+            return port_hints.LowerBound * 0.75 + port_hints.UpperBound * 0.25;
+        }
+    } else if (LADSPA_IS_HINT_DEFAULT_MIDDLE(hint_descriptor)) {
+        if (LADSPA_IS_HINT_LOGARITHMIC(hint_descriptor)) {
+            return std::exp(std::log(port_hints.LowerBound) * 0.5 + std::log(port_hints.UpperBound) * 0.5);
+        } else {
+            return (port_hints.LowerBound * 0.5 + port_hints.UpperBound * 0.5);
+        }
+    } else if (LADSPA_IS_HINT_DEFAULT_HIGH(hint_descriptor)) {
+        if (LADSPA_IS_HINT_LOGARITHMIC(hint_descriptor)) {
+            return std::exp(std::log(port_hints.LowerBound) * 0.25 + std::log(port_hints.UpperBound) * 0.75);
+        } else {
+            return port_hints.LowerBound * 0.25 + port_hints.UpperBound * 0.75;
+        }
+    } else if (LADSPA_IS_HINT_DEFAULT_MAXIMUM(hint_descriptor)) {
+        return port_hints.UpperBound;
+    }
+
+    throw_runtime_error("could not find hint for LADSPA port: ", port_num_in);
 }
 
 } // namespace audio

@@ -19,7 +19,7 @@
 #define JACKALOPE_AUDIO_LADSPA_PATH_ENV "LADSPA_PATH"
 #define JACKALOPE_AUDIO_LADSPA_PATH_DEFAULT "/usr/lib/ladspa"
 #define JACKALOPE_AUDIO_LADSPA_CLASS "audio::ladspa"
-#define JACKALOPE_AUDIO_LADSPA_PROPERTY_TYPE "plugin:type"
+#define JACKALOPE_AUDIO_LADSPA_PROPERTY_ID "plugin:id"
 #define JACKALOPE_AUDIO_LADSPA_PROPERTY_FILE "plugin:file"
 
 namespace jackalope {
@@ -50,14 +50,32 @@ struct ladspa_file_t : public baseobj_t {
     ladspa_file_t(const string_t& path_in);
     ~ladspa_file_t();
     const pool_vector_t<const ladspa_descriptor_t *> get_descriptors();
+    const ladspa_descriptor_t * get_descriptor(const ladspa_id_t id_in);
+};
+
+struct ladspa_instance_t : public baseobj_t {
+    ladspa_file_t& file;
+    const ladspa_id_t id;
+    const ladspa_descriptor_t * descriptor = nullptr;
+    ladspa_handle_t handle = nullptr;
+
+    ladspa_instance_t(ladspa_file_t& file_in, const ladspa_id_t id_in);
+    ~ladspa_instance_t();
+    size_t get_num_ports();
+    ladspa_port_descriptor_t get_port_descriptor(const size_t port_num_in);
+    const string_t get_port_name(const size_t port_num_in);
+    ladspa_data_t get_port_default(const size_t port_num_in);
 };
 
 struct ladspa_node_t : public audio_node_t {
     ladspa_file_t * file = nullptr;
+    ladspa_instance_t * instance = nullptr;
 
     ladspa_node_t(const string_t& node_name_in);
     ~ladspa_node_t();
     virtual void init() override;
+    virtual void init_file();
+    virtual void init_instance();
 };
 
 } // namespace audio
