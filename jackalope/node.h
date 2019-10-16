@@ -64,6 +64,7 @@ struct node_t : public baseobj_t {
     bool virtual is_started();
     virtual const string_t& get_name();
     virtual const string_t& get_class_name();
+    virtual void notify() = 0;
 };
 
 } // namespace jackalope

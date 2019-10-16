@@ -217,6 +217,8 @@ void ladspa_node_t::pcm_ready()
             instance->connect_port(port_num, nullptr);
         }
     }
+
+    notify();
 }
 
 ladspa_file_t::ladspa_file_t(const string_t& path_in)

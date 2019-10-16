@@ -17,6 +17,7 @@
 #include <jackalope/pcm.h>
 #include <jackalope/string.h>
 
+#define JACKALOPE_AUDIO_DOMAIN_CLASS_NAME "audio::domain"
 #define JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE "audio:sample_rate"
 #define JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE "audio:buffer_size"
 
@@ -24,6 +25,7 @@ namespace jackalope {
 
 class audio_node_t;
 class audio_domain_t;
+class audio_driver_t;
 
 void audio_init();
 
@@ -37,24 +39,29 @@ class audio_node_t : public node_t {
 public:
     audio_node_t(const string_t& name_in, const string_t& class_name_in);
     virtual void set_domain(audio_domain_t * domain_in);
+    virtual audio_domain_t& get_domain();
     virtual void activate() override;
     virtual void input_ready(input_t& input_in) override;
     virtual void pcm_ready();
+    virtual void notify() override;
 };
 
-class audio_domain_t : public baseobj_t {
+class audio_domain_t : public node_t {
 
 protected:
-    size_t sample_rate = 0;
-    size_t buffer_size = 0;
     pool_list_t<audio_node_t *> audio_nodes;
+    pcm_buffer_t<real_t> zero_buffer;
 
 public:
-    audio_domain_t(const size_t sample_rate_in, const size_t buffer_size_in);
+    audio_domain_t(const string_t& name_in);
     ~audio_domain_t();
     size_t get_sample_rate();
     size_t get_buffer_size();
+    real_t * get_zero_buffer_pointer();
+    void activate() override;
     audio_node_t& make_node(const string_t& name_in, const string_t& class_name_in);
+    virtual void input_ready(input_t& input_in) override;
+    virtual void notify() override;
 };
 
 } // namespace jackalope

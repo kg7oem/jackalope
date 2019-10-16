@@ -11,6 +11,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
+#include <jackalope/audio.h>
 #include <jackalope/logging.h>
 #include <jackalope/node.h>
 #include <jackalope/pcm.h>
@@ -55,7 +56,8 @@ real_t * pcm_real_input_t::get_buffer_pointer()
     auto num_links = links.size();
 
     if (num_links == 0) {
-        throw_runtime_error("Can not create a buffer pointer with zero links to input yet");
+        auto& audio_node = dynamic_cast<audio_node_t&>(parent);
+        return audio_node.get_domain().get_zero_buffer_pointer();
     } else if (num_links == 1) {
         auto& pcm_output = dynamic_cast<pcm_real_output_t&>(links.front()->from);
         return pcm_output.get_buffer_pointer();

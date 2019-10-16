@@ -53,6 +53,11 @@ audio_node_t::audio_node_t(const string_t& name_in, const string_t& class_name_i
     add_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE, property_t::type_t::size);
 }
 
+audio_domain_t& audio_node_t::get_domain()
+{
+    return *domain;
+}
+
 void audio_node_t::set_domain(audio_domain_t * domain_in)
 {
     if (domain != nullptr) {
@@ -106,9 +111,12 @@ void audio_node_t::pcm_ready()
     log_info("All pcm inputs are ready: ", name);
 }
 
-audio_domain_t::audio_domain_t(const size_t sample_rate_in, const size_t buffer_size_in)
-: sample_rate(sample_rate_in), buffer_size(buffer_size_in)
-{ }
+audio_domain_t::audio_domain_t(const string_t& name_in)
+: node_t(JACKALOPE_AUDIO_DOMAIN_CLASS_NAME, name_in)
+{
+    add_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE, property_t::type_t::size);
+    add_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE, property_t::type_t::size);
+}
 
 audio_domain_t::~audio_domain_t()
 {
@@ -119,12 +127,31 @@ audio_domain_t::~audio_domain_t()
 
 size_t audio_domain_t::get_sample_rate()
 {
-    return sample_rate;
+    return get_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE).get_size();
 }
 
 size_t audio_domain_t::get_buffer_size()
 {
-    return buffer_size;
+    return get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE).get_size();
+}
+
+real_t * audio_domain_t::get_zero_buffer_pointer()
+{
+    return zero_buffer.get_pointer();
+}
+
+void audio_domain_t::activate()
+{
+    auto buffer_size = get_buffer_size();
+
+    zero_buffer.set_num_samples(buffer_size);
+
+    for(auto i : outputs) {
+        auto pcm_output = dynamic_cast<pcm_real_output_t *>(i.second);
+        pcm_output->set_num_samples(buffer_size);
+    }
+
+    node_t::activate();
 }
 
 audio_node_t& audio_domain_t::make_node(const string_t& name_in, const string_t& class_name_in)
@@ -135,6 +162,23 @@ audio_node_t& audio_domain_t::make_node(const string_t& name_in, const string_t&
     audio_nodes.push_back(new_node);
 
     return *new_node;
+}
+
+void audio_node_t::notify()
+{
+    for(auto i : outputs) {
+        i.second->notify();
+    }
+}
+
+void audio_domain_t::input_ready(input_t&)
+{
+    throw_runtime_error("Audio domain can not yet handle a ready input");
+}
+
+void audio_domain_t::notify()
+{
+    throw_runtime_error("Audio domain nodes can not yet notify");
 }
 
 } // namespace jackalope

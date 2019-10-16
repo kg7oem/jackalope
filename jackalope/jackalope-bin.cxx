@@ -65,7 +65,15 @@ int main(void)
 
     jackalope_init();
 
-    audio_domain_t domain(48000, 128);
+    audio_domain_t domain("main");
+    domain.get_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE).set(48000);
+    domain.get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE).set(128);
+    auto& domain_output = domain.add_output(JACKALOPE_PCM_CHANNEL_CLASS_REAL, "some output");
+    domain.add_input(JACKALOPE_PCM_CHANNEL_CLASS_REAL, "input 1");
+    domain.add_input(JACKALOPE_PCM_CHANNEL_CLASS_REAL, "input 2");
+    domain.init();
+    domain.activate();
+    domain.start();
 
     auto& node1 = domain.make_node(JACKALOPE_AUDIO_LADSPA_CLASS, "node 1");
     node1.get_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_FILE).set("/usr/local/lib/ladspa/ZamComp-ladspa.so");
@@ -73,17 +81,18 @@ int main(void)
     node1.activate();
     node1.start();
 
-    auto& node2 = domain.make_node(JACKALOPE_AUDIO_LADSPA_CLASS, "node 1");
+    auto& node2 = domain.make_node(JACKALOPE_AUDIO_LADSPA_CLASS, "node 2");
     node2.get_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_FILE).set("/usr/local/lib/ladspa/ZamComp-ladspa.so");
     node2.init();
     node2.activate();
     node2.start();
 
-    auto& output = node1.get_output("Audio Output 1");
-    output.link(node2.get_input("Audio Input 1"));
-    output.link(node2.get_input("Sidechain Input"));
+    domain_output.link(node1.get_input("Audio Input 1"));
+    domain_output.link(node2.get_input("Audio Input 1"));
+    node1.get_output("Audio Output 1").link(domain.get_input("input 1"));
+    node2.get_output("Audio Output 1").link(domain.get_input("input 2"));
 
-    output.notify();
+    domain_output.notify();
 
     return(0);
 }
