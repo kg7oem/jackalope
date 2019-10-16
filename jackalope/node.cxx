@@ -40,6 +40,8 @@ void node_t::init()
     if (initialized_flag) {
         throw_runtime_error("Can not initalize a node that has already been initialized");
     }
+
+    initialized_flag = true;
 }
 
 void node_t::activate()
