@@ -21,6 +21,7 @@
 #include <jackalope/audio.h>
 #include <jackalope/audio/ladspa.h>
 #include <jackalope/exception.h>
+#include <jackalope/jackalope.h>
 #include <jackalope/logging.h>
 #include <jackalope/string.h>
 
@@ -242,7 +243,7 @@ ladspa_file_t::~ladspa_file_t()
     if (handle != nullptr) {
         if (dlclose(handle)) {
             // FIXME there should be a panic() tool
-            std::cerr << "could not dlclose() ladspa plugin handle: " << dlerror() << std::endl;
+            jackalope_panic("could not dlclose() ladspa plugin handle:", dlerror());
             abort();
         }
 

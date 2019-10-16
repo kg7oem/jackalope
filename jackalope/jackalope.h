@@ -13,4 +13,8 @@
 
 #pragma once
 
+#include <iostream>
+
+#define jackalope_panic(...) { std::cerr << vaargs_to_string(__VA_ARGS__) << std::endl; abort(); }
+
 void jackalope_init();
