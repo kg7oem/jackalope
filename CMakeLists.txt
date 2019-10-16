@@ -30,6 +30,7 @@ add_library(
     jackalope SHARED
 
     jackalope/audio.cxx
+    jackalope/audio/ladspa.cxx
     jackalope/channel.cxx
     jackalope/jackalope.cxx
     jackalope/log/dest.cxx

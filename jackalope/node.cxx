@@ -17,9 +17,12 @@
 
 namespace jackalope {
 
-node_t::node_t(const string_t& name_in)
-: name(name_in)
-{ }
+node_t::node_t(const string_t& name_in, const string_t& class_name_in)
+: name(name_in), class_name(class_name_in)
+{
+    add_property("node:name", property_t::type_t::string).set(name_in);
+    add_property("node:class", property_t::type_t::string).set(class_name_in);
+}
 
 node_t::~node_t()
 {
@@ -33,10 +36,18 @@ node_t::~node_t()
 }
 
 void node_t::init()
-{ }
+{
+    if (initialized_flag) {
+        throw_runtime_error("Can not initalize a node that has already been initialized");
+    }
+}
 
 void node_t::activate()
 {
+    if (! initialized_flag) {
+        throw_runtime_error("Can not activate a node that is not initalized");
+    }
+
     if (activated_flag) {
         throw_runtime_error("can not activate a node that has already been activated");
     }
@@ -57,6 +68,11 @@ void node_t::start()
     started_flag = true;
 }
 
+bool node_t::is_initialized()
+{
+    return initialized_flag;
+}
+
 bool node_t::is_activated()
 {
     return activated_flag;
@@ -72,8 +88,17 @@ const string_t& node_t::get_name()
     return name;
 }
 
+const string_t& node_t::get_class_name()
+{
+    return class_name;
+}
+
 property_t& node_t::add_property(const string_t& name_in, property_t::type_t type_in)
 {
+    if (activated_flag) {
+        throw_runtime_error("can not add a property to a node that has been activated");
+    }
+
     auto result = properties.emplace(std::make_pair(name_in, type_in));
 
     if (! result.second) {
@@ -96,6 +121,10 @@ property_t& node_t::get_property(const string_t& name_in)
 
 input_t& node_t::add_input(const string_t& channel_class_in, const string_t& name_in)
 {
+    if (activated_flag) {
+        throw_runtime_error("Can not add an input to a node that has been activated");
+    }
+
     if (inputs.find(channel_class_in) != inputs.end()) {
         throw_runtime_error("duplicate input name: ", name_in);
     }
@@ -108,6 +137,10 @@ input_t& node_t::add_input(const string_t& channel_class_in, const string_t& nam
 
 output_t& node_t::add_output(const string_t& channel_class_in, const string_t& name_in)
 {
+    if (activated_flag) {
+        throw_runtime_error("Can not add an output to a node that has been activated");
+    }
+
     if (inputs.find(channel_class_in) != inputs.end()) {
         throw_runtime_error("duplicate input name: ", name_in);
     }

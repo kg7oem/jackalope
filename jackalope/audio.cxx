@@ -12,14 +12,42 @@
 // GNU Lesser General Public License for more details.
 
 #include <jackalope/audio.h>
+#include <jackalope/audio/ladspa.h>
 #include <jackalope/exception.h>
 #include <jackalope/logging.h>
 #include <jackalope/pcm.h>
 
 namespace jackalope {
 
-audio_node_t::audio_node_t(const string_t& name_in)
-: node_t(name_in)
+static pool_map_t<string_t, audio_node_constructor_t> audio_node_constructors;
+
+void audio_init()
+{
+    audio::ladspa_init();
+}
+
+void add_audio_node_constructor(const string_t& class_name_in, audio_node_constructor_t constructor_in)
+{
+    if (audio_node_constructors.find(class_name_in) != audio_node_constructors.end()) {
+        throw_runtime_error("Can not add duplicate audio node constructor for class: ", class_name_in);
+    }
+
+    audio_node_constructors[class_name_in] = constructor_in;
+}
+
+audio_node_t * make_audio_node(const string_t& class_name_in, const string_t& node_name_in)
+{
+    auto found = audio_node_constructors.find(class_name_in);
+
+    if (found == audio_node_constructors.end()) {
+        throw_runtime_error("Could not find constructor for audio node class: ", class_name_in);
+    }
+
+    return found->second(node_name_in);
+}
+
+audio_node_t::audio_node_t(const string_t& name_in, const string_t& class_name_in)
+: node_t(name_in, class_name_in)
 {
     add_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE, property_t::type_t::size);
     add_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE, property_t::type_t::size);

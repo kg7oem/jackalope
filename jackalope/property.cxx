@@ -37,8 +37,17 @@ property_t::~property_t()
     }
 }
 
+bool property_t::is_defined()
+{
+    return defined_flag;
+}
+
 string_t property_t::get()
 {
+    if (! defined_flag) {
+        throw_runtime_error("Use of undefined property");
+    }
+
     switch(type) {
         case type_t::unknown: throw_runtime_error("property type was not known");
         case type_t::size: return vaargs_to_string(value.size);
@@ -69,10 +78,10 @@ void property_t::set(const string_t& value_in)
 
     switch(type) {
         case type_t::unknown: throw_runtime_error("property type was not known");
-        case type_t::size: value.size = std::strtoul(c_str, nullptr, 0); return;
-        case type_t::integer: value.integer = std::atoi(c_str); return;
-        case type_t::real: value.real = std::strtof(c_str, nullptr); return;
-        case type_t::string: *value.string = value_in; return;
+        case type_t::size: set_size(std::strtoul(c_str, nullptr, 0)); return;
+        case type_t::integer: set_integer(std::atoi(c_str)); return;
+        case type_t::real: set_real(std::strtof(c_str, nullptr)); return;
+        case type_t::string: set_string(value_in); return;
     }
 
     throw_runtime_error("should never get out of switch statement");
@@ -80,6 +89,10 @@ void property_t::set(const string_t& value_in)
 
 size_t& property_t::get_size()
 {
+    if (! defined_flag) {
+        throw_runtime_error("Use of undefined property");
+    }
+
     if (type != type_t::size) {
         throw_runtime_error("property is not of type: size");
     }
@@ -93,11 +106,16 @@ void property_t::set_size(const size_t size_in)
         throw_runtime_error("property is not of type: size");
     }
 
+    defined_flag = true;
     value.size = size_in;
 }
 
 int_t& property_t::get_integer()
 {
+    if (! defined_flag) {
+        throw_runtime_error("Use of undefined property");
+    }
+
     if (type != type_t::integer) {
         throw_runtime_error("property is not of type: integer");
     }
@@ -111,6 +129,7 @@ void property_t::set_integer(const int_t integer_in)
         throw_runtime_error("property is not of type: integer");
     }
 
+    defined_flag = true;
     value.integer = integer_in;
 }
 
@@ -120,11 +139,16 @@ void property_t::set_real(const real_t real_in)
         throw_runtime_error("property is not of type: real");
     }
 
+    defined_flag = true;
     value.real = real_in;
 }
 
 real_t& property_t::get_real()
 {
+    if (! defined_flag) {
+        throw_runtime_error("Use of undefined property");
+    }
+
     if (type != type_t::real) {
         throw_runtime_error("property is not of type: real");
     }
@@ -138,11 +162,16 @@ void property_t::set_string(const string_t& string_in)
         throw_runtime_error("property is not of type: string");
     }
 
+    defined_flag = true;
     *value.string = string_in;
 }
 
 string_t& property_t::get_string()
 {
+    if (! defined_flag) {
+        throw_runtime_error("Use of undefined property");
+    }
+
     if (type != type_t::string) {
         throw_runtime_error("property is not of type: string");
     }

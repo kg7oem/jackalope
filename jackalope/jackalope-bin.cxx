@@ -15,6 +15,7 @@
 #include <string>
 
 #include <jackalope/audio.h>
+#include <jackalope/audio/ladspa.h>
 #include <jackalope/jackalope.h>
 #include <jackalope/log/dest.h>
 #include <jackalope/logging.h>
@@ -23,7 +24,7 @@ using namespace jackalope;
 
 struct dev_node : public audio_node_t {
     dev_node(const string_t& name_in)
-    : audio_node_t(name_in)
+    : audio_node_t(name_in, "devnode")
     { }
 
     virtual void activate()
@@ -64,27 +65,13 @@ int main(void)
 
     jackalope_init();
 
-    audio_domain_t domain(48000, 128);
+    auto ladspa_node = make_audio_node(JACKALOPE_AUDIO_LADSPA_CLASS, "ladspa test");
 
-    auto& foo = domain.make_node<dev_node>("node 1");
-    auto& foo_input = foo.add_input("pcm[real]", "test");
-    foo.start();
+    ladspa_node->get_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_TYPE).set(100);
 
-    auto& bar = domain.make_node<dev_node>("node 2");
-    auto& bar_output = bar.add_output("pcm[real]", "fiddle");
-    bar.start();
+    ladspa_node->init();
 
-    auto& blah = domain.make_node<dev_node>("node 3");
-    auto& blah_output = blah.add_output("pcm[real]", "booooze");
-    blah.start();
-
-    bar_output.link(foo_input);
-    blah_output.link(foo_input);
-
-    bar_output.notify();
-    blah_output.notify();
-
-    log_info("Done running");
+    log_info("Got node: ", ladspa_node->get_name());
 
     return(0);
 }

@@ -32,6 +32,7 @@ protected:
     };
 
     container_t value;
+    bool defined_flag = false;
 
 public:
     const type_t type = type_t::unknown;
@@ -39,7 +40,9 @@ public:
     property_t(const type_t type_in);
     property_t(const type_t type_in, const double value_in);
     property_t(const type_t type_in, const string_t& value_in);
-    virtual ~property_t();
+    ~property_t();
+
+    bool is_defined();
     string_t get();
     void set(const double value_in);
     void set(const string_t& value_in);
