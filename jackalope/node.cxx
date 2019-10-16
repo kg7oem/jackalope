@@ -20,8 +20,8 @@ namespace jackalope {
 node_t::node_t(const string_t& name_in, const string_t& class_name_in)
 : name(name_in), class_name(class_name_in)
 {
-    add_property("node:name", property_t::type_t::string).set(name_in);
-    add_property("node:class", property_t::type_t::string).set(class_name_in);
+    add_property(JACKALOPE_NODE_PROPERTY_NAME, property_t::type_t::string).set(name_in);
+    add_property(JACKALOPE_NODE_PROPERTY_CLASS, property_t::type_t::string).set(class_name_in);
 }
 
 node_t::~node_t()

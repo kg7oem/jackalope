@@ -61,8 +61,8 @@ void audio_node_t::set_domain(audio_domain_t * domain_in)
 
     domain = domain_in;
 
-    get_property("audio:sample_rate").set(domain->get_sample_rate());
-    get_property("audio:buffer_size").set(domain->get_buffer_size());
+    get_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE).set(domain->get_sample_rate());
+    get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE).set(domain->get_buffer_size());
 }
 
 void audio_node_t::activate()

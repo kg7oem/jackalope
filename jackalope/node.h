@@ -19,6 +19,9 @@
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
 
+#define JACKALOPE_NODE_PROPERTY_NAME "node:name"
+#define JACKALOPE_NODE_PROPERTY_CLASS "node:class"
+
 namespace jackalope {
 
 /* node life cycle

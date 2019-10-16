@@ -153,8 +153,8 @@ void ladspa_node_t::init_instance()
 
 void ladspa_node_t::activate()
 {
-    auto& sample_rat_prop = get_property("audio:sample_rate");
-    auto& buffer_size_prop = get_property("audio:buffer_size");
+    auto& sample_rat_prop = get_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE);
+    auto& buffer_size_prop = get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE);
 
     for (auto i : outputs) {
         auto pcm_output = dynamic_cast<pcm_real_output_t *>(i.second);
@@ -208,7 +208,7 @@ void ladspa_node_t::pcm_ready()
         }
     }
 
-    instance->run(get_property("audio:buffer_size").get_size());
+    instance->run(get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE).get_size());
 
     for(size_t port_num = 0; port_num < instance->get_num_ports(); port_num++) {
         auto descriptor = instance->get_port_descriptor(port_num);
