@@ -49,13 +49,9 @@ struct channel_t : public baseobj_t {
 struct link_t : public baseobj_t {
     output_t& from;
     input_t& to;
-    bool enabled_flag = false;
 
     link_t(output_t& from_in, input_t& to_in);
     virtual ~link_t() = default;
-    bool is_enabled();
-    void enable();
-    void disable();
 };
 
 struct input_t : public channel_t {

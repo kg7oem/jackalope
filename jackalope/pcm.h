@@ -33,39 +33,11 @@ struct pcm_buffer_t : public baseobj_t {
 
     bool owns_memory = false;
     sample_t * pointer = nullptr;
-    const size_t num_samples;
+    size_t num_samples = 0;
 
-    pcm_buffer_t(const size_t num_samples_in)
-    : num_samples(num_samples_in)
+    pcm_buffer_t()
     {
         assert(owns_memory == false);
-
-        if (num_samples_in == 0) {
-            throw_runtime_error("num_samples must be positive");
-        }
-
-        // FIXME should use a pool allocator
-        pointer = static_cast<T *>(std::malloc(get_num_bytes()));
-        if (pointer == nullptr) {
-            throw_runtime_error("could not allocate memory");
-        }
-
-        owns_memory = true;
-    }
-
-    pcm_buffer_t(const size_t num_samples_in, sample_t * pointer_in)
-    : num_samples(num_samples_in)
-    {
-        assert(owns_memory == false);
-
-        pointer = pointer_in;
-    }
-
-    pcm_buffer_t(const size_t num_samples_in, sample_t * pointer_in, const bool owns_memory_in)
-    : num_samples(num_samples_in)
-    {
-        owns_memory = owns_memory_in;
-        pointer = pointer_in;
     }
 
     virtual ~pcm_buffer_t()
@@ -78,6 +50,15 @@ struct pcm_buffer_t : public baseobj_t {
         }
 
         owns_memory = false;
+    }
+
+    void set_num_samples(const size_t num_samples_in)
+    {
+        if (pointer != nullptr) {
+            std::free(pointer);
+        }
+
+        pointer = static_cast<sample_t *>(std::calloc(num_samples_in, sizeof(sample_t)));
     }
 
     size_t get_num_bytes()
@@ -93,7 +74,7 @@ struct pcm_buffer_t : public baseobj_t {
 
 template <typename T>
 struct pcm_input_t : public input_t {
-    using sample_type = T;
+    using sample_t = T;
 
     pcm_input_t(const string_t& class_name_in, const string_t& name_in, node_t& parent_in)
     : input_t(class_name_in, name_in, parent_in)
@@ -104,9 +85,7 @@ struct pcm_input_t : public input_t {
     virtual void output_ready(output_t&) override
     {
         for (auto i : links) {
-            if (! i->is_enabled()) {
-                continue;
-            } else if (! i->from.is_ready()) {
+            if (! i->from.is_ready()) {
                 return;
             }
         }
@@ -114,17 +93,17 @@ struct pcm_input_t : public input_t {
         notify();
     }
 
-    void link(output_t& output_in) override
+    virtual sample_t * get_buffer_pointer() = 0;
+
+    virtual void link(output_t& output_in) override
     {
         auto new_link = new link_t(output_in, *this);
 
         output_in.add_link(new_link);
         add_link(new_link);
-
-        new_link->enable();
     }
 
-    void unlink(link_t * link_in) override
+    virtual void unlink(link_t * link_in) override
     {
         link_in->from.remove_link(link_in);
         link_in->to.remove_link(link_in);
@@ -136,18 +115,20 @@ struct pcm_input_t : public input_t {
 struct pcm_real_input_t : public pcm_input_t<real_t> {
     pcm_real_input_t(const string_t& name_in, node_t& parent_in);
     virtual ~pcm_real_input_t() = default;
+    virtual real_t * get_buffer_pointer() override;
 };
 
 struct pcm_quad_input_t : public pcm_input_t<complex_t> {
     pcm_quad_input_t(const string_t& name_in, node_t& parent_in);
     virtual ~pcm_quad_input_t() = default;
+    virtual complex_t * get_buffer_pointer() override;
 };
 
 template <typename T>
 struct pcm_output_t : public output_t {
-    using sample_type = T;
+    using sample_t = T;
 
-    pcm_buffer_t<sample_type> buffer{512};
+    pcm_buffer_t<sample_t> buffer;
 
     pcm_output_t(const string_t& class_name_in, const string_t& name_in, node_t& parent_in)
     : output_t(class_name_in, name_in, parent_in)
@@ -155,14 +136,22 @@ struct pcm_output_t : public output_t {
 
     virtual ~pcm_output_t() = default;
 
+    virtual void set_buffer_size(const size_t num_samples_in)
+    {
+        buffer.set_num_samples(num_samples_in);
+    }
+
+    sample_t * get_buffer_pointer()
+    {
+        return buffer.get_pointer();
+    }
+
     virtual void link(input_t& input_in) override
     {
         auto new_link = new link_t(*this, input_in);
 
         input_in.add_link(new_link);
         add_link(new_link);
-
-        new_link->enable();
     }
 
     virtual void unlink(link_t * link_in) override
@@ -180,8 +169,6 @@ struct pcm_real_output_t : public pcm_output_t<real_t> {
 };
 
 struct pcm_quad_output_t : public pcm_output_t<complex_t> {
-    pcm_buffer_t<quad_t> buffer{512};
-
     pcm_quad_output_t(const string_t& name_in, node_t& parent_in);
     virtual ~pcm_quad_output_t() = default;
 };

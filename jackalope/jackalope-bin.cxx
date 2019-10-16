@@ -71,6 +71,10 @@ int main(void)
 
     ladspa_node->init();
 
+    ladspa_node->get_property("audio:sample_rate").set(48000);
+    ladspa_node->get_property("audio:buffer_size").set(128);
+    ladspa_node->activate();
+
     log_info("Got node: ", ladspa_node->get_name());
     for(auto& i : ladspa_node->properties) {
         log_info("  ", i.first, " = ", i.second.get());

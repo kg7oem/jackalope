@@ -52,9 +52,9 @@ public:
     virtual property_t& add_property(const string_t& name_in, property_t::type_t type_in);
     property_t& get_property(const string_t& name_in);
     virtual input_t& add_input(const string_t& channel_class_in, const string_t& name_in);
-    // virtual input_t& get_input(const string_t& name_in);
+    virtual input_t& get_input(const string_t& name_in);
     virtual output_t& add_output(const string_t& channel_class_in, const string_t& name_in);
-    // virtual output_t& get_output(const string_t& name_in);
+    virtual output_t& get_output(const string_t& name_in);
     virtual void input_ready(input_t& input_in) = 0;
 
 public:

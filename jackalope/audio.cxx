@@ -55,11 +55,18 @@ audio_node_t::audio_node_t(const string_t& name_in, const string_t& class_name_i
 
 void audio_node_t::activate()
 {
-    if (get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE).get_size() == 0) {
+    auto& buffer_size = get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE);
+    auto& sample_rate = get_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE);
+
+    if (! buffer_size.is_defined()) {
+        throw_runtime_error("property must be defined to activate an audio node: ", JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE);
+    } else if (buffer_size.get_size() == 0) {
         throw_runtime_error("can not activate an audio node with buffer size of 0");
     }
 
-    if (get_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE).get_size() == 0) {
+    if (! sample_rate.is_defined()) {
+        throw_runtime_error("property must be defined to activate an audio node: ", JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE);
+    } else if (buffer_size.get_size() == 0) {
         throw_runtime_error("can not activate an audio node with a sample rate of 0");
     }
 

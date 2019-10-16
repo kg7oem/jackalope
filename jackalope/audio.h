@@ -33,7 +33,7 @@ audio_node_t * make_audio_node(const string_t& class_name_in, const string_t& no
 
 class audio_node_t : public node_t {
 
-protected:
+public:
     audio_node_t(const string_t& name_in, const string_t& class_name_in);
     virtual void activate() override;
     virtual void input_ready(input_t& input_in);

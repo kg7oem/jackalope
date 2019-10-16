@@ -135,7 +135,7 @@ void ladspa_node_t::init_instance()
         if (LADSPA_IS_PORT_CONTROL(descriptor)) {
             if (LADSPA_IS_PORT_INPUT(descriptor)) {
                 auto property_name = vaargs_to_string("config:", port_name);
-                add_property(property_name, property_t::type_t::real).set(instance->get_port_default(port_num));
+                add_property(property_name, property_t::type_t::real);
             } else if (LADSPA_IS_PORT_OUTPUT(descriptor)) {
                 auto property_name = vaargs_to_string("state:", port_name);
                 add_property(property_name, property_t::type_t::real).set(0);
@@ -148,6 +148,49 @@ void ladspa_node_t::init_instance()
             }
         }
     }
+}
+
+void ladspa_node_t::activate()
+{
+    auto sample_rate = get_property("audio:sample_rate").get_size();
+
+    instance->instantiate(sample_rate);
+    instance->activate();
+
+    for(size_t port_num = 0; port_num < instance->get_num_ports(); port_num++) {
+        auto descriptor = instance->get_port_descriptor(port_num);
+        auto port_name = instance->get_port_name(port_num);
+
+        if (LADSPA_IS_PORT_CONTROL(descriptor)) {
+            if (LADSPA_IS_PORT_INPUT(descriptor)) {
+                auto property_name = vaargs_to_string("config:", port_name);
+                auto& property = get_property(property_name);
+
+                property.set(instance->get_port_default(port_num));
+                instance->connect_port(port_num, &property.get_real());
+            } else if (LADSPA_IS_PORT_OUTPUT(descriptor)) {
+                auto property_name = vaargs_to_string("state:", port_name);
+                auto& property = get_property(property_name);
+
+                property.set(0);
+                instance->connect_port(port_num, &property.get_real());
+            }
+        } else if(LADSPA_IS_PORT_AUDIO(descriptor)) {
+            // inputs get connected right before the LADSPA plugin is run
+            if (LADSPA_IS_PORT_OUTPUT(descriptor)) {
+                auto port_name = instance->get_port_name(port_num);
+                auto& output = dynamic_cast<pcm_real_output_t&>(get_output(port_name));
+                instance->connect_port(port_num, output.get_buffer_pointer());
+            }
+        }
+    }
+
+    audio_node_t::activate();
+}
+
+void ladspa_node_t::pcm_ready()
+{
+    audio_node_t::pcm_ready();
 }
 
 ladspa_file_t::ladspa_file_t(const string_t& path_in)
@@ -210,10 +253,21 @@ ladspa_instance_t::ladspa_instance_t(ladspa_file_t& file_in, const ladspa_id_t i
 : file(file_in), id(id_in)
 {
     descriptor = file.get_descriptor(id_in);
+
+    for(size_t i = 0; i < get_num_ports(); i++) {
+        port_name_to_num[get_port_name(i)] = i;
+    }
 }
 
 ladspa_instance_t::~ladspa_instance_t()
-{ }
+{
+    if (handle != nullptr) {
+        descriptor->deactivate(handle);
+        descriptor->cleanup(handle);
+
+        handle = nullptr;
+    }
+}
 
 size_t ladspa_instance_t::get_num_ports()
 {
@@ -236,6 +290,17 @@ const string_t ladspa_instance_t::get_port_name(const size_t port_num_in)
     }
 
     return descriptor->PortNames[port_num_in];
+}
+
+size_t ladspa_instance_t::get_port_num(const string_t& port_name_in)
+{
+    auto found = port_name_to_num.find(port_name_in);
+
+    if (found == port_name_to_num.end()) {
+        throw_runtime_error("Could not find LADSPA port number: ", port_name_in);
+    }
+
+    return found->second;
 }
 
 ladspa_data_t ladspa_instance_t::get_port_default(const size_t port_num_in)
@@ -282,6 +347,29 @@ ladspa_data_t ladspa_instance_t::get_port_default(const size_t port_num_in)
     }
 
     throw_runtime_error("could not find hint for LADSPA port: ", port_num_in);
+}
+
+void ladspa_instance_t::instantiate(const size_t sample_rate_in)
+{
+    handle = descriptor->instantiate(descriptor, sample_rate_in);
+
+    if (handle == nullptr) {
+        throw_runtime_error("could not instantiate LADSPA id: ", id);
+    }
+}
+
+void ladspa_instance_t::activate()
+{
+    assert(handle != nullptr);
+
+    descriptor->activate(handle);
+}
+
+void ladspa_instance_t::connect_port(const size_t port_num_in, ladspa_data_t * pointer_in)
+{
+    assert(handle != nullptr);
+
+    descriptor->connect_port(handle, port_num_in, pointer_in);
 }
 
 } // namespace audio

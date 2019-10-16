@@ -146,6 +146,28 @@ input_t& node_t::add_input(const string_t& channel_class_in, const string_t& nam
     return *new_channel;
 }
 
+input_t& node_t::get_input(const string_t& name_in)
+{
+    auto found = inputs.find(name_in);
+
+    if (found == inputs.end()) {
+        throw_runtime_error("Could not find input: ", name_in);
+    }
+
+    return *found->second;
+}
+
+output_t& node_t::get_output(const string_t& name_in)
+{
+    auto found = outputs.find(name_in);
+
+    if (found == outputs.end()) {
+        throw_runtime_error("Could not find input: ", name_in);
+    }
+
+    return *found->second;
+}
+
 output_t& node_t::add_output(const string_t& channel_class_in, const string_t& name_in)
 {
     if (activated_flag) {
