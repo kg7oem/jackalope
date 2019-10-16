@@ -29,9 +29,8 @@ namespace jackalope {
  *   start
  */
 
-class node_t : public baseobj_t {
+struct node_t : public baseobj_t {
 
-public:
     friend void input_t::notify();
 
     const string_t name;
@@ -57,7 +56,6 @@ public:
     virtual output_t& get_output(const string_t& name_in);
     virtual void input_ready(input_t& input_in) = 0;
 
-public:
     bool virtual is_initialized();
     bool virtual is_activated();
     bool virtual is_started();

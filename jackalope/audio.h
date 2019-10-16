@@ -22,8 +22,8 @@
 
 namespace jackalope {
 
-struct audio_node_t;
-struct audio_domain_t;
+class audio_node_t;
+class audio_domain_t;
 
 void audio_init();
 
@@ -38,7 +38,7 @@ public:
     audio_node_t(const string_t& name_in, const string_t& class_name_in);
     virtual void set_domain(audio_domain_t * domain_in);
     virtual void activate() override;
-    virtual void input_ready(input_t& input_in);
+    virtual void input_ready(input_t& input_in) override;
     virtual void pcm_ready();
 };
 
