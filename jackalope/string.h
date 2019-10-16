@@ -40,4 +40,17 @@ string_t vaargs_to_string(Args&&... args) {
     return buf.str();
 }
 
+// from https://stackoverflow.com/a/236803
+template<typename Out>
+void split_string(const string_t &string_in, const char delim_in, Out result) {
+    stringstring_t ss(string_in);
+    string_t item;
+
+    while (std::getline(ss, item, delim_in)) {
+        *(result++) = item;
+    }
+}
+
+pool_vector_t<string_t> split_string(const string_t& string_in, const char delim_in);
+
 }

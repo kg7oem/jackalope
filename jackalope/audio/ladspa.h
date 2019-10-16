@@ -37,9 +37,26 @@ using ladspa_descriptor_t = LADSPA_Descriptor;
 using ladspa_handle_t = LADSPA_Handle;
 using ladspa_id_t = size_t;
 using ladspa_port_descriptor_t = LADSPA_PortDescriptor;
+using ladspa_descriptor_function_t = LADSPA_Descriptor_Function;
+
+struct ladspa_file_t : public baseobj_t {
+    ladspa_descriptor_function_t descriptor_fn = nullptr;
+    pool_map_t<ladspa_id_t, const ladspa_descriptor_t *> id_to_descriptor;
+    void * handle = nullptr;
+
+    public:
+    const string_t path;
+
+    ladspa_file_t(const string_t& path_in);
+    ~ladspa_file_t();
+    const pool_vector_t<const ladspa_descriptor_t *> get_descriptors();
+};
 
 struct ladspa_node_t : public audio_node_t {
+    ladspa_file_t * file = nullptr;
+
     ladspa_node_t(const string_t& node_name_in);
+    ~ladspa_node_t();
     virtual void init() override;
 };
 

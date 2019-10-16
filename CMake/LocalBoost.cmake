@@ -24,10 +24,10 @@ ExternalProject_Add(
 
     URL "https://dl.bintray.com/boostorg/release/${Boost_DOWNLOAD_MAJOR}.${Boost_DOWNLOAD_MINOR}.0/source/boost_${Boost_DOWNLOAD_MAJOR}_${Boost_DOWNLOAD_MINOR}_0.tar.gz"
     URL "https://newcontinuum.dl.sourceforge.net/project/boost/boost/${Boost_DOWNLOAD_MAJOR}.${Boost_DOWNLOAD_MINOR}.${Boost_DOWNLOAD_PATCH}/boost_${Boost_DOWNLOAD_MAJOR}_${Boost_DOWNLOAD_MINOR}_${Boost_DOWNLOAD_PATCH}.tar.gz"
-    #URL_HASH "SHA512=${Boost_DOWNLOAD_HASH}"
+    URL_HASH "SHA512=${Boost_DOWNLOAD_HASH}"
 
     CONFIGURE_COMMAND ./bootstrap.sh
-    BUILD_COMMAND ./b2 --with-system --build-type=minimal --layout=system cxxflags=-fPIC link=static runtime-link=static threading=multi
+    BUILD_COMMAND ./b2 --with-system --with-filesystem --build-type=minimal --layout=system cxxflags=-fPIC link=static runtime-link=static threading=multi
     INSTALL_COMMAND ""
 )
 
@@ -35,4 +35,4 @@ set(LOCAL_BOOST ON)
 
 ExternalProject_Get_Property(jackalope-boost SOURCE_DIR)
 set(Boost_INCLUDE_DIR "${SOURCE_DIR}")
-set(Boost_LIBRARIES "${SOURCE_DIR}/stage/lib/libboost_system.a")
+set(Boost_LIBRARIES "${SOURCE_DIR}/stage/lib/libboost_system.a" "${SOURCE_DIR}/stage/lib/libboost_filesystem.a")

@@ -38,11 +38,14 @@ add_library(
     jackalope/node.cxx
     jackalope/pcm.cxx
     jackalope/property.cxx
+    jackalope/string.cxx
     jackalope/thread.cxx
     jackalope/types.cxx
 )
 add_dependencies(jackalope jackalope-boost)
-target_link_libraries(jackalope ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(jackalope ${Boost_LIBRARIES})
+
+target_link_libraries(jackalope ${CMAKE_THREAD_LIBS_INIT} -ldl)
 
 enable_testing()
 add_subdirectory(tests/stage-1)
