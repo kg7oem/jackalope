@@ -53,6 +53,18 @@ audio_node_t::audio_node_t(const string_t& name_in, const string_t& class_name_i
     add_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE, property_t::type_t::size);
 }
 
+void audio_node_t::set_domain(audio_domain_t * domain_in)
+{
+    if (domain != nullptr) {
+        throw_runtime_error("Audio node already has an audio domain");
+    }
+
+    domain = domain_in;
+
+    get_property("audio:sample_rate").set(domain->get_sample_rate());
+    get_property("audio:buffer_size").set(domain->get_buffer_size());
+}
+
 void audio_node_t::activate()
 {
     auto& buffer_size = get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE);
@@ -81,7 +93,7 @@ void audio_node_t::input_ready(input_t&)
 
         if (input_class != JACKALOPE_PCM_CHANNEL_CLASS) {
             continue;
-        } else if (! input->is_ready()) {
+        } else if (input->links.size() > 0 && ! input->is_ready()) {
             return;
         }
     }
@@ -113,6 +125,16 @@ size_t audio_domain_t::get_sample_rate()
 size_t audio_domain_t::get_buffer_size()
 {
     return buffer_size;
+}
+
+audio_node_t& audio_domain_t::make_node(const string_t& name_in, const string_t& class_name_in)
+{
+    auto new_node = make_audio_node(name_in, class_name_in);
+
+    new_node->set_domain(this);
+    audio_nodes.push_back(new_node);
+
+    return *new_node;
 }
 
 } // namespace jackalope

@@ -69,6 +69,7 @@ struct ladspa_instance_t : public baseobj_t {
     ladspa_data_t get_port_default(const size_t port_num_in);
     void instantiate(const size_t sample_rate_in);
     void activate();
+    void run(const size_t num_samples_in);
     void connect_port(const size_t port_num_in, ladspa_data_t * pointer_in);
 };
 

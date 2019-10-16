@@ -136,14 +136,17 @@ struct pcm_output_t : public output_t {
 
     virtual ~pcm_output_t() = default;
 
-    virtual void set_buffer_size(const size_t num_samples_in)
+    virtual void set_num_samples(const size_t num_samples_in)
     {
         buffer.set_num_samples(num_samples_in);
     }
 
     sample_t * get_buffer_pointer()
     {
-        return buffer.get_pointer();
+        auto pointer = buffer.get_pointer();
+
+        assert(pointer != nullptr);
+        return pointer;
     }
 
     virtual void link(input_t& input_in) override

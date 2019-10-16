@@ -152,9 +152,15 @@ void ladspa_node_t::init_instance()
 
 void ladspa_node_t::activate()
 {
-    auto sample_rate = get_property("audio:sample_rate").get_size();
+    auto& sample_rat_prop = get_property("audio:sample_rate");
+    auto& buffer_size_prop = get_property("audio:buffer_size");
 
-    instance->instantiate(sample_rate);
+    for (auto i : outputs) {
+        auto pcm_output = dynamic_cast<pcm_real_output_t *>(i.second);
+        pcm_output->set_num_samples(buffer_size_prop.get_size());
+    }
+
+    instance->instantiate(sample_rat_prop.get_size());
     instance->activate();
 
     for(size_t port_num = 0; port_num < instance->get_num_ports(); port_num++) {
@@ -191,6 +197,25 @@ void ladspa_node_t::activate()
 void ladspa_node_t::pcm_ready()
 {
     audio_node_t::pcm_ready();
+
+    for(size_t port_num = 0; port_num < instance->get_num_ports(); port_num++) {
+        auto descriptor = instance->get_port_descriptor(port_num);
+
+        if(LADSPA_IS_PORT_AUDIO(descriptor) && LADSPA_IS_PORT_INPUT(descriptor)) {
+            auto& input = dynamic_cast<pcm_real_input_t&>(get_input(instance->get_port_name(port_num)));
+            instance->connect_port(port_num, input.get_buffer_pointer());
+        }
+    }
+
+    instance->run(get_property("audio:buffer_size").get_size());
+
+    for(size_t port_num = 0; port_num < instance->get_num_ports(); port_num++) {
+        auto descriptor = instance->get_port_descriptor(port_num);
+
+        if(LADSPA_IS_PORT_AUDIO(descriptor) && LADSPA_IS_PORT_INPUT(descriptor)) {
+            instance->connect_port(port_num, nullptr);
+        }
+    }
 }
 
 ladspa_file_t::ladspa_file_t(const string_t& path_in)
@@ -363,6 +388,13 @@ void ladspa_instance_t::activate()
     assert(handle != nullptr);
 
     descriptor->activate(handle);
+}
+
+void ladspa_instance_t::run(const size_t num_samples_in)
+{
+    assert(handle != nullptr);
+
+    descriptor->run(handle, num_samples_in);
 }
 
 void ladspa_instance_t::connect_port(const size_t port_num_in, ladspa_data_t * pointer_in)

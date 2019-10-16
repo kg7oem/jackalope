@@ -32,9 +32,11 @@ void add_audio_node_constructor(const string_t& class_name_in, audio_node_constr
 audio_node_t * make_audio_node(const string_t& class_name_in, const string_t& node_name_in);
 
 class audio_node_t : public node_t {
+    audio_domain_t * domain = nullptr;
 
 public:
     audio_node_t(const string_t& name_in, const string_t& class_name_in);
+    virtual void set_domain(audio_domain_t * domain_in);
     virtual void activate() override;
     virtual void input_ready(input_t& input_in);
     virtual void pcm_ready();
@@ -52,21 +54,7 @@ public:
     ~audio_domain_t();
     size_t get_sample_rate();
     size_t get_buffer_size();
-
-    template <class T, typename... Args>
-    T& make_node(Args... args)
-    {
-        auto new_node = new T(args...);
-
-        new_node->get_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE).set(sample_rate);
-        new_node->get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE).set(buffer_size);
-
-        new_node->activate();
-
-        audio_nodes.push_back(new_node);
-
-        return *new_node;
-    }
+    audio_node_t& make_node(const string_t& name_in, const string_t& class_name_in);
 };
 
 } // namespace jackalope
