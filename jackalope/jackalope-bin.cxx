@@ -20,6 +20,8 @@
 #include <jackalope/log/dest.h>
 #include <jackalope/logging.h>
 
+#define BUFFER_SIZE 128
+
 using namespace jackalope;
 
 struct dev_node : public audio_node_t {
@@ -58,6 +60,18 @@ struct dev_node : public audio_node_t {
     }
 };
 
+real_t ** make_domain_buffer(const size_t num_channels_in, const size_t num_samples_in)
+{
+    real_t ** buffer;
+
+    buffer = new real_t * [num_channels_in];
+    for(size_t i = 0; i < num_channels_in; i++) {
+        buffer[i] = new real_t [num_samples_in];
+    }
+
+    return buffer;
+}
+
 int main(void)
 {
     auto dest = make_shared<log::console_dest_t>(log::level_t::info);
@@ -67,7 +81,7 @@ int main(void)
 
     user_audio_domain_t domain("main");
     domain.get_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE).set(48000);
-    domain.get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE).set(128);
+    domain.get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE).set(BUFFER_SIZE);
     auto& domain_output = domain.add_output(JACKALOPE_PCM_CHANNEL_CLASS_REAL, "some output");
     domain.add_input(JACKALOPE_PCM_CHANNEL_CLASS_REAL, "input 1");
     domain.add_input(JACKALOPE_PCM_CHANNEL_CLASS_REAL, "input 2");
@@ -92,8 +106,11 @@ int main(void)
     node1.get_output("Audio Output 1").link(domain.get_input("input 1"));
     node2.get_output("Audio Output 1").link(domain.get_input("input 2"));
 
-    domain.process();
-    domain.process();
+    auto source_buffer = make_domain_buffer(1, BUFFER_SIZE);
+    auto sink_buffer = make_domain_buffer(2, BUFFER_SIZE);
+
+    domain.process(source_buffer, sink_buffer);
+    domain.process(source_buffer, sink_buffer);
 
     return(0);
 }

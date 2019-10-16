@@ -157,7 +157,7 @@ void ladspa_node_t::activate()
     auto& buffer_size_prop = get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE);
 
     for (auto i : outputs) {
-        auto pcm_output = dynamic_cast<pcm_real_output_t *>(i.second);
+        auto pcm_output = dynamic_cast<pcm_real_output_t *>(i);
         pcm_output->set_num_samples(buffer_size_prop.get_size());
     }
 
@@ -219,7 +219,7 @@ void ladspa_node_t::pcm_ready()
     }
 
     for(auto i : outputs) {
-        i.second->set_dirty();
+        i->set_dirty();
     }
 
     notify();

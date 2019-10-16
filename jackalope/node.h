@@ -42,8 +42,10 @@ struct node_t : public baseobj_t {
     bool activated_flag = false;
     bool started_flag = false;
     pool_map_t<string_t, property_t> properties;
-    pool_map_t<string_t, input_t *> inputs;
-    pool_map_t<string_t, output_t *> outputs;
+    pool_vector_t<input_t *> inputs;
+    pool_map_t<string_t, input_t *> inputs_by_name;
+    pool_vector_t<output_t *> outputs;
+    pool_map_t<string_t, output_t *> outputs_by_name;
 
     node_t(const string_t& name_in, const string_t& class_name_in);
     node_t(const pool_map_t<string_t, string_t>& properties_in);

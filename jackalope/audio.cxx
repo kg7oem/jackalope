@@ -92,8 +92,7 @@ void audio_node_t::activate()
 
 void audio_node_t::input_ready(input_t&)
 {
-    for (auto i : inputs) {
-        auto input = i.second;
+    for (auto input : inputs) {
         auto input_class = extract_channel_class(input->get_class_name());
 
         if (input_class != JACKALOPE_PCM_CHANNEL_CLASS) {
@@ -147,7 +146,7 @@ void audio_domain_t::activate()
     zero_buffer.set_num_samples(buffer_size);
 
     for(auto i : outputs) {
-        auto pcm_output = dynamic_cast<pcm_real_output_t *>(i.second);
+        auto pcm_output = dynamic_cast<pcm_real_output_t *>(i);
         pcm_output->set_num_samples(buffer_size);
     }
 
@@ -157,7 +156,7 @@ void audio_domain_t::activate()
 void audio_domain_t::reset()
 {
     for(auto i : outputs) {
-        i.second->reset();
+        i->reset();
     }
 
     for(auto i : audio_nodes) {
@@ -178,14 +177,14 @@ audio_node_t& audio_domain_t::make_node(const string_t& name_in, const string_t&
 void audio_node_t::notify()
 {
     for(auto i : outputs) {
-        i.second->notify();
+        i->notify();
     }
 }
 
 void audio_domain_t::input_ready(input_t&)
 {
     for(auto i : inputs) {
-        if (! i.second->is_ready()) {
+        if (! i->is_ready()) {
             return;
         }
     }
@@ -198,10 +197,29 @@ void audio_domain_t::pcm_ready()
     log_info("All PCM inputs are ready for audio domain");
 }
 
+// FIXME how to properly const source_buffers_in ?
+void audio_domain_t::process(real_t ** source_buffers_in, real_t ** sink_buffers_in)
+{
+    for(size_t i = 0; i < outputs.size(); i++) {
+        auto pcm_output = dynamic_cast<pcm_real_output_t *>(outputs[i]);
+        pcm_copy(source_buffers_in[i], pcm_output->get_buffer_pointer(), get_buffer_size());
+        pcm_output->set_dirty();
+    }
+
+    notify();
+
+    for(size_t i = 0; i < inputs.size(); i++) {
+        auto pcm_input = dynamic_cast<pcm_real_input_t *>(inputs[i]);
+        pcm_copy(sink_buffers_in[i], pcm_input->get_buffer_pointer(), get_buffer_size());
+    }
+
+    reset();
+}
+
 void audio_domain_t::notify()
 {
     for(auto i : outputs) {
-        auto pcm_output = dynamic_cast<pcm_real_output_t *>(i.second);
+        auto pcm_output = dynamic_cast<pcm_real_output_t *>(i);
         pcm_output->notify();
     }
 }
@@ -209,21 +227,5 @@ void audio_domain_t::notify()
 user_audio_domain_t::user_audio_domain_t(const string_t& name_in)
 : audio_domain_t(name_in)
 { }
-
-void user_audio_domain_t::process()
-{
-    notify();
-
-    reset();
-}
-
-void user_audio_domain_t::notify()
-{
-    for(auto i : outputs) {
-        i.second->set_dirty();
-    }
-
-    audio_domain_t::notify();
-}
 
 } // namespace jackalope

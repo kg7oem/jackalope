@@ -63,13 +63,12 @@ public:
     audio_node_t& make_node(const string_t& name_in, const string_t& class_name_in);
     virtual void input_ready(input_t& input_in) override;
     virtual void pcm_ready();
+    virtual void process(real_t** inputs_in, real_t** outputs_in);
     virtual void notify() override;
 };
 
 struct user_audio_domain_t : public audio_domain_t {
     user_audio_domain_t(const string_t& name_in);
-    virtual void notify() override;
-    virtual void process();
 };
 
 } // namespace jackalope

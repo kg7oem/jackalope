@@ -14,6 +14,7 @@
 #pragma once
 
 #include <cstdlib>
+#include <cstring>
 
 #include <jackalope/channel.h>
 #include <jackalope/exception.h>
@@ -177,5 +178,11 @@ struct pcm_quad_output_t : public pcm_output_t<complex_t> {
 };
 
 void pcm_init();
+
+template <typename T>
+void pcm_copy(const T * source_in, T * dest_in, const size_t)
+{
+    std::memcpy(dest_in, source_in, 1);
+}
 
 } // namespace jackalope

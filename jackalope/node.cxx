@@ -26,12 +26,17 @@ node_t::node_t(const string_t& name_in, const string_t& class_name_in)
 
 node_t::~node_t()
 {
+
+    inputs_by_name.empty();
+
     for (auto i : inputs) {
-        delete i.second;
+        delete i;
     }
 
+    outputs_by_name.empty();
+
     for (auto i : outputs) {
-        delete i.second;
+        delete i;
     }
 }
 
@@ -73,7 +78,7 @@ void node_t::start()
 void node_t::reset()
 {
     for(auto i : outputs) {
-        i.second->reset();
+        i->reset();
     }
 }
 
@@ -134,7 +139,7 @@ input_t& node_t::add_input(const string_t& channel_class_in, const string_t& nam
         throw_runtime_error("Can not add an input to a node that has been activated");
     }
 
-    if (inputs.find(channel_class_in) != inputs.end()) {
+    if (inputs_by_name.find(channel_class_in) != inputs_by_name.end()) {
         throw_runtime_error("duplicate input name: ", name_in);
     }
 
@@ -148,16 +153,17 @@ input_t& node_t::add_input(const string_t& channel_class_in, const string_t& nam
 
     auto new_channel = make_input_channel(channel_class_in, name_in, *this);
 
-    inputs[name_in] = new_channel;
+    inputs.push_back(new_channel);
+    inputs_by_name[name_in] = new_channel;
 
     return *new_channel;
 }
 
 input_t& node_t::get_input(const string_t& name_in)
 {
-    auto found = inputs.find(name_in);
+    auto found = inputs_by_name.find(name_in);
 
-    if (found == inputs.end()) {
+    if (found == inputs_by_name.end()) {
         throw_runtime_error("Could not find input: ", name_in);
     }
 
@@ -166,10 +172,10 @@ input_t& node_t::get_input(const string_t& name_in)
 
 output_t& node_t::get_output(const string_t& name_in)
 {
-    auto found = outputs.find(name_in);
+    auto found = outputs_by_name.find(name_in);
 
-    if (found == outputs.end()) {
-        throw_runtime_error("Could not find input: ", name_in);
+    if (found == outputs_by_name.end()) {
+        throw_runtime_error("Could not find output: ", name_in);
     }
 
     return *found->second;
@@ -181,7 +187,7 @@ output_t& node_t::add_output(const string_t& channel_class_in, const string_t& n
         throw_runtime_error("Can not add an output to a node that has been activated");
     }
 
-    if (inputs.find(channel_class_in) != inputs.end()) {
+    if (inputs_by_name.find(channel_class_in) != inputs_by_name.end()) {
         throw_runtime_error("duplicate input name: ", name_in);
     }
 
@@ -194,7 +200,9 @@ output_t& node_t::add_output(const string_t& channel_class_in, const string_t& n
     add_property(property_name, property_t::type_t::string).set(channel_class_in);
 
     auto new_channel = make_output_channel(channel_class_in, name_in, *this);
-    outputs[name_in] = new_channel;
+
+    outputs.push_back(new_channel);
+    outputs_by_name[name_in] = new_channel;
 
     return *new_channel;
 }
