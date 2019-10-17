@@ -111,7 +111,7 @@ void audio_node_t::input_ready(input_t&)
 
 void audio_node_t::pcm_ready()
 {
-    log_info("All pcm inputs are ready: ", name);
+    // log_info("All pcm inputs are ready: ", name);
 }
 
 audio_domain_t::audio_domain_t(const string_t& name_in)
@@ -164,6 +164,7 @@ void audio_domain_t::reset()
     }
 
     for(auto i : audio_nodes) {
+        // log_info("Resetting node: ", i->get_name());
         i->reset();
     }
 }
@@ -198,7 +199,7 @@ void audio_domain_t::input_ready(input_t&)
 
 void audio_domain_t::pcm_ready()
 {
-    log_info("All PCM inputs are ready for audio domain");
+    // log_info("All PCM inputs are ready for audio domain");
 }
 
 // FIXME how to properly const source_buffers_in ?
@@ -221,6 +222,35 @@ void audio_domain_t::process(real_t ** source_buffers_in, real_t ** sink_buffers
     for(size_t i = 0; i < inputs.size(); i++) {
         auto pcm_input = dynamic_cast<pcm_real_input_t *>(inputs[i]);
         pcm_copy(sink_buffers_in[i], pcm_input->get_buffer_pointer(), get_buffer_size());
+    }
+
+    reset();
+}
+
+void audio_domain_t::process(const real_t * source_buffer_in, real_t * sink_buffer_in)
+{
+    if (source_buffer_in == nullptr && outputs.size() != 0) {
+        throw_runtime_error("audio domain has outputs but the source buffer was null");
+    }
+
+    if (sink_buffer_in == nullptr && inputs.size() != 0) {
+        throw_runtime_error("audio domain has inputs but the sink buffer was null");
+    }
+
+    assert(outputs.size() == 0);
+
+    for(auto i : audio_nodes) {
+        if (i->inputs.size() == 0) {
+            i->pcm_ready();
+        }
+    }
+
+    notify();
+
+    for(size_t i = 0; i < inputs.size(); i++) {
+        auto pcm_input = dynamic_cast<pcm_real_input_t *>(inputs[i]);
+        auto buffer_ptr = pcm_input->get_buffer_pointer();
+        pcm_interleave(buffer_ptr, sink_buffer_in, i, inputs.size(), get_buffer_size());
     }
 
     reset();

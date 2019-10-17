@@ -33,8 +33,10 @@ namespace jackalope {
  */
 
 struct node_t : public baseobj_t {
-
     friend void input_t::notify();
+
+    using inputs_vector_t = pool_vector_t<input_t *>;
+    using outputs_vector_t = pool_vector_t<output_t *>;
 
     const string_t name;
     const string_t class_name;
@@ -42,7 +44,7 @@ struct node_t : public baseobj_t {
     bool activated_flag = false;
     bool started_flag = false;
     pool_map_t<string_t, property_t> properties;
-    pool_vector_t<input_t *> inputs;
+    inputs_vector_t inputs;
     pool_map_t<string_t, input_t *> inputs_by_name;
     pool_vector_t<output_t *> outputs;
     pool_map_t<string_t, output_t *> outputs_by_name;
@@ -58,8 +60,10 @@ struct node_t : public baseobj_t {
     property_t& get_property(const string_t& name_in);
     virtual input_t& add_input(const string_t& channel_class_in, const string_t& name_in);
     virtual input_t& get_input(const string_t& name_in);
+    virtual const inputs_vector_t& get_inputs();
     virtual output_t& add_output(const string_t& channel_class_in, const string_t& name_in);
     virtual output_t& get_output(const string_t& name_in);
+    virtual const outputs_vector_t& get_outputs();
     virtual void input_ready(input_t& input_in) = 0;
 
     bool virtual is_initialized();

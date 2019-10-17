@@ -65,7 +65,8 @@ public:
     audio_driver_t * make_audio_driver(const string_t& name_in);
     virtual void input_ready(input_t& input_in) override;
     virtual void pcm_ready();
-    virtual void process(real_t** inputs_in, real_t** outputs_in);
+    virtual void process(real_t ** source_buffer_in, real_t ** sink_buffer_in);
+    virtual void process(const real_t * source_buffer_in, real_t * sink_buffer_in);
     virtual void notify() override;
 };
 

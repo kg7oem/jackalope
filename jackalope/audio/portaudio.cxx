@@ -107,9 +107,6 @@ int portaudio_driver_t::process(const void * source_buffer_in, void * sink_buffe
         throw_runtime_error("portaudio frames per buffer did not match buffer size: ", frames_per_buffer_in);
     }
 
-    assert(source_buffer == nullptr);
-    assert(sink_buffer != nullptr);
-
     if (status_flags_in) {
         if (status_flags_in & paPrimingOutput) {
             // discard anything that is going to be used for priming
@@ -141,7 +138,18 @@ int portaudio_driver_t::process(const void * source_buffer_in, void * sink_buffe
         }
     }
 
-    throw_runtime_error("portaudio needs to deinterlace");
+    auto& domain_inputs = domain->get_inputs();
+    auto& domain_outputs = domain->get_outputs();
+
+    if (domain_inputs.size() != 2) {
+        throw_runtime_error("portaudio can only handle a domain with 2 inputs");
+    }
+
+    if (domain_outputs.size() != 0) {
+        throw_runtime_error("portaudio can not handle a domain with any outputs");
+    }
+
+    domain->process(source_buffer, sink_buffer);
 
     return 0;
 }

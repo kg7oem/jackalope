@@ -50,6 +50,15 @@ void pcm_extract_interleaved_channel(const T * source_in, T * dest_in, const siz
 }
 
 template <typename T>
+void pcm_interleave(const T * source_in, T * dest_in, const size_t interleave_num_in, const size_t num_channels_in, const size_t num_samples_in)
+{
+    for(size_t i = 0; i < num_samples_in; i++) {
+        auto sample_num = num_channels_in * i + interleave_num_in;
+        dest_in[sample_num] = source_in[i];
+    }
+}
+
+template <typename T>
 struct pcm_buffer_t : public baseobj_t {
     using sample_t = T;
 
