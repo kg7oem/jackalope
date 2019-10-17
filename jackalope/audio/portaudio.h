@@ -11,7 +11,7 @@ extern "C" {
 
 #include <jackalope/audio.h>
 
-#define JACKALOPE_AUDIO_PORTAUDIO_CLASS "audio::portaudio"
+#define JACKALOPE_AUDIO_PORTAUDIO_CLASS "audio::driver::portaudio"
 
 namespace jackalope {
 

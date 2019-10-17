@@ -47,32 +47,32 @@ int main(int argc_in, char ** argv_in)
     domain.add_input(JACKALOPE_PCM_CHANNEL_CLASS_REAL, "right input");
     domain.activate();
 
-    auto driver = domain.make_audio_driver(JACKALOPE_AUDIO_PORTAUDIO_CLASS, "main driver");
+    auto driver = domain.make_audio_driver("portaudio", "main driver");
     driver->init();
     driver->activate();
 
-    auto& file = domain.make_audio_node(JACKALOPE_AUDIO_SNDFILE_CLASS, "sound file");
-    file.init();
-    file.get_property(JACKALOPE_AUDIO_SNDFILE_CONFIG_PATH).set(argv_in[1]);
-    file.activate();
-    file.start();
+    auto file = domain.make_audio_node(JACKALOPE_AUDIO_SNDFILE_CLASS, "sound file");
+    file->init();
+    file->get_property(JACKALOPE_AUDIO_SNDFILE_CONFIG_PATH).set(argv_in[1]);
+    file->activate();
+    file->start();
 
-    auto& left_tube = domain.make_audio_node(JACKALOPE_AUDIO_LADSPA_CLASS, "left tube");
-    left_tube.get_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_ID).set(LADSPA_ZAMTUBE_ID);
-    left_tube.init();
-    left_tube.activate();
-    left_tube.start();
+    auto left_tube = domain.make_audio_node(JACKALOPE_AUDIO_LADSPA_CLASS, "left tube");
+    left_tube->get_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_ID).set(LADSPA_ZAMTUBE_ID);
+    left_tube->init();
+    left_tube->activate();
+    left_tube->start();
 
-    auto& right_tube = domain.make_audio_node(JACKALOPE_AUDIO_LADSPA_CLASS, "right tube");
-    right_tube.get_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_ID).set(LADSPA_ZAMTUBE_ID);
-    right_tube.init();
-    right_tube.activate();
-    right_tube.start();
+    auto right_tube = domain.make_audio_node(JACKALOPE_AUDIO_LADSPA_CLASS, "right tube");
+    right_tube->get_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_ID).set(LADSPA_ZAMTUBE_ID);
+    right_tube->init();
+    right_tube->activate();
+    right_tube->start();
 
-    file.get_output("output 1").link(left_tube.get_input("Audio Input 1"));
-    file.get_output("output 1").link(right_tube.get_input("Audio Input 1"));
-    left_tube.get_output("Audio Output 1").link(domain.get_input("left input"));
-    right_tube.get_output("Audio Output 1").link(domain.get_input("right input"));
+    file->get_output("output 1").link(left_tube->get_input("Audio Input 1"));
+    file->get_output("output 1").link(right_tube->get_input("Audio Input 1"));
+    left_tube->get_output("Audio Output 1").link(domain.get_input("left input"));
+    right_tube->get_output("Audio Output 1").link(domain.get_input("right input"));
 
     driver->start();
 

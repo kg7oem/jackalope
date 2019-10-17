@@ -17,7 +17,9 @@
 #include <jackalope/pcm.h>
 #include <jackalope/string.h>
 
-#define JACKALOPE_AUDIO_DOMAIN_CLASS_NAME "audio::domain"
+#define JACKALOPE_AUDIO_DOMAIN_CLASS_NAME    "audio::domain"
+#define JACKALOPE_AUDIO_NODE_CLASS_PREFIX    "audio::node::"
+#define JACKALOPE_AUDIO_DRIVER_CLASS_PREFIX  "audio::driver::"
 #define JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE "audio:sample_rate"
 #define JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE "audio:buffer_size"
 
@@ -57,29 +59,22 @@ public:
     virtual real_t * get_zero_buffer_pointer();
     virtual void activate() override;
     virtual void reset();
+    virtual audio_node_t * _make_audio_node(const string_t& class_name_in, const string_t& name_in);
 
     template <class T = audio_node_t>
-    audio_node_t& make_audio_node(const string_t& class_name_in, const string_t& name_in)
+    T * make_audio_node(const string_t& class_name_in, const string_t& name_in)
     {
-        auto new_node = make_node<T>(name_in, class_name_in);
-
-        new_node->set_domain(this);
-        audio_nodes.push_back(new_node);
-
-        return *new_node;
+        auto new_node = _make_audio_node(class_name_in, name_in);
+        return dynamic_cast<T *>(new_node);
     }
+
+    virtual audio_driver_t * _make_audio_driver(const string_t& class_name_in, const string_t& name_in);
 
     template <class T = audio_driver_t>
     T * make_audio_driver(const string_t& class_name_in, const string_t& name_in)
     {
-        auto new_node = make_node<T>(name_in, class_name_in);
-
-        new_node->get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE).set(get_buffer_size());
-        new_node->get_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE).set(get_sample_rate());
-
-        new_node->set_domain(this);
-
-        return new_node;
+        auto new_node = _make_audio_driver(class_name_in, name_in);
+        return dynamic_cast<T *>(new_node);
     }
 
     virtual void input_ready(input_t& input_in) override;
