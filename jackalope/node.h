@@ -24,6 +24,16 @@
 
 namespace jackalope {
 
+using node_constructor_t = function_t<node_t * (const string_t& name_in)>;
+void add_node_constructor(const string_t& class_name_in, node_constructor_t constructor_in);
+node_t * _construct_node(const string_t& class_name_in, const string_t& name_in);
+template <typename T = node_t>
+T * make_node(const string_t& class_name_in, const string_t& name_in)
+{
+    auto new_node = _construct_node(class_name_in, name_in);
+    return dynamic_cast<T *>(new_node);
+}
+
 /* node life cycle
  *
  *   construct
@@ -49,7 +59,7 @@ struct node_t : public baseobj_t {
     pool_vector_t<output_t *> outputs;
     pool_map_t<string_t, output_t *> outputs_by_name;
 
-    node_t(const string_t& name_in, const string_t& class_name_in);
+    node_t(const string_t& class_name_in, const string_t& name_in);
     node_t(const pool_map_t<string_t, string_t>& properties_in);
     virtual ~node_t();
     virtual void init();

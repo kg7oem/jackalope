@@ -28,18 +28,6 @@
 
 using namespace jackalope;
 
-real_t ** make_domain_buffer(const size_t num_channels_in, const size_t num_samples_in)
-{
-    real_t ** buffer;
-
-    buffer = new real_t * [num_channels_in];
-    for(size_t i = 0; i < num_channels_in; i++) {
-        buffer[i] = new real_t [num_samples_in];
-    }
-
-    return buffer;
-}
-
 int main(int argc_in, char ** argv_in)
 {
     if (argc_in != 2) {
@@ -59,23 +47,23 @@ int main(int argc_in, char ** argv_in)
     domain.add_input(JACKALOPE_PCM_CHANNEL_CLASS_REAL, "right input");
     domain.activate();
 
-    auto driver = new audio::portaudio_driver_t("main driver", &domain);
+    auto driver = domain.make_audio_driver(JACKALOPE_AUDIO_PORTAUDIO_CLASS, "main driver");
     driver->init();
     driver->activate();
 
-    auto& file = domain.make_node(JACKALOPE_AUDIO_SNDFILE_CLASS, "sound file");
+    auto& file = domain.make_audio_node(JACKALOPE_AUDIO_SNDFILE_CLASS, "sound file");
     file.init();
     file.get_property(JACKALOPE_AUDIO_SNDFILE_CONFIG_PATH).set(argv_in[1]);
     file.activate();
     file.start();
 
-    auto& left_tube = domain.make_node(JACKALOPE_AUDIO_LADSPA_CLASS, "left tube");
+    auto& left_tube = domain.make_audio_node(JACKALOPE_AUDIO_LADSPA_CLASS, "left tube");
     left_tube.get_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_ID).set(LADSPA_ZAMTUBE_ID);
     left_tube.init();
     left_tube.activate();
     left_tube.start();
 
-    auto& right_tube = domain.make_node(JACKALOPE_AUDIO_LADSPA_CLASS, "right tube");
+    auto& right_tube = domain.make_audio_node(JACKALOPE_AUDIO_LADSPA_CLASS, "right tube");
     right_tube.get_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_ID).set(LADSPA_ZAMTUBE_ID);
     right_tube.init();
     right_tube.activate();

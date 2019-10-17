@@ -29,10 +29,6 @@ class audio_driver_t;
 
 void audio_init();
 
-using audio_node_constructor_t = function_t<audio_node_t * (const string_t& name_in)>;
-void add_audio_node_constructor(const string_t& class_name_in, audio_node_constructor_t constructor_in);
-audio_node_t * make_audio_node(const string_t& class_name_in, const string_t& node_name_in);
-
 class audio_node_t : public node_t {
     audio_domain_t * domain = nullptr;
 
@@ -55,14 +51,37 @@ protected:
 
 public:
     audio_domain_t(const string_t& name_in);
-    ~audio_domain_t();
-    size_t get_sample_rate();
-    size_t get_buffer_size();
-    real_t * get_zero_buffer_pointer();
-    void activate() override;
-    void reset();
-    audio_node_t& make_node(const string_t& name_in, const string_t& class_name_in);
-    audio_driver_t * make_audio_driver(const string_t& name_in);
+    virtual ~audio_domain_t();
+    virtual size_t get_sample_rate();
+    virtual size_t get_buffer_size();
+    virtual real_t * get_zero_buffer_pointer();
+    virtual void activate() override;
+    virtual void reset();
+
+    template <class T = audio_node_t>
+    audio_node_t& make_audio_node(const string_t& class_name_in, const string_t& name_in)
+    {
+        auto new_node = make_node<T>(name_in, class_name_in);
+
+        new_node->set_domain(this);
+        audio_nodes.push_back(new_node);
+
+        return *new_node;
+    }
+
+    template <class T = audio_driver_t>
+    T * make_audio_driver(const string_t& class_name_in, const string_t& name_in)
+    {
+        auto new_node = make_node<T>(name_in, class_name_in);
+
+        new_node->get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE).set(get_buffer_size());
+        new_node->get_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE).set(get_sample_rate());
+
+        new_node->set_domain(this);
+
+        return new_node;
+    }
+
     virtual void input_ready(input_t& input_in) override;
     virtual void pcm_ready();
     virtual void process(real_t ** source_buffer_in, real_t ** sink_buffer_in);
@@ -72,8 +91,10 @@ public:
 
 struct audio_driver_t : public node_t {
     audio_domain_t * domain = nullptr;
-    audio_driver_t(const string_t& class_name_in, const string_t& name_in, audio_domain_t * domain_in);
+
+    audio_driver_t(const string_t& class_name_in, const string_t& name_in);
     virtual ~audio_driver_t() = default;
+    virtual void set_domain(audio_domain_t * domain_in);
 };
 
 } // namespace jackalope

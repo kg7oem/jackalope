@@ -48,7 +48,7 @@ void ladspa_init()
         ladspa_path = from_env;
     }
 
-    add_audio_node_constructor(JACKALOPE_AUDIO_LADSPA_CLASS, ladspa_node_constructor);
+    add_node_constructor(JACKALOPE_AUDIO_LADSPA_CLASS, ladspa_node_constructor);
 }
 
 ladspa_node_t::ladspa_node_t(const string_t& node_name_in)

@@ -17,6 +17,28 @@
 
 namespace jackalope {
 
+static pool_map_t<string_t, node_constructor_t> node_constructors;
+
+void add_node_constructor(const string_t& class_name_in, node_constructor_t constructor_in)
+{
+    if (node_constructors.find(class_name_in) != node_constructors.end()) {
+        throw_runtime_error("Can not add duplicate node constructor for class: ", class_name_in);
+    }
+
+    node_constructors[class_name_in] = constructor_in;
+}
+
+node_t * _construct_node(const string_t& node_name_in, const string_t& class_name_in)
+{
+    auto found = node_constructors.find(class_name_in);
+
+    if (found == node_constructors.end()) {
+        throw_runtime_error("Could not find constructor for node class: ", class_name_in);
+    }
+
+    return found->second(node_name_in);
+}
+
 node_t::node_t(const string_t& name_in, const string_t& class_name_in)
 : name(name_in), class_name(class_name_in)
 {

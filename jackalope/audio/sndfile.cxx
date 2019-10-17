@@ -27,7 +27,7 @@ static sndfile_node_t * sndfile_node_constructor(const string_t& node_name_in)
 
 void sndfile_init()
 {
-    add_audio_node_constructor(JACKALOPE_AUDIO_SNDFILE_CLASS, sndfile_node_constructor);
+    add_node_constructor(JACKALOPE_AUDIO_SNDFILE_CLASS, sndfile_node_constructor);
 }
 
 sndfile_node_t::sndfile_node_t(const string_t& name_in)

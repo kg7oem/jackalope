@@ -21,33 +21,11 @@
 
 namespace jackalope {
 
-static pool_map_t<string_t, audio_node_constructor_t> audio_node_constructors;
-
 void audio_init()
 {
     audio::ladspa_init();
     audio::portaudio_init();
     audio::sndfile_init();
-}
-
-void add_audio_node_constructor(const string_t& class_name_in, audio_node_constructor_t constructor_in)
-{
-    if (audio_node_constructors.find(class_name_in) != audio_node_constructors.end()) {
-        throw_runtime_error("Can not add duplicate audio node constructor for class: ", class_name_in);
-    }
-
-    audio_node_constructors[class_name_in] = constructor_in;
-}
-
-audio_node_t * make_audio_node(const string_t& class_name_in, const string_t& node_name_in)
-{
-    auto found = audio_node_constructors.find(class_name_in);
-
-    if (found == audio_node_constructors.end()) {
-        throw_runtime_error("Could not find constructor for audio node class: ", class_name_in);
-    }
-
-    return found->second(node_name_in);
 }
 
 audio_node_t::audio_node_t(const string_t& name_in, const string_t& class_name_in)
@@ -169,16 +147,6 @@ void audio_domain_t::reset()
     }
 }
 
-audio_node_t& audio_domain_t::make_node(const string_t& name_in, const string_t& class_name_in)
-{
-    auto new_node = make_audio_node(name_in, class_name_in);
-
-    new_node->set_domain(this);
-    audio_nodes.push_back(new_node);
-
-    return *new_node;
-}
-
 void audio_node_t::notify()
 {
     for(auto i : outputs) {
@@ -264,8 +232,20 @@ void audio_domain_t::notify()
     }
 }
 
-audio_driver_t::audio_driver_t(const string_t& class_name_in, const string_t& name_in, audio_domain_t * domain_in)
-: node_t(class_name_in, name_in), domain(domain_in)
+audio_driver_t::audio_driver_t(const string_t& class_name_in, const string_t& name_in)
+: node_t(class_name_in, name_in)
 { }
+
+void audio_driver_t::set_domain(audio_domain_t * domain_in)
+{
+    if (domain != nullptr) {
+        throw_runtime_error("Audio driver already has an audio domain");
+    }
+
+    domain = domain_in;
+
+    get_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE).set(domain->get_sample_rate());
+    get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE).set(domain->get_buffer_size());
+}
 
 } // namespace jackalope
