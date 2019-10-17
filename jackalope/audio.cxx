@@ -13,6 +13,7 @@
 
 #include <jackalope/audio.h>
 #include <jackalope/audio/ladspa.h>
+#include <jackalope/audio/portaudio.h>
 #include <jackalope/audio/sndfile.h>
 #include <jackalope/exception.h>
 #include <jackalope/logging.h>
@@ -25,6 +26,7 @@ static pool_map_t<string_t, audio_node_constructor_t> audio_node_constructors;
 void audio_init()
 {
     audio::ladspa_init();
+    audio::portaudio_init();
     audio::sndfile_init();
 }
 
@@ -232,8 +234,8 @@ void audio_domain_t::notify()
     }
 }
 
-user_audio_domain_t::user_audio_domain_t(const string_t& name_in)
-: audio_domain_t(name_in)
+audio_driver_t::audio_driver_t(const string_t& class_name_in, const string_t& name_in, audio_domain_t * domain_in)
+: node_t(class_name_in, name_in), domain(domain_in)
 { }
 
 } // namespace jackalope

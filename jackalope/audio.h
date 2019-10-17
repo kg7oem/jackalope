@@ -51,6 +51,7 @@ class audio_domain_t : public node_t {
 protected:
     pool_list_t<audio_node_t *> audio_nodes;
     pcm_buffer_t<real_t> zero_buffer;
+    audio_driver_t * driver = nullptr;
 
 public:
     audio_domain_t(const string_t& name_in);
@@ -61,14 +62,17 @@ public:
     void activate() override;
     void reset();
     audio_node_t& make_node(const string_t& name_in, const string_t& class_name_in);
+    audio_driver_t * make_audio_driver(const string_t& name_in);
     virtual void input_ready(input_t& input_in) override;
     virtual void pcm_ready();
     virtual void process(real_t** inputs_in, real_t** outputs_in);
     virtual void notify() override;
 };
 
-struct user_audio_domain_t : public audio_domain_t {
-    user_audio_domain_t(const string_t& name_in);
+struct audio_driver_t : public node_t {
+    audio_domain_t * domain = nullptr;
+    audio_driver_t(const string_t& class_name_in, const string_t& name_in, audio_domain_t * domain_in);
+    virtual ~audio_driver_t() = default;
 };
 
 } // namespace jackalope
