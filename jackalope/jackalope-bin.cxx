@@ -40,8 +40,12 @@ real_t ** make_domain_buffer(const size_t num_channels_in, const size_t num_samp
     return buffer;
 }
 
-int main(void)
+int main(int argc_in, char ** argv_in)
 {
+    if (argc_in != 2) {
+        jackalope_panic("must specify exactly one audio file to play");
+    }
+
     auto dest = make_shared<log::console_dest_t>(log::level_t::info);
     log::get_engine()->add_destination(dest);
 
@@ -59,6 +63,12 @@ int main(void)
     driver->init();
     driver->activate();
 
+    auto& file = domain.make_node(JACKALOPE_AUDIO_SNDFILE_CLASS, "sound file");
+    file.init();
+    file.get_property(JACKALOPE_AUDIO_SNDFILE_CONFIG_PATH).set(argv_in[1]);
+    file.activate();
+    file.start();
+
     auto& left_tube = domain.make_node(JACKALOPE_AUDIO_LADSPA_CLASS, "left tube");
     left_tube.get_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_ID).set(LADSPA_ZAMTUBE_ID);
     left_tube.init();
@@ -70,12 +80,6 @@ int main(void)
     right_tube.init();
     right_tube.activate();
     right_tube.start();
-
-    auto& file = domain.make_node(JACKALOPE_AUDIO_SNDFILE_CLASS, "sound file");
-    file.init();
-    file.get_property(JACKALOPE_AUDIO_SNDFILE_CONFIG_PATH).set("/usr/share/sounds/alsa/Rear_Right.wav");
-    file.activate();
-    file.start();
 
     file.get_output("output 1").link(left_tube.get_input("Audio Input 1"));
     file.get_output("output 1").link(right_tube.get_input("Audio Input 1"));
