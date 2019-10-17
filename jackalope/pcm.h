@@ -31,13 +31,17 @@ namespace jackalope {
 template <typename T>
 void pcm_copy(const T * source_in, T * dest_in, const size_t num_samples_in)
 {
-    std::memcpy(dest_in, source_in, num_samples_in);
+    for(size_t i = 0; i < num_samples_in; i++) {
+        dest_in[i] = source_in[i];
+    }
 }
 
 template <typename T>
 void pcm_zero(T * pcm_in, const size_t num_samples_in)
 {
-    std::memset(pcm_in, 0, sizeof(T) * num_samples_in);
+    for(size_t i = 0; i < num_samples_in; i++) {
+        pcm_in[i] = 0;
+    }
 }
 
 template <typename T>
@@ -76,7 +80,7 @@ struct pcm_buffer_t : public baseobj_t {
         if (owns_memory) {
             assert(pointer != nullptr);
 
-            free(pointer);
+            delete pointer;
             pointer = nullptr;
         }
 
@@ -89,7 +93,7 @@ struct pcm_buffer_t : public baseobj_t {
             std::free(pointer);
         }
 
-        pointer = static_cast<sample_t *>(std::calloc(num_samples_in, sizeof(sample_t)));
+        pointer = new sample_t[num_samples_in];
         owns_memory = true;
     }
 
