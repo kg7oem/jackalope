@@ -40,41 +40,41 @@ int main(int argc_in, char ** argv_in)
     jackalope_init();
 
     audio_domain_t domain("main domain");
-    domain.get_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE).set(SAMPLE_RATE);
-    domain.get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE).set(BUFFER_SIZE);
+    domain.get_property("audio:sample_rate").set(SAMPLE_RATE);
+    domain.get_property("audio:buffer_size").set(BUFFER_SIZE);
     domain.init();
-    domain.add_input(JACKALOPE_PCM_CHANNEL_CLASS_REAL, "left input");
-    domain.add_input(JACKALOPE_PCM_CHANNEL_CLASS_REAL, "right input");
+    domain.add_input("pcm[real]", "left input");
+    domain.add_input("pcm[real]", "right input");
     domain.activate();
 
-    auto driver = domain.make_audio_driver("portaudio", "main driver");
-    driver->init();
-    driver->activate();
+    auto system_audio = domain.make_audio_driver("portaudio", "system audio");
+    system_audio->init();
+    system_audio->activate();
 
-    auto file = domain.make_audio_node(JACKALOPE_AUDIO_SNDFILE_CLASS, "sound file");
-    file->init();
-    file->get_property(JACKALOPE_AUDIO_SNDFILE_CONFIG_PATH).set(argv_in[1]);
-    file->activate();
-    file->start();
+    auto input_file = domain.make_audio_node("sndfile", "input file");
+    input_file->init();
+    input_file->get_property("config:path").set(argv_in[1]);
+    input_file->activate();
+    input_file->start();
 
-    auto left_tube = domain.make_audio_node(JACKALOPE_AUDIO_LADSPA_CLASS, "left tube");
-    left_tube->get_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_ID).set(LADSPA_ZAMTUBE_ID);
+    auto left_tube = domain.make_audio_node("ladspa", "left tube");
+    left_tube->get_property("plugin:id").set(LADSPA_ZAMTUBE_ID);
     left_tube->init();
     left_tube->activate();
     left_tube->start();
 
-    auto right_tube = domain.make_audio_node(JACKALOPE_AUDIO_LADSPA_CLASS, "right tube");
-    right_tube->get_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_ID).set(LADSPA_ZAMTUBE_ID);
+    auto right_tube = domain.make_audio_node("ladspa", "right tube");
+    right_tube->get_property("plugin:id").set(LADSPA_ZAMTUBE_ID);
     right_tube->init();
     right_tube->activate();
     right_tube->start();
 
-    file->get_output("output 1").link(left_tube->get_input("Audio Input 1"));
-    file->get_output("output 1").link(right_tube->get_input("Audio Input 1"));
+    input_file->get_output("output 1").link(left_tube->get_input("Audio Input 1"));
+    input_file->get_output("output 1").link(right_tube->get_input("Audio Input 1"));
     left_tube->get_output("Audio Output 1").link(domain.get_input("left input"));
     right_tube->get_output("Audio Output 1").link(domain.get_input("right input"));
 
-    driver->start();
+    system_audio->start();
 
     while(1) {
         using namespace std::chrono_literals;

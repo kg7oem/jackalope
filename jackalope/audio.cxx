@@ -136,7 +136,7 @@ audio_node_t * audio_domain_t::_make_audio_node(const string_t& class_name_in, c
         fully_qualified_name = vaargs_to_string(JACKALOPE_AUDIO_NODE_CLASS_PREFIX, class_name_in);
     }
 
-    auto new_node = make_node<audio_node_t>(name_in, class_name_in);
+    auto new_node = make_node<audio_node_t>(name_in, fully_qualified_name);
 
     new_node->set_domain(this);
     audio_nodes.push_back(new_node);
