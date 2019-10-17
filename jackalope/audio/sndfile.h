@@ -16,6 +16,7 @@
 #include <jackalope/audio.h>
 
 #define JACKALOPE_AUDIO_SNDFILE_CLASS "audio::sndfile"
+#define JACKALOPE_AUDIO_SNDFILE_CONFIG_PATH "config:path"
 
 namespace jackalope {
 

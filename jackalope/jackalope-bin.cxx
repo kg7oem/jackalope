@@ -73,7 +73,7 @@ int main(void)
 
     auto& file = domain.make_node(JACKALOPE_AUDIO_SNDFILE_CLASS, "sound file");
     file.init();
-    file.get_property("config:source").set("/usr/share/sounds/alsa/Rear_Right.wav");
+    file.get_property(JACKALOPE_AUDIO_SNDFILE_CONFIG_PATH).set("/usr/share/sounds/alsa/Rear_Right.wav");
     file.activate();
     file.start();
 

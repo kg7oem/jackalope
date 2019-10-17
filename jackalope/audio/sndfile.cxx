@@ -33,7 +33,7 @@ void sndfile_init()
 sndfile_node_t::sndfile_node_t(const string_t& name_in)
 : audio_node_t(name_in, JACKALOPE_AUDIO_SNDFILE_CLASS)
 {
-    add_property("config:source", property_t::type_t::string);
+    add_property(JACKALOPE_AUDIO_SNDFILE_CONFIG_PATH, property_t::type_t::string);
 }
 
 sndfile_node_t::~sndfile_node_t()
@@ -50,14 +50,14 @@ sndfile_node_t::~sndfile_node_t()
 
 void sndfile_node_t::activate()
 {
-    auto source_file_name = get_property("config:source").get();
+    auto source_file_name = get_property(JACKALOPE_AUDIO_SNDFILE_CONFIG_PATH).get();
     source_file = sndfile::sf_open(source_file_name.c_str(), sndfile::SFM_READ, &source_info);
 
     if (source_file == nullptr) {
         throw_runtime_error("Could not open file: ", sndfile::sf_strerror(nullptr));
     }
 
-    int sample_rate = get_property("audio:sample_rate").get_size();
+    int sample_rate = get_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE).get_size();
 
     if (source_info.samplerate != sample_rate) {
         throw_runtime_error("File sample rate did not match node sample rate: ", source_info.samplerate);
@@ -67,7 +67,7 @@ void sndfile_node_t::activate()
         add_output(JACKALOPE_PCM_CHANNEL_CLASS_REAL, vaargs_to_string("output ", i + 1));
     }
 
-    auto buffer_size = get_property("audio:buffer_size").get_size();
+    auto buffer_size = get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE).get_size();
     source_buffer = new real_t[source_info.channels * buffer_size];
 
     for(auto i : outputs) {
@@ -98,7 +98,7 @@ void sndfile_node_t::pcm_ready()
     }
 
     if (source_file != nullptr) {
-        size_t frames_read = sndfile::sf_readf_float(source_file, source_buffer, get_property("audio:buffer_size").get_size());
+        size_t frames_read = sndfile::sf_readf_float(source_file, source_buffer, get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE).get_size());
 
         log_info("Got ", frames_read, " frames from sndlib");
 
@@ -112,7 +112,7 @@ void sndfile_node_t::pcm_ready()
         for (size_t i = 0; i < outputs.size(); i++) {
             auto pcm_output = dynamic_cast<pcm_real_output_t *>(outputs[i]);
             auto dest_buffer = pcm_output->get_buffer_pointer();
-            auto buffer_size = get_property("audio:buffer_size").get_size();
+            auto buffer_size = get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE).get_size();
             pcm_extract_interleaved_channel(source_buffer, dest_buffer, i, source_info.channels, buffer_size);
         }
     }
