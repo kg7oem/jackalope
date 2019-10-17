@@ -26,11 +26,15 @@ project(jackalope)
 
 find_package(Threads REQUIRED)
 
+# FIXME why doesn't this work?
+# pkg_check_modules(LIBSNDFILE REQUIRED libsndfile-1)
+
 add_library(
     jackalope SHARED
 
     jackalope/audio.cxx
     jackalope/audio/ladspa.cxx
+    jackalope/audio/sndfile.cxx
     jackalope/channel.cxx
     jackalope/jackalope.cxx
     jackalope/log/dest.cxx
@@ -45,7 +49,7 @@ add_library(
 add_dependencies(jackalope jackalope-boost)
 target_link_libraries(jackalope ${Boost_LIBRARIES})
 
-target_link_libraries(jackalope ${CMAKE_THREAD_LIBS_INIT} -ldl)
+target_link_libraries(jackalope ${CMAKE_THREAD_LIBS_INIT} -ldl -lsndfile)
 
 enable_testing()
 add_subdirectory(tests/stage-1)

@@ -16,6 +16,7 @@
 
 #include <jackalope/audio.h>
 #include <jackalope/audio/ladspa.h>
+#include <jackalope/audio/sndfile.h>
 #include <jackalope/jackalope.h>
 #include <jackalope/log/dest.h>
 #include <jackalope/logging.h>
@@ -83,9 +84,9 @@ int main(void)
     domain.get_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE).set(48000);
     domain.get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE).set(BUFFER_SIZE);
     auto& domain_output = domain.add_output(JACKALOPE_PCM_CHANNEL_CLASS_REAL, "some output");
+    domain.init();
     domain.add_input(JACKALOPE_PCM_CHANNEL_CLASS_REAL, "input 1");
     domain.add_input(JACKALOPE_PCM_CHANNEL_CLASS_REAL, "input 2");
-    domain.init();
     domain.activate();
     domain.start();
 
@@ -100,6 +101,12 @@ int main(void)
     node2.init();
     node2.activate();
     node2.start();
+
+    auto& file_node = domain.make_node(JACKALOPE_AUDIO_SNDFILE_CLASS, "sound file");
+    file_node.init();
+    file_node.get_property("config:source").set("/usr/share/sounds/alsa/Rear_Right.wav");
+    file_node.activate();
+    file_node.start();
 
     domain_output.link(node1.get_input("Audio Input 1"));
     domain_output.link(node2.get_input("Audio Input 1"));

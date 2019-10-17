@@ -13,6 +13,7 @@
 
 #include <jackalope/audio.h>
 #include <jackalope/audio/ladspa.h>
+#include <jackalope/audio/sndfile.h>
 #include <jackalope/exception.h>
 #include <jackalope/logging.h>
 #include <jackalope/pcm.h>
@@ -24,6 +25,7 @@ static pool_map_t<string_t, audio_node_constructor_t> audio_node_constructors;
 void audio_init()
 {
     audio::ladspa_init();
+    audio::sndfile_init();
 }
 
 void add_audio_node_constructor(const string_t& class_name_in, audio_node_constructor_t constructor_in)
@@ -200,6 +202,12 @@ void audio_domain_t::pcm_ready()
 // FIXME how to properly const source_buffers_in ?
 void audio_domain_t::process(real_t ** source_buffers_in, real_t ** sink_buffers_in)
 {
+    for(auto i : audio_nodes) {
+        if (i->inputs.size() == 0) {
+            i->pcm_ready();
+        }
+    }
+
     for(size_t i = 0; i < outputs.size(); i++) {
         auto pcm_output = dynamic_cast<pcm_real_output_t *>(outputs[i]);
         pcm_copy(source_buffers_in[i], pcm_output->get_buffer_pointer(), get_buffer_size());

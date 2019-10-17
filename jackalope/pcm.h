@@ -29,6 +29,18 @@
 namespace jackalope {
 
 template <typename T>
+void pcm_copy(const T * source_in, T * dest_in, const size_t num_samples_in)
+{
+    std::memcpy(dest_in, source_in, num_samples_in);
+}
+
+template <typename T>
+void pcm_zero(T * pcm_in, const size_t num_samples_in)
+{
+    std::memset(pcm_in, 0, sizeof(T) * num_samples_in);
+}
+
+template <typename T>
 struct pcm_buffer_t : public baseobj_t {
     using sample_t = T;
 
@@ -60,6 +72,7 @@ struct pcm_buffer_t : public baseobj_t {
         }
 
         pointer = static_cast<sample_t *>(std::calloc(num_samples_in, sizeof(sample_t)));
+        owns_memory = true;
     }
 
     size_t get_num_bytes()
@@ -70,6 +83,11 @@ struct pcm_buffer_t : public baseobj_t {
     sample_t * get_pointer()
     {
         return pointer;
+    }
+
+    void zero()
+    {
+        pcm_zero(pointer, num_samples);
     }
 };
 
@@ -165,6 +183,11 @@ struct pcm_output_t : public output_t {
 
         delete link_in;
     }
+
+    virtual void zero_buffer()
+    {
+        buffer.zero();
+    }
 };
 
 struct pcm_real_output_t : public pcm_output_t<real_t> {
@@ -178,11 +201,5 @@ struct pcm_quad_output_t : public pcm_output_t<complex_t> {
 };
 
 void pcm_init();
-
-template <typename T>
-void pcm_copy(const T * source_in, T * dest_in, const size_t)
-{
-    std::memcpy(dest_in, source_in, 1);
-}
 
 } // namespace jackalope
