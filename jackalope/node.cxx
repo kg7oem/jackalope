@@ -181,7 +181,7 @@ input_t& node_t::add_input(const string_t& channel_class_in, const string_t& nam
     return *new_channel;
 }
 
-input_t& node_t::get_input(const string_t& name_in)
+input_t& node_t::_get_input(const string_t& name_in)
 {
     auto found = inputs_by_name.find(name_in);
 
@@ -197,7 +197,7 @@ const node_t::inputs_vector_t& node_t::get_inputs()
     return inputs;
 }
 
-output_t& node_t::get_output(const string_t& name_in)
+output_t& node_t::_get_output(const string_t& name_in)
 {
     auto found = outputs_by_name.find(name_in);
 

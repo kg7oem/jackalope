@@ -69,13 +69,26 @@ struct node_t : public baseobj_t {
     virtual property_t& add_property(const string_t& name_in, property_t::type_t type_in);
     property_t& get_property(const string_t& name_in);
     virtual input_t& add_input(const string_t& channel_class_in, const string_t& name_in);
-    virtual input_t& get_input(const string_t& name_in);
+    virtual input_t& _get_input(const string_t& name_in);
+
+    template <class T = input_t>
+    T& get_input(const string_t& name_in)
+    {
+        return dynamic_cast<T&>(_get_input(name_in));
+    }
+
     virtual const inputs_vector_t& get_inputs();
     virtual output_t& add_output(const string_t& channel_class_in, const string_t& name_in);
-    virtual output_t& get_output(const string_t& name_in);
+    virtual output_t& _get_output(const string_t& name_in);
+
+    template <class T = output_t>
+    T& get_output(const string_t& name_in)
+    {
+        return dynamic_cast<T&>(_get_output(name_in));
+    }
+
     virtual const outputs_vector_t& get_outputs();
     virtual void input_ready(input_t& input_in) = 0;
-
     bool virtual is_initialized();
     bool virtual is_activated();
     bool virtual is_started();
