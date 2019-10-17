@@ -64,10 +64,16 @@ void sndfile_node_t::activate()
     }
 
     for(int i = 0; i < source_info.channels; i++) {
-        add_output(JACKALOPE_PCM_CHANNEL_CLASS_REAL, vaargs_to_string("output ", i));
+        add_output(JACKALOPE_PCM_CHANNEL_CLASS_REAL, vaargs_to_string("output ", i + 1));
     }
 
-    source_buffer = new real_t[source_info.channels * get_property("audio:buffer_size").get_size()];
+    auto buffer_size = get_property("audio:buffer_size").get_size();
+    source_buffer = new real_t[source_info.channels * buffer_size];
+
+    for(auto i : outputs) {
+        auto pcm_output = dynamic_cast<pcm_real_output_t *>(i);
+        pcm_output->set_num_samples(buffer_size);
+    }
 
     audio_node_t::activate();
 }
@@ -99,7 +105,12 @@ void sndfile_node_t::pcm_ready()
             source_file = nullptr;
         }
 
-        log_info("sndfile node needs to deinterleave audio");
+        for (size_t i = 0; i < outputs.size(); i++) {
+            auto pcm_output = dynamic_cast<pcm_real_output_t *>(outputs[i]);
+            auto dest_buffer = pcm_output->get_buffer_pointer();
+            auto buffer_size = get_property("audio:buffer_size").get_size();
+            pcm_extract_interleaved_channel(source_buffer, dest_buffer, i, source_info.channels, buffer_size);
+        }
     }
 
     notify();

@@ -22,6 +22,8 @@
 #include <jackalope/logging.h>
 
 #define BUFFER_SIZE 128
+#define SAMPLE_RATE 48000
+#define LADSPA_ZAMTUBE_ID 1515476290
 
 using namespace jackalope;
 
@@ -81,43 +83,41 @@ int main(void)
     jackalope_init();
 
     user_audio_domain_t domain("main");
-    domain.get_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE).set(48000);
+    domain.get_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE).set(SAMPLE_RATE);
     domain.get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE).set(BUFFER_SIZE);
-    auto& domain_output = domain.add_output(JACKALOPE_PCM_CHANNEL_CLASS_REAL, "some output");
     domain.init();
-    domain.add_input(JACKALOPE_PCM_CHANNEL_CLASS_REAL, "input 1");
-    domain.add_input(JACKALOPE_PCM_CHANNEL_CLASS_REAL, "input 2");
+    domain.add_input(JACKALOPE_PCM_CHANNEL_CLASS_REAL, "left input");
+    domain.add_input(JACKALOPE_PCM_CHANNEL_CLASS_REAL, "right input");
     domain.activate();
     domain.start();
 
-    auto& node1 = domain.make_node(JACKALOPE_AUDIO_LADSPA_CLASS, "node 1");
-    node1.get_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_FILE).set("/usr/local/lib/ladspa/ZamComp-ladspa.so");
-    node1.init();
-    node1.activate();
-    node1.start();
+    auto& left_tube = domain.make_node(JACKALOPE_AUDIO_LADSPA_CLASS, "left tube");
+    left_tube.get_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_ID).set(LADSPA_ZAMTUBE_ID);
+    left_tube.init();
+    left_tube.activate();
+    left_tube.start();
 
-    auto& node2 = domain.make_node(JACKALOPE_AUDIO_LADSPA_CLASS, "node 2");
-    node2.get_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_FILE).set("/usr/local/lib/ladspa/ZamComp-ladspa.so");
-    node2.init();
-    node2.activate();
-    node2.start();
+    auto& right_tube = domain.make_node(JACKALOPE_AUDIO_LADSPA_CLASS, "right tube");
+    right_tube.get_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_ID).set(LADSPA_ZAMTUBE_ID);
+    right_tube.init();
+    right_tube.activate();
+    right_tube.start();
 
-    auto& file_node = domain.make_node(JACKALOPE_AUDIO_SNDFILE_CLASS, "sound file");
-    file_node.init();
-    file_node.get_property("config:source").set("/usr/share/sounds/alsa/Rear_Right.wav");
-    file_node.activate();
-    file_node.start();
+    auto& file = domain.make_node(JACKALOPE_AUDIO_SNDFILE_CLASS, "sound file");
+    file.init();
+    file.get_property("config:source").set("/usr/share/sounds/alsa/Rear_Right.wav");
+    file.activate();
+    file.start();
 
-    domain_output.link(node1.get_input("Audio Input 1"));
-    domain_output.link(node2.get_input("Audio Input 1"));
-    node1.get_output("Audio Output 1").link(domain.get_input("input 1"));
-    node2.get_output("Audio Output 1").link(domain.get_input("input 2"));
+    file.get_output("output 1").link(left_tube.get_input("Audio Input 1"));
+    file.get_output("output 1").link(right_tube.get_input("Audio Input 1"));
+    left_tube.get_output("Audio Output 1").link(domain.get_input("left input"));
+    right_tube.get_output("Audio Output 1").link(domain.get_input("right input"));
 
-    auto source_buffer = make_domain_buffer(1, BUFFER_SIZE);
     auto sink_buffer = make_domain_buffer(2, BUFFER_SIZE);
 
-    domain.process(source_buffer, sink_buffer);
-    domain.process(source_buffer, sink_buffer);
+    domain.process(nullptr, sink_buffer);
+    domain.process(nullptr, sink_buffer);
 
     return(0);
 }
