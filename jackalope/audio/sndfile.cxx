@@ -100,7 +100,7 @@ void sndfile_node_t::pcm_ready()
     if (source_file != nullptr) {
         size_t frames_read = sndfile::sf_readf_float(source_file, source_buffer, get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE).get_size());
 
-        log_info("Got ", frames_read, " frames from sndlib");
+        // log_info("Got ", frames_read, " frames from sndlib");
 
         if (frames_read == 0) {
             close_file(source_file);
