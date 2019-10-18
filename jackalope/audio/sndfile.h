@@ -40,7 +40,7 @@ struct sndfile_node_t : public audio_node_t {
     sndfile_info_t source_info;
     real_t * source_buffer;
 
-    sndfile_node_t(const string_t& name_in);
+    sndfile_node_t(const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
     virtual ~sndfile_node_t();
     void activate() override;
     void pcm_ready() override;

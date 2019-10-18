@@ -26,9 +26,9 @@ static lock_t get_portaudio_lock()
     return lock_t(portaudio_mutex);
 }
 
-static portaudio_driver_t * portaudio_node_constructor(const string_t& node_name_in)
+static portaudio_driver_t * portaudio_node_constructor(const string_t& node_name_in, node_init_list_t init_list_in)
 {
-    return new portaudio_driver_t(node_name_in);
+    return new portaudio_driver_t(node_name_in, init_list_in);
 }
 
 void portaudio_init()
@@ -43,8 +43,8 @@ void portaudio_init()
     }
 }
 
-portaudio_driver_t::portaudio_driver_t(const string_t& name_in)
-: audio_driver_t(JACKALOPE_AUDIO_PORTAUDIO_CLASS, name_in)
+portaudio_driver_t::portaudio_driver_t(const string_t& name_in, node_init_list_t init_list_in)
+: audio_driver_t(JACKALOPE_AUDIO_PORTAUDIO_CLASS, name_in, init_list_in)
 {
     add_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE, property_t::type_t::size);
     add_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE, property_t::type_t::size);

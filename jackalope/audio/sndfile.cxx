@@ -20,9 +20,9 @@ namespace jackalope {
 
 namespace audio {
 
-static sndfile_node_t * sndfile_node_constructor(const string_t& node_name_in)
+static sndfile_node_t * sndfile_node_constructor(const string_t& node_name_in, node_init_list_t init_list_in = node_init_list_t())
 {
-    return new sndfile_node_t(node_name_in);
+    return new sndfile_node_t(node_name_in, init_list_in);
 }
 
 void sndfile_init()
@@ -30,8 +30,8 @@ void sndfile_init()
     add_node_constructor(JACKALOPE_AUDIO_SNDFILE_CLASS, sndfile_node_constructor);
 }
 
-sndfile_node_t::sndfile_node_t(const string_t& name_in)
-: audio_node_t(name_in, JACKALOPE_AUDIO_SNDFILE_CLASS)
+sndfile_node_t::sndfile_node_t(const string_t& name_in, node_init_list_t init_list_in)
+: audio_node_t(name_in, JACKALOPE_AUDIO_SNDFILE_CLASS, init_list_in)
 {
     add_property(JACKALOPE_AUDIO_SNDFILE_CONFIG_PATH, property_t::type_t::string);
 }

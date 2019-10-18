@@ -77,7 +77,7 @@ struct ladspa_node_t : public audio_node_t {
     ladspa_file_t * file = nullptr;
     ladspa_instance_t * instance = nullptr;
 
-    ladspa_node_t(const string_t& node_name_in);
+    ladspa_node_t(const string_t& node_name_in, node_init_list_t init_list_in = node_init_list_t());
     ~ladspa_node_t();
     virtual void init() override;
     virtual void init_file();

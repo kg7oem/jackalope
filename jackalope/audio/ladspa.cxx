@@ -33,9 +33,9 @@ namespace audio {
 
 static string_t ladspa_path;
 
-static ladspa_node_t * ladspa_node_constructor(const string_t& node_name_in)
+static ladspa_node_t * ladspa_node_constructor(const string_t& node_name_in, node_init_list_t init_list_in)
 {
-    return new ladspa_node_t(node_name_in);
+    return new ladspa_node_t(node_name_in, init_list_in);
 }
 
 void ladspa_init()
@@ -51,8 +51,8 @@ void ladspa_init()
     add_node_constructor(JACKALOPE_AUDIO_LADSPA_CLASS, ladspa_node_constructor);
 }
 
-ladspa_node_t::ladspa_node_t(const string_t& node_name_in)
-: audio_node_t(node_name_in, JACKALOPE_AUDIO_LADSPA_CLASS)
+ladspa_node_t::ladspa_node_t(const string_t& node_name_in, node_init_list_t init_list_in)
+: audio_node_t(node_name_in, JACKALOPE_AUDIO_LADSPA_CLASS, init_list_in)
 {
     add_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_FILE, property_t::type_t::string);
     add_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_ID, property_t::type_t::size);

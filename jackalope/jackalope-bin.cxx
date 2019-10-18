@@ -39,9 +39,11 @@ int main(int argc_in, char ** argv_in)
 
     jackalope_init();
 
-    audio_domain_t domain("main domain");
-    domain.get_property("audio:sample_rate").set(SAMPLE_RATE);
-    domain.get_property("audio:buffer_size").set(BUFFER_SIZE);
+    audio_domain_t domain("main domain", {
+        { "audio:sample_rate", vaargs_to_string(48000) },
+        { "audio:buffer_size", vaargs_to_string(128) },
+    });
+
     domain.init();
     domain.add_input("pcm[real]", "left input");
     domain.add_input("pcm[real]", "right input");

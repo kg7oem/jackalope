@@ -26,7 +26,7 @@ void portaudio_init();
 struct portaudio_driver_t : audio_driver_t {
     portaudio_stream_t * stream = nullptr;
 
-    portaudio_driver_t(const string_t& name_in);
+    portaudio_driver_t(const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
     virtual ~portaudio_driver_t();
     virtual void init() override;
     virtual void activate() override;

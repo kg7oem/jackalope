@@ -12,6 +12,7 @@
 // GNU Lesser General Public License for more details.
 
 #include <jackalope/exception.h>
+#include <jackalope/jackalope.h>
 #include <jackalope/logging.h>
 #include <jackalope/node.h>
 
@@ -28,7 +29,7 @@ void add_node_constructor(const string_t& class_name_in, node_constructor_t cons
     node_constructors[class_name_in] = constructor_in;
 }
 
-node_t * _construct_node(const string_t& node_name_in, const string_t& class_name_in)
+node_t * _make_node(const string_t& node_name_in, const string_t& class_name_in, node_init_list_t init_list_in)
 {
     auto found = node_constructors.find(class_name_in);
 
@@ -36,12 +37,16 @@ node_t * _construct_node(const string_t& node_name_in, const string_t& class_nam
         throw_runtime_error("Could not find constructor for node class: ", class_name_in);
     }
 
-    return found->second(node_name_in);
+    return found->second(node_name_in, init_list_in);
 }
 
-node_t::node_t(const string_t& name_in, const string_t& class_name_in)
+node_t::node_t(const string_t& name_in, const string_t& class_name_in, node_init_list_t node_init_list)
 : name(name_in), class_name(class_name_in)
 {
+    for (auto i : node_init_list) {
+        prop_args.emplace(i);
+    }
+
     add_property(JACKALOPE_NODE_PROPERTY_NAME, property_t::type_t::string).set(name_in);
     add_property(JACKALOPE_NODE_PROPERTY_CLASS, property_t::type_t::string).set(class_name_in);
 }
@@ -141,7 +146,14 @@ property_t& node_t::add_property(const string_t& name_in, property_t::type_t typ
         throw_runtime_error("Attempt to add duplicate property name: ", name_in);
     }
 
-    return result.first->second;
+    auto& property = result.first->second;
+
+    auto prop_arg_found = prop_args.find(name_in);
+    if (prop_arg_found != prop_args.end()) {
+        property.set(prop_arg_found->second);
+    }
+
+    return property;
 }
 
 property_t& node_t::get_property(const string_t& name_in)

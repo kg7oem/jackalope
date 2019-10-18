@@ -13,6 +13,8 @@
 
 #pragma once
 
+#include <initializer_list>
+
 #include <jackalope/node.h>
 #include <jackalope/pcm.h>
 #include <jackalope/string.h>
@@ -35,7 +37,7 @@ class audio_node_t : public node_t {
     audio_domain_t * domain = nullptr;
 
 public:
-    audio_node_t(const string_t& name_in, const string_t& class_name_in);
+    audio_node_t(const string_t& name_in, const string_t& class_name_in, node_init_list_t init_list_in = node_init_list_t());
     virtual void set_domain(audio_domain_t * domain_in);
     virtual audio_domain_t& get_domain();
     virtual void activate() override;
@@ -52,28 +54,28 @@ protected:
     audio_driver_t * driver = nullptr;
 
 public:
-    audio_domain_t(const string_t& name_in);
+    audio_domain_t(const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
     virtual ~audio_domain_t();
     virtual size_t get_sample_rate();
     virtual size_t get_buffer_size();
     virtual real_t * get_zero_buffer_pointer();
     virtual void activate() override;
     virtual void reset();
-    virtual audio_node_t * _make_audio_node(const string_t& class_name_in, const string_t& name_in);
+    virtual audio_node_t * _make_audio_node(const string_t& class_name_in, const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
 
-    template <class T = audio_node_t>
-    T * make_audio_node(const string_t& class_name_in, const string_t& name_in)
+    template <class T = audio_node_t, typename... Args>
+    T * make_audio_node(Args... args)
     {
-        auto new_node = _make_audio_node(class_name_in, name_in);
+        auto new_node = _make_audio_node(args...);
         return dynamic_cast<T *>(new_node);
     }
 
-    virtual audio_driver_t * _make_audio_driver(const string_t& class_name_in, const string_t& name_in);
+    virtual audio_driver_t * _make_audio_driver(const string_t& class_name_in, const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
 
-    template <class T = audio_driver_t>
-    T * make_audio_driver(const string_t& class_name_in, const string_t& name_in)
+    template <class T = audio_driver_t, typename... Args>
+    T * make_audio_driver(Args... args)
     {
-        auto new_node = _make_audio_driver(class_name_in, name_in);
+        auto new_node = _make_audio_driver(args...);
         return dynamic_cast<T *>(new_node);
     }
 
@@ -87,7 +89,7 @@ public:
 struct audio_driver_t : public node_t {
     audio_domain_t * domain = nullptr;
 
-    audio_driver_t(const string_t& class_name_in, const string_t& name_in);
+    audio_driver_t(const string_t& class_name_in, const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
     virtual ~audio_driver_t() = default;
     virtual void set_domain(audio_domain_t * domain_in);
 };

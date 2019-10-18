@@ -28,8 +28,8 @@ void audio_init()
     audio::sndfile_init();
 }
 
-audio_node_t::audio_node_t(const string_t& name_in, const string_t& class_name_in)
-: node_t(name_in, class_name_in)
+audio_node_t::audio_node_t(const string_t& name_in, const string_t& class_name_in, node_init_list_t init_list_in)
+: node_t(name_in, class_name_in, init_list_in)
 {
     add_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE, property_t::type_t::size);
     add_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE, property_t::type_t::size);
@@ -92,8 +92,8 @@ void audio_node_t::pcm_ready()
     // log_info("All pcm inputs are ready: ", name);
 }
 
-audio_domain_t::audio_domain_t(const string_t& name_in)
-: node_t(JACKALOPE_AUDIO_DOMAIN_CLASS_NAME, name_in)
+audio_domain_t::audio_domain_t(const string_t& name_in, node_init_list_t init_list_in)
+: node_t(JACKALOPE_AUDIO_DOMAIN_CLASS_NAME, name_in, init_list_in)
 {
     add_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE, property_t::type_t::size);
     add_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE, property_t::type_t::size);
@@ -106,7 +106,7 @@ audio_domain_t::~audio_domain_t()
     }
 }
 
-audio_driver_t * audio_domain_t::_make_audio_driver(const string_t& class_name_in, const string_t& name_in)
+audio_driver_t * audio_domain_t::_make_audio_driver(const string_t& class_name_in, const string_t& name_in, node_init_list_t init_list_in)
 {
     string_t fully_qualified_name;
 
@@ -116,7 +116,7 @@ audio_driver_t * audio_domain_t::_make_audio_driver(const string_t& class_name_i
         fully_qualified_name = vaargs_to_string(JACKALOPE_AUDIO_DRIVER_CLASS_PREFIX, class_name_in);
     }
 
-    auto new_node = make_node<audio_driver_t>(name_in, fully_qualified_name);
+    auto new_node = make_node<audio_driver_t>(name_in, fully_qualified_name, init_list_in);
 
     new_node->get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE).set(get_buffer_size());
     new_node->get_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE).set(get_sample_rate());
@@ -126,7 +126,7 @@ audio_driver_t * audio_domain_t::_make_audio_driver(const string_t& class_name_i
     return new_node;
 }
 
-audio_node_t * audio_domain_t::_make_audio_node(const string_t& class_name_in, const string_t& name_in)
+audio_node_t * audio_domain_t::_make_audio_node(const string_t& class_name_in, const string_t& name_in, node_init_list_t init_list_in)
 {
     string_t fully_qualified_name;
 
@@ -136,7 +136,7 @@ audio_node_t * audio_domain_t::_make_audio_node(const string_t& class_name_in, c
         fully_qualified_name = vaargs_to_string(JACKALOPE_AUDIO_NODE_CLASS_PREFIX, class_name_in);
     }
 
-    auto new_node = make_node<audio_node_t>(name_in, fully_qualified_name);
+    auto new_node = make_node<audio_node_t>(name_in, fully_qualified_name, init_list_in);
 
     new_node->set_domain(this);
     audio_nodes.push_back(new_node);
@@ -270,8 +270,8 @@ void audio_domain_t::notify()
     }
 }
 
-audio_driver_t::audio_driver_t(const string_t& class_name_in, const string_t& name_in)
-: node_t(class_name_in, name_in)
+audio_driver_t::audio_driver_t(const string_t& class_name_in, const string_t& name_in, node_init_list_t init_list_in)
+: node_t(class_name_in, name_in, init_list_in)
 { }
 
 void audio_driver_t::set_domain(audio_domain_t * domain_in)

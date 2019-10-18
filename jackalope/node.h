@@ -24,13 +24,16 @@
 
 namespace jackalope {
 
-using node_constructor_t = function_t<node_t * (const string_t& name_in)>;
+using node_init_list_t = std::initializer_list<std::pair<string_t, string_t>>;
+
+using node_constructor_t = function_t<node_t * (const string_t& name_in, node_init_list_t)>;
 void add_node_constructor(const string_t& class_name_in, node_constructor_t constructor_in);
-node_t * _construct_node(const string_t& class_name_in, const string_t& name_in);
-template <typename T = node_t>
-T * make_node(const string_t& class_name_in, const string_t& name_in)
+node_t * _make_node(const string_t& class_name_in, const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
+
+template <typename T = node_t, typename... Args>
+T * make_node(Args... args)
 {
-    auto new_node = _construct_node(class_name_in, name_in);
+    auto new_node = _make_node(args...);
     return dynamic_cast<T *>(new_node);
 }
 
@@ -50,6 +53,7 @@ struct node_t : public baseobj_t {
 
     const string_t name;
     const string_t class_name;
+    pool_map_t<string_t, string_t> prop_args;
     bool initialized_flag = false;
     bool activated_flag = false;
     bool started_flag = false;
@@ -59,8 +63,7 @@ struct node_t : public baseobj_t {
     pool_vector_t<output_t *> outputs;
     pool_map_t<string_t, output_t *> outputs_by_name;
 
-    node_t(const string_t& class_name_in, const string_t& name_in);
-    node_t(const pool_map_t<string_t, string_t>& properties_in);
+    node_t(const string_t& class_name_in, const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
     virtual ~node_t();
     virtual void init();
     virtual void activate();
