@@ -43,10 +43,10 @@ int main(int argc_in, char ** argv_in)
         { "node:name", "main domain" },
         { "audio:sample_rate", to_string(48000) },
         { "audio:buffer_size", to_string(128) },
+        { "input:left input", "pcm[real]" },
+        { "input:right input", "pcm[real]" },
     });
 
-    domain->add_input("pcm[real]", "left input");
-    domain->add_input("pcm[real]", "right input");
     domain->activate();
 
     auto system_audio = domain->make_driver<audio::portaudio_driver_t>({

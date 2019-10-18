@@ -69,6 +69,18 @@ void node_t::init()
         throw_runtime_error("Can not initalize a node that has already been initialized");
     }
 
+    for(auto i : init_args) {
+        auto key = i.first;
+
+        if (key.find("input:", 0) != string_t::npos) {
+            auto name = key.substr(6);
+            add_input(i.second, name);
+        } else if (key.find("output:", 0) != string_t::npos) {
+            auto name = key.substr(7);
+            add_output(i.second, key);
+        }
+    }
+
     initialized_flag = true;
 }
 
