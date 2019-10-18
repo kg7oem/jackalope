@@ -29,7 +29,7 @@ namespace jackalope {
 
 class audio_node_t;
 class audio_domain_t;
-class audio_driver_t;
+struct audio_driver_t;
 
 void audio_init();
 
@@ -61,7 +61,7 @@ public:
     virtual real_t * get_zero_buffer_pointer();
     virtual void activate() override;
     virtual void start() override;
-    virtual void reset();
+    virtual void reset() override;
 
     template <class T = audio_node_t>
     T * make_node(node_init_list_t init_list_in)

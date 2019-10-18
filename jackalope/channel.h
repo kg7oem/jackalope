@@ -69,7 +69,7 @@ struct output_t : public channel_t {
     virtual ~output_t() = default;
     virtual void set_dirty();
     virtual bool is_dirty();
-    virtual bool is_ready();
+    virtual bool is_ready() override;
     virtual void notify();
     virtual void link(input_t& input_in) = 0;
     virtual void reset() override;
