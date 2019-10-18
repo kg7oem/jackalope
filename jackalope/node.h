@@ -81,7 +81,9 @@ struct node_t : public baseobj_t {
             throw_runtime_error("could not find node name in init args");
         }
 
-        return new T(node_name, init_list_in);
+        auto new_node = new T(node_name, init_list_in);
+        new_node->init();
+        return new_node;
     }
 
     node_t(const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());

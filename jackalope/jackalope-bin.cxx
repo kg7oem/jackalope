@@ -45,7 +45,6 @@ int main(int argc_in, char ** argv_in)
         { "audio:buffer_size", to_string(128) },
     });
 
-    domain->init();
     domain->add_input("pcm[real]", "left input");
     domain->add_input("pcm[real]", "right input");
     domain->activate();
@@ -59,8 +58,6 @@ int main(int argc_in, char ** argv_in)
         { "config:path", argv_in[1] },
     });
 
-    input_file->init();
-    input_file->activate();
     input_file->start();
 
     auto left_tube = domain->make_node<audio::ladspa_node_t>({
@@ -68,8 +65,6 @@ int main(int argc_in, char ** argv_in)
         { "plugin:id", to_string(LADSPA_ZAMTUBE_ID) },
     });
 
-    left_tube->init();
-    left_tube->activate();
     left_tube->start();
 
     auto right_tube = domain->make_node<audio::ladspa_node_t>({
@@ -77,8 +72,6 @@ int main(int argc_in, char ** argv_in)
         { "plugin:id", to_string(LADSPA_ZAMTUBE_ID) },
     });
 
-    right_tube->init();
-    right_tube->activate();
     right_tube->start();
 
     input_file->get_output("output 1").link(left_tube->get_input("Audio Input 1"));
