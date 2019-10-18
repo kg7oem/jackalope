@@ -280,4 +280,53 @@ output_t& node_t::add_output(const string_t& channel_class_in, const string_t& n
     return *new_channel;
 }
 
+signal_t * node_t::get_signal(const string_t& name_in)
+{
+    auto found = signals.find(name_in);
+
+    if (found == signals.end()) {
+        throw_runtime_error("could not find signal: ", name_in);
+    }
+
+    return found->second;
+}
+
+signal_t * node_t::add_signal(const string_t& name_in)
+{
+    if (activated_flag) {
+        throw_runtime_error("Can not add a signal to a node that has been activated");
+    }
+
+    if (signals.find(name_in) != signals.end()) {
+        throw_runtime_error("can not add duplicate signal name: ", name_in);
+    }
+
+    return signals[name_in] = new signal_t(name_in);
+}
+
+slot_t * node_t::get_slot(const string_t& name_in)
+{
+    auto found = slots.find(name_in);
+
+    if (found == slots.end()) {
+        throw_runtime_error("could not find slot: ", name_in);
+    }
+
+    return found->second;
+}
+
+slot_t * node_t::add_slot(const string_t& name_in, slot_handler_t handler_in)
+{
+    if (activated_flag) {
+        throw_runtime_error("Can not add a slot to a node that has been activated");
+    }
+
+    if (slots.find(name_in) != slots.end()) {
+        throw_runtime_error("can not add duplicate slot name: ", name_in);
+    }
+
+    return slots[name_in] = new slot_t(name_in, handler_in);
+}
+
+
 } // namespace jackalope

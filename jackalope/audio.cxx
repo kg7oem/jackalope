@@ -16,6 +16,7 @@
 #include <jackalope/audio/portaudio.h>
 #include <jackalope/audio/sndfile.h>
 #include <jackalope/exception.h>
+#include <jackalope/jackalope.h>
 #include <jackalope/logging.h>
 #include <jackalope/pcm.h>
 
@@ -97,6 +98,8 @@ audio_domain_t::audio_domain_t(const string_t& name_in, node_init_list_t init_li
 {
     add_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE, property_t::type_t::size);
     add_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE, property_t::type_t::size);
+
+    add_slot("system:terminate", [](signal_t *) { jackalope_panic("can't cleanly terminate yet"); });
 }
 
 audio_domain_t::~audio_domain_t()

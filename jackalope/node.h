@@ -17,6 +17,7 @@
 #include <jackalope/exception.h>
 #include <jackalope/node.forward.h>
 #include <jackalope/property.h>
+#include <jackalope/signal.h>
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
 
@@ -26,8 +27,8 @@
 namespace jackalope {
 
 using node_init_list_t = std::initializer_list<std::pair<string_t, string_t>>;
-
 using node_constructor_t = function_t<node_t * (const string_t& name_in, node_init_list_t)>;
+
 void add_node_constructor(const string_t& class_name_in, node_constructor_t constructor_in);
 node_t * _make_node(const string_t& class_name_in, const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
 
@@ -64,6 +65,8 @@ struct node_t : public baseobj_t {
     pool_map_t<string_t, input_t *> inputs_by_name;
     pool_vector_t<output_t *> outputs;
     pool_map_t<string_t, output_t *> outputs_by_name;
+    pool_map_t<string_t, signal_t *> signals;
+    pool_map_t<string_t, slot_t *> slots;
 
     template <class T = node_t>
     static T * make(node_init_list_t init_list_in)
@@ -116,6 +119,10 @@ struct node_t : public baseobj_t {
     }
 
     virtual const outputs_vector_t& get_outputs();
+    signal_t * add_signal(const string_t& name_in);
+    signal_t * get_signal(const string_t& name_in);
+    slot_t * get_slot(const string_t& name_in);
+    slot_t * add_slot(const string_t& name_in, slot_handler_t handler_in);
     virtual void input_ready(input_t& input_in) = 0;
     bool virtual is_initialized();
     bool virtual is_activated();

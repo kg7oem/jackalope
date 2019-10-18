@@ -44,6 +44,7 @@ add_library(
     jackalope/node.cxx
     jackalope/pcm.cxx
     jackalope/property.cxx
+    jackalope/signal.cxx
     jackalope/string.cxx
     jackalope/thread.cxx
     jackalope/types.cxx

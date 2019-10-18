@@ -34,6 +34,8 @@ sndfile_node_t::sndfile_node_t(const string_t& name_in, node_init_list_t init_li
 : audio_node_t(name_in, init_list_in)
 {
     add_property(JACKALOPE_AUDIO_SNDFILE_CONFIG_PATH, property_t::type_t::string);
+
+    add_signal("file:eof");
 }
 
 sndfile_node_t::~sndfile_node_t()
@@ -106,7 +108,7 @@ void sndfile_node_t::pcm_ready()
             close_file(source_file);
             source_file = nullptr;
 
-            log_info("sndfile is done with file");
+            get_signal(JACKALOPE_SIGNAL_FILE_EOF)->send();
         }
 
         for (size_t i = 0; i < outputs.size(); i++) {
