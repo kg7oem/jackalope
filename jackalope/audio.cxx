@@ -270,7 +270,7 @@ void audio_domain_t::notify()
     }
 }
 
-audio_driver_t::audio_driver_t(const string_t&, const string_t& name_in, node_init_list_t init_list_in)
+audio_driver_t::audio_driver_t(const string_t& name_in, node_init_list_t init_list_in)
 : node_t(name_in, init_list_in)
 { }
 

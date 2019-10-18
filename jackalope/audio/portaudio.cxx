@@ -44,7 +44,7 @@ void portaudio_init()
 }
 
 portaudio_driver_t::portaudio_driver_t(const string_t& name_in, node_init_list_t init_list_in)
-: audio_driver_t(JACKALOPE_AUDIO_PORTAUDIO_CLASS, name_in, init_list_in)
+: audio_driver_t(name_in, init_list_in)
 {
     add_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE, property_t::type_t::size);
     add_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE, property_t::type_t::size);
