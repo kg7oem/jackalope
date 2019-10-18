@@ -16,5 +16,5 @@
 #include <jackalope/string.h>
 #include <jackalope/types.h>
 
-#define throw_vargs(exception_type, ...) { throw exception_type(jackalope::vaargs_to_string(__VA_ARGS__).c_str()); }
+#define throw_vargs(exception_type, ...) { throw exception_type(jackalope::to_string(__VA_ARGS__).c_str()); }
 #define throw_runtime_error(...) throw_vargs(jackalope::runtime_error_t, __VA_ARGS__)

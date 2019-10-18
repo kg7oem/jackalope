@@ -52,7 +52,7 @@ void ladspa_init()
 }
 
 ladspa_node_t::ladspa_node_t(const string_t& node_name_in, node_init_list_t init_list_in)
-: audio_node_t(node_name_in, JACKALOPE_AUDIO_LADSPA_CLASS, init_list_in)
+: audio_node_t(node_name_in, init_list_in)
 {
     add_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_FILE, property_t::type_t::string);
     add_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_ID, property_t::type_t::size);
@@ -135,10 +135,10 @@ void ladspa_node_t::init_instance()
 
         if (LADSPA_IS_PORT_CONTROL(descriptor)) {
             if (LADSPA_IS_PORT_INPUT(descriptor)) {
-                auto property_name = vaargs_to_string("config:", port_name);
+                auto property_name = to_string("config:", port_name);
                 add_property(property_name, property_t::type_t::real);
             } else if (LADSPA_IS_PORT_OUTPUT(descriptor)) {
-                auto property_name = vaargs_to_string("state:", port_name);
+                auto property_name = to_string("state:", port_name);
                 add_property(property_name, property_t::type_t::real).set(0);
             }
         } else if(LADSPA_IS_PORT_AUDIO(descriptor)) {
@@ -170,13 +170,13 @@ void ladspa_node_t::activate()
 
         if (LADSPA_IS_PORT_CONTROL(descriptor)) {
             if (LADSPA_IS_PORT_INPUT(descriptor)) {
-                auto property_name = vaargs_to_string("config:", port_name);
+                auto property_name = to_string("config:", port_name);
                 auto& property = get_property(property_name);
 
                 property.set(instance->get_port_default(port_num));
                 instance->connect_port(port_num, &property.get_real());
             } else if (LADSPA_IS_PORT_OUTPUT(descriptor)) {
-                auto property_name = vaargs_to_string("state:", port_name);
+                auto property_name = to_string("state:", port_name);
                 auto& property = get_property(property_name);
 
                 property.set(0);

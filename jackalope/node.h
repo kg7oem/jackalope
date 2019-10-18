@@ -14,6 +14,7 @@
 #pragma once
 
 #include <jackalope/channel.h>
+#include <jackalope/exception.h>
 #include <jackalope/node.forward.h>
 #include <jackalope/property.h>
 #include <jackalope/thread.h>
@@ -53,7 +54,8 @@ struct node_t : public baseobj_t {
 
     const string_t name;
     const string_t class_name;
-    pool_map_t<string_t, string_t> prop_args;
+    // init_args must preserve order
+    node_init_list_t init_args;
     bool initialized_flag = false;
     bool activated_flag = false;
     bool started_flag = false;
@@ -63,7 +65,26 @@ struct node_t : public baseobj_t {
     pool_vector_t<output_t *> outputs;
     pool_map_t<string_t, output_t *> outputs_by_name;
 
-    node_t(const string_t& class_name_in, const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
+    template <class T = node_t>
+    static T * make(node_init_list_t init_list_in)
+    {
+        string_t node_name;
+
+        for(auto i : init_list_in) {
+            if (i.first == JACKALOPE_NODE_PROPERTY_NAME) {
+                node_name = i.second;
+                break;
+            }
+        }
+
+        if (node_name == "") {
+            throw_runtime_error("could not find node name in init args");
+        }
+
+        return new T(node_name, init_list_in);
+    }
+
+    node_t(const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
     virtual ~node_t();
     virtual void init();
     virtual void activate();
@@ -72,6 +93,8 @@ struct node_t : public baseobj_t {
     virtual property_t& add_property(const string_t& name_in, property_t::type_t type_in);
     property_t& get_property(const string_t& name_in);
     virtual input_t& add_input(const string_t& channel_class_in, const string_t& name_in);
+    bool has_init_arg(const string_t& arg_name_in);
+    virtual string_t get_init_arg(const string_t& arg_name_in);
     virtual input_t& _get_input(const string_t& name_in);
 
     template <class T = input_t>

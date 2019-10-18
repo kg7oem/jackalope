@@ -31,7 +31,7 @@ void sndfile_init()
 }
 
 sndfile_node_t::sndfile_node_t(const string_t& name_in, node_init_list_t init_list_in)
-: audio_node_t(name_in, JACKALOPE_AUDIO_SNDFILE_CLASS, init_list_in)
+: audio_node_t(name_in, init_list_in)
 {
     add_property(JACKALOPE_AUDIO_SNDFILE_CONFIG_PATH, property_t::type_t::string);
 }
@@ -64,7 +64,7 @@ void sndfile_node_t::activate()
     }
 
     for(int i = 0; i < source_info.channels; i++) {
-        add_output(JACKALOPE_PCM_CHANNEL_CLASS_REAL, vaargs_to_string("output ", i + 1));
+        add_output(JACKALOPE_PCM_CHANNEL_CLASS_REAL, to_string("output ", i + 1));
     }
 
     auto buffer_size = get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE).get_size();

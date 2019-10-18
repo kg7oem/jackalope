@@ -39,42 +39,53 @@ int main(int argc_in, char ** argv_in)
 
     jackalope_init();
 
-    audio_domain_t domain("main domain", {
-        { "audio:sample_rate", vaargs_to_string(48000) },
-        { "audio:buffer_size", vaargs_to_string(128) },
+    auto domain = node_t::make<audio_domain_t>({
+        { "node:class", "audio::domain" },
+        { "node:name", "main domain" },
+        { "audio:sample_rate", to_string(48000) },
+        { "audio:buffer_size", to_string(128) },
     });
 
-    domain.init();
-    domain.add_input("pcm[real]", "left input");
-    domain.add_input("pcm[real]", "right input");
-    domain.activate();
+    domain->init();
+    domain->add_input("pcm[real]", "left input");
+    domain->add_input("pcm[real]", "right input");
+    domain->activate();
 
-    auto system_audio = domain.make_audio_driver("portaudio", "system audio");
+    auto system_audio = domain->make_audio_driver("portaudio", "system audio");
     system_audio->init();
     system_audio->activate();
 
-    auto input_file = domain.make_audio_node("sndfile", "input file");
+    auto input_file = domain->make_node<audio::sndfile_node_t>({
+        { "node:name", "input file" },
+        { "config:path", argv_in[1] },
+    });
+
     input_file->init();
-    input_file->get_property("config:path").set(argv_in[1]);
     input_file->activate();
     input_file->start();
 
-    auto left_tube = domain.make_audio_node("ladspa", "left tube");
-    left_tube->get_property("plugin:id").set(LADSPA_ZAMTUBE_ID);
+    auto left_tube = domain->make_node<audio::ladspa_node_t>({
+        { "node:name", "left tube" },
+        { "plugin:id", to_string(LADSPA_ZAMTUBE_ID) },
+    });
+
     left_tube->init();
     left_tube->activate();
     left_tube->start();
 
-    auto right_tube = domain.make_audio_node("ladspa", "right tube");
-    right_tube->get_property("plugin:id").set(LADSPA_ZAMTUBE_ID);
+    auto right_tube = domain->make_node<audio::ladspa_node_t>({
+        { "node:name", "right tube" },
+        { "plugin:id", to_string(LADSPA_ZAMTUBE_ID) },
+    });
+
     right_tube->init();
     right_tube->activate();
     right_tube->start();
 
     input_file->get_output("output 1").link(left_tube->get_input("Audio Input 1"));
     input_file->get_output("output 1").link(right_tube->get_input("Audio Input 1"));
-    left_tube->get_output("Audio Output 1").link(domain.get_input("left input"));
-    right_tube->get_output("Audio Output 1").link(domain.get_input("right input"));
+    left_tube->get_output("Audio Output 1").link(domain->get_input("left input"));
+    right_tube->get_output("Audio Output 1").link(domain->get_input("right input"));
 
     system_audio->start();
 

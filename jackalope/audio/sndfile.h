@@ -36,6 +36,8 @@ using sndfile_info_t = sndfile::SF_INFO;
 void sndfile_init();
 
 struct sndfile_node_t : public audio_node_t {
+    const string_t class_name = JACKALOPE_AUDIO_SNDFILE_CLASS;
+
     sndfile_handle_t *source_file = nullptr;
     sndfile_info_t source_info;
     real_t * source_buffer;

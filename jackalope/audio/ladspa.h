@@ -74,6 +74,8 @@ struct ladspa_instance_t : public baseobj_t {
 };
 
 struct ladspa_node_t : public audio_node_t {
+    const string_t class_name = JACKALOPE_AUDIO_LADSPA_CLASS;
+
     ladspa_file_t * file = nullptr;
     ladspa_instance_t * instance = nullptr;
 

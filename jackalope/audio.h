@@ -37,7 +37,8 @@ class audio_node_t : public node_t {
     audio_domain_t * domain = nullptr;
 
 public:
-    audio_node_t(const string_t& name_in, const string_t& class_name_in, node_init_list_t init_list_in = node_init_list_t());
+    // audio_node_t(const string_t& name_in, const string_t& class_name_in, node_init_list_t init_list_in = node_init_list_t());
+    audio_node_t(const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
     virtual void set_domain(audio_domain_t * domain_in);
     virtual audio_domain_t& get_domain();
     virtual void activate() override;
@@ -62,6 +63,15 @@ public:
     virtual void activate() override;
     virtual void reset();
     virtual audio_node_t * _make_audio_node(const string_t& class_name_in, const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
+
+    template <class T = audio_node_t>
+    T * make_node(node_init_list_t init_list_in)
+    {
+        auto new_node = node_t::make<T>(init_list_in);
+        new_node->set_domain(this);
+        audio_nodes.push_back(new_node);
+        return new_node;
+    }
 
     template <class T = audio_node_t, typename... Args>
     T * make_audio_node(Args... args)

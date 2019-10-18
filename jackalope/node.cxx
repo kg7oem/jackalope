@@ -40,15 +40,11 @@ node_t * _make_node(const string_t& node_name_in, const string_t& class_name_in,
     return found->second(node_name_in, init_list_in);
 }
 
-node_t::node_t(const string_t& name_in, const string_t& class_name_in, node_init_list_t node_init_list)
-: name(name_in), class_name(class_name_in)
+node_t::node_t(const string_t& name_in, node_init_list_t init_args_in)
+: name(name_in), init_args(init_args_in)
 {
-    for (auto i : node_init_list) {
-        prop_args.emplace(i);
-    }
-
-    add_property(JACKALOPE_NODE_PROPERTY_NAME, property_t::type_t::string).set(name_in);
-    add_property(JACKALOPE_NODE_PROPERTY_CLASS, property_t::type_t::string).set(class_name_in);
+    add_property(JACKALOPE_NODE_PROPERTY_NAME, property_t::type_t::string).set(name);
+    add_property(JACKALOPE_NODE_PROPERTY_CLASS, property_t::type_t::string).set(class_name);
 }
 
 node_t::~node_t()
@@ -148,9 +144,8 @@ property_t& node_t::add_property(const string_t& name_in, property_t::type_t typ
 
     auto& property = result.first->second;
 
-    auto prop_arg_found = prop_args.find(name_in);
-    if (prop_arg_found != prop_args.end()) {
-        property.set(prop_arg_found->second);
+    if (has_init_arg(name_in)) {
+        property.set(get_init_arg(name_in));
     }
 
     return property;
@@ -167,6 +162,28 @@ property_t& node_t::get_property(const string_t& name_in)
     return found->second;
 }
 
+bool node_t::has_init_arg(const string_t& arg_name_in)
+{
+    for (auto i : init_args) {
+        if (i.first == arg_name_in) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+string_t node_t::get_init_arg(const string_t& arg_name_in)
+{
+    for (auto i : init_args) {
+        if (i.first == arg_name_in) {
+            return i.second;
+        }
+    }
+
+    throw_runtime_error("could not find init arg value for key: ", arg_name_in);
+}
+
 input_t& node_t::add_input(const string_t& channel_class_in, const string_t& name_in)
 {
     if (activated_flag) {
@@ -177,7 +194,7 @@ input_t& node_t::add_input(const string_t& channel_class_in, const string_t& nam
         throw_runtime_error("duplicate input name: ", name_in);
     }
 
-    auto property_name = vaargs_to_string("input:", name_in);
+    auto property_name = to_string("input:", name_in);
 
     if (properties.find(property_name) != properties.end()) {
         throw_runtime_error("property existed for new input: ", property_name);
@@ -235,7 +252,7 @@ output_t& node_t::add_output(const string_t& channel_class_in, const string_t& n
         throw_runtime_error("duplicate input name: ", name_in);
     }
 
-    auto property_name = vaargs_to_string("output:", name_in);
+    auto property_name = to_string("output:", name_in);
 
     if (properties.find(property_name) != properties.end()) {
         throw_runtime_error("property existed for new output: ", property_name);

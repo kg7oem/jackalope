@@ -50,9 +50,9 @@ string_t property_t::get()
 
     switch(type) {
         case type_t::unknown: throw_runtime_error("property type was not known");
-        case type_t::size: return vaargs_to_string(value.size);
-        case type_t::integer: return vaargs_to_string(value.integer);
-        case type_t::real: return vaargs_to_string(value.real);
+        case type_t::size: return to_string(value.size);
+        case type_t::integer: return to_string(value.integer);
+        case type_t::real: return to_string(value.real);
         case type_t::string: return *value.string;
     }
 
@@ -66,7 +66,7 @@ void property_t::set(const double value_in)
         case type_t::size: set_size(value_in); return;
         case type_t::integer: set_integer(value_in); return;
         case type_t::real: set_real(value_in); return;
-        case type_t::string: set_string(vaargs_to_string(value_in));
+        case type_t::string: set_string(to_string(value_in));
     }
 
     throw_runtime_error("should never get out of switch statement");

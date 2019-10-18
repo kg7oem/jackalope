@@ -78,7 +78,7 @@ void send_vargs_event(const char * source_in, const level_t& level_in, const cha
         auto when = std::chrono::system_clock::now();
 
         auto tid = std::this_thread::get_id();
-        auto message = vaargs_to_string(args_in...);
+        auto message = to_string(args_in...);
         event_t event(source_in, level_in, when, tid, function_in, path_in, line_in, message);
 
         get_engine()->deliver(event);

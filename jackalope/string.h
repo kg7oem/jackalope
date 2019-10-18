@@ -34,7 +34,7 @@ void sstream_accumulate_vaargs(stringstream_t& sstream, T&& t, Args&&... args) {
 }
 
 template <typename... Args>
-string_t vaargs_to_string(Args&&... args) {
+string_t to_string(Args&&... args) {
     stringstream_t buf;
     sstream_accumulate_vaargs(buf, args...);
     return buf.str();
