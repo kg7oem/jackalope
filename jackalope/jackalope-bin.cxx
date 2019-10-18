@@ -58,27 +58,22 @@ int main(int argc_in, char ** argv_in)
         { "config:path", argv_in[1] },
     });
 
-    input_file->start();
-
     auto left_tube = domain->make_node<audio::ladspa_node_t>({
         { "node:name", "left tube" },
         { "plugin:id", to_string(LADSPA_ZAMTUBE_ID) },
     });
-
-    left_tube->start();
 
     auto right_tube = domain->make_node<audio::ladspa_node_t>({
         { "node:name", "right tube" },
         { "plugin:id", to_string(LADSPA_ZAMTUBE_ID) },
     });
 
-    right_tube->start();
-
     input_file->get_output("output 1").link(left_tube->get_input("Audio Input 1"));
     input_file->get_output("output 1").link(right_tube->get_input("Audio Input 1"));
     left_tube->get_output("Audio Output 1").link(domain->get_input("left input"));
     right_tube->get_output("Audio Output 1").link(domain->get_input("right input"));
 
+    domain->start();
     system_audio->start();
 
     while(1) {

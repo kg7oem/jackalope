@@ -135,6 +135,15 @@ void audio_domain_t::activate()
     node_t::activate();
 }
 
+void audio_domain_t::start()
+{
+    for(auto i : audio_nodes) {
+        i->start();
+    }
+
+    node_t::start();
+}
+
 void audio_domain_t::reset()
 {
     for(auto i : outputs) {

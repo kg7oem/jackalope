@@ -60,6 +60,7 @@ public:
     virtual size_t get_buffer_size();
     virtual real_t * get_zero_buffer_pointer();
     virtual void activate() override;
+    virtual void start() override;
     virtual void reset();
 
     template <class T = audio_node_t>
