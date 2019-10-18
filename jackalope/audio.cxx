@@ -106,44 +106,6 @@ audio_domain_t::~audio_domain_t()
     }
 }
 
-audio_driver_t * audio_domain_t::_make_audio_driver(const string_t& class_name_in, const string_t& name_in, node_init_list_t init_list_in)
-{
-    string_t fully_qualified_name;
-
-    if (name_in.find("::") != string_t::npos) {
-        fully_qualified_name = class_name_in;
-    } else {
-        fully_qualified_name = to_string(JACKALOPE_AUDIO_DRIVER_CLASS_PREFIX, class_name_in);
-    }
-
-    auto new_node = jackalope::make_node<audio_driver_t>(name_in, fully_qualified_name, init_list_in);
-
-    new_node->get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE).set(get_buffer_size());
-    new_node->get_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE).set(get_sample_rate());
-
-    new_node->set_domain(this);
-
-    return new_node;
-}
-
-audio_node_t * audio_domain_t::_make_audio_node(const string_t& class_name_in, const string_t& name_in, node_init_list_t init_list_in)
-{
-    string_t fully_qualified_name;
-
-    if (name_in.find("::") != string_t::npos) {
-        fully_qualified_name = class_name_in;
-    } else {
-        fully_qualified_name = to_string(JACKALOPE_AUDIO_NODE_CLASS_PREFIX, class_name_in);
-    }
-
-    auto new_node = jackalope::make_node<audio_node_t>(name_in, fully_qualified_name, init_list_in);
-
-    new_node->set_domain(this);
-    audio_nodes.push_back(new_node);
-
-    return new_node;
-}
-
 size_t audio_domain_t::get_sample_rate()
 {
     return get_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE).get_size();

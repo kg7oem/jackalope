@@ -49,9 +49,9 @@ int main(int argc_in, char ** argv_in)
     domain->add_input("pcm[real]", "right input");
     domain->activate();
 
-    auto system_audio = domain->make_audio_driver("portaudio", "system audio");
-    system_audio->init();
-    system_audio->activate();
+    auto system_audio = domain->make_driver<audio::portaudio_driver_t>({
+        { "node:name", "system audio" },
+    });
 
     auto input_file = domain->make_node<audio::sndfile_node_t>({
         { "node:name", "input file" },

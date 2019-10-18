@@ -61,7 +61,6 @@ public:
     virtual real_t * get_zero_buffer_pointer();
     virtual void activate() override;
     virtual void reset();
-    virtual audio_node_t * _make_audio_node(const string_t& class_name_in, const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
 
     template <class T = audio_node_t>
     T * make_node(node_init_list_t init_list_in)
@@ -76,13 +75,15 @@ public:
         return new_node;
     }
 
-    virtual audio_driver_t * _make_audio_driver(const string_t& class_name_in, const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
-
     template <class T = audio_driver_t, typename... Args>
-    T * make_audio_driver(Args... args)
+    T * make_driver(node_init_list_t init_list_in)
     {
-        auto new_node = _make_audio_driver(args...);
-        return dynamic_cast<T *>(new_node);
+        auto new_node = node_t::make<T>(init_list_in);
+
+        new_node->set_domain(this);
+        new_node->activate();
+
+        return new_node;
     }
 
     virtual void input_ready(input_t& input_in) override;

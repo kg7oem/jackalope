@@ -61,9 +61,6 @@ portaudio_driver_t::~portaudio_driver_t()
 
 void portaudio_driver_t::init()
 {
-    get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE).set(domain->get_buffer_size());
-    get_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE).set(domain->get_sample_rate());
-
     add_input(JACKALOPE_PCM_CHANNEL_CLASS_REAL, "left input");
     add_input(JACKALOPE_PCM_CHANNEL_CLASS_REAL, "right input");
 
@@ -80,8 +77,12 @@ void portaudio_driver_t::activate()
 {
     auto lock = get_portaudio_lock();
     auto userdata = static_cast<void *>(this);
-    auto num_samples = get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE).get_size();
-    auto sample_rate = get_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE).get_size();
+    auto num_samples = domain->get_buffer_size();
+    auto sample_rate = domain->get_sample_rate();
+
+    get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE).set(num_samples);
+    get_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE).set(sample_rate);
+
     auto err = Pa_OpenDefaultStream(&stream, outputs.size(), inputs.size(), paFloat32, sample_rate, num_samples, process_cb, userdata);
 
     if (err != paNoError) {
