@@ -117,7 +117,7 @@ template <typename T>
 struct pcm_input_t : public input_t {
     using sample_t = T;
 
-    pcm_input_t(const string_t& class_name_in, const string_t& name_in, node_t& parent_in)
+    pcm_input_t(const string_t& class_name_in, const string_t& name_in, shared_t<node_t> parent_in)
     : input_t(class_name_in, name_in, parent_in)
     { }
 
@@ -154,13 +154,13 @@ struct pcm_input_t : public input_t {
 };
 
 struct pcm_real_input_t : public pcm_input_t<real_t> {
-    pcm_real_input_t(const string_t& name_in, node_t& parent_in);
+    pcm_real_input_t(const string_t& name_in, shared_t<node_t> parent_in);
     virtual ~pcm_real_input_t() = default;
     virtual real_t * get_buffer_pointer() override;
 };
 
 struct pcm_quad_input_t : public pcm_input_t<complex_t> {
-    pcm_quad_input_t(const string_t& name_in, node_t& parent_in);
+    pcm_quad_input_t(const string_t& name_in, shared_t<node_t> parent_in);
     virtual ~pcm_quad_input_t() = default;
     virtual complex_t * get_buffer_pointer() override;
 };
@@ -171,7 +171,7 @@ struct pcm_output_t : public output_t {
 
     pcm_buffer_t<sample_t> buffer;
 
-    pcm_output_t(const string_t& class_name_in, const string_t& name_in, node_t& parent_in)
+    pcm_output_t(const string_t& class_name_in, const string_t& name_in, shared_t<node_t> parent_in)
     : output_t(class_name_in, name_in, parent_in)
     { }
 
@@ -213,12 +213,12 @@ struct pcm_output_t : public output_t {
 };
 
 struct pcm_real_output_t : public pcm_output_t<real_t> {
-    pcm_real_output_t(const string_t& name_in, node_t& parent_in);
+    pcm_real_output_t(const string_t& name_in, shared_t<node_t> parent_in);
     virtual ~pcm_real_output_t() = default;
 };
 
 struct pcm_quad_output_t : public pcm_output_t<complex_t> {
-    pcm_quad_output_t(const string_t& name_in, node_t& parent_in);
+    pcm_quad_output_t(const string_t& name_in, shared_t<node_t> parent_in);
     virtual ~pcm_quad_output_t() = default;
 };
 

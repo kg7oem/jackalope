@@ -47,7 +47,7 @@ T * make_node(Args... args)
  *   start
  */
 
-struct node_t : public baseobj_t {
+struct node_t : public baseobj_t, public shared_obj_t<node_t> {
     friend void input_t::notify();
 
     using inputs_vector_t = pool_vector_t<input_t *>;
@@ -68,8 +68,8 @@ struct node_t : public baseobj_t {
     pool_map_t<string_t, signal_t *> signals;
     pool_map_t<string_t, slot_t *> slots;
 
-    template <class T = node_t>
-    static T * make(node_init_list_t init_list_in)
+    template <class T>
+    static shared_t<T> make(node_init_list_t init_list_in)
     {
         string_t node_name;
 
@@ -84,7 +84,7 @@ struct node_t : public baseobj_t {
             throw_runtime_error("could not find node name in init args");
         }
 
-        auto new_node = new T(node_name, init_list_in);
+        auto new_node = jackalope::make_shared<T>(node_name, init_list_in);
         new_node->init();
         return new_node;
     }

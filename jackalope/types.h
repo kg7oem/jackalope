@@ -41,6 +41,9 @@ using pool_map_t = std::map<Key, T, Compare, pool_allocator_t<std::pair<const Ke
 template <typename T>
 using pool_vector_t = std::vector<T, pool_allocator_t<T>>;
 
+using std::dynamic_pointer_cast;
+template<typename T>
+using shared_obj_t = std::enable_shared_from_this<T>;
 template <typename T>
 using shared_t = std::shared_ptr<T>;
 template <class T, class... Args>

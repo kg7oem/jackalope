@@ -103,11 +103,7 @@ audio_domain_t::audio_domain_t(const string_t& name_in, node_init_list_t init_li
 }
 
 audio_domain_t::~audio_domain_t()
-{
-    for(auto i : audio_nodes) {
-        delete i;
-    }
-}
+{ }
 
 size_t audio_domain_t::get_sample_rate()
 {

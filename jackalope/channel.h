@@ -24,18 +24,18 @@ struct input_t;
 struct output_t;
 struct link_t;
 
-using input_constructor_t = function_t<input_t * (const string_t& name_in, node_t& parent_in)>;
-using output_constructor_t = function_t<output_t * (const string_t& name_in, node_t& parent_in)>;
+using input_constructor_t = function_t<input_t * (const string_t& name_in, shared_t<node_t> parent_in)>;
+using output_constructor_t = function_t<output_t * (const string_t& name_in, shared_t<node_t> parent_in)>;
 
 struct channel_t : public baseobj_t {
     const string_t name;
     const string_t class_name;
-    node_t& parent;
+    shared_t<node_t> parent;
     pool_list_t<link_t *> links;
 
-    channel_t(const string_t& class_name_in, const string_t& name_in, node_t& parent_in);
+    channel_t(const string_t& class_name_in, const string_t& name_in, shared_t<node_t> parent_in);
     virtual ~channel_t() = default;
-    virtual node_t& get_parent();
+    virtual shared_t<node_t> get_parent();
     virtual const string_t& get_name();
     virtual const string_t& get_class_name();
     virtual void add_link(link_t * link_in);
@@ -54,7 +54,7 @@ struct link_t : public baseobj_t {
 };
 
 struct input_t : public channel_t {
-    input_t(const string_t& class_name_in, const string_t& name_in, node_t& parent_in);
+    input_t(const string_t& class_name_in, const string_t& name_in, shared_t<node_t> parent_in);
     virtual ~input_t() = default;
     virtual bool is_ready();
     virtual void link(output_t& output_in) = 0;
@@ -65,7 +65,7 @@ struct input_t : public channel_t {
 struct output_t : public channel_t {
     bool dirty_flag = false;
 
-    output_t(const string_t& class_name_in, const string_t& name_in, node_t& parent_in);
+    output_t(const string_t& class_name_in, const string_t& name_in, shared_t<node_t> parent_in);
     virtual ~output_t() = default;
     virtual void set_dirty();
     virtual bool is_dirty();
@@ -86,7 +86,7 @@ const string_t extract_channel_type(const string_t& class_in);
 
 void add_input_constructor(const string_t& class_in, input_constructor_t constructor_in);
 void add_output_constructor(const string_t& class_in, output_constructor_t constructor_in);
-input_t * make_input_channel(const string_t& class_in, const string_t& name_in, node_t& parent_in);
-output_t * make_output_channel(const string_t& class_in, const string_t& name_in, node_t& parent_in);
+input_t * make_input_channel(const string_t& class_in, const string_t& name_in, shared_t<node_t> parent_in);
+output_t * make_output_channel(const string_t& class_in, const string_t& name_in, shared_t<node_t> parent_in);
 
 } // namespace jackalope

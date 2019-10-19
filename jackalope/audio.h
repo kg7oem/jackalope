@@ -49,7 +49,7 @@ public:
 class audio_domain_t : public node_t {
 
 protected:
-    pool_list_t<audio_node_t *> audio_nodes;
+    pool_list_t<shared_t<audio_node_t>> audio_nodes;
     pcm_buffer_t<real_t> zero_buffer;
     audio_driver_t * driver = nullptr;
 
@@ -64,7 +64,7 @@ public:
     virtual void reset() override;
 
     template <class T = audio_node_t>
-    T * make_node(node_init_list_t init_list_in)
+    shared_t<T> make_node(node_init_list_t init_list_in)
     {
         auto new_node = node_t::make<T>(init_list_in);
 
@@ -77,7 +77,7 @@ public:
     }
 
     template <class T = audio_driver_t, typename... Args>
-    T * make_driver(node_init_list_t init_list_in)
+    shared_t<T> make_driver(node_init_list_t init_list_in)
     {
         auto new_node = node_t::make<T>(init_list_in);
 

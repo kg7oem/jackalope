@@ -214,7 +214,7 @@ input_t& node_t::add_input(const string_t& channel_class_in, const string_t& nam
 
     add_property(property_name, property_t::type_t::string).set(channel_class_in);
 
-    auto new_channel = make_input_channel(channel_class_in, name_in, *this);
+    auto new_channel = make_input_channel(channel_class_in, name_in, shared_from_this());
 
     inputs.push_back(new_channel);
     inputs_by_name[name_in] = new_channel;
@@ -272,7 +272,7 @@ output_t& node_t::add_output(const string_t& channel_class_in, const string_t& n
 
     add_property(property_name, property_t::type_t::string).set(channel_class_in);
 
-    auto new_channel = make_output_channel(channel_class_in, name_in, *this);
+    auto new_channel = make_output_channel(channel_class_in, name_in, shared_from_this());
 
     outputs.push_back(new_channel);
     outputs_by_name[name_in] = new_channel;

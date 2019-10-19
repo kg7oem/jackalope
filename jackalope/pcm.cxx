@@ -18,22 +18,22 @@
 
 namespace jackalope {
 
-static input_t * pcm_real_input_constructor(const string_t& name_in, node_t& parent_in)
+static input_t * pcm_real_input_constructor(const string_t& name_in, shared_t<node_t> parent_in)
 {
     return new pcm_real_input_t(name_in, parent_in);
 }
 
-static output_t * pcm_real_output_constructor(const string_t& name_in, node_t& parent_in)
+static output_t * pcm_real_output_constructor(const string_t& name_in, shared_t<node_t> parent_in)
 {
     return new pcm_real_output_t(name_in, parent_in);
 }
 
-static input_t * pcm_quad_input_constructor(const string_t& name_in, node_t& parent_in)
+static input_t * pcm_quad_input_constructor(const string_t& name_in, shared_t<node_t> parent_in)
 {
     return new pcm_quad_input_t(name_in, parent_in);
 }
 
-static output_t * pcm_quad_output_constructor(const string_t& name_in, node_t& parent_in)
+static output_t * pcm_quad_output_constructor(const string_t& name_in, shared_t<node_t> parent_in)
 {
     return new pcm_quad_output_t(name_in, parent_in);
 }
@@ -47,7 +47,7 @@ void pcm_init()
     add_output_constructor(JACKALOPE_PCM_CHANNEL_CLASS_QUAD, pcm_quad_output_constructor);
 }
 
-pcm_real_input_t::pcm_real_input_t(const string_t& name_in, node_t& parent_in)
+pcm_real_input_t::pcm_real_input_t(const string_t& name_in, shared_t<node_t> parent_in)
 : pcm_input_t(JACKALOPE_PCM_CHANNEL_CLASS_REAL, name_in, parent_in)
 { }
 
@@ -56,8 +56,8 @@ real_t * pcm_real_input_t::get_buffer_pointer()
     auto num_links = links.size();
 
     if (num_links == 0) {
-        auto& audio_node = dynamic_cast<audio_node_t&>(parent);
-        return audio_node.get_domain().get_zero_buffer_pointer();
+        auto audio_node = dynamic_pointer_cast<audio_node_t>(parent);
+        return audio_node->get_domain().get_zero_buffer_pointer();
     } else if (num_links == 1) {
         auto& pcm_output = dynamic_cast<pcm_real_output_t&>(links.front()->from);
         return pcm_output.get_buffer_pointer();
@@ -66,7 +66,7 @@ real_t * pcm_real_input_t::get_buffer_pointer()
     throw_runtime_error("Can not mix together multiple outputs to an input");
 }
 
-pcm_quad_input_t::pcm_quad_input_t(const string_t& name_in, node_t& parent_in)
+pcm_quad_input_t::pcm_quad_input_t(const string_t& name_in, shared_t<node_t> parent_in)
 : pcm_input_t(JACKALOPE_PCM_CHANNEL_CLASS_QUAD, name_in, parent_in)
 { }
 
@@ -84,11 +84,11 @@ complex_t * pcm_quad_input_t::get_buffer_pointer()
     throw_runtime_error("Can not mix together multiple outputs to an input");
 }
 
-pcm_real_output_t::pcm_real_output_t(const string_t& name_in, node_t& parent_in)
+pcm_real_output_t::pcm_real_output_t(const string_t& name_in, shared_t<node_t> parent_in)
 : pcm_output_t(JACKALOPE_PCM_CHANNEL_CLASS_REAL, name_in, parent_in)
 { }
 
-pcm_quad_output_t::pcm_quad_output_t(const string_t& name_in, node_t& parent_in)
+pcm_quad_output_t::pcm_quad_output_t(const string_t& name_in, shared_t<node_t> parent_in)
 : pcm_output_t(JACKALOPE_PCM_CHANNEL_CLASS_QUAD, name_in, parent_in)
 { }
 

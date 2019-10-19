@@ -51,7 +51,7 @@ void add_output_constructor(const string_t& class_in, output_constructor_t const
     output_constructors[class_in] = constructor_in;
 }
 
-input_t * make_input_channel(const string_t& class_in, const string_t& name_in, node_t& parent_in)
+input_t * make_input_channel(const string_t& class_in, const string_t& name_in, shared_t<node_t> parent_in)
 {
     auto found = input_constructors.find(class_in);
 
@@ -62,7 +62,7 @@ input_t * make_input_channel(const string_t& class_in, const string_t& name_in, 
     return found->second(name_in, parent_in);
 }
 
-output_t * make_output_channel(const string_t& class_in, const string_t& name_in, node_t& parent_in)
+output_t * make_output_channel(const string_t& class_in, const string_t& name_in, shared_t<node_t> parent_in)
 {
     auto found = output_constructors.find(class_in);
 
@@ -73,14 +73,14 @@ output_t * make_output_channel(const string_t& class_in, const string_t& name_in
     return found->second(name_in, parent_in);
 }
 
-channel_t::channel_t(const string_t& class_name_in, const string_t& name_in, node_t& parent_in)
+channel_t::channel_t(const string_t& class_name_in, const string_t& name_in, shared_t<node_t> parent_in)
 : name(name_in), class_name(class_name_in), parent(parent_in)
 { }
 
 void channel_t::reset()
 { }
 
-node_t& channel_t::get_parent()
+shared_t<node_t> channel_t::get_parent()
 {
     return parent;
 }
@@ -115,7 +115,7 @@ link_t::link_t(output_t& from_in, input_t& to_in)
 : from(from_in), to(to_in)
 { }
 
-input_t::input_t(const string_t& class_name_in, const string_t& name_in, node_t& parent_in)
+input_t::input_t(const string_t& class_name_in, const string_t& name_in, shared_t<node_t> parent_in)
 : channel_t(class_name_in, name_in, parent_in)
 { }
 
@@ -136,10 +136,10 @@ bool input_t::is_ready()
 
 void input_t::notify()
 {
-    parent.input_ready(*this);
+    parent->input_ready(*this);
 }
 
-output_t::output_t(const string_t& class_name_in, const string_t& name_in, node_t& parent_in)
+output_t::output_t(const string_t& class_name_in, const string_t& name_in, shared_t<node_t> parent_in)
 : channel_t(class_name_in, name_in, parent_in)
 { }
 
@@ -162,7 +162,7 @@ bool output_t::is_ready()
 
 void output_t::notify()
 {
-    if (! parent.is_started()) {
+    if (! parent->is_started()) {
         throw_runtime_error("output can not notify from a node that has not been started");
     }
 
