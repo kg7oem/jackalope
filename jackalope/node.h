@@ -47,6 +47,7 @@ T * make_node(Args... args)
  *   start
  */
 
+// FIXME is there a way to make shared_from_this() private ?
 struct node_t : public baseobj_t, public shared_obj_t<node_t> {
     friend void input_t::notify();
 
@@ -88,6 +89,13 @@ struct node_t : public baseobj_t, public shared_obj_t<node_t> {
         new_node->init();
         return new_node;
     }
+
+    template <class T = node_t, typename... Args>
+    shared_t<T> shared_obj(Args... args)
+    {
+        return dynamic_pointer_cast<T>(shared_from_this());
+    }
+
 
     node_t(const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
     virtual ~node_t();

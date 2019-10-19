@@ -34,11 +34,11 @@ struct audio_driver_t;
 void audio_init();
 
 class audio_node_t : public node_t {
-    audio_domain_t * domain = nullptr;
+    shared_t<audio_domain_t> domain = nullptr;
 
 public:
     audio_node_t(const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
-    virtual void set_domain(audio_domain_t * domain_in);
+    virtual void set_domain(shared_t<audio_domain_t> domain_in);
     virtual audio_domain_t& get_domain();
     virtual void activate() override;
     virtual void input_ready(input_t& input_in) override;
@@ -49,11 +49,17 @@ public:
 class audio_domain_t : public node_t {
 
 protected:
-    pool_list_t<shared_t<audio_node_t>> audio_nodes;
+    pool_list_t<weak_shared_t<audio_node_t>> audio_nodes;
     pcm_buffer_t<real_t> zero_buffer;
     audio_driver_t * driver = nullptr;
 
 public:
+    template <class T = audio_domain_t, typename... Args>
+    shared_t<T> make(Args... args)
+    {
+        return node_t::make<T>(args...);
+    }
+
     audio_domain_t(const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
     virtual ~audio_domain_t();
     virtual size_t get_sample_rate();
@@ -68,7 +74,7 @@ public:
     {
         auto new_node = node_t::make<T>(init_list_in);
 
-        new_node->set_domain(this);
+        new_node->set_domain(shared_obj<audio_domain_t>());
         new_node->activate();
 
         audio_nodes.push_back(new_node);
@@ -81,7 +87,7 @@ public:
     {
         auto new_node = node_t::make<T>(init_list_in);
 
-        new_node->set_domain(this);
+        new_node->set_domain(shared_obj<audio_domain_t>());
         new_node->activate();
 
         return new_node;
@@ -95,11 +101,11 @@ public:
 };
 
 struct audio_driver_t : public node_t {
-    audio_domain_t * domain = nullptr;
+    shared_t<audio_domain_t> domain;
 
     audio_driver_t(const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
     virtual ~audio_driver_t() = default;
-    virtual void set_domain(audio_domain_t * domain_in);
+    virtual void set_domain(shared_t<audio_domain_t> domain_in);
 };
 
 } // namespace jackalope

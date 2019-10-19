@@ -52,6 +52,8 @@ shared_t<T> make_shared(Args&&... args)
     static pool_allocator_t<T> pool;
     return std::allocate_shared<T>(pool, args...);
 }
+template <class T>
+using weak_shared_t = std::weak_ptr<T>;
 
 struct runtime_error_t : public std::runtime_error {
     runtime_error_t(const std::string& what_in);

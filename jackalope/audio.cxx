@@ -41,7 +41,7 @@ audio_domain_t& audio_node_t::get_domain()
     return *domain;
 }
 
-void audio_node_t::set_domain(audio_domain_t * domain_in)
+void audio_node_t::set_domain(shared_t<audio_domain_t> domain_in)
 {
     if (domain != nullptr) {
         throw_runtime_error("Audio node already has an audio domain");
@@ -137,7 +137,7 @@ void audio_domain_t::activate()
 void audio_domain_t::start()
 {
     for(auto i : audio_nodes) {
-        i->start();
+        i.lock()->start();
     }
 
     node_t::start();
@@ -151,7 +151,7 @@ void audio_domain_t::reset()
 
     for(auto i : audio_nodes) {
         // log_info("Resetting node: ", i->get_name());
-        i->reset();
+        i.lock()->reset();
     }
 }
 
@@ -182,8 +182,9 @@ void audio_domain_t::pcm_ready()
 void audio_domain_t::process(real_t ** source_buffers_in, real_t ** sink_buffers_in)
 {
     for(auto i : audio_nodes) {
-        if (i->inputs.size() == 0) {
-            i->pcm_ready();
+        auto node = i.lock();
+        if (node->inputs.size() == 0) {
+            node->pcm_ready();
         }
     }
 
@@ -216,8 +217,10 @@ void audio_domain_t::process(const real_t * source_buffer_in, real_t * sink_buff
     assert(outputs.size() == 0);
 
     for(auto i : audio_nodes) {
-        if (i->inputs.size() == 0) {
-            i->pcm_ready();
+        auto node = i.lock();
+
+        if (node->inputs.size() == 0) {
+            node->pcm_ready();
         }
     }
 
@@ -244,12 +247,8 @@ audio_driver_t::audio_driver_t(const string_t& name_in, node_init_list_t init_li
 : node_t(name_in, init_list_in)
 { }
 
-void audio_driver_t::set_domain(audio_domain_t * domain_in)
+void audio_driver_t::set_domain(shared_t<audio_domain_t> domain_in)
 {
-    if (domain != nullptr) {
-        throw_runtime_error("Audio driver already has an audio domain");
-    }
-
     domain = domain_in;
 
     get_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE).set(domain->get_sample_rate());
