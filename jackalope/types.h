@@ -42,8 +42,6 @@ template <typename T>
 using pool_vector_t = std::vector<T, pool_allocator_t<T>>;
 
 using std::dynamic_pointer_cast;
-template<typename T>
-using shared_obj_t = std::enable_shared_from_this<T>;
 template <typename T>
 using shared_t = std::shared_ptr<T>;
 template <class T, class... Args>
@@ -53,7 +51,19 @@ shared_t<T> make_shared(Args&&... args)
     return std::allocate_shared<T>(pool, args...);
 }
 template <class T>
-using weak_shared_t = std::weak_ptr<T>;
+using weak_t = std::weak_ptr<T>;
+
+template<typename T>
+//using shared_obj_t = std::enable_shared_from_this<T>;
+struct shared_obj_t : public std::enable_shared_from_this<T> {
+    shared_t<T> shared_from_this() = delete;
+
+    template <class U = T, typename... Args>
+    shared_t<U> shared_obj(Args... args)
+    {
+        return dynamic_pointer_cast<U>(std::enable_shared_from_this<T>::shared_from_this());
+    }
+};
 
 struct runtime_error_t : public std::runtime_error {
     runtime_error_t(const std::string& what_in);

@@ -123,10 +123,10 @@ struct pcm_input_t : public input_t {
 
     virtual ~pcm_input_t() = default;
 
-    virtual void output_ready(output_t&) override
+    virtual void output_ready(shared_t<output_t>) override
     {
         for (auto i : links) {
-            if (! i->from.is_ready()) {
+            if (! i->get_from()->is_ready()) {
                 return;
             }
         }
@@ -136,20 +136,18 @@ struct pcm_input_t : public input_t {
 
     virtual sample_t * get_buffer_pointer() = 0;
 
-    virtual void link(output_t& output_in) override
+    virtual void link(shared_t<output_t> output_in) override
     {
-        auto new_link = new link_t(output_in, *this);
+        auto new_link = jackalope::make_shared<link_t>(output_in, shared_obj());
 
-        output_in.add_link(new_link);
+        output_in->add_link(new_link);
         add_link(new_link);
     }
 
-    virtual void unlink(link_t * link_in) override
+    virtual void unlink(shared_t<link_t> link_in) override
     {
-        link_in->from.remove_link(link_in);
-        link_in->to.remove_link(link_in);
-
-        delete link_in;
+        link_in->get_from()->remove_link(link_in);
+        link_in->get_to()->remove_link(link_in);
     }
 };
 
@@ -190,20 +188,18 @@ struct pcm_output_t : public output_t {
         return pointer;
     }
 
-    virtual void link(input_t& input_in) override
+    virtual void link(shared_t<input_t> input_in) override
     {
-        auto new_link = new link_t(*this, input_in);
+        auto new_link = jackalope::make_shared<link_t>(shared_obj(), input_in);
 
-        input_in.add_link(new_link);
+        input_in->add_link(new_link);
         add_link(new_link);
     }
 
-    virtual void unlink(link_t * link_in) override
+    virtual void unlink(shared_t<link_t> link_in) override
     {
-        link_in->from.remove_link(link_in);
-        link_in->to.remove_link(link_in);
-
-        delete link_in;
+        link_in->get_from()->remove_link(link_in);
+        link_in->get_to()->remove_link(link_in);
     }
 
     virtual void zero_buffer()
@@ -212,12 +208,12 @@ struct pcm_output_t : public output_t {
     }
 };
 
-struct pcm_real_output_t : public pcm_output_t<real_t> {
+struct pcm_real_output_t: public pcm_output_t<real_t> {
     pcm_real_output_t(const string_t& name_in, shared_t<node_t> parent_in);
     virtual ~pcm_real_output_t() = default;
 };
 
-struct pcm_quad_output_t : public pcm_output_t<complex_t> {
+struct pcm_quad_output_t: public pcm_output_t<complex_t> {
     pcm_quad_output_t(const string_t& name_in, shared_t<node_t> parent_in);
     virtual ~pcm_quad_output_t() = default;
 };

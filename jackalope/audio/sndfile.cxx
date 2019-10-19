@@ -73,7 +73,7 @@ void sndfile_node_t::activate()
     source_buffer = new real_t[source_info.channels * buffer_size];
 
     for(auto i : outputs) {
-        auto pcm_output = dynamic_cast<pcm_real_output_t *>(i);
+        auto pcm_output = dynamic_pointer_cast<pcm_real_output_t>(i);
         pcm_output->set_num_samples(buffer_size);
     }
 
@@ -94,7 +94,7 @@ void sndfile_node_t::pcm_ready()
     audio_node_t::pcm_ready();
 
     for(auto i : outputs) {
-        auto pcm_output = dynamic_cast<pcm_real_output_t *>(i);
+        auto pcm_output = dynamic_pointer_cast<pcm_real_output_t>(i);
         pcm_output->zero_buffer();
         pcm_output->set_dirty();
     }
@@ -112,7 +112,7 @@ void sndfile_node_t::pcm_ready()
         }
 
         for (size_t i = 0; i < outputs.size(); i++) {
-            auto pcm_output = dynamic_cast<pcm_real_output_t *>(outputs[i]);
+            auto pcm_output = dynamic_pointer_cast<pcm_real_output_t>(outputs[i]);
             auto dest_buffer = pcm_output->get_buffer_pointer();
             auto buffer_size = get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE).get_size();
             pcm_extract_interleaved_channel(source_buffer, dest_buffer, i, source_info.channels, buffer_size);

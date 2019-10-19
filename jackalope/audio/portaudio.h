@@ -32,7 +32,7 @@ struct portaudio_driver_t : audio_driver_t {
     virtual void init() override;
     virtual void activate() override;
     virtual void start() override;
-    virtual void input_ready(input_t& input_in) override;
+    virtual void input_ready(shared_t<input_t> input_in) override;
     virtual void notify() override;
     virtual int process(const void *input_buffer_in, void *output_buffer_in, size_t frames_per_buffer_in, const portaudio_stream_cb_time_info_t *time_info_in, portaudio_stream_cb_flags status_flags_in);
 };

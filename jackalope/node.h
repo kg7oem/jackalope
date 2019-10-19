@@ -51,8 +51,8 @@ T * make_node(Args... args)
 struct node_t : public baseobj_t, public shared_obj_t<node_t> {
     friend void input_t::notify();
 
-    using inputs_vector_t = pool_vector_t<input_t *>;
-    using outputs_vector_t = pool_vector_t<output_t *>;
+    using inputs_vector_t = pool_vector_t<shared_t<input_t>>;
+    using outputs_vector_t = pool_vector_t<shared_t<output_t>>;
 
     const string_t name;
     const string_t class_name;
@@ -63,9 +63,9 @@ struct node_t : public baseobj_t, public shared_obj_t<node_t> {
     bool started_flag = false;
     pool_map_t<string_t, property_t> properties;
     inputs_vector_t inputs;
-    pool_map_t<string_t, input_t *> inputs_by_name;
-    pool_vector_t<output_t *> outputs;
-    pool_map_t<string_t, output_t *> outputs_by_name;
+    pool_map_t<string_t, shared_t<input_t>> inputs_by_name;
+    pool_vector_t<shared_t<output_t>> outputs;
+    pool_map_t<string_t, shared_t<output_t>> outputs_by_name;
     pool_map_t<string_t, signal_t *> signals;
     pool_map_t<string_t, slot_t *> slots;
 
@@ -90,13 +90,6 @@ struct node_t : public baseobj_t, public shared_obj_t<node_t> {
         return new_node;
     }
 
-    template <class T = node_t, typename... Args>
-    shared_t<T> shared_obj(Args... args)
-    {
-        return dynamic_pointer_cast<T>(shared_from_this());
-    }
-
-
     node_t(const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
     virtual ~node_t();
     virtual void init();
@@ -105,25 +98,25 @@ struct node_t : public baseobj_t, public shared_obj_t<node_t> {
     virtual void reset();
     virtual property_t& add_property(const string_t& name_in, property_t::type_t type_in);
     property_t& get_property(const string_t& name_in);
-    virtual input_t& add_input(const string_t& channel_class_in, const string_t& name_in);
+    virtual shared_t<input_t> add_input(const string_t& channel_class_in, const string_t& name_in);
     bool has_init_arg(const string_t& arg_name_in);
     virtual string_t get_init_arg(const string_t& arg_name_in);
-    virtual input_t& _get_input(const string_t& name_in);
+    virtual shared_t<input_t> _get_input(const string_t& name_in);
 
     template <class T = input_t>
-    T& get_input(const string_t& name_in)
+    shared_t<T> get_input(const string_t& name_in)
     {
-        return dynamic_cast<T&>(_get_input(name_in));
+        return dynamic_pointer_cast<T>(_get_input(name_in));
     }
 
     virtual const inputs_vector_t& get_inputs();
-    virtual output_t& add_output(const string_t& channel_class_in, const string_t& name_in);
-    virtual output_t& _get_output(const string_t& name_in);
+    virtual shared_t<output_t> add_output(const string_t& channel_class_in, const string_t& name_in);
+    virtual shared_t<output_t> _get_output(const string_t& name_in);
 
     template <class T = output_t>
-    T& get_output(const string_t& name_in)
+    shared_t<T> get_output(const string_t& name_in)
     {
-        return dynamic_cast<T&>(_get_output(name_in));
+        return dynamic_pointer_cast<T>(_get_output(name_in));
     }
 
     virtual const outputs_vector_t& get_outputs();
@@ -131,7 +124,7 @@ struct node_t : public baseobj_t, public shared_obj_t<node_t> {
     signal_t * get_signal(const string_t& name_in);
     slot_t * get_slot(const string_t& name_in);
     slot_t * add_slot(const string_t& name_in, slot_handler_t handler_in);
-    virtual void input_ready(input_t& input_in) = 0;
+    virtual void input_ready(shared_t<input_t> input_in) = 0;
     bool virtual is_initialized();
     bool virtual is_activated();
     bool virtual is_started();

@@ -24,45 +24,47 @@ struct input_t;
 struct output_t;
 struct link_t;
 
-using input_constructor_t = function_t<input_t * (const string_t& name_in, shared_t<node_t> parent_in)>;
-using output_constructor_t = function_t<output_t * (const string_t& name_in, shared_t<node_t> parent_in)>;
+using input_constructor_t = function_t<shared_t<input_t> (const string_t& name_in, shared_t<node_t> parent_in)>;
+using output_constructor_t = function_t<shared_t<output_t> (const string_t& name_in, shared_t<node_t> parent_in)>;
 
 struct channel_t : public baseobj_t {
     const string_t name;
     const string_t class_name;
     shared_t<node_t> parent;
-    pool_list_t<link_t *> links;
+    pool_list_t<shared_t<link_t>> links;
 
     channel_t(const string_t& class_name_in, const string_t& name_in, shared_t<node_t> parent_in);
     virtual ~channel_t() = default;
     virtual shared_t<node_t> get_parent();
     virtual const string_t& get_name();
     virtual const string_t& get_class_name();
-    virtual void add_link(link_t * link_in);
-    virtual void remove_link(link_t * link_in);
-    virtual void unlink(link_t * link_in) = 0;
+    virtual void add_link(shared_t<link_t> link_in);
+    virtual void remove_link(shared_t<link_t> link_in);
+    virtual void unlink(shared_t<link_t> link_in) = 0;
     virtual bool is_ready() = 0;
     virtual void reset();
 };
 
-struct link_t : public baseobj_t {
-    output_t& from;
-    input_t& to;
+struct link_t : public baseobj_t, public shared_obj_t<link_t> {
+    weak_t<output_t> from;
+    weak_t<input_t> to;
 
-    link_t(output_t& from_in, input_t& to_in);
+    link_t(weak_t<output_t> from_in, weak_t<input_t> to_in);
     virtual ~link_t() = default;
+    shared_t<input_t> get_to();
+    shared_t<output_t> get_from();
 };
 
-struct input_t : public channel_t {
+struct input_t : public channel_t, public shared_obj_t<input_t> {
     input_t(const string_t& class_name_in, const string_t& name_in, shared_t<node_t> parent_in);
     virtual ~input_t() = default;
     virtual bool is_ready();
-    virtual void link(output_t& output_in) = 0;
+    virtual void link(shared_t<output_t> output_in) = 0;
     virtual void notify();
-    virtual void output_ready(output_t& output_in) = 0;
+    virtual void output_ready(shared_t<output_t> output_in) = 0;
 };
 
-struct output_t : public channel_t {
+struct output_t : public channel_t, public shared_obj_t<output_t> {
     bool dirty_flag = false;
 
     output_t(const string_t& class_name_in, const string_t& name_in, shared_t<node_t> parent_in);
@@ -71,7 +73,7 @@ struct output_t : public channel_t {
     virtual bool is_dirty();
     virtual bool is_ready() override;
     virtual void notify();
-    virtual void link(input_t& input_in) = 0;
+    virtual void link(shared_t<input_t> input_in) = 0;
     virtual void reset() override;
 };
 
@@ -86,7 +88,7 @@ const string_t extract_channel_type(const string_t& class_in);
 
 void add_input_constructor(const string_t& class_in, input_constructor_t constructor_in);
 void add_output_constructor(const string_t& class_in, output_constructor_t constructor_in);
-input_t * make_input_channel(const string_t& class_in, const string_t& name_in, shared_t<node_t> parent_in);
-output_t * make_output_channel(const string_t& class_in, const string_t& name_in, shared_t<node_t> parent_in);
+shared_t<input_t> make_input_channel(const string_t& class_in, const string_t& name_in, shared_t<node_t> parent_in);
+shared_t<output_t> make_output_channel(const string_t& class_in, const string_t& name_in, shared_t<node_t> parent_in);
 
 } // namespace jackalope

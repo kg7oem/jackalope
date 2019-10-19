@@ -41,7 +41,7 @@ public:
     virtual void set_domain(shared_t<audio_domain_t> domain_in);
     virtual audio_domain_t& get_domain();
     virtual void activate() override;
-    virtual void input_ready(input_t& input_in) override;
+    virtual void input_ready(shared_t<input_t> input_in) override;
     virtual void pcm_ready();
     virtual void notify() override;
 };
@@ -49,7 +49,7 @@ public:
 class audio_domain_t : public node_t {
 
 protected:
-    pool_list_t<weak_shared_t<audio_node_t>> audio_nodes;
+    pool_list_t<weak_t<audio_node_t>> audio_nodes;
     pcm_buffer_t<real_t> zero_buffer;
     audio_driver_t * driver = nullptr;
 
@@ -93,7 +93,7 @@ public:
         return new_node;
     }
 
-    virtual void input_ready(input_t& input_in) override;
+    virtual void input_ready(shared_t<input_t> input_in) override;
     virtual void pcm_ready();
     virtual void process(real_t ** source_buffer_in, real_t ** sink_buffer_in);
     virtual void process(const real_t * source_buffer_in, real_t * sink_buffer_in);

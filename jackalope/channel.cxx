@@ -51,7 +51,7 @@ void add_output_constructor(const string_t& class_in, output_constructor_t const
     output_constructors[class_in] = constructor_in;
 }
 
-input_t * make_input_channel(const string_t& class_in, const string_t& name_in, shared_t<node_t> parent_in)
+shared_t<input_t> make_input_channel(const string_t& class_in, const string_t& name_in, shared_t<node_t> parent_in)
 {
     auto found = input_constructors.find(class_in);
 
@@ -62,7 +62,7 @@ input_t * make_input_channel(const string_t& class_in, const string_t& name_in, 
     return found->second(name_in, parent_in);
 }
 
-output_t * make_output_channel(const string_t& class_in, const string_t& name_in, shared_t<node_t> parent_in)
+shared_t<output_t> make_output_channel(const string_t& class_in, const string_t& name_in, shared_t<node_t> parent_in)
 {
     auto found = output_constructors.find(class_in);
 
@@ -95,12 +95,12 @@ const string_t& channel_t::get_class_name()
     return class_name;
 }
 
-void channel_t::add_link(link_t * link_in)
+void channel_t::add_link(shared_t<link_t> link_in)
 {
     links.push_back(link_in);
 }
 
-void channel_t::remove_link(link_t * link_in)
+void channel_t::remove_link(shared_t<link_t> link_in)
 {
     auto found = std::find(std::begin(links), std::end(links), link_in);
 
@@ -111,9 +111,19 @@ void channel_t::remove_link(link_t * link_in)
     links.erase(found);
 }
 
-link_t::link_t(output_t& from_in, input_t& to_in)
+link_t::link_t(weak_t<output_t> from_in, weak_t<input_t> to_in)
 : from(from_in), to(to_in)
 { }
+
+shared_t<input_t> link_t::get_to()
+{
+    return to.lock();
+}
+
+shared_t<output_t> link_t::get_from()
+{
+    return from.lock();
+}
 
 input_t::input_t(const string_t& class_name_in, const string_t& name_in, shared_t<node_t> parent_in)
 : channel_t(class_name_in, name_in, parent_in)
@@ -126,7 +136,7 @@ bool input_t::is_ready()
     }
 
     for(auto i : links) {
-        if (! i->from.is_ready()) {
+        if (! i->get_from()->is_ready()) {
             return false;
         }
     }
@@ -136,7 +146,7 @@ bool input_t::is_ready()
 
 void input_t::notify()
 {
-    parent->input_ready(*this);
+    parent->input_ready(shared_obj());
 }
 
 output_t::output_t(const string_t& class_name_in, const string_t& name_in, shared_t<node_t> parent_in)
@@ -171,7 +181,7 @@ void output_t::notify()
     }
 
     for (auto i : links) {
-        i->to.output_ready(*this);
+        i->get_to()->output_ready(shared_obj());
     }
 }
 

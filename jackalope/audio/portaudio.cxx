@@ -162,7 +162,7 @@ int portaudio_driver_t::process(const void * source_buffer_in, void * sink_buffe
     return 0;
 }
 
-void portaudio_driver_t::input_ready(input_t&)
+void portaudio_driver_t::input_ready(shared_t<input_t>)
 {
     throw_runtime_error("portaudio driver can't handle an input being ready");
 }

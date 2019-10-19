@@ -50,17 +50,11 @@ node_t::node_t(const string_t& name_in, node_init_list_t init_args_in)
 node_t::~node_t()
 {
 
+    inputs.empty();
     inputs_by_name.empty();
 
-    for (auto i : inputs) {
-        delete i;
-    }
-
     outputs_by_name.empty();
-
-    for (auto i : outputs) {
-        delete i;
-    }
+    outputs.empty();
 }
 
 void node_t::init()
@@ -196,7 +190,7 @@ string_t node_t::get_init_arg(const string_t& arg_name_in)
     throw_runtime_error("could not find init arg value for key: ", arg_name_in);
 }
 
-input_t& node_t::add_input(const string_t& channel_class_in, const string_t& name_in)
+shared_t<input_t> node_t::add_input(const string_t& channel_class_in, const string_t& name_in)
 {
     if (activated_flag) {
         throw_runtime_error("Can not add an input to a node that has been activated");
@@ -219,10 +213,10 @@ input_t& node_t::add_input(const string_t& channel_class_in, const string_t& nam
     inputs.push_back(new_channel);
     inputs_by_name[name_in] = new_channel;
 
-    return *new_channel;
+    return new_channel;
 }
 
-input_t& node_t::_get_input(const string_t& name_in)
+shared_t<input_t> node_t::_get_input(const string_t& name_in)
 {
     auto found = inputs_by_name.find(name_in);
 
@@ -230,7 +224,7 @@ input_t& node_t::_get_input(const string_t& name_in)
         throw_runtime_error("Could not find input: ", name_in);
     }
 
-    return *found->second;
+    return found->second;
 }
 
 const node_t::inputs_vector_t& node_t::get_inputs()
@@ -238,7 +232,7 @@ const node_t::inputs_vector_t& node_t::get_inputs()
     return inputs;
 }
 
-output_t& node_t::_get_output(const string_t& name_in)
+shared_t<output_t> node_t::_get_output(const string_t& name_in)
 {
     auto found = outputs_by_name.find(name_in);
 
@@ -246,7 +240,7 @@ output_t& node_t::_get_output(const string_t& name_in)
         throw_runtime_error("Could not find output: ", name_in);
     }
 
-    return *found->second;
+    return found->second;
 }
 
 const node_t::outputs_vector_t& node_t::get_outputs()
@@ -254,7 +248,7 @@ const node_t::outputs_vector_t& node_t::get_outputs()
     return outputs;
 }
 
-output_t& node_t::add_output(const string_t& channel_class_in, const string_t& name_in)
+shared_t<output_t> node_t::add_output(const string_t& channel_class_in, const string_t& name_in)
 {
     if (activated_flag) {
         throw_runtime_error("Can not add an output to a node that has been activated");
@@ -277,7 +271,7 @@ output_t& node_t::add_output(const string_t& channel_class_in, const string_t& n
     outputs.push_back(new_channel);
     outputs_by_name[name_in] = new_channel;
 
-    return *new_channel;
+    return new_channel;
 }
 
 signal_t * node_t::get_signal(const string_t& name_in)

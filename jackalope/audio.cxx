@@ -73,7 +73,7 @@ void audio_node_t::activate()
     node_t::activate();
 }
 
-void audio_node_t::input_ready(input_t&)
+void audio_node_t::input_ready(shared_t<input_t>)
 {
     for (auto input : inputs) {
         auto input_class = extract_channel_class(input->get_class_name());
@@ -127,7 +127,7 @@ void audio_domain_t::activate()
     zero_buffer.set_num_samples(buffer_size);
 
     for(auto i : outputs) {
-        auto pcm_output = dynamic_cast<pcm_real_output_t *>(i);
+        auto pcm_output = dynamic_pointer_cast<pcm_real_output_t>(i);
         pcm_output->set_num_samples(buffer_size);
     }
 
@@ -162,7 +162,7 @@ void audio_node_t::notify()
     }
 }
 
-void audio_domain_t::input_ready(input_t&)
+void audio_domain_t::input_ready(shared_t<input_t>)
 {
     for(auto i : inputs) {
         if (! i->is_ready()) {
@@ -189,7 +189,7 @@ void audio_domain_t::process(real_t ** source_buffers_in, real_t ** sink_buffers
     }
 
     for(size_t i = 0; i < outputs.size(); i++) {
-        auto pcm_output = dynamic_cast<pcm_real_output_t *>(outputs[i]);
+        auto pcm_output = dynamic_pointer_cast<pcm_real_output_t>(outputs[i]);
         pcm_copy(source_buffers_in[i], pcm_output->get_buffer_pointer(), get_buffer_size());
         pcm_output->set_dirty();
     }
@@ -197,7 +197,7 @@ void audio_domain_t::process(real_t ** source_buffers_in, real_t ** sink_buffers
     notify();
 
     for(size_t i = 0; i < inputs.size(); i++) {
-        auto pcm_input = dynamic_cast<pcm_real_input_t *>(inputs[i]);
+        auto pcm_input = dynamic_pointer_cast<pcm_real_input_t>(inputs[i]);
         pcm_copy(sink_buffers_in[i], pcm_input->get_buffer_pointer(), get_buffer_size());
     }
 
@@ -227,7 +227,7 @@ void audio_domain_t::process(const real_t * source_buffer_in, real_t * sink_buff
     notify();
 
     for(size_t i = 0; i < inputs.size(); i++) {
-        auto pcm_input = dynamic_cast<pcm_real_input_t *>(inputs[i]);
+        auto pcm_input = dynamic_pointer_cast<pcm_real_input_t>(inputs[i]);
         auto buffer_ptr = pcm_input->get_buffer_pointer();
         pcm_interleave(buffer_ptr, sink_buffer_in, i, inputs.size(), get_buffer_size());
     }
@@ -238,7 +238,7 @@ void audio_domain_t::process(const real_t * source_buffer_in, real_t * sink_buff
 void audio_domain_t::notify()
 {
     for(auto i : outputs) {
-        auto pcm_output = dynamic_cast<pcm_real_output_t *>(i);
+        auto pcm_output = dynamic_pointer_cast<pcm_real_output_t>(i);
         pcm_output->notify();
     }
 }

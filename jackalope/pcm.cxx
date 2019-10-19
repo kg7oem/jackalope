@@ -18,24 +18,24 @@
 
 namespace jackalope {
 
-static input_t * pcm_real_input_constructor(const string_t& name_in, shared_t<node_t> parent_in)
+static shared_t<input_t> pcm_real_input_constructor(const string_t& name_in, shared_t<node_t> parent_in)
 {
-    return new pcm_real_input_t(name_in, parent_in);
+    return jackalope::make_shared<pcm_real_input_t>(name_in, parent_in);
 }
 
-static output_t * pcm_real_output_constructor(const string_t& name_in, shared_t<node_t> parent_in)
+static shared_t<output_t> pcm_real_output_constructor(const string_t& name_in, shared_t<node_t> parent_in)
 {
-    return new pcm_real_output_t(name_in, parent_in);
+    return jackalope::make_shared<pcm_real_output_t>(name_in, parent_in);
 }
 
-static input_t * pcm_quad_input_constructor(const string_t& name_in, shared_t<node_t> parent_in)
+static shared_t<input_t> pcm_quad_input_constructor(const string_t& name_in, shared_t<node_t> parent_in)
 {
-    return new pcm_quad_input_t(name_in, parent_in);
+    return jackalope::make_shared<pcm_quad_input_t>(name_in, parent_in);
 }
 
-static output_t * pcm_quad_output_constructor(const string_t& name_in, shared_t<node_t> parent_in)
+static shared_t<output_t> pcm_quad_output_constructor(const string_t& name_in, shared_t<node_t> parent_in)
 {
-    return new pcm_quad_output_t(name_in, parent_in);
+    return jackalope::make_shared<pcm_quad_output_t>(name_in, parent_in);
 }
 
 void pcm_init()
@@ -59,8 +59,8 @@ real_t * pcm_real_input_t::get_buffer_pointer()
         auto audio_node = dynamic_pointer_cast<audio_node_t>(parent);
         return audio_node->get_domain().get_zero_buffer_pointer();
     } else if (num_links == 1) {
-        auto& pcm_output = dynamic_cast<pcm_real_output_t&>(links.front()->from);
-        return pcm_output.get_buffer_pointer();
+        auto pcm_output = dynamic_pointer_cast<pcm_real_output_t>(links.front()->get_from());
+        return pcm_output->get_buffer_pointer();
     }
 
     throw_runtime_error("Can not mix together multiple outputs to an input");
@@ -77,8 +77,8 @@ complex_t * pcm_quad_input_t::get_buffer_pointer()
     if (num_links == 0) {
         throw_runtime_error("Can not create a buffer pointer with zero links to input yet");
     } else if (num_links == 1) {
-        auto& pcm_output = dynamic_cast<pcm_quad_output_t&>(links.front()->from);
-        return pcm_output.get_buffer_pointer();
+        auto pcm_output = dynamic_pointer_cast<pcm_quad_output_t>(links.front()->get_from());
+        return pcm_output->get_buffer_pointer();
     }
 
     throw_runtime_error("Can not mix together multiple outputs to an input");

@@ -157,7 +157,7 @@ void ladspa_node_t::activate()
     auto& buffer_size_prop = get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE);
 
     for (auto i : outputs) {
-        auto pcm_output = dynamic_cast<pcm_real_output_t *>(i);
+        auto pcm_output = dynamic_pointer_cast<pcm_real_output_t>(i);
         pcm_output->set_num_samples(buffer_size_prop.get_size());
     }
 
@@ -186,8 +186,8 @@ void ladspa_node_t::activate()
             // inputs get connected right before the LADSPA plugin is run
             if (LADSPA_IS_PORT_OUTPUT(descriptor)) {
                 auto port_name = instance->get_port_name(port_num);
-                auto& output = get_output<pcm_real_output_t>(port_name);
-                instance->connect_port(port_num, output.get_buffer_pointer());
+                auto output = get_output<pcm_real_output_t>(port_name);
+                instance->connect_port(port_num, output->get_buffer_pointer());
             }
         }
     }
@@ -203,8 +203,8 @@ void ladspa_node_t::pcm_ready()
         auto descriptor = instance->get_port_descriptor(port_num);
 
         if(LADSPA_IS_PORT_AUDIO(descriptor) && LADSPA_IS_PORT_INPUT(descriptor)) {
-            auto& input = get_input<pcm_real_input_t>(instance->get_port_name(port_num));
-            instance->connect_port(port_num, input.get_buffer_pointer());
+            auto input = get_input<pcm_real_input_t>(instance->get_port_name(port_num));
+            instance->connect_port(port_num, input->get_buffer_pointer());
         }
     }
 
