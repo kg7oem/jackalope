@@ -30,6 +30,8 @@ find_package(Threads REQUIRED)
 # pkg_check_modules(LIBSNDFILE REQUIRED libsndfile-1)
 # pkg_check_modules(PORTAUDIO REQUIRED libportaudio)
 
+add_subdirectory(ext/ordered-map)
+
 add_library(
     jackalope SHARED
 
@@ -51,7 +53,7 @@ add_library(
 )
 add_dependencies(jackalope jackalope-boost)
 target_link_libraries(jackalope ${Boost_LIBRARIES})
-
+target_link_libraries(jackalope tsl::ordered_map)
 target_link_libraries(jackalope ${CMAKE_THREAD_LIBS_INIT} -ldl -lsndfile -lportaudio)
 
 enable_testing()

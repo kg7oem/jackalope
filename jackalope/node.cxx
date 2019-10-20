@@ -41,10 +41,14 @@ node_t * _make_node(const string_t& node_name_in, const string_t& class_name_in,
 }
 
 node_t::node_t(const string_t& name_in, node_init_list_t init_args_in)
-: name(name_in), init_args(init_args_in)
+: name(name_in)
 {
     add_property(JACKALOPE_NODE_PROPERTY_NAME, property_t::type_t::string).set(name);
     add_property(JACKALOPE_NODE_PROPERTY_CLASS, property_t::type_t::string).set(class_name);
+
+    for(auto i : init_args_in) {
+        init_config[i.first] = i.second;
+    }
 }
 
 node_t::~node_t()
@@ -63,7 +67,7 @@ void node_t::init()
         throw_runtime_error("Can not initalize a node that has already been initialized");
     }
 
-    for(auto i : init_args) {
+    for(auto i : init_config) {
         auto key = i.first;
 
         if (key.find("input:", 0) != string_t::npos) {
@@ -170,10 +174,10 @@ property_t& node_t::get_property(const string_t& name_in)
 
 bool node_t::has_init_arg(const string_t& arg_name_in)
 {
-    for (auto i : init_args) {
-        if (i.first == arg_name_in) {
-            return true;
-        }
+    auto found = init_config.find(arg_name_in);
+
+    if (found != init_config.end()) {
+        return true;
     }
 
     return false;
@@ -181,13 +185,14 @@ bool node_t::has_init_arg(const string_t& arg_name_in)
 
 string_t node_t::get_init_arg(const string_t& arg_name_in)
 {
-    for (auto i : init_args) {
-        if (i.first == arg_name_in) {
-            return i.second;
-        }
+    auto found = init_config.find(arg_name_in);
+
+    if (found == init_config.end()) {
+        throw_runtime_error("could not find init arg value for key: ", arg_name_in);
     }
 
-    throw_runtime_error("could not find init arg value for key: ", arg_name_in);
+    return found->second;
+
 }
 
 shared_t<input_t> node_t::add_input(const string_t& channel_class_in, const string_t& name_in)

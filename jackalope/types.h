@@ -13,9 +13,14 @@
 
 #pragma once
 
+#include <boost/multi_index_container.hpp>
+#include <boost/multi_index/hashed_index.hpp>
+#include <boost/multi_index/member.hpp>
+#include <boost/multi_index/random_access_index.hpp>
 #include <boost/pool/pool_alloc.hpp>
 #include <complex>
 #include <exception>
+#include <tsl/ordered_map.h>
 #include <functional>
 #include <list>
 #include <map>
@@ -40,6 +45,10 @@ template <class Key, class T, class Compare = std::less<Key>>
 using pool_map_t = std::map<Key, T, Compare, pool_allocator_t<std::pair<const Key, T>>>;
 template <typename T>
 using pool_vector_t = std::vector<T, pool_allocator_t<T>>;
+template<typename Key, typename T, class Compare = std::less<Key>, class Alloc = std::allocator<std::pair<Key, T>>>
+using sequenced_map_t = tsl::ordered_map<Key, T>;
+template <typename Key, typename T>
+using pool_sequenced_map_t = sequenced_map_t<Key, T, pool_allocator_t<std::pair<const Key, T>>>;
 
 using std::dynamic_pointer_cast;
 template <typename T>

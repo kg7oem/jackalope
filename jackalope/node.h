@@ -56,8 +56,7 @@ struct node_t : public baseobj_t, public shared_obj_t<node_t> {
 
     const string_t name;
     const string_t class_name;
-    // init_args must preserve order
-    node_init_list_t init_args;
+    pool_sequenced_map_t<string_t, string_t> init_config;
     bool initialized_flag = false;
     bool activated_flag = false;
     bool started_flag = false;
