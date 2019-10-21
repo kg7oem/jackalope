@@ -58,8 +58,8 @@ template<typename T>
 struct shared_obj_t : public std::enable_shared_from_this<T> {
     shared_t<T> shared_from_this() = delete;
 
-    template <class U = T, typename... Args>
-    shared_t<U> shared_obj(Args... args)
+    template <class U = T>
+    shared_t<U> shared_obj()
     {
         return dynamic_pointer_cast<U>(std::enable_shared_from_this<T>::shared_from_this());
     }
