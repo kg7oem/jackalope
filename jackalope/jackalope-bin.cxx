@@ -14,7 +14,6 @@
 #include <iostream>
 #include <string>
 
-#include <jackalope/audio.h>
 #include <jackalope/jackalope.h>
 #include <jackalope/log/dest.h>
 #include <jackalope/logging.h>

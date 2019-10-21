@@ -9,7 +9,7 @@ extern "C" {
 #include <portaudio.h>
 }
 
-#include <jackalope/audio.h>
+#include <jackalope/pcm.h>
 
 #define JACKALOPE_PCM_PORTPCM_CLASS "pcm::driver::portaudio"
 

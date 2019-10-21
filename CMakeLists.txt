@@ -33,16 +33,15 @@ find_package(Threads REQUIRED)
 add_library(
     jackalope SHARED
 
-    jackalope/audio.cxx
-    jackalope/pcm/ladspa.cxx
-    jackalope/pcm/portaudio.cxx
-    jackalope/pcm/sndfile.cxx
     jackalope/channel.cxx
     jackalope/jackalope.cxx
     jackalope/log/dest.cxx
     jackalope/log/engine.cxx
     jackalope/node.cxx
     jackalope/pcm.cxx
+    jackalope/pcm/ladspa.cxx
+    jackalope/pcm/portaudio.cxx
+    jackalope/pcm/sndfile.cxx
     jackalope/property.cxx
     jackalope/signal.cxx
     jackalope/string.cxx

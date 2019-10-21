@@ -18,7 +18,6 @@
 
 #include <boost/filesystem.hpp>
 
-#include <jackalope/audio.h>
 #include <jackalope/exception.h>
 #include <jackalope/jackalope.h>
 #include <jackalope/logging.h>

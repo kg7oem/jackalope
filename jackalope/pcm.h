@@ -23,11 +23,28 @@
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
 
-#define JACKALOPE_PCM_CHANNEL_CLASS       "pcm"
-#define JACKALOPE_PCM_CHANNEL_CLASS_REAL  "pcm[real]"
-#define JACKALOPE_PCM_CHANNEL_CLASS_QUAD  "pcm[quad]"
+#define JACKALOPE_PCM_CHANNEL_CLASS         "pcm"
+#define JACKALOPE_PCM_CHANNEL_CLASS_REAL    "pcm[real]"
+#define JACKALOPE_PCM_CHANNEL_CLASS_QUAD    "pcm[quad]"
+#define JACKALOPE_PCM_DOMAIN_CLASS_NAME     "pcm::domain"
+#define JACKALOPE_PCM_DRIVER_CLASS_PREFIX   "pcm::driver::"
+#define JACKALOPE_PCM_NODE_CLASS_PREFIX     "pcm::node::"
+#define JACKALOPE_PCM_PROPERTY_BUFFER_SIZE  "pcm:buffer_size"
+#define JACKALOPE_PCM_PROPERTY_SAMPLE_RATE  "pcm:sample_rate"
 
 namespace jackalope {
+
+class pcm_node_t;
+class pcm_domain_t;
+struct pcm_driver_t;
+
+void pcm_init();
+
+template <class T = pcm_domain_t>
+shared_t<T> make_pcm_domain(node_init_list_t init_list_in)
+{
+    return node_t::make<T>(init_list_in);
+}
 
 template <typename T>
 struct pcm_buffer_t : public baseobj_t {
@@ -185,6 +202,75 @@ struct pcm_quad_output_t: public pcm_output_t<complex_t> {
     virtual ~pcm_quad_output_t() = default;
 };
 
-void pcm_init();
+class pcm_node_t : public node_t {
+    shared_t<pcm_domain_t> domain = nullptr;
+
+public:
+    pcm_node_t(const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
+    virtual void set_domain(shared_t<pcm_domain_t> domain_in);
+    virtual pcm_domain_t& get_domain();
+    virtual void activate() override;
+    virtual void input_ready(shared_t<input_t> input_in) override;
+    virtual void pcm_ready();
+    virtual void notify() override;
+};
+
+class pcm_domain_t : public node_t {
+
+protected:
+    pool_list_t<weak_t<pcm_node_t>> pcm_nodes;
+    pcm_buffer_t<real_t> zero_buffer;
+    pcm_driver_t * driver = nullptr;
+
+public:
+    pcm_domain_t(const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
+    virtual ~pcm_domain_t();
+    virtual size_t get_sample_rate();
+    virtual size_t get_buffer_size();
+    virtual real_t * get_zero_buffer_pointer();
+    virtual void activate() override;
+    virtual void start() override;
+    virtual void reset() override;
+
+    template <class T = pcm_node_t>
+    shared_t<T> make_node(node_init_list_t init_list_in)
+    {
+        auto new_node = node_t::make<T>(init_list_in);
+
+        new_node->set_domain(shared_obj<pcm_domain_t>());
+        new_node->activate();
+
+        pcm_nodes.push_back(new_node);
+
+        return new_node;
+    }
+
+    template <class T = pcm_driver_t, typename... Args>
+    shared_t<T> make_driver(node_init_list_t init_list_in)
+    {
+        auto new_node = node_t::make<T>(init_list_in);
+
+        new_node->set_domain(shared_obj<pcm_domain_t>());
+        new_node->activate();
+
+        return new_node;
+    }
+
+    virtual void input_ready(shared_t<input_t> input_in) override;
+    virtual void pcm_ready();
+    virtual void process(real_t ** source_buffer_in, real_t ** sink_buffer_in);
+    virtual void process(const real_t * source_buffer_in, real_t * sink_buffer_in);
+    virtual void notify() override;
+};
+
+struct pcm_driver_t : public node_t {
+    shared_t<pcm_domain_t> domain;
+
+    pcm_driver_t(const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
+    virtual ~pcm_driver_t() = default;
+    virtual void set_domain(shared_t<pcm_domain_t> domain_in);
+    virtual void input_ready(shared_t<input_t> input_in) override;
+    virtual void notify() override;
+};
 
 } // namespace jackalope

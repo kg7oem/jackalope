@@ -13,7 +13,7 @@
 
 #pragma once
 
-#include <jackalope/audio.h>
+#include <jackalope/pcm.h>
 #include <jackalope/types.h>
 
 #define JACKALOPE_PCM_LADSPA_PATH_ENV "LADSPA_PATH"
