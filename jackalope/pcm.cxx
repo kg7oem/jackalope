@@ -56,8 +56,8 @@ real_t * pcm_real_input_t::get_buffer_pointer()
     auto num_links = links.size();
 
     if (num_links == 0) {
-        auto audio_node = dynamic_pointer_cast<audio_node_t>(parent);
-        return audio_node->get_domain().get_zero_buffer_pointer();
+        auto pcm_node = dynamic_pointer_cast<pcm_node_t>(parent);
+        return pcm_node->get_domain().get_zero_buffer_pointer();
     } else if (num_links == 1) {
         auto pcm_output = dynamic_pointer_cast<pcm_real_output_t>(links.front()->get_from());
         return pcm_output->get_buffer_pointer();

@@ -73,7 +73,7 @@ struct ladspa_instance_t : public baseobj_t {
     void connect_port(const size_t port_num_in, ladspa_data_t * pointer_in);
 };
 
-struct ladspa_node_t : public audio_node_t {
+struct ladspa_node_t : public pcm_node_t {
     const string_t class_name = JACKALOPE_PCM_LADSPA_CLASS;
 
     ladspa_file_t * file = nullptr;

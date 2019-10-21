@@ -22,29 +22,29 @@
 
 namespace jackalope {
 
-void audio_init()
+void PCM_init()
 {
     pcm::ladspa_init();
     pcm::portaudio_init();
     pcm::sndfile_init();
 }
 
-audio_node_t::audio_node_t(const string_t& name_in, node_init_list_t init_list_in)
+pcm_node_t::pcm_node_t(const string_t& name_in, node_init_list_t init_list_in)
 : node_t(name_in, init_list_in)
 {
     add_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE, property_t::type_t::size);
     add_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE, property_t::type_t::size);
 }
 
-audio_domain_t& audio_node_t::get_domain()
+pcm_domain_t& pcm_node_t::get_domain()
 {
     return *domain;
 }
 
-void audio_node_t::set_domain(shared_t<audio_domain_t> domain_in)
+void pcm_node_t::set_domain(shared_t<pcm_domain_t> domain_in)
 {
     if (domain != nullptr) {
-        throw_runtime_error("Audio node already has an audio domain");
+        throw_runtime_error("PCM node already has a PCM domain");
     }
 
     domain = domain_in;
@@ -53,27 +53,27 @@ void audio_node_t::set_domain(shared_t<audio_domain_t> domain_in)
     get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE).set(domain->get_buffer_size());
 }
 
-void audio_node_t::activate()
+void pcm_node_t::activate()
 {
     auto& buffer_size = get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE);
     auto& sample_rate = get_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE);
 
     if (! buffer_size.is_defined()) {
-        throw_runtime_error("property must be defined to activate an audio node: ", JACKALOPE_PCM_PROPERTY_BUFFER_SIZE);
+        throw_runtime_error("property must be defined to activate a PCM node: ", JACKALOPE_PCM_PROPERTY_BUFFER_SIZE);
     } else if (buffer_size.get_size() == 0) {
-        throw_runtime_error("can not activate an audio node with buffer size of 0");
+        throw_runtime_error("can not activate a PCM node with buffer size of 0");
     }
 
     if (! sample_rate.is_defined()) {
-        throw_runtime_error("property must be defined to activate an audio node: ", JACKALOPE_PCM_PROPERTY_SAMPLE_RATE);
+        throw_runtime_error("property must be defined to activate a PCM node: ", JACKALOPE_PCM_PROPERTY_SAMPLE_RATE);
     } else if (buffer_size.get_size() == 0) {
-        throw_runtime_error("can not activate an audio node with a sample rate of 0");
+        throw_runtime_error("can not activate an PCM node with a sample rate of 0");
     }
 
     node_t::activate();
 }
 
-void audio_node_t::input_ready(shared_t<input_t>)
+void pcm_node_t::input_ready(shared_t<input_t>)
 {
     for (auto input : inputs) {
         auto input_class = extract_channel_class(input->get_class_name());
@@ -88,12 +88,12 @@ void audio_node_t::input_ready(shared_t<input_t>)
     pcm_ready();
 }
 
-void audio_node_t::pcm_ready()
+void pcm_node_t::pcm_ready()
 {
     // log_info("All pcm inputs are ready: ", name);
 }
 
-audio_domain_t::audio_domain_t(const string_t& name_in, node_init_list_t init_list_in)
+pcm_domain_t::pcm_domain_t(const string_t& name_in, node_init_list_t init_list_in)
 : node_t(name_in, init_list_in)
 {
     add_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE, property_t::type_t::size);
@@ -102,25 +102,25 @@ audio_domain_t::audio_domain_t(const string_t& name_in, node_init_list_t init_li
     add_slot("system:terminate", [](signal_t *) { jackalope_panic("can't cleanly terminate yet"); });
 }
 
-audio_domain_t::~audio_domain_t()
+pcm_domain_t::~pcm_domain_t()
 { }
 
-size_t audio_domain_t::get_sample_rate()
+size_t pcm_domain_t::get_sample_rate()
 {
     return get_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE).get_size();
 }
 
-size_t audio_domain_t::get_buffer_size()
+size_t pcm_domain_t::get_buffer_size()
 {
     return get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE).get_size();
 }
 
-real_t * audio_domain_t::get_zero_buffer_pointer()
+real_t * pcm_domain_t::get_zero_buffer_pointer()
 {
     return zero_buffer.get_pointer();
 }
 
-void audio_domain_t::activate()
+void pcm_domain_t::activate()
 {
     auto buffer_size = get_buffer_size();
 
@@ -134,35 +134,35 @@ void audio_domain_t::activate()
     node_t::activate();
 }
 
-void audio_domain_t::start()
+void pcm_domain_t::start()
 {
-    for(auto i : audio_nodes) {
+    for(auto i : pcm_nodes) {
         i.lock()->start();
     }
 
     node_t::start();
 }
 
-void audio_domain_t::reset()
+void pcm_domain_t::reset()
 {
     for(auto i : outputs) {
         i->reset();
     }
 
-    for(auto i : audio_nodes) {
+    for(auto i : pcm_nodes) {
         // log_info("Resetting node: ", i->get_name());
         i.lock()->reset();
     }
 }
 
-void audio_node_t::notify()
+void pcm_node_t::notify()
 {
     for(auto i : outputs) {
         i->notify();
     }
 }
 
-void audio_domain_t::input_ready(shared_t<input_t>)
+void pcm_domain_t::input_ready(shared_t<input_t>)
 {
     for(auto i : inputs) {
         if (! i->is_ready()) {
@@ -173,15 +173,15 @@ void audio_domain_t::input_ready(shared_t<input_t>)
     pcm_ready();
 }
 
-void audio_domain_t::pcm_ready()
+void pcm_domain_t::pcm_ready()
 {
-    // log_info("All PCM inputs are ready for audio domain");
+    // log_info("All PCM inputs are ready for PCM domain");
 }
 
 // FIXME how to properly const source_buffers_in ?
-void audio_domain_t::process(real_t ** source_buffers_in, real_t ** sink_buffers_in)
+void pcm_domain_t::process(real_t ** source_buffers_in, real_t ** sink_buffers_in)
 {
-    for(auto i : audio_nodes) {
+    for(auto i : pcm_nodes) {
         auto node = i.lock();
         if (node->inputs.size() == 0) {
             node->pcm_ready();
@@ -204,19 +204,19 @@ void audio_domain_t::process(real_t ** source_buffers_in, real_t ** sink_buffers
     reset();
 }
 
-void audio_domain_t::process(const real_t * source_buffer_in, real_t * sink_buffer_in)
+void pcm_domain_t::process(const real_t * source_buffer_in, real_t * sink_buffer_in)
 {
     if (source_buffer_in == nullptr && outputs.size() != 0) {
-        throw_runtime_error("audio domain has outputs but the source buffer was null");
+        throw_runtime_error("PCM domain has outputs but the source buffer was null");
     }
 
     if (sink_buffer_in == nullptr && inputs.size() != 0) {
-        throw_runtime_error("audio domain has inputs but the sink buffer was null");
+        throw_runtime_error("PCM domain has inputs but the sink buffer was null");
     }
 
     assert(outputs.size() == 0);
 
-    for(auto i : audio_nodes) {
+    for(auto i : pcm_nodes) {
         auto node = i.lock();
 
         if (node->inputs.size() == 0) {
@@ -235,7 +235,7 @@ void audio_domain_t::process(const real_t * source_buffer_in, real_t * sink_buff
     reset();
 }
 
-void audio_domain_t::notify()
+void pcm_domain_t::notify()
 {
     for(auto i : outputs) {
         auto pcm_output = dynamic_pointer_cast<pcm_real_output_t>(i);
@@ -243,11 +243,11 @@ void audio_domain_t::notify()
     }
 }
 
-audio_driver_t::audio_driver_t(const string_t& name_in, node_init_list_t init_list_in)
+pcm_driver_t::pcm_driver_t(const string_t& name_in, node_init_list_t init_list_in)
 : node_t(name_in, init_list_in)
 { }
 
-void audio_driver_t::set_domain(shared_t<audio_domain_t> domain_in)
+void pcm_driver_t::set_domain(shared_t<pcm_domain_t> domain_in)
 {
     domain = domain_in;
 
@@ -255,10 +255,10 @@ void audio_driver_t::set_domain(shared_t<audio_domain_t> domain_in)
     get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE).set(domain->get_buffer_size());
 }
 
-void audio_driver_t::input_ready(shared_t<input_t>)
+void pcm_driver_t::input_ready(shared_t<input_t>)
 { }
 
-void audio_driver_t::notify()
+void pcm_driver_t::notify()
 { }
 
 } // namespace jackalope

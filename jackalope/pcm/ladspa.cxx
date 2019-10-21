@@ -52,7 +52,7 @@ void ladspa_init()
 }
 
 ladspa_node_t::ladspa_node_t(const string_t& node_name_in, node_init_list_t init_list_in)
-: audio_node_t(node_name_in, init_list_in)
+: pcm_node_t(node_name_in, init_list_in)
 {
     add_property(JACKALOPE_PCM_LADSPA_PROPERTY_FILE, property_t::type_t::string);
     add_property(JACKALOPE_PCM_LADSPA_PROPERTY_ID, property_t::type_t::size);
@@ -97,7 +97,7 @@ void ladspa_node_t::init()
     init_file();
     init_instance();
 
-    audio_node_t::init();
+    pcm_node_t::init();
 }
 
 void ladspa_node_t::init_file()
@@ -192,12 +192,12 @@ void ladspa_node_t::activate()
         }
     }
 
-    audio_node_t::activate();
+    pcm_node_t::activate();
 }
 
 void ladspa_node_t::pcm_ready()
 {
-    audio_node_t::pcm_ready();
+    pcm_node_t::pcm_ready();
 
     for(size_t port_num = 0; port_num < instance->get_num_ports(); port_num++) {
         auto descriptor = instance->get_port_descriptor(port_num);

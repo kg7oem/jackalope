@@ -23,12 +23,12 @@ using portaudio_stream_cb_flags = PaStreamCallbackFlags;
 
 void portaudio_init();
 
-struct portaudio_driver_t : audio_driver_t {
+struct portpcm_driver_t : pcm_driver_t {
     const string_t class_name = JACKALOPE_PCM_PORTPCM_CLASS;
     portaudio_stream_t * stream = nullptr;
 
-    portaudio_driver_t(const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
-    virtual ~portaudio_driver_t();
+    portpcm_driver_t(const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
+    virtual ~portpcm_driver_t();
     virtual void init() override;
     virtual void activate() override;
     virtual void start() override;

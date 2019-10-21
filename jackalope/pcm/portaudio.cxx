@@ -26,9 +26,9 @@ static lock_t get_portaudio_lock()
     return lock_t(portaudio_mutex);
 }
 
-static shared_t<portaudio_driver_t> portaudio_node_constructor(const string_t& node_name_in, node_init_list_t init_list_in)
+static shared_t<portpcm_driver_t> portaudio_node_constructor(const string_t& node_name_in, node_init_list_t init_list_in)
 {
-    return jackalope::make_shared<portaudio_driver_t>(node_name_in, init_list_in);
+    return jackalope::make_shared<portpcm_driver_t>(node_name_in, init_list_in);
 }
 
 void portaudio_init()
@@ -43,14 +43,14 @@ void portaudio_init()
     }
 }
 
-portaudio_driver_t::portaudio_driver_t(const string_t& name_in, node_init_list_t init_list_in)
-: audio_driver_t(name_in, init_list_in)
+portpcm_driver_t::portpcm_driver_t(const string_t& name_in, node_init_list_t init_list_in)
+: pcm_driver_t(name_in, init_list_in)
 {
     add_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE, property_t::type_t::size);
     add_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE, property_t::type_t::size);
 }
 
-portaudio_driver_t::~portaudio_driver_t()
+portpcm_driver_t::~portpcm_driver_t()
 {
     if (stream != nullptr) {
         Pa_StopStream(stream);
@@ -59,21 +59,21 @@ portaudio_driver_t::~portaudio_driver_t()
     }
 }
 
-void portaudio_driver_t::init()
+void portpcm_driver_t::init()
 {
     add_input(JACKALOPE_PCM_CHANNEL_CLASS_REAL, "left input");
     add_input(JACKALOPE_PCM_CHANNEL_CLASS_REAL, "right input");
 
-    audio_driver_t::init();
+    pcm_driver_t::init();
 }
 
 static int process_cb(const void * input_buffer_in, void * output_buffer_in, size_t frames_per_buffer_in, const portaudio_stream_cb_time_info_t * time_info_in, portaudio_stream_cb_flags status_flags_in, void *userdata_in)
 {
-    auto driver = static_cast<portaudio_driver_t *>(userdata_in);
+    auto driver = static_cast<portpcm_driver_t *>(userdata_in);
     return driver->process(input_buffer_in, output_buffer_in, frames_per_buffer_in, time_info_in, status_flags_in);
 }
 
-void portaudio_driver_t::activate()
+void portpcm_driver_t::activate()
 {
     auto lock = get_portaudio_lock();
     auto userdata = static_cast<void *>(this);
@@ -89,10 +89,10 @@ void portaudio_driver_t::activate()
         throw_runtime_error("Could not open portaudio default stream: ", Pa_GetErrorText(err));
     }
 
-    audio_driver_t::activate();
+    pcm_driver_t::activate();
 }
 
-void portaudio_driver_t::start()
+void portpcm_driver_t::start()
 {
     auto lock = get_portaudio_lock();
 
@@ -105,7 +105,7 @@ void portaudio_driver_t::start()
     }
 }
 
-int portaudio_driver_t::process(const void * source_buffer_in, void * sink_buffer_in, size_t frames_per_buffer_in, const portaudio_stream_cb_time_info_t *, portaudio_stream_cb_flags status_flags_in)
+int portpcm_driver_t::process(const void * source_buffer_in, void * sink_buffer_in, size_t frames_per_buffer_in, const portaudio_stream_cb_time_info_t *, portaudio_stream_cb_flags status_flags_in)
 {
     auto lock = get_portaudio_lock();
     auto source_buffer = static_cast<const real_t *>(source_buffer_in);
@@ -162,14 +162,14 @@ int portaudio_driver_t::process(const void * source_buffer_in, void * sink_buffe
     return 0;
 }
 
-void portaudio_driver_t::input_ready(shared_t<input_t> ready_input_in)
+void portpcm_driver_t::input_ready(shared_t<input_t> ready_input_in)
 {
     throw_runtime_error("portaudio driver can't handle an input being ready");
 
     node_t::input_ready(ready_input_in);
 }
 
-void portaudio_driver_t::notify()
+void portpcm_driver_t::notify()
 {
     throw_runtime_error("portaudio driver can not handle notifying");
 

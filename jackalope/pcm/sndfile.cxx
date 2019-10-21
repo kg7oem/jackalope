@@ -31,7 +31,7 @@ void sndfile_init()
 }
 
 sndfile_node_t::sndfile_node_t(const string_t& name_in, node_init_list_t init_list_in)
-: audio_node_t(name_in, init_list_in)
+: pcm_node_t(name_in, init_list_in)
 {
     add_property(JACKALOPE_PCM_SNDFILE_CONFIG_PATH, property_t::type_t::string);
 
@@ -77,7 +77,7 @@ void sndfile_node_t::activate()
         pcm_output->set_num_samples(buffer_size);
     }
 
-    audio_node_t::activate();
+    pcm_node_t::activate();
 }
 
 void sndfile_node_t::close_file(sndfile_handle_t * file_in)
@@ -91,7 +91,7 @@ void sndfile_node_t::close_file(sndfile_handle_t * file_in)
 
 void sndfile_node_t::pcm_ready()
 {
-    audio_node_t::pcm_ready();
+    pcm_node_t::pcm_ready();
 
     for(auto i : outputs) {
         auto pcm_output = dynamic_pointer_cast<pcm_real_output_t>(i);

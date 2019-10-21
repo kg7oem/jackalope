@@ -22,46 +22,46 @@
 #define JACKALOPE_PCM_DOMAIN_CLASS_NAME    "pcm::domain"
 #define JACKALOPE_PCM_NODE_CLASS_PREFIX    "pcm::node::"
 #define JACKALOPE_PCM_DRIVER_CLASS_PREFIX  "pcm::driver::"
-#define JACKALOPE_PCM_PROPERTY_SAMPLE_RATE "audio:sample_rate"
-#define JACKALOPE_PCM_PROPERTY_BUFFER_SIZE "audio:buffer_size"
+#define JACKALOPE_PCM_PROPERTY_SAMPLE_RATE "pcm:sample_rate"
+#define JACKALOPE_PCM_PROPERTY_BUFFER_SIZE "pcm:buffer_size"
 
 namespace jackalope {
 
-class audio_node_t;
-class audio_domain_t;
-struct audio_driver_t;
+class pcm_node_t;
+class pcm_domain_t;
+struct pcm_driver_t;
 
 void audio_init();
 
-template <class T = audio_domain_t>
-shared_t<T> make_audio_domain(node_init_list_t init_list_in)
+template <class T = pcm_domain_t>
+shared_t<T> make_pcm_domain(node_init_list_t init_list_in)
 {
     return node_t::make<T>(init_list_in);
 }
 
-class audio_node_t : public node_t {
-    shared_t<audio_domain_t> domain = nullptr;
+class pcm_node_t : public node_t {
+    shared_t<pcm_domain_t> domain = nullptr;
 
 public:
-    audio_node_t(const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
-    virtual void set_domain(shared_t<audio_domain_t> domain_in);
-    virtual audio_domain_t& get_domain();
+    pcm_node_t(const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
+    virtual void set_domain(shared_t<pcm_domain_t> domain_in);
+    virtual pcm_domain_t& get_domain();
     virtual void activate() override;
     virtual void input_ready(shared_t<input_t> input_in) override;
     virtual void pcm_ready();
     virtual void notify() override;
 };
 
-class audio_domain_t : public node_t {
+class pcm_domain_t : public node_t {
 
 protected:
-    pool_list_t<weak_t<audio_node_t>> audio_nodes;
+    pool_list_t<weak_t<pcm_node_t>> pcm_nodes;
     pcm_buffer_t<real_t> zero_buffer;
-    audio_driver_t * driver = nullptr;
+    pcm_driver_t * driver = nullptr;
 
 public:
-    audio_domain_t(const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
-    virtual ~audio_domain_t();
+    pcm_domain_t(const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
+    virtual ~pcm_domain_t();
     virtual size_t get_sample_rate();
     virtual size_t get_buffer_size();
     virtual real_t * get_zero_buffer_pointer();
@@ -69,25 +69,25 @@ public:
     virtual void start() override;
     virtual void reset() override;
 
-    template <class T = audio_node_t>
+    template <class T = pcm_node_t>
     shared_t<T> make_node(node_init_list_t init_list_in)
     {
         auto new_node = node_t::make<T>(init_list_in);
 
-        new_node->set_domain(shared_obj<audio_domain_t>());
+        new_node->set_domain(shared_obj<pcm_domain_t>());
         new_node->activate();
 
-        audio_nodes.push_back(new_node);
+        pcm_nodes.push_back(new_node);
 
         return new_node;
     }
 
-    template <class T = audio_driver_t, typename... Args>
+    template <class T = pcm_driver_t, typename... Args>
     shared_t<T> make_driver(node_init_list_t init_list_in)
     {
         auto new_node = node_t::make<T>(init_list_in);
 
-        new_node->set_domain(shared_obj<audio_domain_t>());
+        new_node->set_domain(shared_obj<pcm_domain_t>());
         new_node->activate();
 
         return new_node;
@@ -100,12 +100,12 @@ public:
     virtual void notify() override;
 };
 
-struct audio_driver_t : public node_t {
-    shared_t<audio_domain_t> domain;
+struct pcm_driver_t : public node_t {
+    shared_t<pcm_domain_t> domain;
 
-    audio_driver_t(const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
-    virtual ~audio_driver_t() = default;
-    virtual void set_domain(shared_t<audio_domain_t> domain_in);
+    pcm_driver_t(const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
+    virtual ~pcm_driver_t() = default;
+    virtual void set_domain(shared_t<pcm_domain_t> domain_in);
     virtual void input_ready(shared_t<input_t> input_in) override;
     virtual void notify() override;
 };
