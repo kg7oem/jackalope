@@ -15,12 +15,12 @@
 
 #include <jackalope/audio.h>
 
-#define JACKALOPE_AUDIO_SNDFILE_CLASS "audio::node::sndfile"
-#define JACKALOPE_AUDIO_SNDFILE_CONFIG_PATH "config:path"
+#define JACKALOPE_PCM_SNDFILE_CLASS "pcm::node::sndfile"
+#define JACKALOPE_PCM_SNDFILE_CONFIG_PATH "config:path"
 
 namespace jackalope {
 
-namespace audio {
+namespace pcm {
 
 namespace sndfile {
 
@@ -36,7 +36,7 @@ using sndfile_info_t = sndfile::SF_INFO;
 void sndfile_init();
 
 struct sndfile_node_t : public audio_node_t {
-    const string_t class_name = JACKALOPE_AUDIO_SNDFILE_CLASS;
+    const string_t class_name = JACKALOPE_PCM_SNDFILE_CLASS;
 
     sndfile_handle_t *source_file = nullptr;
     sndfile_info_t source_info;
@@ -49,6 +49,6 @@ struct sndfile_node_t : public audio_node_t {
     void close_file(sndfile_handle_t * file_in);
 };
 
-} // namespace audio
+} // namespace pcm
 
 } // namespace jackalope

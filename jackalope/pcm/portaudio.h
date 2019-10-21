@@ -11,11 +11,11 @@ extern "C" {
 
 #include <jackalope/audio.h>
 
-#define JACKALOPE_AUDIO_PORTAUDIO_CLASS "audio::driver::portaudio"
+#define JACKALOPE_PCM_PORTPCM_CLASS "pcm::driver::portaudio"
 
 namespace jackalope {
 
-namespace audio {
+namespace pcm {
 
 using portaudio_stream_t = PaStream;
 using portaudio_stream_cb_time_info_t = PaStreamCallbackTimeInfo;
@@ -24,7 +24,7 @@ using portaudio_stream_cb_flags = PaStreamCallbackFlags;
 void portaudio_init();
 
 struct portaudio_driver_t : audio_driver_t {
-    const string_t class_name = JACKALOPE_AUDIO_PORTAUDIO_CLASS;
+    const string_t class_name = JACKALOPE_PCM_PORTPCM_CLASS;
     portaudio_stream_t * stream = nullptr;
 
     portaudio_driver_t(const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
@@ -37,6 +37,6 @@ struct portaudio_driver_t : audio_driver_t {
     virtual int process(const void *input_buffer_in, void *output_buffer_in, size_t frames_per_buffer_in, const portaudio_stream_cb_time_info_t *time_info_in, portaudio_stream_cb_flags status_flags_in);
 };
 
-} // namespace audio
+} // namespace pcm
 
 } // namespace jackalope

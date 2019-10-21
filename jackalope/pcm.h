@@ -19,6 +19,7 @@
 #include <jackalope/channel.h>
 #include <jackalope/exception.h>
 #include <jackalope/node.h>
+#include <jackalope/pcm.tools.h>
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
 
@@ -27,40 +28,6 @@
 #define JACKALOPE_PCM_CHANNEL_CLASS_QUAD  "pcm[quad]"
 
 namespace jackalope {
-
-template <typename T>
-void pcm_copy(const T * source_in, T * dest_in, const size_t num_samples_in)
-{
-    for(size_t i = 0; i < num_samples_in; i++) {
-        dest_in[i] = source_in[i];
-    }
-}
-
-template <typename T>
-void pcm_zero(T * pcm_in, const size_t num_samples_in)
-{
-    for(size_t i = 0; i < num_samples_in; i++) {
-        pcm_in[i] = 0;
-    }
-}
-
-template <typename T>
-void pcm_extract_interleaved_channel(const T * source_in, T * dest_in, const size_t extract_channel_in, const size_t num_channels_in, const size_t num_samples_in)
-{
-    for(size_t i = 0; i < num_samples_in; i++) {
-        auto sample_num = num_channels_in * i + extract_channel_in;
-        dest_in[i] = source_in[sample_num];
-    }
-}
-
-template <typename T>
-void pcm_interleave(const T * source_in, T * dest_in, const size_t interleave_num_in, const size_t num_channels_in, const size_t num_samples_in)
-{
-    for(size_t i = 0; i < num_samples_in; i++) {
-        auto sample_num = num_channels_in * i + interleave_num_in;
-        dest_in[sample_num] = source_in[i];
-    }
-}
 
 template <typename T>
 struct pcm_buffer_t : public baseobj_t {

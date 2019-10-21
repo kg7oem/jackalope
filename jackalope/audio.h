@@ -19,11 +19,11 @@
 #include <jackalope/pcm.h>
 #include <jackalope/string.h>
 
-#define JACKALOPE_AUDIO_DOMAIN_CLASS_NAME    "audio::domain"
-#define JACKALOPE_AUDIO_NODE_CLASS_PREFIX    "audio::node::"
-#define JACKALOPE_AUDIO_DRIVER_CLASS_PREFIX  "audio::driver::"
-#define JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE "audio:sample_rate"
-#define JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE "audio:buffer_size"
+#define JACKALOPE_PCM_DOMAIN_CLASS_NAME    "pcm::domain"
+#define JACKALOPE_PCM_NODE_CLASS_PREFIX    "pcm::node::"
+#define JACKALOPE_PCM_DRIVER_CLASS_PREFIX  "pcm::driver::"
+#define JACKALOPE_PCM_PROPERTY_SAMPLE_RATE "audio:sample_rate"
+#define JACKALOPE_PCM_PROPERTY_BUFFER_SIZE "audio:buffer_size"
 
 namespace jackalope {
 

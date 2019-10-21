@@ -15,9 +15,6 @@
 #include <string>
 
 #include <jackalope/audio.h>
-#include <jackalope/audio/ladspa.h>
-#include <jackalope/audio/portaudio.h>
-#include <jackalope/audio/sndfile.h>
 #include <jackalope/jackalope.h>
 #include <jackalope/log/dest.h>
 #include <jackalope/logging.h>

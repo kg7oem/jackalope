@@ -19,17 +19,17 @@
 #include <boost/filesystem.hpp>
 
 #include <jackalope/audio.h>
-#include <jackalope/audio/ladspa.h>
 #include <jackalope/exception.h>
 #include <jackalope/jackalope.h>
 #include <jackalope/logging.h>
+#include <jackalope/pcm/ladspa.h>
 #include <jackalope/string.h>
 
 #define LADSPA_DESCRIPTOR_SYMBOL "ladspa_descriptor"
 
 namespace jackalope {
 
-namespace audio {
+namespace pcm {
 
 static string_t ladspa_path;
 
@@ -40,22 +40,22 @@ static shared_t<ladspa_node_t> ladspa_node_constructor(const string_t& node_name
 
 void ladspa_init()
 {
-    auto from_env = std::getenv(JACKALOPE_AUDIO_LADSPA_PATH_ENV);
+    auto from_env = std::getenv(JACKALOPE_PCM_LADSPA_PATH_ENV);
 
     if (from_env == nullptr) {
-        ladspa_path = JACKALOPE_AUDIO_LADSPA_PATH_DEFAULT;
+        ladspa_path = JACKALOPE_PCM_LADSPA_PATH_DEFAULT;
     } else {
         ladspa_path = from_env;
     }
 
-    add_node_constructor(JACKALOPE_AUDIO_LADSPA_CLASS, ladspa_node_constructor);
+    add_node_constructor(JACKALOPE_PCM_LADSPA_CLASS, ladspa_node_constructor);
 }
 
 ladspa_node_t::ladspa_node_t(const string_t& node_name_in, node_init_list_t init_list_in)
 : audio_node_t(node_name_in, init_list_in)
 {
-    add_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_FILE, property_t::type_t::string);
-    add_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_ID, property_t::type_t::size);
+    add_property(JACKALOPE_PCM_LADSPA_PROPERTY_FILE, property_t::type_t::string);
+    add_property(JACKALOPE_PCM_LADSPA_PROPERTY_ID, property_t::type_t::size);
 }
 
 ladspa_node_t::~ladspa_node_t()
@@ -102,9 +102,9 @@ void ladspa_node_t::init()
 
 void ladspa_node_t::init_file()
 {
-    auto& type_property = get_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_ID);
+    auto& type_property = get_property(JACKALOPE_PCM_LADSPA_PROPERTY_ID);
     auto type_is_defined = type_property.is_defined();
-    auto& file_property = get_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_FILE);
+    auto& file_property = get_property(JACKALOPE_PCM_LADSPA_PROPERTY_FILE);
     auto file_is_defined = file_property.is_defined();
 
     if(! type_is_defined && ! file_is_defined) {
@@ -127,7 +127,7 @@ void ladspa_node_t::init_file()
 
 void ladspa_node_t::init_instance()
 {
-    instance = new ladspa_instance_t(*file, get_property(JACKALOPE_AUDIO_LADSPA_PROPERTY_ID).get_size());
+    instance = new ladspa_instance_t(*file, get_property(JACKALOPE_PCM_LADSPA_PROPERTY_ID).get_size());
 
     for(size_t port_num = 0; port_num < instance->get_num_ports(); port_num++) {
         auto descriptor = instance->get_port_descriptor(port_num);
@@ -153,8 +153,8 @@ void ladspa_node_t::init_instance()
 
 void ladspa_node_t::activate()
 {
-    auto& sample_rat_prop = get_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE);
-    auto& buffer_size_prop = get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE);
+    auto& sample_rat_prop = get_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE);
+    auto& buffer_size_prop = get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE);
 
     for (auto i : outputs) {
         auto pcm_output = dynamic_pointer_cast<pcm_real_output_t>(i);
@@ -208,7 +208,7 @@ void ladspa_node_t::pcm_ready()
         }
     }
 
-    instance->run(get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE).get_size());
+    instance->run(get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE).get_size());
 
     for(size_t port_num = 0; port_num < instance->get_num_ports(); port_num++) {
         auto descriptor = instance->get_port_descriptor(port_num);
@@ -411,6 +411,6 @@ void ladspa_instance_t::connect_port(const size_t port_num_in, ladspa_data_t * p
     descriptor->connect_port(handle, port_num_in, pointer_in);
 }
 
-} // namespace audio
+} // namespace pcm
 
 } // namespace jackalope

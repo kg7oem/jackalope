@@ -16,15 +16,15 @@
 #include <jackalope/audio.h>
 #include <jackalope/types.h>
 
-#define JACKALOPE_AUDIO_LADSPA_PATH_ENV "LADSPA_PATH"
-#define JACKALOPE_AUDIO_LADSPA_PATH_DEFAULT "/usr/lib/ladspa"
-#define JACKALOPE_AUDIO_LADSPA_CLASS "audio::node::ladspa"
-#define JACKALOPE_AUDIO_LADSPA_PROPERTY_ID "plugin:id"
-#define JACKALOPE_AUDIO_LADSPA_PROPERTY_FILE "plugin:file"
+#define JACKALOPE_PCM_LADSPA_PATH_ENV "LADSPA_PATH"
+#define JACKALOPE_PCM_LADSPA_PATH_DEFAULT "/usr/lib/ladspa"
+#define JACKALOPE_PCM_LADSPA_CLASS "pcm::node::ladspa"
+#define JACKALOPE_PCM_LADSPA_PROPERTY_ID "plugin:id"
+#define JACKALOPE_PCM_LADSPA_PROPERTY_FILE "plugin:file"
 
 namespace jackalope {
 
-namespace audio {
+namespace pcm {
 
 extern "C" {
 #include "ext/ladspa.h"
@@ -74,7 +74,7 @@ struct ladspa_instance_t : public baseobj_t {
 };
 
 struct ladspa_node_t : public audio_node_t {
-    const string_t class_name = JACKALOPE_AUDIO_LADSPA_CLASS;
+    const string_t class_name = JACKALOPE_PCM_LADSPA_CLASS;
 
     ladspa_file_t * file = nullptr;
     ladspa_instance_t * instance = nullptr;
@@ -88,6 +88,6 @@ struct ladspa_node_t : public audio_node_t {
     virtual void pcm_ready() override;
 };
 
-} // namespace audio
+} // namespace pcm
 
 } // namespace jackalope

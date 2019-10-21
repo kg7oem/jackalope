@@ -11,13 +11,13 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
-#include <jackalope/audio/portaudio.h>
 #include <jackalope/exception.h>
 #include <jackalope/logging.h>
+#include <jackalope/pcm/portaudio.h>
 
 namespace jackalope {
 
-namespace audio {
+namespace pcm {
 
 static mutex_t portaudio_mutex;
 
@@ -33,7 +33,7 @@ static shared_t<portaudio_driver_t> portaudio_node_constructor(const string_t& n
 
 void portaudio_init()
 {
-    add_node_constructor(JACKALOPE_AUDIO_PORTAUDIO_CLASS, portaudio_node_constructor);
+    add_node_constructor(JACKALOPE_PCM_PORTPCM_CLASS, portaudio_node_constructor);
 
     auto lock = get_portaudio_lock();
     auto err = Pa_Initialize();
@@ -46,8 +46,8 @@ void portaudio_init()
 portaudio_driver_t::portaudio_driver_t(const string_t& name_in, node_init_list_t init_list_in)
 : audio_driver_t(name_in, init_list_in)
 {
-    add_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE, property_t::type_t::size);
-    add_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE, property_t::type_t::size);
+    add_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE, property_t::type_t::size);
+    add_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE, property_t::type_t::size);
 }
 
 portaudio_driver_t::~portaudio_driver_t()
@@ -80,8 +80,8 @@ void portaudio_driver_t::activate()
     auto num_samples = domain->get_buffer_size();
     auto sample_rate = domain->get_sample_rate();
 
-    get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE).set(num_samples);
-    get_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE).set(sample_rate);
+    get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE).set(num_samples);
+    get_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE).set(sample_rate);
 
     auto err = Pa_OpenDefaultStream(&stream, outputs.size(), inputs.size(), paFloat32, sample_rate, num_samples, process_cb, userdata);
 
@@ -111,7 +111,7 @@ int portaudio_driver_t::process(const void * source_buffer_in, void * sink_buffe
     auto source_buffer = static_cast<const real_t *>(source_buffer_in);
     auto sink_buffer = static_cast<real_t *>(sink_buffer_in);
 
-    if (frames_per_buffer_in != get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE).get_size()) {
+    if (frames_per_buffer_in != get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE).get_size()) {
         throw_runtime_error("portaudio frames per buffer did not match buffer size: ", frames_per_buffer_in);
     }
 
@@ -176,6 +176,6 @@ void portaudio_driver_t::notify()
     node_t::notify();
 }
 
-} // namespace audio
+} // namespace pcm
 
 } // namespace jackalope

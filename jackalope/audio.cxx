@@ -12,28 +12,28 @@
 // GNU Lesser General Public License for more details.
 
 #include <jackalope/audio.h>
-#include <jackalope/audio/ladspa.h>
-#include <jackalope/audio/portaudio.h>
-#include <jackalope/audio/sndfile.h>
 #include <jackalope/exception.h>
 #include <jackalope/jackalope.h>
 #include <jackalope/logging.h>
 #include <jackalope/pcm.h>
+#include <jackalope/pcm/ladspa.h>
+#include <jackalope/pcm/portaudio.h>
+#include <jackalope/pcm/sndfile.h>
 
 namespace jackalope {
 
 void audio_init()
 {
-    audio::ladspa_init();
-    audio::portaudio_init();
-    audio::sndfile_init();
+    pcm::ladspa_init();
+    pcm::portaudio_init();
+    pcm::sndfile_init();
 }
 
 audio_node_t::audio_node_t(const string_t& name_in, node_init_list_t init_list_in)
 : node_t(name_in, init_list_in)
 {
-    add_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE, property_t::type_t::size);
-    add_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE, property_t::type_t::size);
+    add_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE, property_t::type_t::size);
+    add_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE, property_t::type_t::size);
 }
 
 audio_domain_t& audio_node_t::get_domain()
@@ -49,23 +49,23 @@ void audio_node_t::set_domain(shared_t<audio_domain_t> domain_in)
 
     domain = domain_in;
 
-    get_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE).set(domain->get_sample_rate());
-    get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE).set(domain->get_buffer_size());
+    get_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE).set(domain->get_sample_rate());
+    get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE).set(domain->get_buffer_size());
 }
 
 void audio_node_t::activate()
 {
-    auto& buffer_size = get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE);
-    auto& sample_rate = get_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE);
+    auto& buffer_size = get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE);
+    auto& sample_rate = get_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE);
 
     if (! buffer_size.is_defined()) {
-        throw_runtime_error("property must be defined to activate an audio node: ", JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE);
+        throw_runtime_error("property must be defined to activate an audio node: ", JACKALOPE_PCM_PROPERTY_BUFFER_SIZE);
     } else if (buffer_size.get_size() == 0) {
         throw_runtime_error("can not activate an audio node with buffer size of 0");
     }
 
     if (! sample_rate.is_defined()) {
-        throw_runtime_error("property must be defined to activate an audio node: ", JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE);
+        throw_runtime_error("property must be defined to activate an audio node: ", JACKALOPE_PCM_PROPERTY_SAMPLE_RATE);
     } else if (buffer_size.get_size() == 0) {
         throw_runtime_error("can not activate an audio node with a sample rate of 0");
     }
@@ -96,8 +96,8 @@ void audio_node_t::pcm_ready()
 audio_domain_t::audio_domain_t(const string_t& name_in, node_init_list_t init_list_in)
 : node_t(name_in, init_list_in)
 {
-    add_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE, property_t::type_t::size);
-    add_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE, property_t::type_t::size);
+    add_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE, property_t::type_t::size);
+    add_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE, property_t::type_t::size);
 
     add_slot("system:terminate", [](signal_t *) { jackalope_panic("can't cleanly terminate yet"); });
 }
@@ -107,12 +107,12 @@ audio_domain_t::~audio_domain_t()
 
 size_t audio_domain_t::get_sample_rate()
 {
-    return get_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE).get_size();
+    return get_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE).get_size();
 }
 
 size_t audio_domain_t::get_buffer_size()
 {
-    return get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE).get_size();
+    return get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE).get_size();
 }
 
 real_t * audio_domain_t::get_zero_buffer_pointer()
@@ -251,8 +251,8 @@ void audio_driver_t::set_domain(shared_t<audio_domain_t> domain_in)
 {
     domain = domain_in;
 
-    get_property(JACKALOPE_AUDIO_PROPERTY_SAMPLE_RATE).set(domain->get_sample_rate());
-    get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE).set(domain->get_buffer_size());
+    get_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE).set(domain->get_sample_rate());
+    get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE).set(domain->get_buffer_size());
 }
 
 void audio_driver_t::input_ready(shared_t<input_t>)

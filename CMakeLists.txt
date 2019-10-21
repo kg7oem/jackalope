@@ -34,9 +34,9 @@ add_library(
     jackalope SHARED
 
     jackalope/audio.cxx
-    jackalope/audio/ladspa.cxx
-    jackalope/audio/portaudio.cxx
-    jackalope/audio/sndfile.cxx
+    jackalope/pcm/ladspa.cxx
+    jackalope/pcm/portaudio.cxx
+    jackalope/pcm/sndfile.cxx
     jackalope/channel.cxx
     jackalope/jackalope.cxx
     jackalope/log/dest.cxx
