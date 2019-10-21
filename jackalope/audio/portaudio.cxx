@@ -26,9 +26,9 @@ static lock_t get_portaudio_lock()
     return lock_t(portaudio_mutex);
 }
 
-static portaudio_driver_t * portaudio_node_constructor(const string_t& node_name_in, node_init_list_t init_list_in)
+static shared_t<portaudio_driver_t> portaudio_node_constructor(const string_t& node_name_in, node_init_list_t init_list_in)
 {
-    return new portaudio_driver_t(node_name_in, init_list_in);
+    return jackalope::make_shared<portaudio_driver_t>(node_name_in, init_list_in);
 }
 
 void portaudio_init()

@@ -27,17 +27,18 @@
 namespace jackalope {
 
 using node_init_list_t = std::initializer_list<std::pair<string_t, string_t>>;
-using node_constructor_t = function_t<node_t * (const string_t& name_in, node_init_list_t)>;
+using node_constructor_t = function_t<shared_t<node_t> (const string_t& name_in, node_init_list_t)>;
 
 void add_node_constructor(const string_t& class_name_in, node_constructor_t constructor_in);
-node_t * _make_node(const string_t& class_name_in, const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
+node_constructor_t get_node_constructor(const string_t& class_name_in);
+// node_t * _make_node(const string_t& class_name_in, const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
 
-template <typename T = node_t, typename... Args>
-T * make_node(Args... args)
-{
-    auto new_node = _make_node(args...);
-    return dynamic_cast<T *>(new_node);
-}
+// template <typename T = node_t, typename... Args>
+// T * make_node(Args... args)
+// {
+//     auto new_node = _make_node(args...);
+//     return dynamic_cast<T *>(new_node);
+// }
 
 /* node life cycle
  *
@@ -69,7 +70,31 @@ struct node_t : public baseobj_t, public shared_obj_t<node_t> {
     pool_map_t<string_t, signal_t *> signals;
     pool_map_t<string_t, slot_t *> slots;
 
-    template <class T>
+    template <class T = node_t>
+    static shared_t<T> make(const string_t& name_in, node_init_list_t init_list_in)
+    {
+        string_t class_name;
+
+        for(auto i : init_list_in) {
+            if (i.first == JACKALOPE_NODE_PROPERTY_CLASS) {
+                class_name = i.second;
+            }
+        }
+
+        shared_t<T> new_node = nullptr;
+
+        if (class_name == "") {
+            new_node = jackalope::make_shared<T>(name_in, init_list_in);
+        } else {
+            auto constructor = get_node_constructor(class_name);
+            new_node = dynamic_pointer_cast<T>(constructor(name_in, init_list_in));
+        }
+
+        new_node->init();
+        return new_node;
+    }
+
+    template <class T = node_t>
     static shared_t<T> make(node_init_list_t init_list_in)
     {
         string_t node_name;
@@ -85,9 +110,7 @@ struct node_t : public baseobj_t, public shared_obj_t<node_t> {
             throw_runtime_error("could not find node name in init args");
         }
 
-        auto new_node = jackalope::make_shared<T>(node_name, init_list_in);
-        new_node->init();
-        return new_node;
+        return make<T>(node_name, init_list_in);
     }
 
     node_t(const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());

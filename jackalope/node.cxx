@@ -29,20 +29,28 @@ void add_node_constructor(const string_t& class_name_in, node_constructor_t cons
     node_constructors[class_name_in] = constructor_in;
 }
 
-node_t * _make_node(const string_t& node_name_in, const string_t& class_name_in, node_init_list_t init_list_in)
+node_constructor_t get_node_constructor(const string_t& class_name_in)
 {
     auto found = node_constructors.find(class_name_in);
 
     if (found == node_constructors.end()) {
-        throw_runtime_error("Could not find constructor for node class: ", class_name_in);
+        throw_runtime_error("could not find node constructor for class: ", class_name_in);
     }
 
-    return found->second(node_name_in, init_list_in);
+    return found->second;
 }
 
 node_t::node_t(const string_t& name_in, node_init_list_t init_args_in)
 : name(name_in), init_args(init_args_in)
 {
+    pool_map_t<string_t, bool> seen_keys;
+
+    for (auto i : init_args_in) {
+        if (seen_keys.find(i.first) != seen_keys.end()) {
+            throw_runtime_error("duplicate key in init args: ", i.first);
+        }
+    }
+
     add_property(JACKALOPE_NODE_PROPERTY_NAME, property_t::type_t::string).set(name);
     add_property(JACKALOPE_NODE_PROPERTY_CLASS, property_t::type_t::string).set(class_name);
 }

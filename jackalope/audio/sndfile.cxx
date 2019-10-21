@@ -20,9 +20,9 @@ namespace jackalope {
 
 namespace audio {
 
-static sndfile_node_t * sndfile_node_constructor(const string_t& node_name_in, node_init_list_t init_list_in = node_init_list_t())
+static shared_t<sndfile_node_t> sndfile_node_constructor(const string_t& node_name_in, node_init_list_t init_list_in = node_init_list_t())
 {
-    return new sndfile_node_t(node_name_in, init_list_in);
+    return jackalope::make_shared<sndfile_node_t>(node_name_in, init_list_in);
 }
 
 void sndfile_init()

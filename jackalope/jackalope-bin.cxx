@@ -53,17 +53,20 @@ int main(int argc_in, char ** argv_in)
         { "node:name", "system audio" },
     });
 
-    auto input_file = domain->make_node<audio::sndfile_node_t>({
+    auto input_file = domain->make_node({
+        { "node:class", "audio::node::sndfile" },
         { "node:name", "input file" },
         { "config:path", argv_in[1] },
     });
 
-    auto left_tube = domain->make_node<audio::ladspa_node_t>({
+    auto left_tube = domain->make_node({
+        { "node:class", "audio::node::ladspa" },
         { "node:name", "left tube" },
         { "plugin:id", to_string(LADSPA_ZAMTUBE_ID) },
     });
 
-    auto right_tube = domain->make_node<audio::ladspa_node_t>({
+    auto right_tube = domain->make_node({
+        { "node:class", "audio::node::ladspa" },
         { "node:name", "right tube" },
         { "plugin:id", to_string(LADSPA_ZAMTUBE_ID) },
     });

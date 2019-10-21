@@ -33,9 +33,9 @@ namespace audio {
 
 static string_t ladspa_path;
 
-static ladspa_node_t * ladspa_node_constructor(const string_t& node_name_in, node_init_list_t init_list_in)
+static shared_t<ladspa_node_t> ladspa_node_constructor(const string_t& node_name_in, node_init_list_t init_list_in)
 {
-    return new ladspa_node_t(node_name_in, init_list_in);
+    return jackalope::make_shared<ladspa_node_t>(node_name_in, init_list_in);
 }
 
 void ladspa_init()
