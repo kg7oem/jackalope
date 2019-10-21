@@ -255,4 +255,10 @@ void audio_driver_t::set_domain(shared_t<audio_domain_t> domain_in)
     get_property(JACKALOPE_AUDIO_PROPERTY_BUFFER_SIZE).set(domain->get_buffer_size());
 }
 
+void audio_driver_t::input_ready(shared_t<input_t>)
+{ }
+
+void audio_driver_t::notify()
+{ }
+
 } // namespace jackalope

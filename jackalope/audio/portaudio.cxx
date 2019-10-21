@@ -162,14 +162,18 @@ int portaudio_driver_t::process(const void * source_buffer_in, void * sink_buffe
     return 0;
 }
 
-void portaudio_driver_t::input_ready(shared_t<input_t>)
+void portaudio_driver_t::input_ready(shared_t<input_t> ready_input_in)
 {
     throw_runtime_error("portaudio driver can't handle an input being ready");
+
+    node_t::input_ready(ready_input_in);
 }
 
 void portaudio_driver_t::notify()
 {
     throw_runtime_error("portaudio driver can not handle notifying");
+
+    node_t::notify();
 }
 
 } // namespace audio

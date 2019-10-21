@@ -54,12 +54,6 @@ protected:
     audio_driver_t * driver = nullptr;
 
 public:
-    template <class T = audio_domain_t, typename... Args>
-    shared_t<T> make(Args... args)
-    {
-        return node_t::make<T>(args...);
-    }
-
     audio_domain_t(const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
     virtual ~audio_domain_t();
     virtual size_t get_sample_rate();
@@ -106,6 +100,8 @@ struct audio_driver_t : public node_t {
     audio_driver_t(const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
     virtual ~audio_driver_t() = default;
     virtual void set_domain(shared_t<audio_domain_t> domain_in);
+    virtual void input_ready(shared_t<input_t> input_in) override;
+    virtual void notify() override;
 };
 
 } // namespace jackalope
