@@ -33,6 +33,12 @@ struct audio_driver_t;
 
 void audio_init();
 
+template <class T = audio_domain_t>
+shared_t<T> make_audio_domain(node_init_list_t init_list_in)
+{
+    return node_t::make<T>(init_list_in);
+}
+
 class audio_node_t : public node_t {
     shared_t<audio_domain_t> domain = nullptr;
 

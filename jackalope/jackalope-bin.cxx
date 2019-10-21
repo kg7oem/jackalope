@@ -39,7 +39,7 @@ int main(int argc_in, char ** argv_in)
 
     jackalope_init();
 
-    auto domain = node_t::make<audio_domain_t>({
+    auto domain = make_audio_domain({
         { "node:name", "main domain" },
         { "audio:sample_rate", to_string(48000) },
         { "audio:buffer_size", to_string(128) },
