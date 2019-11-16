@@ -40,6 +40,8 @@ int main(int argc_in, char ** argv_in)
         { "node:name", "main domain" },
         { "pcm:sample_rate", to_string(48000) },
         { "pcm:buffer_size", to_string(128) },
+        { "input:left", "pcm[real]" },
+        { "input:right", "pcm[real]" },
     });
 
     auto system_audio = domain->make_driver({
@@ -69,8 +71,8 @@ int main(int argc_in, char ** argv_in)
 
     input_file->get_output("output 1")->link(left_tube->get_input("Audio Input 1"));
     input_file->get_output("output 1")->link(right_tube->get_input("Audio Input 1"));
-    left_tube->get_output("Audio Output 1")->link(system_audio->get_input("left input"));
-    right_tube->get_output("Audio Output 1")->link(system_audio->get_input("right input"));
+    left_tube->get_output("Audio Output 1")->link(domain->get_input("left"));
+    right_tube->get_output("Audio Output 1")->link(domain->get_input("right"));
 
     domain->activate();
     domain->start();
