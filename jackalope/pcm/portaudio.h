@@ -11,7 +11,7 @@ extern "C" {
 
 #include <jackalope/pcm.h>
 
-#define JACKALOPE_PCM_PORTPCM_CLASS "pcm::portaudio"
+#define JACKALOPE_PCM_portaudio_CLASS "pcm::portaudio"
 
 namespace jackalope {
 
@@ -23,12 +23,12 @@ using portaudio_stream_cb_flags = PaStreamCallbackFlags;
 
 void portaudio_init();
 
-struct portpcm_driver_t : pcm_driver_t {
-    const string_t class_name = JACKALOPE_PCM_PORTPCM_CLASS;
+struct portaudio_driver_t : pcm_driver_t {
+    const string_t class_name = JACKALOPE_PCM_portaudio_CLASS;
     portaudio_stream_t * stream = nullptr;
 
-    portpcm_driver_t(const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
-    virtual ~portpcm_driver_t();
+    portaudio_driver_t(const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
+    virtual ~portaudio_driver_t();
     virtual void init() override;
     virtual void activate() override;
     virtual void start() override;
