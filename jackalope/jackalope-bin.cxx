@@ -72,6 +72,7 @@ int main(int argc_in, char ** argv_in)
     left_tube->get_output("Audio Output 1")->link(system_audio->get_input("left input"));
     right_tube->get_output("Audio Output 1")->link(system_audio->get_input("right input"));
 
+    domain->activate();
     domain->start();
 
     while(1) {
