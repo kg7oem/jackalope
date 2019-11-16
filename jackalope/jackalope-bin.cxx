@@ -75,6 +75,8 @@ int main(int argc_in, char ** argv_in)
     domain->activate();
     domain->start();
 
+    system_audio->start();
+
     while(1) {
         using namespace std::chrono_literals;
         std::this_thread::sleep_for(1s);
