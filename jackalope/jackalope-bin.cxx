@@ -41,24 +41,24 @@ int main(int argc_in, char ** argv_in)
     });
 
     auto system_audio = graph->add_node({
-        { "node:class", "pcm::driver::portaudio" },
+        { "node:class", "pcm::portaudio" },
         { "node:name", "system audio" },
     });
 
     auto input_file = graph->add_node({
-        { "node:class", "pcm::node::sndfile" },
+        { "node:class", "pcm::sndfile" },
         { "node:name", "input file" },
         { "config:path", argv_in[1] },
     });
 
     auto left_tube = graph->add_node({
-        { "node:class", "pcm::node::ladspa" },
+        { "node:class", "pcm::ladspa" },
         { "node:name", "left tube" },
         { "plugin:id", to_string(LADSPA_ZAMTUBE_ID) },
     });
 
     auto right_tube = graph->add_node({
-        { "node:class", "pcm::node::ladspa" },
+        { "node:class", "pcm::ladspa" },
         { "node:name", "right tube" },
         { "plugin:id", to_string(LADSPA_ZAMTUBE_ID) },
     });

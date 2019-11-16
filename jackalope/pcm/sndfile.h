@@ -15,7 +15,7 @@
 
 #include <jackalope/pcm.h>
 
-#define JACKALOPE_PCM_SNDFILE_CLASS "pcm::node::sndfile"
+#define JACKALOPE_PCM_SNDFILE_CLASS "pcm::sndfile"
 #define JACKALOPE_PCM_SNDFILE_CONFIG_PATH "config:path"
 
 namespace jackalope {

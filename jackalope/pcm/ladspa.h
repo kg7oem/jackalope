@@ -18,7 +18,7 @@
 
 #define JACKALOPE_PCM_LADSPA_PATH_ENV "LADSPA_PATH"
 #define JACKALOPE_PCM_LADSPA_PATH_DEFAULT "/usr/lib/ladspa"
-#define JACKALOPE_PCM_LADSPA_CLASS "pcm::node::ladspa"
+#define JACKALOPE_PCM_LADSPA_CLASS "pcm::ladspa"
 #define JACKALOPE_PCM_LADSPA_PROPERTY_ID "plugin:id"
 #define JACKALOPE_PCM_LADSPA_PROPERTY_FILE "plugin:file"
 

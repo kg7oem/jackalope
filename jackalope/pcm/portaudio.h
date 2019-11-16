@@ -11,7 +11,7 @@ extern "C" {
 
 #include <jackalope/pcm.h>
 
-#define JACKALOPE_PCM_PORTPCM_CLASS "pcm::driver::portaudio"
+#define JACKALOPE_PCM_PORTPCM_CLASS "pcm::portaudio"
 
 namespace jackalope {
 
