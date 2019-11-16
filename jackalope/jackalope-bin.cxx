@@ -43,7 +43,7 @@ int main(int argc_in, char ** argv_in)
     auto system_audio = graph->add_node({
         { "node:class", "pcm::driver::portaudio" },
         { "node:name", "system audio" },
-    );
+    });
 
     auto input_file = graph->add_node({
         { "node:class", "pcm::node::sndfile" },
