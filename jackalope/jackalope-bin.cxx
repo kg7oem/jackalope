@@ -36,53 +36,42 @@ int main(int argc_in, char ** argv_in)
 
     jackalope_init();
 
-    auto domain = make_pcm_domain({
-        { "node:name", "main domain" },
-        { "pcm:sample_rate", to_string(48000) },
-        { "pcm:buffer_size", to_string(128) },
-        { "input:left", "pcm[real]" },
-        { "input:right", "pcm[real]" },
+    auto domain = make_domain();
+
+    domain->add_driver({
+        { "driver:class", "pcm::portaudio" },
+        { "sink:left", "pcm[real]" },
+        { "sink:right", "pcm[real]" },
+        { "config:sample rate", to_string(SAMPLE_RATE) },
+        { "config:buffer size", to_string(BUFFER_SIZE) },
     });
 
-    auto system_audio = domain->make_driver({
-        { "node:class", "pcm::portaudio" },
-        { "node:name", "system audio" },
-    });
-
-    auto input_file = domain->make_node({
+    auto input_file = domain->add_node({
         { "node:class", "pcm::sndfile" },
         { "node:name", "input file" },
         { "config:path", argv_in[1] },
     });
 
-    auto left_tube = domain->make_node({
+    auto left_tube = domain->add_node({
         { "node:class", "pcm::ladspa" },
         { "node:name", "left tube" },
         { "plugin:id", to_string(LADSPA_ZAMTUBE_ID) },
     });
 
-    auto right_tube = domain->make_node({
+    auto right_tube = domain->add_node({
         { "node:class", "pcm::ladspa" },
         { "node:name", "right tube" },
         { "plugin:id", to_string(LADSPA_ZAMTUBE_ID) },
     });
 
-    input_file->get_signal("file:eof")->connect(domain->get_slot("system:terminate"));
+    input_file->connect("file:eof", domain, "system:stop");
 
-    input_file->get_output("output 1")->link(left_tube->get_input("Audio Input 1"));
-    input_file->get_output("output 1")->link(right_tube->get_input("Audio Input 1"));
-    left_tube->get_output("Audio Output 1")->link(domain->get_input("left"));
-    right_tube->get_output("Audio Output 1")->link(domain->get_input("right"));
+    input_file->link("output 1", left_tube, "Audio Input 1");
+    input_file->link("output 1", right_tube, "Audio Input 1");
+    left_tube->link("Audio Output 1", domain, "left");
+    right_tube->link("Audio Output 1", domain, "right");
 
-    domain->activate();
-    domain->start();
-
-    system_audio->start();
-
-    while(1) {
-        using namespace std::chrono_literals;
-        std::this_thread::sleep_for(1s);
-    }
+    domain->run();
 
     return(0);
 }
