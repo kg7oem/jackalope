@@ -14,10 +14,11 @@
 #include <iostream>
 #include <string>
 
+#include <jackalope/domain.h>
 #include <jackalope/jackalope.h>
 #include <jackalope/log/dest.h>
 #include <jackalope/logging.h>
-#include <jackalope/pcm.h>
+#include <jackalope/node.h>
 
 #define BUFFER_SIZE 128
 #define SAMPLE_RATE 48000
@@ -38,7 +39,7 @@ int main(int argc_in, char ** argv_in)
 
     auto domain = make_domain();
 
-    domain->add_driver({
+    auto driver = domain->add_driver({
         { "driver:class", "pcm::portaudio" },
         { "sink:left", "pcm[real]" },
         { "sink:right", "pcm[real]" },
@@ -64,12 +65,12 @@ int main(int argc_in, char ** argv_in)
         { "plugin:id", to_string(LADSPA_ZAMTUBE_ID) },
     });
 
-    input_file->connect("file:eof", domain, "system:stop");
+    // input_file->connect("file:eof", domain, "system:stop");
 
-    input_file->link("output 1", left_tube, "Audio Input 1");
-    input_file->link("output 1", right_tube, "Audio Input 1");
-    left_tube->link("Audio Output 1", domain, "left");
-    right_tube->link("Audio Output 1", domain, "right");
+    // input_file->link("output 1", left_tube, "Audio Input 1");
+    // input_file->link("output 1", right_tube, "Audio Input 1");
+    // left_tube->link("Audio Output 1", domain, "left");
+    // right_tube->link("Audio Output 1", domain, "right");
 
     domain->run();
 

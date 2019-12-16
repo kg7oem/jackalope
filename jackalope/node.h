@@ -1,4 +1,3 @@
-// Jackalope Audio Engine
 // Copyright 2019 Tyler Riddle <kg7oem@gmail.com>
 
 // This program is free software: you can redistribute it and/or modify
@@ -11,9 +10,22 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
-#include <jackalope/jackalope.h>
+#pragma once
 
-void jackalope_init()
-{
+#include <jackalope/string.h>
+#include <jackalope/thread.h>
+#include <jackalope/types.h>
 
-}
+namespace jackalope {
+
+class domain_t;
+
+struct node_t : public baseobj_t, public shared_obj_t<node_t>, public lockable_t {
+
+public:
+    void connect(const string_t& from_in, shared_t<domain_t> domain_in, const string_t& to_in);
+    void link(const string_t& from_in, shared_t<node_t> node_in, const string_t& to_in);
+    void link(const string_t& from_in, shared_t<domain_t> domain_in, const string_t& to_in);
+};
+
+} // namespace jackalope
