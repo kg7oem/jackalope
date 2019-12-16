@@ -26,7 +26,7 @@
 
 using namespace jackalope;
 
-int main(int argc_in, char ** argv_in)
+int main(int argc_in, char ** )
 {
     if (argc_in != 2) {
         jackalope_panic("must specify exactly one audio file to play");
@@ -47,23 +47,23 @@ int main(int argc_in, char ** argv_in)
         { "config:buffer size", to_string(BUFFER_SIZE) },
     });
 
-    auto input_file = domain->add_node({
-        { "node:class", "pcm::sndfile" },
-        { "node:name", "input file" },
-        { "config:path", argv_in[1] },
-    });
+    // auto input_file = domain->add_node({
+    //     { "node:class", "pcm::sndfile" },
+    //     { "node:name", "input file" },
+    //     { "config:path", argv_in[1] },
+    // });
 
-    auto left_tube = domain->add_node({
-        { "node:class", "pcm::ladspa" },
-        { "node:name", "left tube" },
-        { "plugin:id", to_string(LADSPA_ZAMTUBE_ID) },
-    });
+    // auto left_tube = domain->add_node({
+    //     { "node:class", "pcm::ladspa" },
+    //     { "node:name", "left tube" },
+    //     { "plugin:id", to_string(LADSPA_ZAMTUBE_ID) },
+    // });
 
-    auto right_tube = domain->add_node({
-        { "node:class", "pcm::ladspa" },
-        { "node:name", "right tube" },
-        { "plugin:id", to_string(LADSPA_ZAMTUBE_ID) },
-    });
+    // auto right_tube = domain->add_node({
+    //     { "node:class", "pcm::ladspa" },
+    //     { "node:name", "right tube" },
+    //     { "plugin:id", to_string(LADSPA_ZAMTUBE_ID) },
+    // });
 
     // input_file->connect("file:eof", domain, "system:stop");
 

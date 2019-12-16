@@ -56,4 +56,14 @@ public:
     void set_string(const string_t& string_in);
 };
 
+class propobj_t {
+
+protected:
+    pool_map_t<string_t, property_t> properties;
+
+public:
+    virtual property_t& add_property(const string_t& name_in, property_t::type_t type_in);
+    property_t& get_property(const string_t& name_in);
+};
+
 } // namespace jackalope

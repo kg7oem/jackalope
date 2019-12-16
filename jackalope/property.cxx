@@ -179,4 +179,29 @@ string_t& property_t::get_string()
     return *value.string;
 }
 
+property_t& propobj_t::add_property(const string_t& name_in, property_t::type_t type_in)
+{
+    auto result = properties.emplace(std::make_pair(name_in, type_in));
+
+    if (! result.second) {
+        throw_runtime_error("Attempt to add duplicate property name: ", name_in);
+    }
+
+    auto& property = result.first->second;
+
+    return property;
+}
+
+property_t& propobj_t::get_property(const string_t& name_in)
+{
+    auto found = properties.find(name_in);
+
+    if (found == properties.end()) {
+        throw_runtime_error("Could not find property: ", name_in);
+    }
+
+    return found->second;
+}
+
+
 } // namespace jackalope

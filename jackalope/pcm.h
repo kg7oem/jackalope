@@ -11,10 +11,14 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
-#include <jackalope/jackalope.h>
-#include <jackalope/pcm/portaudio.h>
+#pragma once
 
-void jackalope_init()
-{
-    jackalope::pcm::portaudio_init();
-}
+#define JACKALOPE_PCM_CHANNEL_CLASS         "pcm"
+#define JACKALOPE_PCM_CHANNEL_CLASS_REAL    "pcm[real]"
+#define JACKALOPE_PCM_CHANNEL_CLASS_QUAD    "pcm[quad]"
+#define JACKALOPE_PCM_PROPERTY_BUFFER_SIZE  "pcm:buffer_size"
+#define JACKALOPE_PCM_PROPERTY_SAMPLE_RATE  "pcm:sample_rate"
+
+namespace jackalope {
+
+} // namespace jackalope

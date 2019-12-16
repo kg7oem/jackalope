@@ -35,13 +35,14 @@ add_library(
 
 #    jackalope/channel.cxx
     jackalope/domain.cxx
+    jackalope/driver.cxx
     jackalope/jackalope.cxx
     jackalope/log/dest.cxx
     jackalope/log/engine.cxx
 #    jackalope/node.cxx
 #    jackalope/pcm.cxx
 #    jackalope/pcm/ladspa.cxx
-#    jackalope/pcm/portaudio.cxx
+    jackalope/pcm/portaudio.cxx
 #    jackalope/pcm/sndfile.cxx
     jackalope/property.cxx
 #    jackalope/signal.cxx
