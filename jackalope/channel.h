@@ -13,82 +13,103 @@
 
 #pragma once
 
-#include <jackalope/node.forward.h>
+#include <jackalope/channel.forward.h>
+#include <jackalope/library.h>
+#include <jackalope/object.forward.h>
+#include <jackalope/signal.h>
 #include <jackalope/string.h>
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
 
 namespace jackalope {
 
-struct input_t;
-struct output_t;
-struct link_t;
+using source_library_t = library_t<source_t, const string_t&, shared_t<object_t>>;
+using sink_library_t = library_t<sink_t, const string_t&, shared_t<object_t>>;
 
-using input_constructor_t = function_t<shared_t<input_t> (const string_t& name_in, shared_t<node_t> parent_in)>;
-using output_constructor_t = function_t<shared_t<output_t> (const string_t& name_in, shared_t<node_t> parent_in)>;
+void add_source_constructor(const string_t& type_name_in, source_library_t::constructor_t constructor_in);
+void add_sink_constructor(const string_t& type_name_in, sink_library_t::constructor_t constructor_in);
 
-struct channel_t : public baseobj_t {
-    const string_t name;
-    const string_t class_name;
-    shared_t<node_t> parent;
-    pool_list_t<shared_t<link_t>> links;
+struct link_t : public base_t, public shared_obj_t<link_t> {
 
-    channel_t(const string_t& class_name_in, const string_t& name_in, shared_t<node_t> parent_in);
-    virtual ~channel_t() = default;
-    virtual shared_t<node_t> get_parent();
-    virtual const string_t& get_name();
-    virtual const string_t& get_class_name();
-    virtual void add_link(shared_t<link_t> link_in);
-    virtual void remove_link(shared_t<link_t> link_in);
-    virtual void unlink(shared_t<link_t> link_in) = 0;
+protected:
+    const weak_t<source_t> from;
+    const weak_t<sink_t> to;
+
+public:
+
+    link_t(shared_t<source_t> from_in, shared_t<sink_t> to_in);
+
+    template <class T = source_t>
+    shared_t<T> get_from()
+    {
+        return dynamic_pointer_cast<T>(from.lock());
+    }
+
+    template <class T = sink_t>
+    shared_t<T> get_to()
+    {
+        return dynamic_pointer_cast<T>(to.lock());
+    }
+
+    virtual bool is_available() = 0;
     virtual bool is_ready() = 0;
-    virtual void reset();
 };
 
-struct link_t : public baseobj_t, public shared_obj_t<link_t> {
-    weak_t<output_t> from;
-    weak_t<input_t> to;
+struct channel_t : public base_t, protected lockable_t {
 
-    link_t(weak_t<output_t> from_in, weak_t<input_t> to_in);
-    virtual ~link_t() = default;
-    shared_t<input_t> get_to();
-    shared_t<output_t> get_from();
+protected:
+    const weak_t<object_t> parent;
+    pool_list_t<shared_t<link_t>> links;
+    bool started = false;
+
+    virtual void _add_link(shared_t<link_t> link_in);
+
+public:
+    const string_t name;
+    const string_t type;
+
+    channel_t(const string_t name_in, const string_t& type_in, shared_t<object_t> parent_in);
+    virtual ~channel_t() = default;
+    shared_t<object_t> get_parent();
+
+    virtual void _start();
+    virtual void start();
 };
 
-struct input_t : public channel_t, public shared_obj_t<input_t> {
-    input_t(const string_t& class_name_in, const string_t& name_in, shared_t<node_t> parent_in);
-    virtual ~input_t() = default;
+struct source_t : public channel_t, public shared_obj_t<source_t> {
+
+protected:
+    bool known_available = false;
+    source_t(const string_t name_in, const string_t& type_in, shared_t<object_t> parent_in);
+
+public:
+    static shared_t<source_t> make(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in);
+    virtual ~source_t() = default;
+    virtual void _start() override;
+    virtual void link(shared_t<sink_t> sink_in);
+    virtual shared_t<link_t> make_link(shared_t<source_t> from_in, shared_t<sink_t> to_in) = 0;
+    virtual bool is_available();
+    virtual bool _is_available() = 0;
+    virtual void link_available(shared_t<link_t> link_in);
+};
+
+struct sink_t : public channel_t, public shared_obj_t<sink_t> {
+
+protected:
+    bool known_ready = false;
+
+    sink_t(const string_t name_in, const string_t& type_in, shared_t<object_t> parent_in);
+
+public:
+    static shared_t<sink_t> make(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in);
+    virtual ~sink_t() = default;
+    virtual void add_link(shared_t<link_t> link_in);
+    virtual void _start() override;
     virtual bool is_ready();
-    virtual void link(shared_t<output_t> output_in) = 0;
-    virtual void notify();
-    virtual void output_ready(shared_t<output_t> output_in) = 0;
+    virtual bool _is_ready() = 0;
+    virtual bool is_available();
+    virtual bool _is_available() = 0;
+    virtual void link_ready(shared_t<link_t> link_in);
 };
 
-struct output_t : public channel_t, public shared_obj_t<output_t> {
-    bool dirty_flag = false;
-
-    output_t(const string_t& class_name_in, const string_t& name_in, shared_t<node_t> parent_in);
-    virtual ~output_t() = default;
-    virtual void set_dirty();
-    virtual bool is_dirty();
-    virtual bool is_ready() override;
-    virtual void notify();
-    virtual void link(shared_t<input_t> input_in) = 0;
-    virtual void reset() override;
-};
-
-// example channel classes and classes with types
-//   midi
-//   pcm[real]
-//   pcm[quad]
-//   bitmap[rgb]
-//   bitmap[cmyk]
-const string_t extract_channel_class(const string_t& class_in);
-const string_t extract_channel_type(const string_t& class_in);
-
-void add_input_constructor(const string_t& class_in, input_constructor_t constructor_in);
-void add_output_constructor(const string_t& class_in, output_constructor_t constructor_in);
-shared_t<input_t> make_input_channel(const string_t& class_in, const string_t& name_in, shared_t<node_t> parent_in);
-shared_t<output_t> make_output_channel(const string_t& class_in, const string_t& name_in, shared_t<node_t> parent_in);
-
-} // namespace jackalope
+} //namespace jackalope

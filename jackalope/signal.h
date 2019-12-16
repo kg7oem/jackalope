@@ -13,43 +13,52 @@
 
 #pragma once
 
-#include <jackalope/node.forward.h>
+#include <jackalope/message.h>
 #include <jackalope/string.h>
 #include <jackalope/types.h>
 
-#define JACKALOPE_SIGNAL_FILE_EOF "file:eof"
-#define JACKALOPE_SLOT_SYSTEM_TERMINATE "system:terminate"
+#define JACKALOPE_MESSAGE_OBJECT_INVOKE_SLOT "object.invoke_slot"
 
 namespace jackalope {
 
 struct signal_t;
 struct slot_t;
-struct connection_t;
 
-using slot_handler_t = function_t<void (signal_t * sender_in)>;
+using slot_function_t = function_t<void ()>;
 
-struct signal_t : public baseobj_t {
+// Thread safe with out user requirements
+struct signal_t : public base_t, public shared_obj_t<signal_t>, lockable_t {
     const string_t name;
-    pool_list_t<connection_t *> connections;
+    pool_list_t<slot_function_t> connections;
+    pool_list_t<promise_t<void>> waiters;
 
     signal_t(const string_t& name_in);
-    connection_t * connect(slot_t * dest_in);
+    void subscribe(slot_function_t handler_in);
+    void subscribe(shared_t<slot_t> handler_in);
     void send();
+    void wait();
 };
 
-struct slot_t : public baseobj_t {
+// Thread safe because everything is const
+struct slot_t : public base_t, public shared_obj_t<slot_t> {
     const string_t name;
-    const slot_handler_t handler;
+    const slot_function_t handler;
 
-    slot_t(const string_t& name_in, slot_handler_t handler_in);
-    void invoke(signal_t * sender_in);
+    slot_t(const string_t& name_in, slot_function_t handler_in);
+    void invoke();
 };
 
-struct connection_t : public baseobj_t {
-    signal_t * from;
-    slot_t * to;
+class signal_obj_t {
 
-    connection_t(signal_t * from_in, slot_t * to_in);
+protected:
+    pool_map_t<string_t, shared_t<signal_t>> signals;
+    pool_map_t<string_t, shared_t<slot_t>> slots;
+
+public:
+    virtual shared_t<signal_t> add_signal(const string_t& name_in);
+    virtual shared_t<signal_t> get_signal(const string_t& name_in);
+    virtual shared_t<slot_t> add_slot(const string_t& name_in, slot_function_t handler_in);
+    virtual shared_t<slot_t> get_slot(const string_t& name_in);
 };
 
 } // namespace jackalope

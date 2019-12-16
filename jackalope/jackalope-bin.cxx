@@ -11,19 +11,21 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
+#include <chrono>
 #include <iostream>
 #include <string>
 
 #include <jackalope/jackalope.h>
 #include <jackalope/log/dest.h>
 #include <jackalope/logging.h>
-#include <jackalope/pcm.h>
+#include <jackalope/object.h>
 
-#define BUFFER_SIZE 128
+#define BUFFER_SIZE 512
 #define SAMPLE_RATE 48000
 #define LADSPA_ZAMTUBE_ID 1515476290
 
-using namespace jackalope;
+using namespace jackalope::foreign;
+using namespace jackalope::log;
 
 int main(int argc_in, char ** argv_in)
 {
@@ -31,58 +33,53 @@ int main(int argc_in, char ** argv_in)
         jackalope_panic("must specify exactly one audio file to play");
     }
 
-    auto dest = make_shared<log::console_dest_t>(log::level_t::info);
-    log::get_engine()->add_destination(dest);
+    auto dest = jackalope::make_shared<console_dest_t>(level_t::info);
+    get_engine()->add_destination(dest);
 
     jackalope_init();
 
-    auto domain = make_pcm_domain({
-        { "node:name", "main domain" },
-        { "pcm:sample_rate", to_string(48000) },
-        { "pcm:buffer_size", to_string(128) },
-        { "input:left", "pcm[real]" },
-        { "input:right", "pcm[real]" },
+    auto graph = make_graph({
+        { "pcm.sample_rate", jackalope::to_string(SAMPLE_RATE) },
+        { "pcm.buffer_size", jackalope::to_string(BUFFER_SIZE) },
     });
 
-    auto system_audio = domain->make_driver({
-        { "node:class", "pcm::portaudio" },
-        { "node:name", "system audio" },
+    auto input_file = graph.add_node({
+        { "object.type", "audio::sndfile"},
+        { "node.name", "input file" },
+        { "config.path", argv_in[1] },
     });
 
-    auto input_file = domain->make_node({
-        { "node:class", "pcm::sndfile" },
-        { "node:name", "input file" },
-        { "config:path", argv_in[1] },
+    auto system_audio = graph.add_node({
+        { "object.type", "audio::portaudio" },
+        { "node.name", "system audio" },
+        { "sink.left", "audio" },
+        { "sink.right", "audio" },
     });
 
-    auto left_tube = domain->make_node({
-        { "node:class", "pcm::ladspa" },
-        { "node:name", "left tube" },
-        { "plugin:id", to_string(LADSPA_ZAMTUBE_ID) },
+    auto left_tube = graph.add_node({
+        { "object.type", "audio::ladspa" },
+        { "node.name", "left tube" },
+        { "plugin.id", jackalope::to_string(LADSPA_ZAMTUBE_ID) },
     });
 
-    auto right_tube = domain->make_node({
-        { "node:class", "pcm::ladspa" },
-        { "node:name", "right tube" },
-        { "plugin:id", to_string(LADSPA_ZAMTUBE_ID) },
+    auto right_tube = graph.add_node({
+        { "object.type", "audio::ladspa" },
+        { "node.name", "right tube" },
+        { "plugin.id", jackalope::to_string(LADSPA_ZAMTUBE_ID) },
     });
 
-    input_file->get_signal("file:eof")->connect(domain->get_slot("system:terminate"));
+    input_file.connect(JACKALOPE_SIGNAL_OBJECT_STOPPED, graph, JACKALOPE_SLOT_OBJECT_STOP);
 
-    input_file->get_output("output 1")->link(left_tube->get_input("Audio Input 1"));
-    input_file->get_output("output 1")->link(right_tube->get_input("Audio Input 1"));
-    left_tube->get_output("Audio Output 1")->link(domain->get_input("left"));
-    right_tube->get_output("Audio Output 1")->link(domain->get_input("right"));
+    input_file.link("Output 1", left_tube, "Audio Input 1");
+    input_file.link("Output 1", right_tube, "Audio Input 1");
+    left_tube.link("Audio Output 1", system_audio, "left");
+    right_tube.link("Audio Output 1", system_audio, "right");
 
-    domain->activate();
-    domain->start();
+    graph.run();
 
-    system_audio->start();
-
-    while(1) {
-        using namespace std::chrono_literals;
-        std::this_thread::sleep_for(1s);
-    }
+    log_info("shutting down");
+    jackalope_shutdown();
+    log_info("done shutting down");
 
     return(0);
 }

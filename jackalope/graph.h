@@ -1,4 +1,3 @@
-// Jackalope Audio Engine
 // Copyright 2019 Tyler Riddle <kg7oem@gmail.com>
 
 // This program is free software: you can redistribute it and/or modify
@@ -13,11 +12,26 @@
 
 #pragma once
 
-#include <iostream>
+#include <jackalope/object.forward.h>
+#include <jackalope/node.h>
+#include <jackalope/thread.h>
+#include <jackalope/types.h>
 
-#include <jackalope/foreign.h>
+#define JACKALOPE_TYPE_GRAPH "jackalope::graph"
 
-#define jackalope_panic(...) { auto message = jackalope::to_string(__VA_ARGS__); std::cerr << message << std::endl; abort(); }
+namespace jackalope {
 
-void jackalope_init();
-void jackalope_shutdown();
+class graph_t : public object_t {
+
+protected:
+    pool_list_t<shared_t<node_t>> nodes;
+
+public:
+    static shared_t<graph_t> make(const init_list_t& init_args_in);
+    graph_t(const init_list_t& init_args_in);
+    shared_t<node_t> add_node(const init_list_t& init_args_in);
+    virtual void start() override;
+    virtual void stop() override;
+};
+
+} // namespace jackalope

@@ -27,7 +27,7 @@ ExternalProject_Add(
     URL_HASH "SHA512=${Boost_DOWNLOAD_HASH}"
 
     CONFIGURE_COMMAND ./bootstrap.sh
-    BUILD_COMMAND ./b2 --with-system --with-filesystem --build-type=minimal --layout=system cxxflags=-fPIC link=static runtime-link=static threading=multi
+    BUILD_COMMAND ./b2 --with-date_time --with-filesystem --with-regex --with-serialization --with-system --with-thread --build-type=minimal --layout=system cxxflags=-fPIC link=static runtime-link=static threading=multi
     INSTALL_COMMAND ""
 )
 

@@ -11,10 +11,17 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
+#include <jackalope/async.h>
+#include <jackalope/audio.h>
 #include <jackalope/jackalope.h>
-#include <jackalope/pcm.h>
 
 void jackalope_init()
 {
-    jackalope::pcm_init();
+    jackalope::async_init();
+    jackalope::audio_init();
+}
+
+void jackalope_shutdown()
+{
+    jackalope::async_shutdown();
 }

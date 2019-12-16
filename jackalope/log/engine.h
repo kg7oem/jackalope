@@ -36,7 +36,7 @@ enum class level_t {
     fatal = 100,
 };
 
-struct event_t : public baseobj_t {
+struct event_t : public base_t {
     using timestamp_t = std::chrono::time_point<std::chrono::system_clock>;
 
     const char_t * source = nullptr;
@@ -52,7 +52,7 @@ struct event_t : public baseobj_t {
     ~event_t() = default;
 };
 
-class engine_t : public baseobj_t, public lockable_t {
+class engine_t : public base_t, public lockable_t {
 
 protected:
     level_t min_level = level_t::uninit;

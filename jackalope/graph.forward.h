@@ -1,4 +1,3 @@
-// Jackalope Audio Engine
 // Copyright 2019 Tyler Riddle <kg7oem@gmail.com>
 
 // This program is free software: you can redistribute it and/or modify
@@ -13,11 +12,8 @@
 
 #pragma once
 
-#include <iostream>
+namespace jackalope {
 
-#include <jackalope/foreign.h>
+class graph_t;
 
-#define jackalope_panic(...) { auto message = jackalope::to_string(__VA_ARGS__); std::cerr << message << std::endl; abort(); }
-
-void jackalope_init();
-void jackalope_shutdown();
+} // namespace

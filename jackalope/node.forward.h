@@ -1,4 +1,4 @@
- // Jackalope Audio Engine
+// Jackalope Audio Engine
 // Copyright 2019 Tyler Riddle <kg7oem@gmail.com>
 
 // This program is free software: you can redistribute it and/or modify
@@ -15,6 +15,6 @@
 
 namespace jackalope {
 
-struct node_t;
+class node_t;
 
 } // namespace jackalope

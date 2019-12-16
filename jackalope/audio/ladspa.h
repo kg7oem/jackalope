@@ -13,18 +13,19 @@
 
 #pragma once
 
-#include <jackalope/pcm.h>
+#include <jackalope/audio.h>
+#include <jackalope/node.h>
 #include <jackalope/types.h>
 
 #define JACKALOPE_PCM_LADSPA_PATH_ENV "LADSPA_PATH"
 #define JACKALOPE_PCM_LADSPA_PATH_DEFAULT "/usr/lib/ladspa"
-#define JACKALOPE_PCM_LADSPA_CLASS "pcm::ladspa"
-#define JACKALOPE_PCM_LADSPA_PROPERTY_ID "plugin:id"
-#define JACKALOPE_PCM_LADSPA_PROPERTY_FILE "plugin:file"
+#define JACKALOPE_AUDIO_LADSPA_OBJECT_TYPE "audio::ladspa"
+#define JACKALOPE_PCM_LADSPA_PROPERTY_ID "plugin.id"
+#define JACKALOPE_PCM_LADSPA_PROPERTY_FILE "plugin.file"
 
 namespace jackalope {
 
-namespace pcm {
+namespace audio {
 
 extern "C" {
 #include "ext/ladspa.h"
@@ -39,7 +40,7 @@ using ladspa_id_t = size_t;
 using ladspa_port_descriptor_t = LADSPA_PortDescriptor;
 using ladspa_descriptor_function_t = LADSPA_Descriptor_Function;
 
-struct ladspa_file_t : public baseobj_t {
+struct ladspa_file_t : public base_t {
     ladspa_descriptor_function_t descriptor_fn = nullptr;
     pool_map_t<ladspa_id_t, const ladspa_descriptor_t *> id_to_descriptor;
     void * handle = nullptr;
@@ -53,7 +54,7 @@ struct ladspa_file_t : public baseobj_t {
     const ladspa_descriptor_t * get_descriptor(const ladspa_id_t id_in);
 };
 
-struct ladspa_instance_t : public baseobj_t {
+struct ladspa_instance_t : public base_t {
     ladspa_file_t& file;
     const ladspa_id_t id;
     const ladspa_descriptor_t * descriptor = nullptr;
@@ -73,19 +74,18 @@ struct ladspa_instance_t : public baseobj_t {
     void connect_port(const size_t port_num_in, ladspa_data_t * pointer_in);
 };
 
-struct ladspa_node_t : public pcm_node_t {
-    const string_t class_name = JACKALOPE_PCM_LADSPA_CLASS;
-
+struct ladspa_node_t : public node_t {
     ladspa_file_t * file = nullptr;
     ladspa_instance_t * instance = nullptr;
 
-    ladspa_node_t(const string_t& node_name_in, node_init_list_t init_list_in = node_init_list_t());
-    ~ladspa_node_t();
+    ladspa_node_t(const init_list_t& init_list_in);
+    virtual ~ladspa_node_t();
     virtual void init() override;
     virtual void init_file();
     virtual void init_instance();
     virtual void activate() override;
-    virtual void pcm_ready() override;
+    virtual bool should_run() override;
+    virtual void run() override;
 };
 
 } // namespace pcm

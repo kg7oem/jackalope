@@ -13,40 +13,42 @@
 
 #pragma once
 
-#include <jackalope/log/dest.forward.h>
-#include <jackalope/log/engine.h>
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
 
 namespace jackalope {
 
-namespace log {
+template <typename T>
+using async_job_t = function_t<T ()>;
 
-class dest_t : public base_t, public lockable_t {
+void async_init();
+void async_shutdown();
+void submit_job(async_job_t<void> job_in);
 
-protected:
-    level_t min_level = level_t::uninit;
+template <typename T>
+T wait_job(async_job_t<T> job_in)
+{
+    promise_t<T> promise;
 
-    level_t get_min_level__e();
-    virtual void handle_event__e(const event_t& event_in) = 0;
-    virtual void handle_deliver__e(const event_t& event_in);
+    submit_job([&] {
+        auto result = job_in();
+        promise.set_value(result);
+    });
 
-public:
-    dest_t(const level_t min_level_in);
-    level_t get_min_level();
-    virtual void handle_deliver(const event_t& event_in);
-};
+    return promise.get_future().get();
+}
 
-class console_dest_t : public dest_t {
+template <>
+inline void wait_job(async_job_t<void> job_in)
+{
+    promise_t<void> promise;
 
-protected:
-    mutex_t console_mutex;
+    submit_job([&] {
+        job_in();
+        promise.set_value();
+    });
 
-public:
-    console_dest_t(const level_t min_level_in);
-    void handle_event__e(const event_t& event_in);
-};
-
-} // namespace log
+    promise.get_future().get();
+}
 
 } // namespace jackalope

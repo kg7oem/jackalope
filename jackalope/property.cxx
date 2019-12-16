@@ -12,6 +12,7 @@
 // GNU Lesser General Public License for more details.
 
 #include <jackalope/exception.h>
+#include <jackalope/logging.h>
 #include <jackalope/property.h>
 #include <jackalope/string.h>
 
@@ -66,7 +67,7 @@ void property_t::set(const double value_in)
         case type_t::size: set_size(value_in); return;
         case type_t::integer: set_integer(value_in); return;
         case type_t::real: set_real(value_in); return;
-        case type_t::string: set_string(to_string(value_in));
+        case type_t::string: set_string(to_string(value_in)); return;
     }
 
     throw_runtime_error("should never get out of switch statement");
@@ -177,6 +178,41 @@ string_t& property_t::get_string()
     }
 
     return *value.string;
+}
+
+shared_t<property_t> prop_obj_t::add_property(const string_t& name_in, property_t::type_t type_in)
+{
+    auto property = property_t::make(type_in);
+    auto result = properties.emplace(std::make_pair(name_in, property));
+
+    if (! result.second) {
+        throw_runtime_error("Attempt to add duplicate property name: ", name_in);
+    }
+
+    return result.first->second;
+}
+
+shared_t<property_t> prop_obj_t::get_property(const string_t& name_in)
+{
+    auto found = properties.find(name_in);
+
+    if (found == properties.end()) {
+        throw_runtime_error("Could not find property: ", name_in);
+    }
+
+    return found->second;
+}
+
+shared_t<property_t> prop_obj_t::add_property(const string_t& name_in, property_t::type_t type_in, const init_args_t& init_args_in)
+{
+    auto new_property = add_property(name_in, type_in);
+    auto name_str = name_in.c_str();
+
+    if (init_args_has(name_str, init_args_in)) {
+        new_property->set(init_args_get(name_str, init_args_in));
+    }
+
+    return new_property;
 }
 
 } // namespace jackalope

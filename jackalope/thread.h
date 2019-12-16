@@ -14,6 +14,7 @@
 #pragma once
 
 #include <condition_variable>
+#include <future>
 #include <mutex>
 #include <thread>
 
@@ -21,14 +22,21 @@
 
 #define assert_mutex_owner(mutex) assert(mutex.get_owner_id() == std::this_thread::get_id())
 #define assert_lock_owner(lock) assert_mutex_owner(*lock.mutex())
-#define assert_lockable_owner() assert_mutex_owner(this->object_mutex)
+#define assert_object_owner(object) assert(object->thread_owns_mutex())
+#define assert_lockable_owner() assert_object_owner(this)
 
 namespace jackalope {
 
-using condition_t = std::condition_variable;
+class lockable_t;
+
+using condition_t = std::condition_variable_any;
+template <typename T>
+using future_t = std::future<T>;
+template <typename T>
+using promise_t = std::promise<T>;
 using thread_t = std::thread;
 
-class debug_mutex_t : public baseobj_t {
+class debug_mutex_t : public base_t {
 public:
     using lock_t = std::unique_lock<std::mutex>;
     using waiters_t = pool_map_t<thread_t::id, bool>;
@@ -58,6 +66,9 @@ class lockable_t {
 
 protected:
     mutex_t object_mutex;
+
+public:
+    bool thread_owns_mutex();
     lock_t get_object_lock();
 };
 

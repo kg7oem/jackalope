@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+
+set -e
+# set -x
+
+main() {
+    local file_prefix="$1"
+    local header_file="${file_prefix}.h"
+    local source_file="${file_prefix}.cxx"
+    local output_dir="$(dirname $0)/../jackalope"
+
+    if [ "$file_prefix" == "" ]; then
+        echo "Must specify a filename prefix" >&2
+        exit 1
+    fi
+
+    make_header > "$output_dir/$header_file"
+    make_source "$header_file" > "$output_dir/$source_file"
+}
+
+make_copyright() {
+    cat <<EOF
+// Jackalope Audio Engine
+// Copyright 2019 Tyler Riddle <kg7oem@gmail.com>
+
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+EOF
+}
+
+make_header() {
+    make_copyright
+    echo
+
+    cat <<EOF
+#pragma once
+
+#include <jackalope/types.h>
+
+namespace jackalope {
+
+} //namespace jackalope
+EOF
+}
+
+make_source() {
+    local header_file="$1"
+
+    make_copyright
+    echo
+
+    cat <<EOF
+#include <jackalope/${header_file}>
+
+namespace jackalope {
+
+} //namespace jackalope
+EOF
+}
+
+main "$@"

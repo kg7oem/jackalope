@@ -1,4 +1,4 @@
- // Jackalope Audio Engine
+// Jackalope Audio Engine
 // Copyright 2019 Tyler Riddle <kg7oem@gmail.com>
 
 // This program is free software: you can redistribute it and/or modify
@@ -14,146 +14,41 @@
 #pragma once
 
 #include <jackalope/channel.h>
-#include <jackalope/exception.h>
+#include <jackalope/graph.forward.h>
 #include <jackalope/node.forward.h>
-#include <jackalope/property.h>
-#include <jackalope/signal.h>
-#include <jackalope/thread.h>
+#include <jackalope/object.h>
 #include <jackalope/types.h>
 
-#define JACKALOPE_NODE_PROPERTY_NAME "node:name"
-#define JACKALOPE_NODE_PROPERTY_CLASS "node:class"
+#define JACKALOPE_PROPERTY_NODE_NAME "node.name"
+
+#define NODE_LOG(level, ...) JACKALOPE_LOG_VARGS(JACKALOPE_LOG_NAME, jackalope::log::level_t::level,  "node(", this->name, "): ", __VA_ARGS__)
 
 namespace jackalope {
 
-using node_init_list_t = std::initializer_list<std::pair<string_t, string_t>>;
-using node_constructor_t = function_t<shared_t<node_t> (const string_t& name_in, node_init_list_t)>;
+class node_t : public object_t {
 
-void add_node_constructor(const string_t& class_name_in, node_constructor_t constructor_in);
-node_constructor_t get_node_constructor(const string_t& class_name_in);
-// node_t * _make_node(const string_t& class_name_in, const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
+protected:
+    weak_t<graph_t> graph;
 
-// template <typename T = node_t, typename... Args>
-// T * make_node(Args... args)
-// {
-//     auto new_node = _make_node(args...);
-//     return dynamic_cast<T *>(new_node);
-// }
+    node_t(const init_list_t init_list_in);
 
-/* node life cycle
- *
- *   construct
- *   init
- *   activate
- *   start
- */
-
-// FIXME is there a way to make shared_from_this() private ?
-struct node_t : public baseobj_t, public shared_obj_t<node_t> {
-    friend void input_t::notify();
-
-    using inputs_vector_t = pool_vector_t<shared_t<input_t>>;
-    using outputs_vector_t = pool_vector_t<shared_t<output_t>>;
-
+public:
     const string_t name;
-    const string_t class_name;
-    // init_args must preserve order
-    node_init_list_t init_args;
-    bool initialized_flag = false;
-    bool activated_flag = false;
-    bool started_flag = false;
-    pool_map_t<string_t, property_t> properties;
-    inputs_vector_t inputs;
-    pool_map_t<string_t, shared_t<input_t>> inputs_by_name;
-    pool_vector_t<shared_t<output_t>> outputs;
-    pool_map_t<string_t, shared_t<output_t>> outputs_by_name;
-    pool_map_t<string_t, signal_t *> signals;
-    pool_map_t<string_t, slot_t *> slots;
 
-    template <class T = node_t>
-    static shared_t<T> make(const string_t& name_in, node_init_list_t init_list_in)
-    {
-        string_t class_name;
-
-        for(auto i : init_list_in) {
-            if (i.first == JACKALOPE_NODE_PROPERTY_CLASS) {
-                class_name = i.second;
-            }
-        }
-
-        shared_t<T> new_node = nullptr;
-
-        if (class_name == "") {
-            new_node = jackalope::make_shared<T>(name_in, init_list_in);
-        } else {
-            auto constructor = get_node_constructor(class_name);
-            new_node = dynamic_pointer_cast<T>(constructor(name_in, init_list_in));
-        }
-
-        new_node->init();
-        return new_node;
-    }
-
-    template <class T = node_t>
-    static shared_t<T> make(node_init_list_t init_list_in)
-    {
-        string_t node_name;
-
-        for(auto i : init_list_in) {
-            if (i.first == JACKALOPE_NODE_PROPERTY_NAME) {
-                node_name = i.second;
-                break;
-            }
-        }
-
-        if (node_name == "") {
-            throw_runtime_error("could not find node name in init args");
-        }
-
-        return make<T>(node_name, init_list_in);
-    }
-
-    node_t(const string_t& name_in, node_init_list_t init_list_in = node_init_list_t());
-    virtual ~node_t();
-    virtual void init();
-    virtual void activate();
-    virtual void start();
-    virtual void reset();
-    virtual property_t& add_property(const string_t& name_in, property_t::type_t type_in);
-    property_t& get_property(const string_t& name_in);
-    virtual shared_t<input_t> add_input(const string_t& channel_class_in, const string_t& name_in);
-    bool has_init_arg(const string_t& arg_name_in);
-    virtual string_t get_init_arg(const string_t& arg_name_in);
-    virtual shared_t<input_t> _get_input(const string_t& name_in);
-
-    template <class T = input_t>
-    shared_t<T> get_input(const string_t& name_in)
-    {
-        return dynamic_pointer_cast<T>(_get_input(name_in));
-    }
-
-    virtual const inputs_vector_t& get_inputs();
-    virtual shared_t<output_t> add_output(const string_t& channel_class_in, const string_t& name_in);
-    virtual shared_t<output_t> _get_output(const string_t& name_in);
-
-    template <class T = output_t>
-    shared_t<T> get_output(const string_t& name_in)
-    {
-        return dynamic_pointer_cast<T>(_get_output(name_in));
-    }
-
-    virtual const outputs_vector_t& get_outputs();
-    signal_t * add_signal(const string_t& name_in);
-    signal_t * get_signal(const string_t& name_in);
-    slot_t * get_slot(const string_t& name_in);
-    slot_t * add_slot(const string_t& name_in, slot_handler_t handler_in);
-    virtual void input_ready(shared_t<input_t> input_in) = 0;
-    bool virtual is_initialized();
-    bool virtual is_activated();
-    bool virtual is_started();
-    virtual const string_t& get_name();
-    virtual const string_t& get_class_name();
-    virtual void notify() = 0;
+    shared_t<graph_t> get_graph();
+    void set_graph(shared_t<graph_t> graph_in);
+    virtual void set_undef_property(const string_t& name_in);
+    virtual void activate() override;
+    virtual void start() override;
+    virtual void run() = 0;
+    virtual void stop() override;
+    virtual void deliver_one_message(shared_t<abstract_message_t> message_in) override;
+    virtual void run_if_needed();
+    virtual bool should_run() = 0;
+    // virtual void schedule_run();
+    // virtual void handle_run();
+//     virtual void source_available(shared_t<source_t> source_in) override;
+//     virtual void sink_ready(shared_t<sink_t> sink_in) override;
 };
 
-} // namespace jackalope
+} //namespace jackalope

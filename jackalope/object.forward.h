@@ -13,11 +13,8 @@
 
 #pragma once
 
-#include <iostream>
+namespace jackalope {
 
-#include <jackalope/foreign.h>
+struct object_t;
 
-#define jackalope_panic(...) { auto message = jackalope::to_string(__VA_ARGS__); std::cerr << message << std::endl; abort(); }
-
-void jackalope_init();
-void jackalope_shutdown();
+} // namespace jackalope

@@ -62,6 +62,9 @@ void console_dest_t::handle_event__e(const event_t& event_in)
     assert_lockable_owner();
 
     lock_t console_lock(console_mutex);
+    std::cout << event_in.tid << " ";
+    // std::cout << event_in.file << ":";
+    // std::cout << event_in.line << " ";
     std::cout << event_in.message << std::endl;
 }
 

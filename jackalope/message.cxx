@@ -11,13 +11,14 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
-#pragma once
+#include <jackalope/message.h>
 
-#include <iostream>
+namespace jackalope {
 
-#include <jackalope/foreign.h>
+abstract_message_t::abstract_message_t(const string_t& name_in)
+: name(name_in)
+{
+    assert(name != "");
+}
 
-#define jackalope_panic(...) { auto message = jackalope::to_string(__VA_ARGS__); std::cerr << message << std::endl; abort(); }
-
-void jackalope_init();
-void jackalope_shutdown();
+} //namespace jackalope

@@ -92,6 +92,11 @@ void debug_mutex_t::wait__e(lock_t& lock_in)
     waiters.erase(this_thread_id);
 }
 
+bool lockable_t::thread_owns_mutex()
+{
+    return object_mutex.get_owner_id() == std::this_thread::get_id();
+}
+
 lock_t lockable_t::get_object_lock()
 {
     return lock_t(object_mutex);

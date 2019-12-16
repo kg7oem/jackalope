@@ -11,324 +11,108 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
-#include <jackalope/exception.h>
-#include <jackalope/jackalope.h>
+#include <jackalope/async.h>
+#include <jackalope/graph.h>
 #include <jackalope/logging.h>
 #include <jackalope/node.h>
 
 namespace jackalope {
 
-static pool_map_t<string_t, node_constructor_t> node_constructors;
-
-void add_node_constructor(const string_t& class_name_in, node_constructor_t constructor_in)
+node_t::node_t(const init_list_t init_list_in)
+: object_t(init_list_in), name(init_args_get(JACKALOPE_PROPERTY_NODE_NAME, init_args))
 {
-    if (node_constructors.find(class_name_in) != node_constructors.end()) {
-        throw_runtime_error("Can not add duplicate node constructor for class: ", class_name_in);
-    }
-
-    node_constructors[class_name_in] = constructor_in;
+    assert(name != "");
 }
 
-node_constructor_t get_node_constructor(const string_t& class_name_in)
+void node_t::set_undef_property(const string_t& name_in)
 {
-    auto found = node_constructors.find(class_name_in);
+    assert_lockable_owner();
 
-    if (found == node_constructors.end()) {
-        throw_runtime_error("could not find node constructor for class: ", class_name_in);
+    auto property = get_property(name_in);
+
+    if (property->is_defined()) {
+        return;
     }
 
-    return found->second;
+    auto graph = get_graph();
+    auto graph_init_args = graph->init_args;
+
+    if (! init_args_has(name_in.c_str(), graph_init_args)) {
+        throw_runtime_error("could not find default for undefined node property: ", name_in);
+    }
+
+    property->set(init_args_get(name_in.c_str(), graph_init_args));
 }
 
-node_t::node_t(const string_t& name_in, node_init_list_t init_args_in)
-: name(name_in), init_args(init_args_in)
+shared_t<graph_t> node_t::get_graph()
 {
-    pool_map_t<string_t, bool> seen_keys;
+    assert_lockable_owner();
 
-    for (auto i : init_args_in) {
-        if (seen_keys.find(i.first) != seen_keys.end()) {
-            throw_runtime_error("duplicate key in init args: ", i.first);
-        }
-    }
+    auto shared = graph.lock();
 
-    add_property(JACKALOPE_NODE_PROPERTY_NAME, property_t::type_t::string).set(name);
-    add_property(JACKALOPE_NODE_PROPERTY_CLASS, property_t::type_t::string).set(class_name);
+    assert(shared != nullptr);
+
+    return shared;
 }
 
-node_t::~node_t()
+void node_t::set_graph(shared_t<graph_t> graph_in)
 {
+    assert_lockable_owner();
 
-    inputs.empty();
-    inputs_by_name.empty();
+    assert(graph_in != nullptr);
 
-    outputs_by_name.empty();
-    outputs.empty();
-}
-
-void node_t::init()
-{
-    if (initialized_flag) {
-        throw_runtime_error("Can not initalize a node that has already been initialized");
-    }
-
-    for(auto i : init_args) {
-        auto key = i.first;
-
-        if (key.find("input:", 0) != string_t::npos) {
-            auto name = key.substr(6);
-            add_input(i.second, name);
-        } else if (key.find("output:", 0) != string_t::npos) {
-            auto name = key.substr(7);
-            add_output(i.second, key);
-        }
-    }
-
-    initialized_flag = true;
+    graph = graph_in;
 }
 
 void node_t::activate()
 {
-    if (! initialized_flag) {
-        throw_runtime_error("Can not activate a node that is not initalized");
+    assert_lockable_owner();
+
+    if (graph.expired()) {
+        throw_runtime_error("node graph weak pointer was expired when activating node");
     }
 
-    if (activated_flag) {
-        throw_runtime_error("can not activate a node that has already been activated");
-    }
-
-    activated_flag = true;
+    object_t::activate();
 }
 
 void node_t::start()
 {
-    if (! activated_flag) {
-        throw_runtime_error("can not start a node that has not been activated");
-    }
+    assert_lockable_owner();
 
-    if (started_flag) {
-        throw_runtime_error("can not start a node that has already been started");
-    }
+    NODE_LOG(info, "Starting node");
 
-    started_flag = true;
+    object_t::start();
+
+    NODE_LOG(info, "Done starting node");
 }
 
-void node_t::reset()
+void node_t::stop()
 {
-    for(auto i : outputs) {
-        i->reset();
-    }
+    assert_lockable_owner();
+
+    object_t::stop();
 }
 
-bool node_t::is_initialized()
+void node_t::deliver_one_message(shared_t<abstract_message_t> message_in)
 {
-    return initialized_flag;
+    assert_lockable_owner();
+
+    object_t::deliver_one_message(message_in);
+
+    run_if_needed();
 }
 
-bool node_t::is_activated()
+void node_t::run_if_needed()
 {
-    return activated_flag;
-}
+    assert_lockable_owner();
 
-bool node_t::is_started()
-{
-    return started_flag;
-}
-
-const string_t& node_t::get_name()
-{
-    return name;
-}
-
-const string_t& node_t::get_class_name()
-{
-    return class_name;
-}
-
-property_t& node_t::add_property(const string_t& name_in, property_t::type_t type_in)
-{
-    if (activated_flag) {
-        throw_runtime_error("can not add a property to a node that has been activated");
-    }
-
-    auto result = properties.emplace(std::make_pair(name_in, type_in));
-
-    if (! result.second) {
-        throw_runtime_error("Attempt to add duplicate property name: ", name_in);
-    }
-
-    auto& property = result.first->second;
-
-    if (has_init_arg(name_in)) {
-        property.set(get_init_arg(name_in));
-    }
-
-    return property;
-}
-
-property_t& node_t::get_property(const string_t& name_in)
-{
-    auto found = properties.find(name_in);
-
-    if (found == properties.end()) {
-        throw_runtime_error("Could not find property: ", name_in);
-    }
-
-    return found->second;
-}
-
-bool node_t::has_init_arg(const string_t& arg_name_in)
-{
-    for (auto i : init_args) {
-        if (i.first == arg_name_in) {
-            return true;
+    while(1) {
+        if (stopped_flag || ! should_run()) {
+            break;
         }
-    }
 
-    return false;
+        run();
+    }
 }
 
-string_t node_t::get_init_arg(const string_t& arg_name_in)
-{
-    for (auto i : init_args) {
-        if (i.first == arg_name_in) {
-            return i.second;
-        }
-    }
-
-    throw_runtime_error("could not find init arg value for key: ", arg_name_in);
-}
-
-shared_t<input_t> node_t::add_input(const string_t& channel_class_in, const string_t& name_in)
-{
-    if (activated_flag) {
-        throw_runtime_error("Can not add an input to a node that has been activated");
-    }
-
-    if (inputs_by_name.find(channel_class_in) != inputs_by_name.end()) {
-        throw_runtime_error("duplicate input name: ", name_in);
-    }
-
-    auto property_name = to_string("input:", name_in);
-
-    if (properties.find(property_name) != properties.end()) {
-        throw_runtime_error("property existed for new input: ", property_name);
-    }
-
-    add_property(property_name, property_t::type_t::string).set(channel_class_in);
-
-    auto new_channel = make_input_channel(channel_class_in, name_in, shared_obj());
-
-    inputs.push_back(new_channel);
-    inputs_by_name[name_in] = new_channel;
-
-    return new_channel;
-}
-
-shared_t<input_t> node_t::_get_input(const string_t& name_in)
-{
-    auto found = inputs_by_name.find(name_in);
-
-    if (found == inputs_by_name.end()) {
-        throw_runtime_error("Could not find input: ", name_in);
-    }
-
-    return found->second;
-}
-
-const node_t::inputs_vector_t& node_t::get_inputs()
-{
-    return inputs;
-}
-
-shared_t<output_t> node_t::_get_output(const string_t& name_in)
-{
-    auto found = outputs_by_name.find(name_in);
-
-    if (found == outputs_by_name.end()) {
-        throw_runtime_error("Could not find output: ", name_in);
-    }
-
-    return found->second;
-}
-
-const node_t::outputs_vector_t& node_t::get_outputs()
-{
-    return outputs;
-}
-
-shared_t<output_t> node_t::add_output(const string_t& channel_class_in, const string_t& name_in)
-{
-    if (activated_flag) {
-        throw_runtime_error("Can not add an output to a node that has been activated");
-    }
-
-    if (inputs_by_name.find(channel_class_in) != inputs_by_name.end()) {
-        throw_runtime_error("duplicate input name: ", name_in);
-    }
-
-    auto property_name = to_string("output:", name_in);
-
-    if (properties.find(property_name) != properties.end()) {
-        throw_runtime_error("property existed for new output: ", property_name);
-    }
-
-    add_property(property_name, property_t::type_t::string).set(channel_class_in);
-
-    auto new_channel = make_output_channel(channel_class_in, name_in, shared_obj());
-
-    outputs.push_back(new_channel);
-    outputs_by_name[name_in] = new_channel;
-
-    return new_channel;
-}
-
-signal_t * node_t::get_signal(const string_t& name_in)
-{
-    auto found = signals.find(name_in);
-
-    if (found == signals.end()) {
-        throw_runtime_error("could not find signal: ", name_in);
-    }
-
-    return found->second;
-}
-
-signal_t * node_t::add_signal(const string_t& name_in)
-{
-    if (activated_flag) {
-        throw_runtime_error("Can not add a signal to a node that has been activated");
-    }
-
-    if (signals.find(name_in) != signals.end()) {
-        throw_runtime_error("can not add duplicate signal name: ", name_in);
-    }
-
-    return signals[name_in] = new signal_t(name_in);
-}
-
-slot_t * node_t::get_slot(const string_t& name_in)
-{
-    auto found = slots.find(name_in);
-
-    if (found == slots.end()) {
-        throw_runtime_error("could not find slot: ", name_in);
-    }
-
-    return found->second;
-}
-
-slot_t * node_t::add_slot(const string_t& name_in, slot_handler_t handler_in)
-{
-    if (activated_flag) {
-        throw_runtime_error("Can not add a slot to a node that has been activated");
-    }
-
-    if (slots.find(name_in) != slots.end()) {
-        throw_runtime_error("can not add duplicate slot name: ", name_in);
-    }
-
-    return slots[name_in] = new slot_t(name_in, handler_in);
-}
-
-
-} // namespace jackalope
+} //namespace jackalope

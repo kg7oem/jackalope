@@ -13,6 +13,7 @@
 
 #pragma once
 
+#include <atomic>
 #include <boost/pool/pool_alloc.hpp>
 #include <complex>
 #include <exception>
@@ -24,6 +25,8 @@
 
 namespace jackalope {
 
+template <typename T>
+using atomic_t = std::atomic<T>;
 using char_t = char;
 using int_t = int;
 using size_t = unsigned long;
@@ -31,6 +34,8 @@ using real_t = float;
 using complex_t = std::complex<real_t>;
 template <typename T>
 using function_t = std::function<T>;
+template <typename... T>
+using tuple_t = std::tuple<T...>;
 
 template <typename T>
 using pool_allocator_t = boost::pool_allocator<T>;
@@ -54,7 +59,6 @@ template <class T>
 using weak_t = std::weak_ptr<T>;
 
 template<typename T>
-//using shared_obj_t = std::enable_shared_from_this<T>;
 struct shared_obj_t : public std::enable_shared_from_this<T> {
     shared_t<T> shared_from_this() = delete;
 
@@ -70,13 +74,13 @@ struct runtime_error_t : public std::runtime_error {
     runtime_error_t(const char * what_in);
 };
 
-struct baseobj_t {
-    baseobj_t(const baseobj_t&) = delete;
-    baseobj_t(const baseobj_t&&) = delete;
-    baseobj_t& operator=(const baseobj_t&);
+struct base_t {
+    base_t(const base_t&) = delete;
+    base_t(const base_t&&) = delete;
+    base_t& operator=(const base_t&);
 
-    baseobj_t() = default;
-    virtual ~baseobj_t() = default;
+    base_t() = default;
+    virtual ~base_t() = default;
 };
 
 }
