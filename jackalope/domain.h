@@ -23,10 +23,11 @@ namespace jackalope {
 
 class domain_t;
 
-class domain_t : public baseobj_t, public shared_obj_t<domain_t>, protected lockable_t, public propobj_t {
+class domain_t : public baseobj_t, public shared_obj_t<domain_t>, public propobj_t, protected lockable_t {
 
 protected:
     const init_list_t init_args;
+    pool_list_t<shared_t<driver_t>> drivers;
 
     virtual void init__e();
     virtual void run__e();

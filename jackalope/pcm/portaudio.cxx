@@ -11,6 +11,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
+#include <jackalope/domain.h>
 #include <jackalope/exception.h>
 #include <jackalope/logging.h>
 #include <jackalope/pcm/portaudio.h>
@@ -59,40 +60,57 @@ portaudio_driver_t::~portaudio_driver_t()
     }
 }
 
-void portaudio_driver_t::init()
+void portaudio_driver_t::init__e()
 {
-    // add_input(JACKALOPE_PCM_CHANNEL_CLASS_REAL, "left input");
-    // add_input(JACKALOPE_PCM_CHANNEL_CLASS_REAL, "right input");
+    assert_lockable_owner();
 
-    driver_t::init();
+    driver_t::init__e();
 }
 
-// static int process_cb(const void * input_buffer_in, void * output_buffer_in, size_t frames_per_buffer_in, const portaudio_stream_cb_time_info_t * time_info_in, portaudio_stream_cb_flags status_flags_in, void *userdata_in)
-// {
-//     auto driver = static_cast<portaudio_driver_t *>(userdata_in);
-//     return driver->process(input_buffer_in, output_buffer_in, frames_per_buffer_in, time_info_in, status_flags_in);
-// }
-
-void portaudio_driver_t::activate()
+int process_cb(const void * input_buffer_in, void * output_buffer_in, size_t frames_per_buffer_in, const portaudio_stream_cb_time_info_t * time_info_in, portaudio_stream_cb_flags status_flags_in, void *userdata_in)
 {
-    // auto lock = get_portaudio_lock();
-    // auto userdata = static_cast<void *>(this);
-    // auto num_samples = domain->get_buffer_size();
-    // auto sample_rate = domain->get_sample_rate();
-
-    // get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE).set(num_samples);
-    // get_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE).set(sample_rate);
-
-    // auto err = Pa_OpenDefaultStream(&stream, outputs.size(), inputs.size(), paFloat32, sample_rate, num_samples, process_cb, userdata);
-
-    // if (err != paNoError) {
-    //     throw_runtime_error("Could not open portaudio default stream: ", Pa_GetErrorText(err));
-    // }
-
-    driver_t::activate();
+    auto driver = static_cast<portaudio_driver_t *>(userdata_in);
+    return driver->process(input_buffer_in, output_buffer_in, frames_per_buffer_in, time_info_in, status_flags_in);
 }
 
-void portaudio_driver_t::start()
+void portaudio_driver_t::activate__e()
+{
+    assert_lockable_owner();
+
+    auto domain = get_domain__e();
+    auto& sample_rate_prop = domain->get_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE);
+    auto& buffer_size_prop = domain->get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE);
+
+    if (! sample_rate_prop.is_defined()) {
+        throw_runtime_error("domain sample rate was not defined");
+    }
+
+    if (! buffer_size_prop.is_defined()) {
+        throw_runtime_error("domain buffer size was not defined");
+    }
+
+    auto buffer_size = buffer_size_prop.get_size();
+    auto sample_rate = sample_rate_prop.get_size();
+
+    get_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE).set(sample_rate);
+    get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE).set(buffer_size);
+
+    auto found_sources = init_list_find("source", init_args);
+    auto found_sinks = init_list_find("sink", init_args);
+
+    auto lock = get_portaudio_lock();
+    auto userdata = static_cast<void *>(this);
+
+    auto err = Pa_OpenDefaultStream(&stream, found_sources.size(), found_sinks.size(), paFloat32, sample_rate, buffer_size, process_cb, userdata);
+
+    if (err != paNoError) {
+        throw_runtime_error("Could not open portaudio default stream: ", Pa_GetErrorText(err));
+    }
+
+    driver_t::activate__e();
+}
+
+void portaudio_driver_t::start__e()
 {
     auto lock = get_portaudio_lock();
 
@@ -103,6 +121,8 @@ void portaudio_driver_t::start()
     if (err != paNoError) {
         throw_runtime_error("Could not start portaudio stream: ", Pa_GetErrorText(err));
     }
+
+    driver_t::start__e();
 }
 
 int portaudio_driver_t::process(const void * , void * , size_t frames_per_buffer_in, const portaudio_stream_cb_time_info_t *, portaudio_stream_cb_flags status_flags_in)

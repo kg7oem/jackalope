@@ -54,4 +54,20 @@ string_t init_list_get(const char * name_in, const init_list_t& init_list_in)
     throw_runtime_error("could not find init arg: ", name);
 }
 
+pool_list_t<std::pair<const string_t, const string_t>> init_list_find(const char * prefix_in, const init_list_t& init_list_in)
+{
+    auto prefix = to_string(prefix_in);
+    pool_list_t<std::pair<const string_t, const string_t>> found;
+
+    for (auto& i : init_list_in) {
+        auto parts = split_string(i.first, ':');
+
+        if (parts.front() == prefix) {
+            found.push_back(i);
+        }
+    }
+
+    return found;
+}
+
 } // namespace jackalope

@@ -35,6 +35,12 @@ protected:
     const init_list_t init_args;
     weak_t<domain_t> domain;
 
+    shared_t<domain_t> get_domain__e();
+    virtual void init__e();
+    virtual void activate__e();
+    virtual void start__e();
+    virtual void stop__e();
+
 public:
     static shared_t<driver_t> make(const init_list_t& init_list_in);
     driver_t(const init_list_t& init_list_in);

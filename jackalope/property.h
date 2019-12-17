@@ -63,7 +63,7 @@ protected:
 
 public:
     virtual property_t& add_property(const string_t& name_in, property_t::type_t type_in);
-    property_t& get_property(const string_t& name_in);
+    virtual property_t& get_property(const string_t& name_in);
 };
 
 } // namespace jackalope

@@ -63,24 +63,56 @@ void driver_t::set_domain(shared_t<domain_t> domain_in)
     domain = domain_in;
 }
 
+shared_t<domain_t> driver_t::get_domain__e()
+{
+    assert_lockable_owner();
+    assert(! domain.expired());
+
+    return domain.lock();
+}
+
 void driver_t::init()
 {
+    auto lock = get_object_lock();
+    return init__e();
+}
 
+void driver_t::init__e()
+{
+    assert_lockable_owner();
 }
 
 void driver_t::activate()
 {
+    auto lock = get_object_lock();
+    return activate__e();
+}
 
+void driver_t::activate__e()
+{
+    assert_lockable_owner();
 }
 
 void driver_t::start()
 {
+    auto lock = get_object_lock();
+    return start__e();
+}
 
+void driver_t::start__e()
+{
+    assert_lockable_owner();
 }
 
 void driver_t::stop()
 {
+    auto lock = get_object_lock();
+    return stop__e();
+}
 
+void driver_t::stop__e()
+{
+    assert_lockable_owner();
 }
 
 } // namespace jackalope

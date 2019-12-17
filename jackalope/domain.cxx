@@ -85,6 +85,9 @@ shared_t<driver_t> domain_t::add_driver__e(const init_list_t& init_list_in)
 
     auto driver = driver_t::make(init_list_in);
     driver->set_domain(shared_obj());
+    driver->activate();
+
+    drivers.push_back(driver);
 
     return driver;
 }

@@ -56,5 +56,6 @@ pool_vector_t<string_t> split_string(const string_t& string_in, const char delim
 
 bool init_list_has(const char * name_in, const init_list_t& init_list_in);
 string_t init_list_get(const char * name_in, const init_list_t& init_list_in);
+pool_list_t<std::pair<const string_t, const string_t>> init_list_find(const char * prefix_in, const init_list_t& init_list_in);
 
 }
