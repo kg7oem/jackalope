@@ -17,6 +17,7 @@ extern "C" {
 #include <portaudio.h>
 }
 
+#include <jackalope/channel.h>
 #include <jackalope/driver.h>
 #include <jackalope/pcm.h>
 
@@ -37,6 +38,8 @@ class portaudio_driver_t : public driver_t {
 protected:
     const string_t class_name = JACKALOPE_PORTAUDIO_DRIVER_CLASS;
     portaudio_stream_t * stream = nullptr;
+    pool_list_t<weak_t<sink_t>> sinks;
+    pool_list_t<weak_t<source_t>> sources;
 
     virtual void init__e() override;
     virtual void activate__e() override;

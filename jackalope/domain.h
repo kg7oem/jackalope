@@ -13,6 +13,7 @@
 
 #pragma once
 
+#include <jackalope/channel.h>
 #include <jackalope/driver.h>
 #include <jackalope/node.h>
 #include <jackalope/string.h>
@@ -28,6 +29,8 @@ class domain_t : public baseobj_t, public shared_obj_t<domain_t>, public propobj
 protected:
     const init_list_t init_args;
     pool_list_t<shared_t<driver_t>> drivers;
+    pool_map_t<string_t, shared_t<source_t>> sources;
+    pool_map_t<string_t, shared_t<sink_t>> sinks;
 
     virtual void init__e();
     virtual void run__e();
@@ -40,6 +43,8 @@ public:
     virtual void init();
     virtual void run();
     virtual void stop();
+    virtual shared_t<source_t> add_source(const string_t& name_in, const string_t& type_in);
+    virtual shared_t<sink_t> add_sink(const string_t& name_in, const string_t& type_in);
     virtual shared_t<driver_t> add_driver(const init_list_t& init_list_in);
     virtual shared_t<driver_t> add_driver__e(const init_list_t& init_list_in);
     virtual shared_t<node_t> add_node(const init_list_t& init_list_in);

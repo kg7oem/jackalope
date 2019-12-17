@@ -95,13 +95,24 @@ void portaudio_driver_t::activate__e()
     get_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE).set(sample_rate);
     get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE).set(buffer_size);
 
-    auto found_sources = init_list_find("source", init_args);
-    auto found_sinks = init_list_find("sink", init_args);
+    for (auto& i : init_list_find("source", init_args)) {
+        auto source_name = split_string(i.first, ':').at(1);
+        auto source_type = i.second;
+        auto source = get_domain__e()->add_source(source_name, source_type);
+        sources.push_back(source);
+    }
+
+    for (auto& i : init_list_find("sink", init_args)) {
+        auto sink_name = split_string(i.first, ':').at(0);
+        auto sink_type = i.second;
+        auto sink = get_domain__e()->add_sink(sink_name, sink_type);
+        sinks.push_back(sink);
+    }
 
     auto lock = get_portaudio_lock();
     auto userdata = static_cast<void *>(this);
 
-    auto err = Pa_OpenDefaultStream(&stream, found_sources.size(), found_sinks.size(), paFloat32, sample_rate, buffer_size, process_cb, userdata);
+    auto err = Pa_OpenDefaultStream(&stream, sources.size(), sinks.size(), paFloat32, sample_rate, buffer_size, process_cb, userdata);
 
     if (err != paNoError) {
         throw_runtime_error("Could not open portaudio default stream: ", Pa_GetErrorText(err));

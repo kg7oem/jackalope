@@ -106,4 +106,18 @@ shared_t<node_t> domain_t::add_node(const init_list_t&)
     return make_shared<node_t>();
 }
 
+shared_t<source_t> domain_t::add_source(const string_t& name_in, const string_t& type_in)
+{
+    auto source = jackalope::make_shared<source_t>(name_in, type_in);
+    sources[name_in] = source;
+    return source;
+}
+
+shared_t<sink_t> domain_t::add_sink(const string_t& name_in, const string_t& type_in)
+{
+    auto sink = jackalope::make_shared<sink_t>(name_in, type_in);
+    sinks[name_in] = sink;
+    return sink;
+}
+
 } // namespace jackalope

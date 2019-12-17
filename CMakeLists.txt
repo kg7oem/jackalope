@@ -33,7 +33,7 @@ find_package(Threads REQUIRED)
 add_library(
     jackalope SHARED
 
-#    jackalope/channel.cxx
+    jackalope/channel.cxx
     jackalope/domain.cxx
     jackalope/driver.cxx
     jackalope/jackalope.cxx
