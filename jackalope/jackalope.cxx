@@ -12,9 +12,11 @@
 // GNU Lesser General Public License for more details.
 
 #include <jackalope/jackalope.h>
+#include <jackalope/pcm.h>
 #include <jackalope/pcm/portaudio.h>
 
 void jackalope_init()
 {
+    jackalope::pcm_init();
     jackalope::pcm::portaudio_init();
 }

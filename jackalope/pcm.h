@@ -13,6 +13,7 @@
 
 #pragma once
 
+#include <jackalope/channel.h>
 #include <jackalope/pcm.tools.h>
 #include <jackalope/types.h>
 
@@ -22,5 +23,25 @@
 #define JACKALOPE_PCM_PROPERTY_SAMPLE_RATE  "pcm:sample_rate"
 
 namespace jackalope {
+
+void pcm_init();
+
+template <typename T>
+class pcm_source_t : public source_t {
+
+public:
+    pcm_source_t(const string_t& name_in, const string_t& type_in)
+    : source_t(name_in, type_in)
+    { }
+};
+
+template <typename T>
+class pcm_sink_t : public sink_t {
+
+public:
+    pcm_sink_t(const string_t& name_in, const string_t& type_in)
+    : sink_t(name_in, type_in)
+    { }
+};
 
 } // namespace jackalope
