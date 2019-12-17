@@ -44,6 +44,8 @@ int main(int argc_in, char ** )
 
     auto driver = domain->add_driver({
         { "driver:class", "pcm::portaudio" },
+        { "source:left", "pcm[real]" },
+        { "source:right", "pcm[real]" },
         { "sink:left", "pcm[real]" },
         { "sink:right", "pcm[real]" },
     });

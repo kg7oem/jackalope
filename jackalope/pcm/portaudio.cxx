@@ -136,10 +136,11 @@ void portaudio_driver_t::start__e()
     driver_t::start__e();
 }
 
-int portaudio_driver_t::process(const void * , void * sink_buffer_in, size_t frames_per_buffer_in, const portaudio_stream_cb_time_info_t *, portaudio_stream_cb_flags status_flags_in)
+int portaudio_driver_t::process(const void * source_buffer_in, void * sink_buffer_in, size_t frames_per_buffer_in, const portaudio_stream_cb_time_info_t *, portaudio_stream_cb_flags status_flags_in)
 {
-    auto lock = get_portaudio_lock();
-    // auto source_buffer = static_cast<const real_t *>(source_buffer_in);
+    auto obj_lock = get_object_lock();
+    auto pa_lock = get_portaudio_lock();
+    auto source_buffer = static_cast<const real_t *>(source_buffer_in);
     auto sink_buffer = static_cast<real_t *>(sink_buffer_in);
 
     if (frames_per_buffer_in != get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE).get_size()) {
@@ -177,23 +178,31 @@ int portaudio_driver_t::process(const void * , void * sink_buffer_in, size_t fra
         }
     }
 
-    // FIXME just a stub
-    auto found_sinks = init_list_find("sink", init_args);
-    size_t num_samples = found_sinks.size() * frames_per_buffer_in;
-    pcm_zero(sink_buffer, num_samples);
+    auto sources_count = sources.size();
+    auto sinks_count = sinks.size();
+    size_t channel;
 
-    // auto& domain_inputs = domain->get_inputs();
-    // auto& domain_outputs = domain->get_outputs();
+    channel = 0;
+    for(auto& i : sources) {
+        auto source = dynamic_pointer_cast<pcm_source_t<real_t>>(i.lock());
+        auto& buffer = source->get_buffer();
 
-    // if (domain_inputs.size() != 2) {
-    //     throw_runtime_error("portaudio can only handle a domain with 2 inputs");
-    // }
+        pcm_extract_interleave(source_buffer, buffer.get_pointer(), channel, sources_count, frames_per_buffer_in);
 
-    // if (domain_outputs.size() != 0) {
-    //     throw_runtime_error("portaudio can not handle a domain with any outputs");
-    // }
+        channel++;
+    }
 
-    // domain->process(source_buffer, sink_buffer);
+    // FIXME the nodes need to run here
+
+    channel = 0;
+    for(auto& i : sinks) {
+        auto sink = dynamic_pointer_cast<pcm_sink_t<real_t>>(i.lock());
+        auto& buffer = sink->get_buffer();
+
+        pcm_insert_interleave(buffer.get_pointer(), sink_buffer, channel, sinks_count, frames_per_buffer_in);
+
+        channel++;
+    }
 
     return 0;
 }

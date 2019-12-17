@@ -54,11 +54,16 @@ public:
 
     void set_num_samples(const size_t num_samples_in)
     {
+        if (num_samples_in == 0) {
+            throw_runtime_error("number of samples must be greater than 0");
+        }
+
         if (data != nullptr) {
             delete data;
         }
 
         data = new T[num_samples_in];
+        pcm_zero(data, num_samples_in);
     }
 
     T * get_pointer()
@@ -71,10 +76,27 @@ public:
 template <typename T>
 class pcm_source_t : public source_t {
 
+protected:
+    pcm_buffer_t<T> buffer;
+
 public:
     pcm_source_t(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)
     : source_t(name_in, type_in, parent_in)
     { }
+
+    virtual void activate() override
+    {
+        auto& buffer_size_prop = get_parent()->get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE);
+
+        buffer.set_num_samples(buffer_size_prop.get_size());
+
+        source_t::activate();
+    }
+
+    pcm_buffer_t<T>& get_buffer()
+    {
+        return buffer;
+    }
 };
 
 template <typename T>
@@ -95,6 +117,11 @@ public:
         buffer.set_num_samples(buffer_size_prop.get_size());
 
         sink_t::activate();
+    }
+
+    pcm_buffer_t<T>& get_buffer()
+    {
+        return buffer;
     }
 };
 

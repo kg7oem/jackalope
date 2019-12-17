@@ -32,7 +32,7 @@ void pcm_zero(T * pcm_in, const size_t num_samples_in)
 }
 
 template <typename T>
-void pcm_extract_interleaved_channel(const T * source_in, T * dest_in, const size_t extract_channel_in, const size_t num_channels_in, const size_t num_samples_in)
+void pcm_extract_interleave(const T * source_in, T * dest_in, const size_t extract_channel_in, const size_t num_channels_in, const size_t num_samples_in)
 {
     for(size_t i = 0; i < num_samples_in; i++) {
         auto sample_num = num_channels_in * i + extract_channel_in;
@@ -41,7 +41,7 @@ void pcm_extract_interleaved_channel(const T * source_in, T * dest_in, const siz
 }
 
 template <typename T>
-void pcm_interleave(const T * source_in, T * dest_in, const size_t interleave_num_in, const size_t num_channels_in, const size_t num_samples_in)
+void pcm_insert_interleave(const T * source_in, T * dest_in, const size_t interleave_num_in, const size_t num_channels_in, const size_t num_samples_in)
 {
     for(size_t i = 0; i < num_samples_in; i++) {
         auto sample_num = num_channels_in * i + interleave_num_in;
