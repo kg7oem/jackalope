@@ -20,7 +20,7 @@ namespace jackalope {
 
 class domain_t;
 
-struct node_t : public baseobj_t, public shared_obj_t<node_t>, public lockable_t {
+struct node_t : public base_t, public shared_obj_t<node_t>, public lockable_t {
 
 public:
     void connect(const string_t& from_in, shared_t<domain_t> domain_in, const string_t& to_in);

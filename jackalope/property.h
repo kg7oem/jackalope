@@ -18,7 +18,7 @@
 
 namespace jackalope {
 
-class property_t : public baseobj_t {
+class property_t : public base_t {
 
 public:
     enum class type_t { unknown, size, integer, real, string };
@@ -56,7 +56,7 @@ public:
     void set_string(const string_t& string_in);
 };
 
-class propobj_t {
+class prop_obj_t {
 
 protected:
     pool_map_t<string_t, property_t> properties;

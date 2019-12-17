@@ -29,7 +29,7 @@ using driver_constructor_t = function_t<shared_t<driver_t> (init_list_t init_lis
 void add_driver_constructor(const string_t& class_name_in, driver_constructor_t constructor_in);
 driver_constructor_t get_driver_constructor(const string_t& class_name_in);
 
-class driver_t : public baseobj_t, public shared_obj_t<driver_t>, public lockable_t, protected propobj_t {
+class driver_t : public base_t, public shared_obj_t<driver_t>, public lockable_t, protected prop_obj_t {
 
 protected:
     const init_list_t init_args;

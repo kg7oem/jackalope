@@ -70,13 +70,13 @@ struct runtime_error_t : public std::runtime_error {
     runtime_error_t(const char * what_in);
 };
 
-struct baseobj_t {
-    baseobj_t(const baseobj_t&) = delete;
-    baseobj_t(const baseobj_t&&) = delete;
-    baseobj_t& operator=(const baseobj_t&);
+struct base_t {
+    base_t(const base_t&) = delete;
+    base_t(const base_t&&) = delete;
+    base_t& operator=(const base_t&);
 
-    baseobj_t() = default;
-    virtual ~baseobj_t() = default;
+    base_t() = default;
+    virtual ~base_t() = default;
 };
 
 }

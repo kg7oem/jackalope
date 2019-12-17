@@ -28,7 +28,7 @@ namespace jackalope {
 void pcm_init();
 
 template <typename T>
-class pcm_buffer_t : public baseobj_t {
+class pcm_buffer_t : public base_t {
 
 protected:
     size_t num_samples = 0;

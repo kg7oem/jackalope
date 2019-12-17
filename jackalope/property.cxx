@@ -179,7 +179,7 @@ string_t& property_t::get_string()
     return *value.string;
 }
 
-property_t& propobj_t::add_property(const string_t& name_in, property_t::type_t type_in)
+property_t& prop_obj_t::add_property(const string_t& name_in, property_t::type_t type_in)
 {
     auto result = properties.emplace(std::make_pair(name_in, type_in));
 
@@ -192,7 +192,7 @@ property_t& propobj_t::add_property(const string_t& name_in, property_t::type_t 
     return property;
 }
 
-property_t& propobj_t::get_property(const string_t& name_in)
+property_t& prop_obj_t::get_property(const string_t& name_in)
 {
     auto found = properties.find(name_in);
 

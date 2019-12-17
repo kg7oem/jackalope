@@ -28,7 +28,7 @@ struct connection_t;
 
 using slot_handler_t = function_t<void (signal_t * sender_in)>;
 
-struct signal_t : public baseobj_t {
+struct signal_t : public base_t {
     const string_t name;
     pool_list_t<connection_t *> connections;
 
@@ -37,7 +37,7 @@ struct signal_t : public baseobj_t {
     void send();
 };
 
-struct slot_t : public baseobj_t {
+struct slot_t : public base_t {
     const string_t name;
     const slot_handler_t handler;
 
@@ -45,7 +45,7 @@ struct slot_t : public baseobj_t {
     void invoke(signal_t * sender_in);
 };
 
-struct connection_t : public baseobj_t {
+struct connection_t : public base_t {
     signal_t * from;
     slot_t * to;
 

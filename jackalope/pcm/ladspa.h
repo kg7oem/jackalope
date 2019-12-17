@@ -39,7 +39,7 @@ using ladspa_id_t = size_t;
 using ladspa_port_descriptor_t = LADSPA_PortDescriptor;
 using ladspa_descriptor_function_t = LADSPA_Descriptor_Function;
 
-struct ladspa_file_t : public baseobj_t {
+struct ladspa_file_t : public base_t {
     ladspa_descriptor_function_t descriptor_fn = nullptr;
     pool_map_t<ladspa_id_t, const ladspa_descriptor_t *> id_to_descriptor;
     void * handle = nullptr;
@@ -53,7 +53,7 @@ struct ladspa_file_t : public baseobj_t {
     const ladspa_descriptor_t * get_descriptor(const ladspa_id_t id_in);
 };
 
-struct ladspa_instance_t : public baseobj_t {
+struct ladspa_instance_t : public base_t {
     ladspa_file_t& file;
     const ladspa_id_t id;
     const ladspa_descriptor_t * descriptor = nullptr;

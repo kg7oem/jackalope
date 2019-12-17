@@ -24,7 +24,7 @@ namespace jackalope {
 
 class domain_t;
 
-class domain_t : public baseobj_t, public shared_obj_t<domain_t>, public propobj_t, protected lockable_t {
+class domain_t : public base_t, public shared_obj_t<domain_t>, public prop_obj_t, protected lockable_t {
 
 protected:
     const init_list_t init_args;

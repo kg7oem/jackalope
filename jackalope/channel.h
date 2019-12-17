@@ -30,7 +30,7 @@ void add_sink_constructor(const string_t& class_name_in, sink_constructor_t cons
 source_constructor_t get_source_constructor(const string_t& class_name_in);
 sink_constructor_t get_sink_constructor(const string_t& class_name_in);
 
-class channel_t : baseobj_t {
+class channel_t : base_t {
 
 protected:
     channel_t(const string_t& name_in, const string_t& type_in);
