@@ -60,6 +60,15 @@ void domain_t::run()
 void domain_t::run__e()
 {
     assert_lockable_owner();
+
+    for(auto i : drivers) {
+        i->start();
+    }
+
+    while(1) {
+        using namespace std::chrono_literals;
+        std::this_thread::sleep_for(1s);
+    }
 }
 
 void domain_t::stop()

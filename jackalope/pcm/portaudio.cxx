@@ -125,11 +125,11 @@ void portaudio_driver_t::start__e()
     driver_t::start__e();
 }
 
-int portaudio_driver_t::process(const void * , void * , size_t frames_per_buffer_in, const portaudio_stream_cb_time_info_t *, portaudio_stream_cb_flags status_flags_in)
+int portaudio_driver_t::process(const void * , void * sink_buffer_in, size_t frames_per_buffer_in, const portaudio_stream_cb_time_info_t *, portaudio_stream_cb_flags status_flags_in)
 {
     auto lock = get_portaudio_lock();
     // auto source_buffer = static_cast<const real_t *>(source_buffer_in);
-    // auto sink_buffer = static_cast<real_t *>(sink_buffer_in);
+    auto sink_buffer = static_cast<real_t *>(sink_buffer_in);
 
     if (frames_per_buffer_in != get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE).get_size()) {
         throw_runtime_error("portaudio frames per buffer did not match buffer size: ", frames_per_buffer_in);
@@ -165,6 +165,11 @@ int portaudio_driver_t::process(const void * , void * , size_t frames_per_buffer
             throw_runtime_error("portaudio callback got unknown statusFlags: ", status_flags_in);
         }
     }
+
+    // FIXME just a stub
+    auto found_sinks = init_list_find("sink", init_args);
+    size_t num_samples = found_sinks.size() * frames_per_buffer_in;
+    pcm_zero(sink_buffer, num_samples);
 
     // auto& domain_inputs = domain->get_inputs();
     // auto& domain_outputs = domain->get_outputs();

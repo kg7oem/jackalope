@@ -13,6 +13,7 @@
 
 #pragma once
 
+#include <jackalope/pcm.tools.h>
 #include <jackalope/types.h>
 
 #define JACKALOPE_PCM_CHANNEL_TYPE_REAL    "pcm[real]"
