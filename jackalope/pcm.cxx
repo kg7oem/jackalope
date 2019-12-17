@@ -16,14 +16,14 @@
 
 namespace jackalope {
 
-static shared_t<source_t> pcm_source_real_constructor(const string_t& name_in, const string_t& type_in)
+static shared_t<source_t> pcm_source_real_constructor(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)
 {
-    return jackalope::make_shared<pcm_source_t<real_t>>(name_in, type_in);
+    return jackalope::make_shared<pcm_source_t<real_t>>(name_in, type_in, parent_in);
 }
 
-static shared_t<sink_t> pcm_sink_real_constructor(const string_t& name_in, const string_t& type_in)
+static shared_t<sink_t> pcm_sink_real_constructor(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)
 {
-    return jackalope::make_shared<pcm_sink_t<real_t>>(name_in, type_in);
+    return jackalope::make_shared<pcm_sink_t<real_t>>(name_in, type_in, parent_in);
 }
 
 void pcm_init()

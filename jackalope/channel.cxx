@@ -61,28 +61,45 @@ sink_constructor_t get_sink_constructor(const string_t& class_name_in)
     return found->second;
 }
 
-channel_t::channel_t(const string_t& name_in, const string_t& type_in)
-: name(name_in), type(type_in)
+channel_t::channel_t(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)
+: parent(parent_in), name(name_in), type(type_in)
 { }
 
-shared_t<source_t> source_t::make(const string_t& name_in, const string_t& type_in)
+shared_t<object_t> channel_t::get_parent()
+{
+    assert(! parent.expired());
+
+    return parent.lock();
+}
+
+void channel_t::init()
+{ }
+
+void channel_t::activate()
+{ }
+
+shared_t<source_t> source_t::make(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)
 {
     auto constructor = get_source_constructor(type_in);
-    return constructor(name_in, type_in);
+    auto source = constructor(name_in, type_in, parent_in);
+    source->init();
+    return source;
 }
 
-source_t::source_t(const string_t& name_in, const string_t& type_in)
-: channel_t(name_in, type_in)
+source_t::source_t(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)
+: channel_t(name_in, type_in, parent_in)
 { }
 
-shared_t<sink_t> sink_t::make(const string_t& name_in, const string_t& type_in)
+shared_t<sink_t> sink_t::make(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)
 {
     auto constructor = get_sink_constructor(type_in);
-    return constructor(name_in, type_in);
+    auto sink = constructor(name_in, type_in, parent_in);
+    sink->init();
+    return sink;
 }
 
-sink_t::sink_t(const string_t& name_in, const string_t& type_in)
-: channel_t(name_in, type_in)
+sink_t::sink_t(const string_t& name_in, const string_t& type_in,  shared_t<object_t> parent_in)
+: channel_t(name_in, type_in, parent_in)
 { }
 
 } // namespace jackalope

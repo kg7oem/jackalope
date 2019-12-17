@@ -95,7 +95,9 @@ shared_t<source_t> domain_t::add_source(const string_t& name_in, const string_t&
     }
 
     auto source = source_t::make(name_in, type_in, shared_obj());
+    source->activate();
     sources[name_in] = source;
+
     return source;
 }
 
@@ -106,7 +108,9 @@ shared_t<sink_t> domain_t::add_sink(const string_t& name_in, const string_t& typ
     }
 
     auto sink = sink_t::make(name_in, type_in, shared_obj());
+    sink->activate();
     sinks[name_in] = sink;
+
     return sink;
 }
 

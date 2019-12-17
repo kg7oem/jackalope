@@ -13,6 +13,7 @@
 
 #pragma once
 
+#include <jackalope/object.h>
 #include <jackalope/string.h>
 #include <jackalope/types.h>
 
@@ -22,8 +23,8 @@ class channel_t;
 class source_t;
 class sink_t;
 
-using source_constructor_t = function_t<shared_t<source_t> (const string_t& name_in, const string_t& type_in)>;
-using sink_constructor_t = function_t<shared_t<sink_t> (const string_t& name_in, const string_t& type_in)>;
+using source_constructor_t = function_t<shared_t<source_t> (const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)>;
+using sink_constructor_t = function_t<shared_t<sink_t> (const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)>;
 
 void add_source_constructor(const string_t& class_name_in, source_constructor_t constructor_in);
 void add_sink_constructor(const string_t& class_name_in, sink_constructor_t constructor_in);
@@ -33,25 +34,31 @@ sink_constructor_t get_sink_constructor(const string_t& class_name_in);
 class channel_t : base_t {
 
 protected:
-    channel_t(const string_t& name_in, const string_t& type_in);
+    weak_t<object_t> parent;
+
+    channel_t(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in);
 
 public:
     const string_t name;
     const string_t type;
+
+    shared_t<object_t> get_parent();
+    virtual void init();
+    virtual void activate();
 };
 
 class source_t : public channel_t {
 
 public:
-    static shared_t<source_t> make(const string_t& name_in, const string_t& type_in);
-    source_t(const string_t& name_in, const string_t& type_in);
+    static shared_t<source_t> make(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in);
+    source_t(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in);
 };
 
 class sink_t : public channel_t {
 
 public:
-    static shared_t<sink_t> make(const string_t& name_in, const string_t& type_in);
-    sink_t(const string_t& name_in, const string_t& type_in);
+    static shared_t<sink_t> make(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in);
+    sink_t(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in);
 };
 
 } // namespace jackalope

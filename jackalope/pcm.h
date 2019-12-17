@@ -72,8 +72,8 @@ template <typename T>
 class pcm_source_t : public source_t {
 
 public:
-    pcm_source_t(const string_t& name_in, const string_t& type_in)
-    : source_t(name_in, type_in)
+    pcm_source_t(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)
+    : source_t(name_in, type_in, parent_in)
     { }
 };
 
@@ -84,9 +84,18 @@ protected:
     pcm_buffer_t<T> buffer;
 
 public:
-    pcm_sink_t(const string_t& name_in, const string_t& type_in)
-    : sink_t(name_in, type_in)
+    pcm_sink_t(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)
+    : sink_t(name_in, type_in, parent_in)
     { }
+
+    virtual void activate() override
+    {
+        auto& buffer_size_prop = get_parent()->get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE);
+
+        buffer.set_num_samples(buffer_size_prop.get_size());
+
+        sink_t::activate();
+    }
 };
 
 } // namespace jackalope
