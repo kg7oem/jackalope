@@ -103,7 +103,7 @@ void portaudio_driver_t::activate__e()
     }
 
     for (auto& i : init_list_find("sink", init_args)) {
-        auto sink_name = split_string(i.first, ':').at(0);
+        auto sink_name = split_string(i.first, ':').at(1);
         auto sink_type = i.second;
         auto sink = get_domain__e()->add_sink(sink_name, sink_type);
         sinks.push_back(sink);
