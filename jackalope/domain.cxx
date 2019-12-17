@@ -90,14 +90,22 @@ shared_t<node_t> domain_t::add_node(const init_list_t&)
 
 shared_t<source_t> domain_t::add_source(const string_t& name_in, const string_t& type_in)
 {
-    auto source = source_t::make(name_in, type_in);
+    if (sources.find(name_in) != sources.end()) {
+        throw_runtime_error("Attempt to add duplicate source: ", name_in);
+    }
+
+    auto source = source_t::make(name_in, type_in, shared_obj());
     sources[name_in] = source;
     return source;
 }
 
 shared_t<sink_t> domain_t::add_sink(const string_t& name_in, const string_t& type_in)
 {
-    auto sink = sink_t::make(name_in, type_in);
+    if (sinks.find(name_in) != sinks.end()) {
+        throw_runtime_error("Attempt to add duplicate sink: ", name_in);
+    }
+
+    auto sink = sink_t::make(name_in, type_in, shared_obj());
     sinks[name_in] = sink;
     return sink;
 }
