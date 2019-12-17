@@ -37,14 +37,15 @@ int main(int argc_in, char ** )
 
     jackalope_init();
 
-    auto domain = make_domain();
+    auto domain = domain_t::make({
+        { "pcm:sample_rate", to_string(SAMPLE_RATE) },
+        { "pcm:buffer_size", to_string(BUFFER_SIZE) },
+    });
 
     auto driver = domain->add_driver({
         { "driver:class", "pcm::portaudio" },
         { "sink:left", "pcm[real]" },
         { "sink:right", "pcm[real]" },
-        { "config:sample rate", to_string(SAMPLE_RATE) },
-        { "config:buffer size", to_string(BUFFER_SIZE) },
     });
 
     // auto input_file = domain->add_node({

@@ -23,25 +23,24 @@ namespace jackalope {
 
 class domain_t;
 
-template <typename... Args>
-shared_t<domain_t> make_domain(Args... args)
-{
-    auto domain = make_shared<domain_t>(args...);
-    domain->init();
-    return domain;
-}
-
-class domain_t : public baseobj_t, public shared_obj_t<domain_t>, protected lockable_t {
+class domain_t : public baseobj_t, public shared_obj_t<domain_t>, protected lockable_t, public propobj_t {
 
 protected:
+    const init_list_t init_args;
+
     virtual void init__e();
     virtual void run__e();
+    virtual void stop__e();
 
 public:
+    static shared_t<domain_t> make(const init_list_t& init_list_in);
+    domain_t(const init_list_t& init_list_in);
     virtual ~domain_t() = default;
     virtual void init();
     virtual void run();
+    virtual void stop();
     virtual shared_t<driver_t> add_driver(const init_list_t& init_list_in);
+    virtual shared_t<driver_t> add_driver__e(const init_list_t& init_list_in);
     virtual shared_t<node_t> add_node(const init_list_t& init_list_in);
 };
 

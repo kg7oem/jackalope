@@ -12,8 +12,23 @@
 // GNU Lesser General Public License for more details.
 
 #include <jackalope/domain.h>
+#include <jackalope/pcm.h>
 
 namespace jackalope {
+
+shared_t<domain_t> domain_t::make(const init_list_t& init_list_in)
+{
+    auto domain = jackalope::make_shared<domain_t>(init_list_in);
+    domain->init();
+    return domain;
+}
+
+domain_t::domain_t(const init_list_t& init_list_in)
+: init_args(init_list_in)
+{
+    add_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE, property_t::type_t::size);
+    add_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE, property_t::type_t::size);
+}
 
 void domain_t::init()
 {
@@ -24,6 +39,16 @@ void domain_t::init()
 void domain_t::init__e()
 {
     assert_lockable_owner();
+
+    if (init_list_has(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE, init_args)) {
+        auto value = init_list_get(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE, init_args);
+        get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE).set(value);
+    }
+
+    if (init_list_has(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE, init_args)) {
+        auto value = init_list_get(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE, init_args);
+        get_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE).set(value);
+    }
 }
 
 void domain_t::run()
@@ -37,8 +62,27 @@ void domain_t::run__e()
     assert_lockable_owner();
 }
 
-shared_t<driver_t> domain_t::add_driver(const init_list_t&)
+void domain_t::stop()
 {
+    auto lock = get_object_lock();
+    return stop__e();
+}
+
+void domain_t::stop__e()
+{
+    assert_lockable_owner();
+}
+
+shared_t<driver_t> domain_t::add_driver(const init_list_t& init_list_in)
+{
+    auto lock = get_object_lock();
+    return add_driver__e(init_list_in);
+}
+
+shared_t<driver_t> domain_t::add_driver__e(const init_list_t&)
+{
+    assert_lockable_owner();
+
     return make_shared<driver_t>();
 }
 

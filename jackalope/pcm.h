@@ -13,9 +13,10 @@
 
 #pragma once
 
-#define JACKALOPE_PCM_CHANNEL_CLASS         "pcm"
-#define JACKALOPE_PCM_CHANNEL_CLASS_REAL    "pcm[real]"
-#define JACKALOPE_PCM_CHANNEL_CLASS_QUAD    "pcm[quad]"
+#include <jackalope/types.h>
+
+#define JACKALOPE_PCM_CHANNEL_TYPE_REAL    "pcm[real]"
+#define JACKALOPE_PCM_CHANNEL_TYPE_QUAD    "pcm[quad]"
 #define JACKALOPE_PCM_PROPERTY_BUFFER_SIZE  "pcm:buffer_size"
 #define JACKALOPE_PCM_PROPERTY_SAMPLE_RATE  "pcm:sample_rate"
 

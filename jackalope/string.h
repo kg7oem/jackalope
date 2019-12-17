@@ -54,4 +54,7 @@ void split_string(const string_t &string_in, const char delim_in, Out result) {
 
 pool_vector_t<string_t> split_string(const string_t& string_in, const char delim_in);
 
+bool init_list_has(const char * name_in, const init_list_t& init_list_in);
+string_t init_list_get(const char * name_in, const init_list_t& init_list_in);
+
 }

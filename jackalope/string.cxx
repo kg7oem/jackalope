@@ -11,6 +11,9 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
+#include <cstring>
+
+#include <jackalope/exception.h>
 #include <jackalope/string.h>
 
 namespace jackalope {
@@ -23,6 +26,32 @@ pool_vector_t<string_t> split_string(const string_t& string_in, const char delim
     split_string(string_in, delim_in, std::back_inserter(parts));
 
     return parts;
+}
+
+bool init_list_has(const char * name_in, const init_list_t& init_list_in)
+{
+    auto name = to_string(name_in);
+
+    for(auto i : init_list_in) {
+        if (i.first == name) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+string_t init_list_get(const char * name_in, const init_list_t& init_list_in)
+{
+    auto name = to_string(name_in);
+
+    for(auto i : init_list_in) {
+        if (i.first == name) {
+            return i.second;
+        }
+    }
+
+    throw_runtime_error("could not find init arg: ", name);
 }
 
 } // namespace jackalope
