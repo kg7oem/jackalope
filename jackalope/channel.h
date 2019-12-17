@@ -13,15 +13,12 @@
 
 #pragma once
 
+#include <jackalope/channel.forward.h>
 #include <jackalope/object.h>
 #include <jackalope/string.h>
 #include <jackalope/types.h>
 
 namespace jackalope {
-
-class channel_t;
-class source_t;
-class sink_t;
 
 using source_constructor_t = function_t<shared_t<source_t> (const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)>;
 using sink_constructor_t = function_t<shared_t<sink_t> (const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)>;

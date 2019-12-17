@@ -10,6 +10,8 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
+#include <jackalope/channel.h>
+#include <jackalope/exception.h>
 #include <jackalope/object.h>
 
 namespace jackalope {
@@ -60,6 +62,32 @@ void object_t::stop()
 void object_t::stop__e()
 {
     assert_lockable_owner();
+}
+
+shared_t<source_t> object_t::add_source(const string_t& name_in, const string_t& type_in)
+{
+    if (sources.find(name_in) != sources.end()) {
+        throw_runtime_error("Attempt to add duplicate source: ", name_in);
+    }
+
+    auto source = source_t::make(name_in, type_in, shared_obj());
+    source->activate();
+    sources[name_in] = source;
+
+    return source;
+}
+
+shared_t<sink_t> object_t::add_sink(const string_t& name_in, const string_t& type_in)
+{
+    if (sinks.find(name_in) != sinks.end()) {
+        throw_runtime_error("Attempt to add duplicate sink: ", name_in);
+    }
+
+    auto sink = sink_t::make(name_in, type_in, shared_obj());
+    sink->activate();
+    sinks[name_in] = sink;
+
+    return sink;
 }
 
 } // namespace jackalope

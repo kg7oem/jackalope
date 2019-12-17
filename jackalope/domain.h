@@ -25,12 +25,10 @@ namespace jackalope {
 
 class domain_t;
 
-class domain_t : public base_t, public shared_obj_t<domain_t>, public object_t {
+class domain_t : public base_t, public object_t {
 
 protected:
     pool_list_t<shared_t<driver_t>> drivers;
-    pool_map_t<string_t, shared_t<source_t>> sources;
-    pool_map_t<string_t, shared_t<sink_t>> sinks;
 
     virtual void init__e() override;
     virtual void run__e() override;
@@ -40,8 +38,6 @@ public:
     static shared_t<domain_t> make(const init_list_t& init_list_in);
     domain_t(const init_list_t& init_list_in);
     virtual ~domain_t() = default;
-    virtual shared_t<source_t> add_source(const string_t& name_in, const string_t& type_in);
-    virtual shared_t<sink_t> add_sink(const string_t& name_in, const string_t& type_in);
     virtual shared_t<driver_t> add_driver(const init_list_t& init_list_in);
     virtual shared_t<driver_t> add_driver__e(const init_list_t& init_list_in);
     virtual shared_t<node_t> add_node(const init_list_t& init_list_in);

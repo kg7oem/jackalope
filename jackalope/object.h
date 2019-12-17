@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <jackalope/channel.forward.h>
 #include <jackalope/property.h>
 #include <jackalope/string.h>
 #include <jackalope/thread.h>
@@ -19,10 +20,12 @@
 
 namespace jackalope {
 
-class object_t : public prop_obj_t, public lockable_t {
+class object_t : public prop_obj_t, public lockable_t, public shared_obj_t<object_t> {
 
 protected:
     const init_list_t init_args;
+    pool_map_t<string_t, shared_t<source_t>> sources;
+    pool_map_t<string_t, shared_t<sink_t>> sinks;
 
 public:
     object_t(const init_list_t& init_list_in);
@@ -34,6 +37,8 @@ public:
     virtual void run__e();
     virtual void stop();
     virtual void stop__e();
+    virtual shared_t<source_t> add_source(const string_t& name_in, const string_t& type_in);
+    virtual shared_t<sink_t> add_sink(const string_t& name_in, const string_t& type_in);
 };
 
 } // namespace jackalope

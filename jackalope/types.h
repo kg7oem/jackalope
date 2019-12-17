@@ -54,7 +54,6 @@ template <class T>
 using weak_t = std::weak_ptr<T>;
 
 template<typename T>
-//using shared_obj_t = std::enable_shared_from_this<T>;
 struct shared_obj_t : public std::enable_shared_from_this<T> {
     shared_t<T> shared_from_this() = delete;
 

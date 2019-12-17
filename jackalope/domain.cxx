@@ -75,7 +75,7 @@ shared_t<driver_t> domain_t::add_driver__e(const init_list_t& init_list_in)
     assert_lockable_owner();
 
     auto driver = driver_t::make(init_list_in);
-    driver->set_domain(shared_obj());
+    driver->set_domain(shared_obj<domain_t>());
     driver->activate();
 
     drivers.push_back(driver);
@@ -86,32 +86,6 @@ shared_t<driver_t> domain_t::add_driver__e(const init_list_t& init_list_in)
 shared_t<node_t> domain_t::add_node(const init_list_t&)
 {
     return make_shared<node_t>();
-}
-
-shared_t<source_t> domain_t::add_source(const string_t& name_in, const string_t& type_in)
-{
-    if (sources.find(name_in) != sources.end()) {
-        throw_runtime_error("Attempt to add duplicate source: ", name_in);
-    }
-
-    auto source = source_t::make(name_in, type_in, shared_obj());
-    source->activate();
-    sources[name_in] = source;
-
-    return source;
-}
-
-shared_t<sink_t> domain_t::add_sink(const string_t& name_in, const string_t& type_in)
-{
-    if (sinks.find(name_in) != sinks.end()) {
-        throw_runtime_error("Attempt to add duplicate sink: ", name_in);
-    }
-
-    auto sink = sink_t::make(name_in, type_in, shared_obj());
-    sink->activate();
-    sinks[name_in] = sink;
-
-    return sink;
 }
 
 } // namespace jackalope
