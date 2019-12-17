@@ -46,10 +46,7 @@ void portaudio_init()
 
 portaudio_driver_t::portaudio_driver_t(const init_list_t& init_list_in)
 : driver_t(init_list_in)
-{
-    add_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE, property_t::type_t::size);
-    add_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE, property_t::type_t::size);
-}
+{ }
 
 portaudio_driver_t::~portaudio_driver_t()
 {
@@ -63,6 +60,9 @@ portaudio_driver_t::~portaudio_driver_t()
 void portaudio_driver_t::init__e()
 {
     assert_lockable_owner();
+
+    add_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE, property_t::type_t::size);
+    add_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE, property_t::type_t::size);
 
     driver_t::init__e();
 }

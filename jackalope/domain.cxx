@@ -25,14 +25,14 @@ shared_t<domain_t> domain_t::make(const init_list_t& init_list_in)
 
 domain_t::domain_t(const init_list_t& init_list_in)
 : object_t(init_list_in)
-{
-    add_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE, property_t::type_t::size);
-    add_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE, property_t::type_t::size);
-}
+{ }
 
 void domain_t::init__e()
 {
     assert_lockable_owner();
+
+    add_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE, property_t::type_t::size);
+    add_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE, property_t::type_t::size);
 
     if (init_list_has(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE, init_args)) {
         auto value = init_list_get(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE, init_args);
