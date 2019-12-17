@@ -26,9 +26,9 @@ static lock_t get_portaudio_lock()
     return lock_t(portaudio_mutex);
 }
 
-static shared_t<portaudio_driver_t> portaudio_driver_constructor(const string_t& node_name_in, const init_list_t init_list_in)
+static shared_t<portaudio_driver_t> portaudio_driver_constructor(const init_list_t init_list_in)
 {
-    return jackalope::make_shared<portaudio_driver_t>(node_name_in, init_list_in);
+    return jackalope::make_shared<portaudio_driver_t>(init_list_in);
 }
 
 void portaudio_init()
@@ -43,8 +43,8 @@ void portaudio_init()
     add_driver_constructor(JACKALOPE_PORTAUDIO_DRIVER_CLASS, portaudio_driver_constructor);
 }
 
-portaudio_driver_t::portaudio_driver_t(const string_t&, init_list_t)
-: driver_t()
+portaudio_driver_t::portaudio_driver_t(const init_list_t& init_list_in)
+: driver_t(init_list_in)
 {
     add_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE, property_t::type_t::size);
     add_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE, property_t::type_t::size);

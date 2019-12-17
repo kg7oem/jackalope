@@ -11,6 +11,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
+#include <jackalope/domain.h>
 #include <jackalope/driver.h>
 #include <jackalope/exception.h>
 
@@ -38,6 +39,30 @@ driver_constructor_t get_driver_constructor(const string_t& class_name_in)
     return found->second;
 }
 
+shared_t<driver_t> driver_t::make(const init_list_t& init_list_in)
+{
+    if (! init_list_has("driver:class", init_list_in)) {
+        throw_runtime_error("missing driver class in arguments");
+    }
+
+    auto driver_class = init_list_get("driver:class", init_list_in);
+    auto driver_constructor = get_driver_constructor(driver_class);
+
+    auto driver = driver_constructor(init_list_in);
+    driver->init();
+
+    return driver;
+}
+
+driver_t::driver_t(const init_list_t& init_list_in)
+: init_args(init_list_in)
+{ }
+
+void driver_t::set_domain(shared_t<domain_t> domain_in)
+{
+    domain = domain_in;
+}
+
 void driver_t::init()
 {
 
@@ -49,6 +74,11 @@ void driver_t::activate()
 }
 
 void driver_t::start()
+{
+
+}
+
+void driver_t::stop()
 {
 
 }

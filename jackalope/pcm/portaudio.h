@@ -28,7 +28,7 @@ struct portaudio_driver_t : public driver_t {
     const string_t class_name = JACKALOPE_PORTAUDIO_DRIVER_CLASS;
     portaudio_stream_t * stream = nullptr;
 
-    portaudio_driver_t(const string_t& name_in, init_list_t init_list_in = init_list_t());
+    portaudio_driver_t(const init_list_t& init_list_in);
     virtual ~portaudio_driver_t();
     virtual void init() override;
     virtual void activate() override;

@@ -21,19 +21,28 @@
 
 namespace jackalope {
 
+class domain_t;
 class driver_t;
 
-using driver_constructor_t = function_t<shared_t<driver_t> (const string_t& name_in, init_list_t init_list_in)>;
+using driver_constructor_t = function_t<shared_t<driver_t> (init_list_t init_list_in)>;
 
 void add_driver_constructor(const string_t& class_name_in, driver_constructor_t constructor_in);
 driver_constructor_t get_driver_constructor(const string_t& class_name_in);
 
 class driver_t : public baseobj_t, public shared_obj_t<driver_t>, public lockable_t, protected propobj_t {
 
+protected:
+    const init_list_t init_args;
+    weak_t<domain_t> domain;
+
 public:
+    static shared_t<driver_t> make(const init_list_t& init_list_in);
+    driver_t(const init_list_t& init_list_in);
+    virtual void set_domain(shared_t<domain_t>);
     virtual void init();
     virtual void activate();
     virtual void start();
+    virtual void stop();
 };
 
 } // namespace jackalope

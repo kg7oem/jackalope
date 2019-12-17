@@ -79,11 +79,14 @@ shared_t<driver_t> domain_t::add_driver(const init_list_t& init_list_in)
     return add_driver__e(init_list_in);
 }
 
-shared_t<driver_t> domain_t::add_driver__e(const init_list_t&)
+shared_t<driver_t> domain_t::add_driver__e(const init_list_t& init_list_in)
 {
     assert_lockable_owner();
 
-    return make_shared<driver_t>();
+    auto driver = driver_t::make(init_list_in);
+    driver->set_domain(shared_obj());
+
+    return driver;
 }
 
 shared_t<node_t> domain_t::add_node(const init_list_t&)
