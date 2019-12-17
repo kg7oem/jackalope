@@ -33,10 +33,11 @@ sink_constructor_t get_sink_constructor(const string_t& class_name_in);
 class channel_t : baseobj_t {
 
 protected:
+    channel_t(const string_t& name_in, const string_t& type_in);
+
+public:
     const string_t name;
     const string_t type;
-
-    channel_t(const string_t& name_in, const string_t& type_in);
 };
 
 class source_t : public channel_t {

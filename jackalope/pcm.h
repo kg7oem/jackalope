@@ -14,6 +14,7 @@
 #pragma once
 
 #include <jackalope/channel.h>
+#include <jackalope/exception.h>
 #include <jackalope/pcm.tools.h>
 #include <jackalope/types.h>
 
@@ -27,6 +28,47 @@ namespace jackalope {
 void pcm_init();
 
 template <typename T>
+class pcm_buffer_t : public baseobj_t {
+
+protected:
+    size_t num_samples = 0;
+    T * data = nullptr;
+
+public:
+    pcm_buffer_t() { }
+
+    pcm_buffer_t(const size_t num_samples_in)
+    : num_samples(num_samples_in)
+    {
+        set_num_samples(num_samples_in);
+    }
+
+    virtual ~pcm_buffer_t()
+    {
+        if (data != nullptr) {
+            delete data;
+            data = nullptr;
+            num_samples = 0;
+        }
+    }
+
+    void set_num_samples(const size_t num_samples_in)
+    {
+        if (data != nullptr) {
+            delete data;
+        }
+
+        data = new T[num_samples_in];
+    }
+
+    T * get_pointer()
+    {
+        assert(data != nullptr);
+        return data;
+    }
+};
+
+template <typename T>
 class pcm_source_t : public source_t {
 
 public:
@@ -37,6 +79,9 @@ public:
 
 template <typename T>
 class pcm_sink_t : public sink_t {
+
+protected:
+    pcm_buffer_t<T> buffer;
 
 public:
     pcm_sink_t(const string_t& name_in, const string_t& type_in)
