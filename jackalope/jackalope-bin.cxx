@@ -26,7 +26,7 @@
 
 using namespace jackalope;
 
-int main(int argc_in, char ** )
+int main(int argc_in, char ** argv_in)
 {
     if (argc_in != 2) {
         jackalope_panic("must specify exactly one audio file to play");
@@ -50,30 +50,30 @@ int main(int argc_in, char ** )
         { "sink:right", "pcm[real]" },
     });
 
-    // auto input_file = domain->add_node({
-    //     { "node:class", "pcm::sndfile" },
-    //     { "node:name", "input file" },
-    //     { "config:path", argv_in[1] },
-    // });
+    auto input_file = domain->add_node({
+        { "node:class", "pcm::sndfile" },
+        { "node:name", "input file" },
+        { "config:path", argv_in[1] },
+    });
 
-    // auto left_tube = domain->add_node({
-    //     { "node:class", "pcm::ladspa" },
-    //     { "node:name", "left tube" },
-    //     { "plugin:id", to_string(LADSPA_ZAMTUBE_ID) },
-    // });
+    auto left_tube = domain->add_node({
+        { "node:class", "pcm::ladspa" },
+        { "node:name", "left tube" },
+        { "plugin:id", to_string(LADSPA_ZAMTUBE_ID) },
+    });
 
-    // auto right_tube = domain->add_node({
-    //     { "node:class", "pcm::ladspa" },
-    //     { "node:name", "right tube" },
-    //     { "plugin:id", to_string(LADSPA_ZAMTUBE_ID) },
-    // });
+    auto right_tube = domain->add_node({
+        { "node:class", "pcm::ladspa" },
+        { "node:name", "right tube" },
+        { "plugin:id", to_string(LADSPA_ZAMTUBE_ID) },
+    });
 
     // input_file->connect("file:eof", domain, "system:stop");
 
-    // input_file->link("output 1", left_tube, "Audio Input 1");
-    // input_file->link("output 1", right_tube, "Audio Input 1");
-    // left_tube->link("Audio Output 1", domain, "left");
-    // right_tube->link("Audio Output 1", domain, "right");
+    input_file->link("output 1", left_tube, "Audio Input 1");
+    input_file->link("output 1", right_tube, "Audio Input 1");
+    left_tube->link("Audio Output 1", domain, "left");
+    right_tube->link("Audio Output 1", domain, "right");
 
     domain->run();
 

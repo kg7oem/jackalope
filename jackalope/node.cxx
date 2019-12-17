@@ -10,22 +10,19 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
-#pragma once
-
-#include <jackalope/object.h>
-#include <jackalope/string.h>
-#include <jackalope/thread.h>
-#include <jackalope/types.h>
+#include <jackalope/node.h>
 
 namespace jackalope {
 
-class domain_t;
+shared_t<node_t> node_t::make(const init_list_t& init_list_in)
+{
+    auto node = jackalope::make_shared<node_t>(init_list_in);
+    node->init();
+    return node;
+}
 
-class node_t : public base_t, public object_t {
-
-public:
-    static shared_t<node_t> make(const init_list_t& init_list_in);
-    node_t(const init_list_t& init_list_in);
-};
+node_t::node_t(const init_list_t& init_list_in)
+: object_t(init_list_in)
+{ }
 
 } // namespace jackalope

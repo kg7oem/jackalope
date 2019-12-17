@@ -83,9 +83,14 @@ shared_t<driver_t> domain_t::add_driver__e(const init_list_t& init_list_in)
     return driver;
 }
 
-shared_t<node_t> domain_t::add_node(const init_list_t&)
+shared_t<node_t> domain_t::add_node(const init_list_t& init_list_in)
 {
-    return make_shared<node_t>();
+    auto node = node_t::make(init_list_in);
+    node->activate();
+
+    nodes.push_back(node);
+
+    return node;
 }
 
 } // namespace jackalope

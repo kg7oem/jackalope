@@ -77,6 +77,17 @@ shared_t<source_t> object_t::add_source(const string_t& name_in, const string_t&
     return source;
 }
 
+shared_t<source_t> object_t::get_source(const string_t& name_in)
+{
+    auto found = sources.find(name_in);
+
+    if (found == sources.end()) {
+        throw_runtime_error("Unknown source name: ", name_in);
+    }
+
+    return found->second;
+}
+
 shared_t<sink_t> object_t::add_sink(const string_t& name_in, const string_t& type_in)
 {
     if (sinks.find(name_in) != sinks.end()) {
@@ -88,6 +99,25 @@ shared_t<sink_t> object_t::add_sink(const string_t& name_in, const string_t& typ
     sinks[name_in] = sink;
 
     return sink;
+}
+
+shared_t<sink_t> object_t::get_sink(const string_t& name_in)
+{
+    auto found = sinks.find(name_in);
+
+    if (found == sinks.end()) {
+        throw_runtime_error("Unknown sink name: ", name_in);
+    }
+
+    return found->second;
+}
+
+void object_t::link(const string_t& source_name_in, shared_t<object_t> target_in, const string_t& sink_name_in)
+{
+    auto source = get_source(source_name_in);
+    auto sink = target_in->get_sink(sink_name_in);
+
+    source->link(sink);
 }
 
 } // namespace jackalope

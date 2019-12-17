@@ -38,7 +38,10 @@ public:
     virtual void stop();
     virtual void stop__e();
     virtual shared_t<source_t> add_source(const string_t& name_in, const string_t& type_in);
+    virtual shared_t<source_t> get_source(const string_t& name_in);
     virtual shared_t<sink_t> add_sink(const string_t& name_in, const string_t& type_in);
+    virtual shared_t<sink_t> get_sink(const string_t& name_in);
+    virtual void link(const string_t& source_name_in, shared_t<object_t> target_in, const string_t& sink_name_in);
 };
 
 } // namespace jackalope

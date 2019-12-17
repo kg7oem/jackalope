@@ -28,10 +28,21 @@ void add_sink_constructor(const string_t& class_name_in, sink_constructor_t cons
 source_constructor_t get_source_constructor(const string_t& class_name_in);
 sink_constructor_t get_sink_constructor(const string_t& class_name_in);
 
+class link_t : base_t, public shared_obj_t<link_t> {
+
+protected:
+    shared_t<source_t> from;
+    shared_t<sink_t> to;
+
+public:
+    link_t(shared_t<source_t> from_in, shared_t<sink_t> to_in);
+};
+
 class channel_t : base_t {
 
 protected:
     weak_t<object_t> parent;
+    pool_list_t<shared_t<link_t>> links;
 
     channel_t(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in);
 
@@ -40,18 +51,20 @@ public:
     const string_t type;
 
     shared_t<object_t> get_parent();
+    void add_link(shared_t<link_t> link_in);
     virtual void init();
     virtual void activate();
 };
 
-class source_t : public channel_t {
+class source_t : public channel_t, public shared_obj_t<source_t> {
 
 public:
     static shared_t<source_t> make(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in);
     source_t(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in);
+    virtual void link(shared_t<sink_t> sink_in);
 };
 
-class sink_t : public channel_t {
+class sink_t : public channel_t, public shared_obj_t<sink_t> {
 
 public:
     static shared_t<sink_t> make(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in);

@@ -29,6 +29,7 @@ class domain_t : public base_t, public object_t {
 
 protected:
     pool_list_t<shared_t<driver_t>> drivers;
+    pool_list_t<shared_t<node_t>> nodes;
 
     virtual void init__e() override;
     virtual void run__e() override;
