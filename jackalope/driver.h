@@ -14,6 +14,7 @@
 
 #include <functional>
 
+#include <jackalope/library.h>
 #include <jackalope/property.h>
 #include <jackalope/string.h>
 #include <jackalope/thread.h>
@@ -24,10 +25,9 @@ namespace jackalope {
 class domain_t;
 class driver_t;
 
-using driver_constructor_t = function_t<shared_t<driver_t> (init_list_t init_list_in)>;
+using driver_library_t = library_t<driver_t, const init_list_t&>;
 
-void add_driver_constructor(const string_t& class_name_in, driver_constructor_t constructor_in);
-driver_constructor_t get_driver_constructor(const string_t& class_name_in);
+void add_driver_constructor(const string_t& class_name_in, driver_library_t::constructor_t constructor_in);
 
 class driver_t : public base_t, public shared_obj_t<driver_t>, public lockable_t, protected prop_obj_t {
 

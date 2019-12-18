@@ -17,26 +17,11 @@
 
 namespace jackalope {
 
-static pool_map_t<string_t, driver_constructor_t> node_constructors;
+static driver_library_t * driver_library = new driver_library_t();
 
-void add_driver_constructor(const string_t& class_name_in, driver_constructor_t constructor_in)
+void add_driver_constructor(const string_t& class_name_in, driver_library_t::constructor_t constructor_in)
 {
-    if (node_constructors.find(class_name_in) != node_constructors.end()) {
-        throw_runtime_error("Can not add duplicate node constructor for class: ", class_name_in);
-    }
-
-    node_constructors[class_name_in] = constructor_in;
-}
-
-driver_constructor_t get_driver_constructor(const string_t& class_name_in)
-{
-    auto found = node_constructors.find(class_name_in);
-
-    if (found == node_constructors.end()) {
-        throw_runtime_error("could not find node constructor for class: ", class_name_in);
-    }
-
-    return found->second;
+    driver_library->add_constructor(class_name_in, constructor_in);
 }
 
 shared_t<driver_t> driver_t::make(const init_list_t& init_list_in)
@@ -46,9 +31,8 @@ shared_t<driver_t> driver_t::make(const init_list_t& init_list_in)
     }
 
     auto driver_class = init_list_get("driver:class", init_list_in);
-    auto driver_constructor = get_driver_constructor(driver_class);
+    auto driver = driver_library->make(driver_class, init_list_in);
 
-    auto driver = driver_constructor(init_list_in);
     driver->init();
 
     return driver;
