@@ -18,47 +18,17 @@
 
 namespace jackalope {
 
-static pool_map_t<string_t, source_constructor_t> source_constructors;
-static pool_map_t<string_t, sink_constructor_t> sink_constructors;
+static source_library_t * source_library = new source_library_t();
+static sink_library_t * sink_library = new sink_library_t();
 
-void add_source_constructor(const string_t& class_name_in, source_constructor_t constructor_in)
+void add_source_constructor(const string_t& class_name_in, source_library_t::constructor_t constructor_in)
 {
-    if (source_constructors.find(class_name_in) != source_constructors.end()) {
-        throw_runtime_error("attempt to add duplicate source constuctor: ", class_name_in);
-    }
-
-    source_constructors[class_name_in] = constructor_in;
+    source_library->add_constructor(class_name_in, constructor_in);
 }
 
-void add_sink_constructor(const string_t& class_name_in, sink_constructor_t constructor_in)
+void add_sink_constructor(const string_t& class_name_in, sink_library_t::constructor_t constructor_in)
 {
-    if (sink_constructors.find(class_name_in) != sink_constructors.end()) {
-        throw_runtime_error("attempt to add duplicate sink constuctor: ", class_name_in);
-    }
-
-    sink_constructors[class_name_in] = constructor_in;
-}
-
-source_constructor_t get_source_constructor(const string_t& class_name_in)
-{
-    auto found = source_constructors.find(class_name_in);
-
-    if (found == source_constructors.end()) {
-        throw_runtime_error("could not find source constructor: ", class_name_in);
-    }
-
-    return found->second;
-}
-
-sink_constructor_t get_sink_constructor(const string_t& class_name_in)
-{
-    auto found = sink_constructors.find(class_name_in);
-
-    if (found == sink_constructors.end()) {
-        throw_runtime_error("could not find sink constructor: ", class_name_in);
-    }
-
-    return found->second;
+    sink_library->add_constructor(class_name_in, constructor_in);
 }
 
 link_t::link_t(shared_t<source_t> from_in, shared_t<sink_t> to_in)
@@ -89,8 +59,7 @@ void channel_t::activate()
 
 shared_t<source_t> source_t::make(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)
 {
-    auto constructor = get_source_constructor(type_in);
-    auto source = constructor(name_in, type_in, parent_in);
+    auto source = source_library->make(type_in, name_in, type_in, parent_in);
     source->init();
     return source;
 }
@@ -108,8 +77,7 @@ void source_t::link(shared_t<sink_t> sink_in)
 
 shared_t<sink_t> sink_t::make(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)
 {
-    auto constructor = get_sink_constructor(type_in);
-    auto sink = constructor(name_in, type_in, parent_in);
+    auto sink = sink_library->make(type_in, name_in, type_in, parent_in);
     sink->init();
     return sink;
 }
