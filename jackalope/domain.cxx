@@ -86,6 +86,7 @@ shared_t<driver_t> domain_t::add_driver__e(const init_list_t& init_list_in)
 shared_t<node_t> domain_t::add_node(const init_list_t& init_list_in)
 {
     auto node = node_t::make(init_list_in);
+    node->set_domain(shared_obj<domain_t>());
     node->activate();
 
     nodes.push_back(node);

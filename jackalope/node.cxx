@@ -14,15 +14,41 @@
 
 namespace jackalope {
 
+node_library_t * node_library = new node_library_t();
+
+void add_node_constructor(const string_t& class_name_in, node_library_t::constructor_t constructor_in)
+{
+    node_library->add_constructor(class_name_in, constructor_in);
+}
+
 shared_t<node_t> node_t::make(const init_list_t& init_list_in)
 {
-    auto node = jackalope::make_shared<node_t>(init_list_in);
+    if (! init_list_has("node:class", init_list_in)) {
+        throw_runtime_error("missing node class in arguments");
+    }
+
+    auto node_class = init_list_get("node:class", init_list_in);
+    auto node = node_library->make(node_class, init_list_in);
+
     node->init();
+
     return node;
 }
 
 node_t::node_t(const init_list_t& init_list_in)
 : object_t(init_list_in)
 { }
+
+void node_t::set_domain(shared_t<domain_t> domain_in)
+{
+    domain = domain_in;
+}
+
+shared_t<domain_t> node_t::get_domain()
+{
+    assert(! domain.expired());
+
+    return domain.lock();
+}
 
 } // namespace jackalope

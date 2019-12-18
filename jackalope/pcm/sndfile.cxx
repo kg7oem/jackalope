@@ -11,6 +11,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
+#include <jackalope/domain.h>
 #include <jackalope/string.h>
 #include <jackalope/jackalope.h>
 #include <jackalope/logging.h>
@@ -20,9 +21,9 @@ namespace jackalope {
 
 namespace pcm {
 
-static shared_t<sndfile_node_t> sndfile_node_constructor(const string_t& node_name_in, node_init_list_t init_list_in = node_init_list_t())
+static shared_t<sndfile_node_t> sndfile_node_constructor(const init_list_t& init_list_in)
 {
-    return jackalope::make_shared<sndfile_node_t>(node_name_in, init_list_in);
+    return jackalope::make_shared<sndfile_node_t>(init_list_in);
 }
 
 void sndfile_init()
@@ -30,13 +31,9 @@ void sndfile_init()
     add_node_constructor(JACKALOPE_PCM_SNDFILE_CLASS, sndfile_node_constructor);
 }
 
-sndfile_node_t::sndfile_node_t(const string_t& name_in, node_init_list_t init_list_in)
-: pcm_node_t(name_in, init_list_in)
-{
-    add_property(JACKALOPE_PCM_SNDFILE_CONFIG_PATH, property_t::type_t::string);
-
-    add_signal("file:eof");
-}
+sndfile_node_t::sndfile_node_t(const init_list_t& init_list_in)
+: node_t(init_list_in)
+{ }
 
 sndfile_node_t::~sndfile_node_t()
 {
@@ -50,13 +47,33 @@ sndfile_node_t::~sndfile_node_t()
     }
 }
 
-void sndfile_node_t::activate()
+void sndfile_node_t::init__e()
 {
+    assert_lockable_owner();
+
+    add_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE, property_t::type_t::size);
+    add_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE, property_t::type_t::size);
+
+    add_property(JACKALOPE_PCM_SNDFILE_CONFIG_PATH, property_t::type_t::string);
+    if (init_list_has(JACKALOPE_PCM_SNDFILE_CONFIG_PATH, init_args)) {
+        get_property(JACKALOPE_PCM_SNDFILE_CONFIG_PATH).set(init_list_get(JACKALOPE_PCM_SNDFILE_CONFIG_PATH, init_args));
+    }
+
+    // add_signal("file:eof");
+}
+
+void sndfile_node_t::activate__e()
+{
+    assert_lockable_owner();
+
+    get_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE).set(get_domain()->get_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE).get_size());
+    get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE).set(get_domain()->get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE).get_size());
+
     auto source_file_name = get_property(JACKALOPE_PCM_SNDFILE_CONFIG_PATH).get();
     source_file = sndfile::sf_open(source_file_name.c_str(), sndfile::SFM_READ, &source_info);
 
     if (source_file == nullptr) {
-        throw_runtime_error("Could not open file: ", sndfile::sf_strerror(nullptr));
+        throw_runtime_error("Could not open ", source_file_name, ": ", sndfile::sf_strerror(nullptr));
     }
 
     int sample_rate = get_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE).get_size();
@@ -66,18 +83,18 @@ void sndfile_node_t::activate()
     }
 
     for(int i = 0; i < source_info.channels; i++) {
-        add_output(JACKALOPE_PCM_CHANNEL_CLASS_REAL, to_string("output ", i + 1));
+        add_source(to_string("output ", i + 1), JACKALOPE_PCM_CHANNEL_TYPE_REAL);
     }
 
     auto buffer_size = get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE).get_size();
     source_buffer = new real_t[source_info.channels * buffer_size];
 
-    for(auto i : outputs) {
-        auto pcm_output = dynamic_pointer_cast<pcm_real_output_t>(i);
-        pcm_output->set_num_samples(buffer_size);
-    }
+    // for(auto i : outputs) {
+    //     auto pcm_output = dynamic_pointer_cast<pcm_real_output_t>(i);
+    //     pcm_output->set_num_samples(buffer_size);
+    // }
 
-    pcm_node_t::activate();
+    node_t::activate__e();
 }
 
 void sndfile_node_t::close_file(sndfile_handle_t * file_in)
@@ -89,38 +106,38 @@ void sndfile_node_t::close_file(sndfile_handle_t * file_in)
     }
 }
 
-void sndfile_node_t::pcm_ready()
-{
-    pcm_node_t::pcm_ready();
+// void sndfile_node_t::pcm_ready()
+// {
+//     pcm_node_t::pcm_ready();
 
-    for(auto i : outputs) {
-        auto pcm_output = dynamic_pointer_cast<pcm_real_output_t>(i);
-        pcm_output->zero_buffer();
-        pcm_output->set_dirty();
-    }
+//     for(auto i : outputs) {
+//         auto pcm_output = dynamic_pointer_cast<pcm_real_output_t>(i);
+//         pcm_output->zero_buffer();
+//         pcm_output->set_dirty();
+//     }
 
-    if (source_file != nullptr) {
-        size_t frames_read = sndfile::sf_readf_float(source_file, source_buffer, get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE).get_size());
+//     if (source_file != nullptr) {
+//         size_t frames_read = sndfile::sf_readf_float(source_file, source_buffer, get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE).get_size());
 
-        // log_info("Got ", frames_read, " frames from sndlib");
+//         // log_info("Got ", frames_read, " frames from sndlib");
 
-        if (frames_read == 0) {
-            close_file(source_file);
-            source_file = nullptr;
+//         if (frames_read == 0) {
+//             close_file(source_file);
+//             source_file = nullptr;
 
-            get_signal(JACKALOPE_SIGNAL_FILE_EOF)->send();
-        }
+//             get_signal(JACKALOPE_SIGNAL_FILE_EOF)->send();
+//         }
 
-        for (size_t i = 0; i < outputs.size(); i++) {
-            auto pcm_output = dynamic_pointer_cast<pcm_real_output_t>(outputs[i]);
-            auto dest_buffer = pcm_output->get_buffer_pointer();
-            auto buffer_size = get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE).get_size();
-            pcm_extract_interleaved_channel(source_buffer, dest_buffer, i, source_info.channels, buffer_size);
-        }
-    }
+//         for (size_t i = 0; i < outputs.size(); i++) {
+//             auto pcm_output = dynamic_pointer_cast<pcm_real_output_t>(outputs[i]);
+//             auto dest_buffer = pcm_output->get_buffer_pointer();
+//             auto buffer_size = get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE).get_size();
+//             pcm_extract_interleaved_channel(source_buffer, dest_buffer, i, source_info.channels, buffer_size);
+//         }
+//     }
 
-    notify();
-}
+//     notify();
+// }
 
 } // namespace pcm
 
