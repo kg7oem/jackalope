@@ -13,6 +13,7 @@
 
 #pragma once
 
+#include <jackalope/node.h>
 #include <jackalope/pcm.h>
 #include <jackalope/types.h>
 
@@ -73,19 +74,19 @@ struct ladspa_instance_t : public base_t {
     void connect_port(const size_t port_num_in, ladspa_data_t * pointer_in);
 };
 
-struct ladspa_node_t : public pcm_node_t {
+struct ladspa_node_t : public node_t {
     const string_t class_name = JACKALOPE_PCM_LADSPA_CLASS;
 
     ladspa_file_t * file = nullptr;
     ladspa_instance_t * instance = nullptr;
 
-    ladspa_node_t(const string_t& node_name_in, node_init_list_t init_list_in = node_init_list_t());
-    ~ladspa_node_t();
-    virtual void init() override;
-    virtual void init_file();
-    virtual void init_instance();
-    virtual void activate() override;
-    virtual void pcm_ready() override;
+    ladspa_node_t(const init_list_t& init_list_in);
+    virtual ~ladspa_node_t();
+    virtual void init__e() override;
+    virtual void init_file__e();
+    virtual void init_instance__e();
+    virtual void activate__e() override;
+    // virtual void pcm_ready() override;
 };
 
 } // namespace pcm
