@@ -34,17 +34,17 @@ add_library(
     jackalope SHARED
 
     jackalope/channel.cxx
-    jackalope/domain.cxx
-    jackalope/driver.cxx
+#    jackalope/domain.cxx
+#    jackalope/driver.cxx
     jackalope/jackalope.cxx
     jackalope/log/dest.cxx
     jackalope/log/engine.cxx
-    jackalope/node.cxx
+#    jackalope/node.cxx
     jackalope/object.cxx
-    jackalope/pcm.cxx
-    jackalope/pcm/ladspa.cxx
-    jackalope/pcm/portaudio.cxx
-    jackalope/pcm/sndfile.cxx
+#    jackalope/pcm.cxx
+#    jackalope/pcm/ladspa.cxx
+#    jackalope/pcm/portaudio.cxx
+#    jackalope/pcm/sndfile.cxx
     jackalope/property.cxx
 #    jackalope/signal.cxx
     jackalope/string.cxx

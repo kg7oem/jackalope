@@ -37,6 +37,12 @@ protected:
 public:
     const type_t type = type_t::unknown;
 
+    template <typename... Args>
+    static shared_t<property_t> make(Args... args)
+    {
+        return jackalope::make_shared<property_t>(args...);
+    }
+
     property_t(const type_t type_in);
     property_t(const type_t type_in, const double value_in);
     property_t(const type_t type_in, const string_t& value_in);
@@ -59,11 +65,11 @@ public:
 class prop_obj_t {
 
 protected:
-    pool_map_t<string_t, property_t> properties;
+    pool_map_t<string_t, shared_t<property_t>> properties;
 
 public:
-    virtual property_t& add_property(const string_t& name_in, property_t::type_t type_in);
-    virtual property_t& get_property(const string_t& name_in);
+    virtual shared_t<property_t> add_property(const string_t& name_in, property_t::type_t type_in);
+    virtual shared_t<property_t> get_property(const string_t& name_in);
 };
 
 } // namespace jackalope
