@@ -22,50 +22,28 @@ object_t::object_t(const init_list_t& init_list_in)
 
 void object_t::init()
 {
-    auto lock = get_object_lock();
-    init__e();
-}
-
-void object_t::init__e()
-{
     assert_lockable_owner();
 }
 
 void object_t::activate()
-{
-    auto lock = get_object_lock();
-    activate__e();
-}
-
-void object_t::activate__e()
 {
     assert_lockable_owner();
 }
 
 void object_t::run()
 {
-    auto lock = get_object_lock();
-    run__e();
-}
-
-void object_t::run__e()
-{
     assert_lockable_owner();
 }
 
 void object_t::stop()
-{
-    auto lock = get_object_lock();
-    stop__e();
-}
-
-void object_t::stop__e()
 {
     assert_lockable_owner();
 }
 
 shared_t<source_t> object_t::add_source(const string_t& name_in, const string_t& type_in)
 {
+    assert_lockable_owner();
+
     if (sources.find(name_in) != sources.end()) {
         throw_runtime_error("Attempt to add duplicate source: ", name_in);
     }
@@ -79,6 +57,8 @@ shared_t<source_t> object_t::add_source(const string_t& name_in, const string_t&
 
 shared_t<source_t> object_t::get_source(const string_t& name_in)
 {
+    assert_lockable_owner();
+
     auto found = sources.find(name_in);
 
     if (found == sources.end()) {
@@ -90,6 +70,8 @@ shared_t<source_t> object_t::get_source(const string_t& name_in)
 
 shared_t<sink_t> object_t::add_sink(const string_t& name_in, const string_t& type_in)
 {
+    assert_lockable_owner();
+
     if (sinks.find(name_in) != sinks.end()) {
         throw_runtime_error("Attempt to add duplicate sink: ", name_in);
     }
@@ -103,6 +85,8 @@ shared_t<sink_t> object_t::add_sink(const string_t& name_in, const string_t& typ
 
 shared_t<sink_t> object_t::get_sink(const string_t& name_in)
 {
+    assert_lockable_owner();
+
     auto found = sinks.find(name_in);
 
     if (found == sinks.end()) {
@@ -114,6 +98,8 @@ shared_t<sink_t> object_t::get_sink(const string_t& name_in)
 
 void object_t::link(const string_t& source_name_in, shared_t<object_t> target_in, const string_t& sink_name_in)
 {
+    assert_lockable_owner();
+
     auto source = get_source(source_name_in);
     auto sink = target_in->get_sink(sink_name_in);
 

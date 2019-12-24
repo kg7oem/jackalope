@@ -14,11 +14,9 @@
 #include <iostream>
 #include <string>
 
-#include <jackalope/domain.h>
 #include <jackalope/jackalope.h>
 #include <jackalope/log/dest.h>
 #include <jackalope/logging.h>
-#include <jackalope/node.h>
 
 #define BUFFER_SIZE 128
 #define SAMPLE_RATE 48000
@@ -37,45 +35,43 @@ int main(int argc_in, char ** argv_in)
 
     jackalope_init();
 
-    auto domain = domain_t::make({
-        { "pcm:sample_rate", to_string(SAMPLE_RATE) },
-        { "pcm:buffer_size", to_string(BUFFER_SIZE) },
+    auto graph = make_graph({
+        { "pcm.sample_rate", to_string(SAMPLE_RATE) },
+        { "pcm.buffer_size", to_string(BUFFER_SIZE) },
     });
 
-    auto driver = domain->add_driver({
-        { "driver:class", "pcm::portaudio" },
-        { "source:left", "pcm[real]" },
-        { "source:right", "pcm[real]" },
-        { "sink:left", "pcm[real]" },
-        { "sink:right", "pcm[real]" },
+    auto driver = graph->add_object({
+        { "object.class", "pcm::portaudio" },
+        { "source.left", "pcm[real]" },
+        { "source.right", "pcm[real]" },
+        { "sink.left", "pcm[real]" },
+        { "sink.right", "pcm[real]" },
     });
 
-    auto input_file = domain->add_node({
-        { "node:class", "pcm::sndfile" },
-        { "node:name", "input file" },
-        { "config:path", argv_in[1] },
+    auto input_file = graph->add_object({
+        { "object.class", "pcm::sndfile" },
+        { "node.name", "input file" },
+        { "config.path", argv_in[1] },
     });
 
-    auto left_tube = domain->add_node({
-        { "node:class", "pcm::ladspa" },
-        { "node:name", "left tube" },
-        { "plugin:id", to_string(LADSPA_ZAMTUBE_ID) },
+    auto left_tube = graph->add_object({
+        { "object.class", "pcm::ladspa" },
+        { "object.name", "left tube" },
+        { "plugin.id", to_string(LADSPA_ZAMTUBE_ID) },
     });
 
-    auto right_tube = domain->add_node({
-        { "node:class", "pcm::ladspa" },
-        { "node:name", "right tube" },
-        { "plugin:id", to_string(LADSPA_ZAMTUBE_ID) },
+    auto right_tube = graph->add_object({
+        { "object.class", "pcm::ladspa" },
+        { "object.name", "right tube" },
+        { "plugin.id", to_string(LADSPA_ZAMTUBE_ID) },
     });
-
-    // input_file->connect("file:eof", domain, "system:stop");
 
     input_file->link("output 1", left_tube, "Audio Input 1");
     input_file->link("output 1", right_tube, "Audio Input 1");
-    left_tube->link("Audio Output 1", domain, "left");
-    right_tube->link("Audio Output 1", domain, "right");
+    left_tube->link("Audio Output 1", driver, "left");
+    right_tube->link("Audio Output 1", driver, "right");
 
-    domain->run();
+    graph->run();
 
     return(0);
 }
