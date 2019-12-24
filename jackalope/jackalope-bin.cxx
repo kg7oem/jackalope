@@ -66,6 +66,8 @@ int main(int argc_in, char ** argv_in)
         { "plugin.id", to_string(LADSPA_ZAMTUBE_ID) },
     });
 
+    input_file->connect("file.eof", graph, "system.shutdown");
+
     input_file->link("output 1", left_tube, "Audio Input 1");
     input_file->link("output 1", right_tube, "Audio Input 1");
     left_tube->link("Audio Output 1", driver, "left");

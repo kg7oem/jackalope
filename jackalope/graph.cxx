@@ -17,7 +17,7 @@
 namespace jackalope {
 
 graph_t::graph_t(const init_list_t& init_args_in)
-: init_args(init_args_in)
+: object_t(init_args_in)
 { }
 
 } // namespace jackalope

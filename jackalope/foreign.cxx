@@ -30,6 +30,12 @@ foreign_object_t::foreign_object_t(shared_t<object_t> object_in)
     assert(object != nullptr);
 }
 
+void foreign_object_t::connect(const string_t& , shared_t<foreign_object_t> , const string_t& )
+{ }
+
+void foreign_object_t::connect(const string_t& , shared_t<foreign_graph_t> , const string_t& )
+{ }
+
 void foreign_object_t::link(const string_t& , shared_t<foreign_object_t> , const string_t&)
 { }
 

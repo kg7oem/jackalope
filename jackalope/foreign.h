@@ -31,6 +31,8 @@ protected:
 
 public:
     foreign_object_t(shared_t<object_t> object_in);
+    void connect(const string_t& signal_name_in, shared_t<foreign_object_t> target_object_in, const string_t& target_slot_in);
+    void connect(const string_t& signal_name_in, shared_t<foreign_graph_t> target_graph_in, const string_t& target_slot_in);
     void link(const string_t& source_name_in, shared_t<foreign_object_t> target_object_in, const string_t& target_sink_in);
 };
 

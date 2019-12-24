@@ -12,13 +12,13 @@
 
 #pragma once
 
-#include <jackalope/property.h>
+#include <jackalope/object.h>
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
 
 namespace jackalope {
 
-class graph_t : public base_t, public lockable_t {
+class graph_t : public object_t {
 
 protected:
     const init_list_t init_args;
