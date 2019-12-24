@@ -31,7 +31,7 @@ public:
     object_t(const init_list_t& init_list_in);
     virtual void init();
     virtual void activate();
-    virtual void run();
+    virtual void start();
     virtual void stop();
     virtual shared_t<source_t> add_source(const string_t& name_in, const string_t& type_in);
     virtual shared_t<source_t> get_source(const string_t& name_in);

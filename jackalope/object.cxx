@@ -30,7 +30,7 @@ void object_t::activate()
     assert_lockable_owner();
 }
 
-void object_t::run()
+void object_t::start()
 {
     assert_lockable_owner();
 }
