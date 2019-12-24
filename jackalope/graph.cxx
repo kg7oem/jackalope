@@ -1,4 +1,3 @@
-// Jackalope Audio Engine
 // Copyright 2019 Tyler Riddle <kg7oem@gmail.com>
 
 // This program is free software: you can redistribute it and/or modify
@@ -11,16 +10,14 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
-#include <jackalope/jackalope.h>
-// #include <jackalope/pcm.h>
-// #include <jackalope/pcm/ladspa.h>
-// #include <jackalope/pcm/portaudio.h>
-// #include <jackalope/pcm/sndfile.h>
+#include <thread>
 
-void jackalope_init()
-{
-    // jackalope::pcm_init();
-    // jackalope::pcm::ladspa_init();
-    // jackalope::pcm::portaudio_init();
-    // jackalope::pcm::sndfile_init();
-}
+#include <jackalope/graph.h>
+
+namespace jackalope {
+
+graph_t::graph_t(const init_list_t& init_args_in)
+: init_args(init_args_in)
+{ }
+
+} // namespace jackalope

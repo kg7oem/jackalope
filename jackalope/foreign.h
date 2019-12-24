@@ -27,10 +27,10 @@ shared_t<foreign_graph_t> make_graph(const init_list_t& init_list_in);
 class foreign_object_t : public base_t {
 
 protected:
-    shared_t<object_t> node = nullptr;
+    shared_t<object_t> object = nullptr;
 
 public:
-    foreign_object_t(shared_t<object_t> node_in);
+    foreign_object_t(shared_t<object_t> object_in);
     void link(const string_t& source_name_in, shared_t<foreign_object_t> target_object_in, const string_t& target_sink_in);
 };
 
