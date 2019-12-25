@@ -70,7 +70,7 @@ int main(int argc_in, char ** argv_in)
     //     { "plugin.id", to_string(LADSPA_ZAMTUBE_ID) },
     // });
 
-    input_file->connect("file.eof", graph, "object.stop");
+    input_file->connect(JACKALOPE_SIGNAL_FILE_EOF, graph, JACKALOPE_OBJECT_SIGNAL_STOPPED);
 
     // input_file->link("output 1", left_tube, "Audio Input 1");
     // input_file->link("output 1", right_tube, "Audio Input 1");
@@ -82,6 +82,8 @@ int main(int argc_in, char ** argv_in)
     log_info("after start() was called");
 
     graph->wait_stop();
+
+    log_info("after wait_stop() was called");
 
     jackalope_shutdown();
 

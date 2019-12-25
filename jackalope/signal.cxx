@@ -11,6 +11,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
+#include <jackalope/logging.h>
 #include <jackalope/signal.h>
 
 namespace jackalope {
@@ -19,11 +20,21 @@ signal_t::signal_t(const string_t& name_in)
 : name(name_in)
 { }
 
-void signal_t::connect(shared_t<slot_t> )
-{ }
+void signal_t::connect(shared_t<slot_t> slot_in)
+{
+    connections.push_back(slot_in);
+}
 
 void signal_t::send()
-{ }
+{
+    auto shared_this = shared_obj<signal_t>();
+
+    log_info("sending signal: ", name);
+
+    for (auto& i : connections) {
+        i->invoke(shared_this);
+    }
+}
 
 slot_t::slot_t(const string_t& name_in, slot_handler_t handler_in)
 : name(name_in), handler(handler_in)

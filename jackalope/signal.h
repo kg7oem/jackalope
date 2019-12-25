@@ -27,16 +27,16 @@ struct slot_t;
 
 using slot_handler_t = function_t<void (shared_t<signal_t> sender_in)>;
 
-struct signal_t : public base_t {
+struct signal_t : public base_t, public shared_obj_t<signal_t> {
     const string_t name;
-    pool_list_t<slot_handler_t> connections;
+    pool_list_t<shared_t<slot_t>> connections;
 
     signal_t(const string_t& name_in);
     void connect(shared_t<slot_t> dest_in);
     void send();
 };
 
-struct slot_t : public base_t {
+struct slot_t : public base_t, public shared_obj_t<slot_t> {
     const string_t name;
     const slot_handler_t handler;
 

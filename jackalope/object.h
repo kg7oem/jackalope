@@ -22,6 +22,7 @@
 
 #define JACKALOPE_OBJECT_PROPERTY_NAME     "object.name"
 #define JACKALOPE_OBJECT_PROPERTY_CLASS    "object.class"
+#define JACKALOPE_OBJECT_SIGNAL_STOPPED    "object.stopped"
 
 namespace jackalope {
 
@@ -43,7 +44,7 @@ protected:
     pool_map_t<string_t, shared_t<slot_t>> slots;
     pool_map_t<string_t, shared_t<source_t>> sources;
     pool_map_t<string_t, shared_t<sink_t>> sinks;
-    bool stop_flag = false;
+    bool stop_flag = true;
     std::mutex stop_mutex;
     condition_t stop_condition;
 

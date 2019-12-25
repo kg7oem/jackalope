@@ -54,7 +54,7 @@ void object_t::init()
 
 void object_t::object_stop_handler(shared_t<signal_t>)
 {
-    assert_lockable_owner();
+    auto lock = get_object_lock();
 
     stop();
 }
@@ -68,7 +68,7 @@ void object_t::start()
 {
     assert_lockable_owner();
 
-    if (stop_flag) {
+    if (! stop_flag) {
         throw_runtime_error("start called when object had already been started");
     }
 
@@ -80,7 +80,7 @@ void object_t::stop()
     assert_lockable_owner();
     auto stop_lock = std::unique_lock<std::mutex>(stop_mutex);
 
-    if (! stop_flag) {
+    if (stop_flag) {
         throw_runtime_error("stop called when object had not been started");
     }
 
