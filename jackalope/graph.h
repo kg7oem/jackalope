@@ -22,9 +22,11 @@ class graph_t : public object_t {
 
 protected:
     const init_list_t init_args;
+    pool_list_t<shared_t<object_t>> objects;
 
 public:
     graph_t(const init_list_t& init_args_in);
+    shared_t<object_t> add_object(const init_list_t& init_args_in);
 };
 
 } // namespace jackalope

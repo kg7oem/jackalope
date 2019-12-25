@@ -14,7 +14,7 @@
 #pragma once
 
 #include <jackalope/pcm.h>
-#include <jackalope/node.h>
+#include <jackalope/object.h>
 
 #define JACKALOPE_PCM_SNDFILE_CLASS "pcm::sndfile"
 #define JACKALOPE_PCM_SNDFILE_CONFIG_PATH "config:path"
@@ -36,17 +36,17 @@ using sndfile_info_t = sndfile::SF_INFO;
 
 void sndfile_init();
 
-struct sndfile_node_t : public node_t {
+struct sndfile_object_t : public object_t {
     const string_t class_name = JACKALOPE_PCM_SNDFILE_CLASS;
 
     sndfile_handle_t *source_file = nullptr;
     sndfile_info_t source_info;
     real_t * source_buffer;
 
-    sndfile_node_t(const init_list_t& init_list_in);
-    virtual ~sndfile_node_t();
-    void init__e() override;
-    void activate__e() override;
+    sndfile_object_t(const init_list_t& init_list_in);
+    virtual ~sndfile_object_t();
+    void init() override;
+    void activate() override;
     // void pcm_ready() override;
     void close_file(sndfile_handle_t * file_in);
 };

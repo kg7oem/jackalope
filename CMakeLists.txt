@@ -48,9 +48,9 @@ add_library(
 #    jackalope/pcm.cxx
 #    jackalope/pcm/ladspa.cxx
 #    jackalope/pcm/portaudio.cxx
-#    jackalope/pcm/sndfile.cxx
+    jackalope/pcm/sndfile.cxx
     jackalope/property.cxx
-#    jackalope/signal.cxx
+    jackalope/signal.cxx
     jackalope/string.cxx
     jackalope/thread.cxx
     jackalope/types.cxx

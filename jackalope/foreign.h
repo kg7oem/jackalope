@@ -17,31 +17,27 @@
 
 namespace jackalope {
 
-class foreign_graph_t;
-class foreign_object_t;
+struct foreign_graph_t;
+struct foreign_object_t;
 class object_t;
 class graph_t;
 
 shared_t<foreign_graph_t> make_graph(const init_list_t& init_list_in);
 
-class foreign_object_t : public base_t {
+struct foreign_object_t : public base_t {
 
-protected:
     shared_t<object_t> object = nullptr;
 
-public:
     foreign_object_t(shared_t<object_t> object_in);
     void connect(const string_t& signal_name_in, shared_t<foreign_object_t> target_object_in, const string_t& target_slot_in);
     void connect(const string_t& signal_name_in, shared_t<foreign_graph_t> target_graph_in, const string_t& target_slot_in);
     void link(const string_t& source_name_in, shared_t<foreign_object_t> target_object_in, const string_t& target_sink_in);
 };
 
-class foreign_graph_t : public base_t {
+struct foreign_graph_t : public base_t {
 
-protected:
     shared_t<graph_t> graph = nullptr;
 
-public:
     foreign_graph_t(shared_t<graph_t> graph_in);
     shared_t<foreign_object_t> add_object(const init_list_t& init_list_in);
     void run();

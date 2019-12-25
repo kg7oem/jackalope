@@ -35,8 +35,18 @@ foreign_object_t::foreign_object_t(shared_t<object_t> object_in)
 void foreign_object_t::connect(const string_t& , shared_t<foreign_object_t> , const string_t& )
 { }
 
-void foreign_object_t::connect(const string_t& , shared_t<foreign_graph_t> , const string_t& )
-{ }
+void foreign_object_t::connect(const string_t& signal_name_in, shared_t<foreign_graph_t> target_graph_in, const string_t& target_slot_in)
+{
+    wait_job<void>([&] {
+        auto our_lock = object->get_object_lock();
+        auto target_lock = target_graph_in->graph->get_object_lock();
+
+        auto signal = object->get_signal(signal_name_in);
+        auto slot = target_graph_in->graph->get_slot(target_slot_in);
+
+        signal->connect(slot);
+    });
+}
 
 void foreign_object_t::link(const string_t& , shared_t<foreign_object_t> , const string_t&)
 { }
@@ -58,8 +68,12 @@ void foreign_graph_t::run()
 
 shared_t<foreign_object_t> foreign_graph_t::add_object(const init_list_t& init_list_in)
 {
-    auto object = jackalope::make_shared<object_t>(init_list_in);
-    return jackalope::make_shared<foreign_object_t>(object);
+    shared_t<object_t> new_object = wait_job<shared_t<object_t>>([&] {
+        auto lock = graph->get_object_lock();
+        return graph->add_object(init_list_in);
+    });
+
+    return jackalope::make_shared<foreign_object_t>(new_object);
 }
 
 } // namespace jackalope

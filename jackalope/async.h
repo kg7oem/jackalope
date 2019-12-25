@@ -38,8 +38,8 @@ T wait_job(async_job_t<T> job_in)
     return promise.get_future().get();
 }
 
-template <typename T>
-void wait_job(async_job_t<void> job_in)
+template <>
+inline void wait_job(async_job_t<void> job_in)
 {
     promise_t<void> promise;
 

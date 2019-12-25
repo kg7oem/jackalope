@@ -11,7 +11,6 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
-#include <jackalope/domain.h>
 #include <jackalope/string.h>
 #include <jackalope/jackalope.h>
 #include <jackalope/logging.h>
@@ -21,21 +20,21 @@ namespace jackalope {
 
 namespace pcm {
 
-static shared_t<sndfile_node_t> sndfile_node_constructor(const init_list_t& init_list_in)
+static shared_t<sndfile_object_t> sndfile_object_constructor(const init_list_t& init_list_in)
 {
-    return jackalope::make_shared<sndfile_node_t>(init_list_in);
+    return jackalope::make_shared<sndfile_object_t>(init_list_in);
 }
 
 void sndfile_init()
 {
-    add_node_constructor(JACKALOPE_PCM_SNDFILE_CLASS, sndfile_node_constructor);
+    add_object_constructor(JACKALOPE_PCM_SNDFILE_CLASS, sndfile_object_constructor);
 }
 
-sndfile_node_t::sndfile_node_t(const init_list_t& init_list_in)
-: node_t(init_list_in)
+sndfile_object_t::sndfile_object_t(const init_list_t& init_list_in)
+: object_t(init_list_in)
 { }
 
-sndfile_node_t::~sndfile_node_t()
+sndfile_object_t::~sndfile_object_t()
 {
     if (source_buffer != nullptr) {
         delete source_buffer;
@@ -47,7 +46,7 @@ sndfile_node_t::~sndfile_node_t()
     }
 }
 
-void sndfile_node_t::init__e()
+void sndfile_object_t::init()
 {
     assert_lockable_owner();
 
@@ -56,27 +55,29 @@ void sndfile_node_t::init__e()
 
     add_property(JACKALOPE_PCM_SNDFILE_CONFIG_PATH, property_t::type_t::string);
     if (init_list_has(JACKALOPE_PCM_SNDFILE_CONFIG_PATH, init_args)) {
-        get_property(JACKALOPE_PCM_SNDFILE_CONFIG_PATH).set(init_list_get(JACKALOPE_PCM_SNDFILE_CONFIG_PATH, init_args));
+        get_property(JACKALOPE_PCM_SNDFILE_CONFIG_PATH)->set(init_list_get(JACKALOPE_PCM_SNDFILE_CONFIG_PATH, init_args));
     }
 
-    // add_signal("file:eof");
+    add_signal("file:eof");
+
+    object_t::init();
 }
 
-void sndfile_node_t::activate__e()
+void sndfile_object_t::activate()
 {
     assert_lockable_owner();
 
-    get_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE).set(get_domain()->get_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE).get_size());
-    get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE).set(get_domain()->get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE).get_size());
+    // get_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE)->set(get_domain()->get_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE).get_size());
+    // get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE)->set(get_domain()->get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE).get_size());
 
-    auto source_file_name = get_property(JACKALOPE_PCM_SNDFILE_CONFIG_PATH).get();
+    auto source_file_name = get_property(JACKALOPE_PCM_SNDFILE_CONFIG_PATH)->get();
     source_file = sndfile::sf_open(source_file_name.c_str(), sndfile::SFM_READ, &source_info);
 
     if (source_file == nullptr) {
         throw_runtime_error("Could not open ", source_file_name, ": ", sndfile::sf_strerror(nullptr));
     }
 
-    int sample_rate = get_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE).get_size();
+    int sample_rate = get_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE)->get_size();
 
     if (source_info.samplerate != sample_rate) {
         throw_runtime_error("File sample rate did not match node sample rate: ", source_info.samplerate);
@@ -86,7 +87,7 @@ void sndfile_node_t::activate__e()
         add_source(to_string("output ", i + 1), JACKALOPE_PCM_CHANNEL_TYPE_REAL);
     }
 
-    auto buffer_size = get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE).get_size();
+    auto buffer_size = get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE)->get_size();
     source_buffer = new real_t[source_info.channels * buffer_size];
 
     // for(auto i : outputs) {
@@ -94,10 +95,10 @@ void sndfile_node_t::activate__e()
     //     pcm_output->set_num_samples(buffer_size);
     // }
 
-    node_t::activate__e();
+    object_t::activate();
 }
 
-void sndfile_node_t::close_file(sndfile_handle_t * file_in)
+void sndfile_object_t::close_file(sndfile_handle_t * file_in)
 {
     auto result = sndfile::sf_close(file_in);
 
@@ -106,7 +107,7 @@ void sndfile_node_t::close_file(sndfile_handle_t * file_in)
     }
 }
 
-// void sndfile_node_t::pcm_ready()
+// void sndfile_object_t::pcm_ready()
 // {
 //     pcm_node_t::pcm_ready();
 

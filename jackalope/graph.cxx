@@ -20,4 +20,18 @@ graph_t::graph_t(const init_list_t& init_args_in)
 : object_t(init_args_in)
 { }
 
+shared_t<object_t> graph_t::add_object(const init_list_t& init_args_in)
+{
+    assert_lockable_owner();
+
+    auto new_object = object_t::make(init_args_in);
+    auto new_object_lock = new_object->get_object_lock();
+
+    new_object->activate();
+
+    objects.push_back(new_object);
+
+    return new_object;
+}
+
 } // namespace jackalope

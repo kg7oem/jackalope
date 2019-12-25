@@ -16,6 +16,25 @@
 
 namespace jackalope {
 
+static auto object_library = new object_library_t;
+
+void add_object_constructor(const string_t& class_name_in, object_library_t::constructor_t constructor_in)
+{
+    object_library->add_constructor(class_name_in, constructor_in);
+}
+
+shared_t<object_t> object_t::make(const init_list_t& init_list_in)
+{
+    if (! init_list_has("object.class", init_list_in)) {
+        throw_runtime_error("missing required init arg: ", "object.class");
+    }
+
+    auto object_class = init_list_get("object.class", init_list_in);
+    auto constructor = object_library->get_constructor(object_class);
+
+    return constructor(init_list_in);
+}
+
 object_t::object_t(const init_list_t& init_list_in)
 : init_args(init_list_in)
 { }
@@ -38,6 +57,71 @@ void object_t::start()
 void object_t::stop()
 {
     assert_lockable_owner();
+}
+
+shared_t<signal_t> object_t::add_signal(const string_t& name_in)
+{
+    assert_lockable_owner();
+
+    if (signals.find(name_in) != signals.end()) {
+        throw_runtime_error("Duplicate signal name: ", name_in);
+    }
+
+    auto signal = jackalope::make_shared<signal_t>(name_in);
+    signals.insert({ name_in, signal });
+
+    return signal;
+}
+
+shared_t<signal_t> object_t::get_signal(const string_t& name_in)
+{
+    assert_lockable_owner();
+
+    auto found = signals.find(name_in);
+
+    if (found == signals.end()) {
+        throw_runtime_error("Could not find a signal: ", name_in);
+    }
+
+    return found->second;
+}
+
+shared_t<slot_t> object_t::add_slot(const string_t& name_in)
+{
+    assert_lockable_owner();
+
+    if (slots.find(name_in) != slots.end()) {
+        throw_runtime_error("Duplicate slot name: ", name_in);
+    }
+
+    auto new_slot = jackalope::make_shared<slot_t>(name_in, [&] (shared_t<signal_t> signal_in) {
+        assert_lockable_owner();
+
+        auto slot = get_slot(name_in);
+        this->handle_slot(slot, signal_in);
+    });
+
+    slots.insert({ name_in, new_slot });
+
+    return new_slot;
+}
+
+void object_t::handle_slot(shared_t<slot_t>, shared_t<signal_t>)
+{
+    assert_lockable_owner();
+}
+
+shared_t<slot_t> object_t::get_slot(const string_t& name_in)
+{
+    assert_lockable_owner();
+
+    auto found = slots.find(name_in);
+
+    if (found == slots.end()) {
+        throw_runtime_error("could not find a slot: ", name_in);
+    }
+
+    return found->second;
 }
 
 shared_t<source_t> object_t::add_source(const string_t& name_in, const string_t& type_in)

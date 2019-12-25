@@ -19,31 +19,19 @@ signal_t::signal_t(const string_t& name_in)
 : name(name_in)
 { }
 
-connection_t * signal_t::connect(slot_t * slot_in)
-{
-    auto connection = new connection_t(this, slot_in);
-    connections.push_back(connection);
-    return connection;
-}
+void signal_t::connect(shared_t<slot_t> )
+{ }
 
 void signal_t::send()
-{
-    for(auto i : connections) {
-        i->to->invoke(this);
-    }
-}
+{ }
 
 slot_t::slot_t(const string_t& name_in, slot_handler_t handler_in)
 : name(name_in), handler(handler_in)
 { }
 
-void slot_t::invoke(signal_t * from_in)
+void slot_t::invoke(shared_t<signal_t> from_in)
 {
     handler(from_in);
 }
-
-connection_t::connection_t(signal_t * from_in, slot_t * to_in)
-: from(from_in), to(to_in)
-{ }
 
 } // namespace jackalope

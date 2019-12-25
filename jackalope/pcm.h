@@ -88,7 +88,7 @@ public:
     {
         auto& buffer_size_prop = get_parent()->get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE);
 
-        buffer.set_num_samples(buffer_size_prop.get_size());
+        buffer.set_num_samples(buffer_size_prop->get_size());
 
         source_t::activate();
     }
@@ -114,7 +114,7 @@ public:
     {
         auto& buffer_size_prop = get_parent()->get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE);
 
-        buffer.set_num_samples(buffer_size_prop.get_size());
+        buffer.set_num_samples(buffer_size_prop->get_size());
 
         sink_t::activate();
     }

@@ -13,7 +13,7 @@
 
 #pragma once
 
-#include <jackalope/node.forward.h>
+// #include <jackalope/node.forward.h>
 #include <jackalope/string.h>
 #include <jackalope/types.h>
 
@@ -24,16 +24,15 @@ namespace jackalope {
 
 struct signal_t;
 struct slot_t;
-struct connection_t;
 
-using slot_handler_t = function_t<void (signal_t * sender_in)>;
+using slot_handler_t = function_t<void (shared_t<signal_t> sender_in)>;
 
 struct signal_t : public base_t {
     const string_t name;
-    pool_list_t<connection_t *> connections;
+    pool_list_t<slot_handler_t> connections;
 
     signal_t(const string_t& name_in);
-    connection_t * connect(slot_t * dest_in);
+    void connect(shared_t<slot_t> dest_in);
     void send();
 };
 
@@ -42,14 +41,7 @@ struct slot_t : public base_t {
     const slot_handler_t handler;
 
     slot_t(const string_t& name_in, slot_handler_t handler_in);
-    void invoke(signal_t * sender_in);
-};
-
-struct connection_t : public base_t {
-    signal_t * from;
-    slot_t * to;
-
-    connection_t(signal_t * from_in, slot_t * to_in);
+    void invoke(shared_t<signal_t> sender_in);
 };
 
 } // namespace jackalope

@@ -13,26 +13,42 @@
 #pragma once
 
 #include <jackalope/channel.forward.h>
+#include <jackalope/library.h>
 #include <jackalope/property.h>
+#include <jackalope/signal.h>
 #include <jackalope/string.h>
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
 
 namespace jackalope {
 
+class object_t;
+
+using object_library_t = library_t<object_t, const init_list_t&>;
+
+void add_object_constructor(const string_t& class_name_in, object_library_t::constructor_t constructor_in);
+
 class object_t : public prop_obj_t, public lockable_t, public shared_obj_t<object_t> {
 
 protected:
     const init_list_t init_args;
+    pool_map_t<string_t, shared_t<signal_t>> signals;
+    pool_map_t<string_t, shared_t<slot_t>> slots;
     pool_map_t<string_t, shared_t<source_t>> sources;
     pool_map_t<string_t, shared_t<sink_t>> sinks;
 
 public:
+    static shared_t<object_t> make(const init_list_t& init_list_in);
     object_t(const init_list_t& init_list_in);
     virtual void init();
     virtual void activate();
     virtual void start();
     virtual void stop();
+    virtual shared_t<signal_t> add_signal(const string_t& name_in);
+    virtual shared_t<signal_t> get_signal(const string_t& name_in);
+    virtual shared_t<slot_t> add_slot(const string_t& name_in);
+    virtual shared_t<slot_t> get_slot(const string_t& name_in);
+    virtual void handle_slot(shared_t<slot_t> slot_in, shared_t<signal_t> signal_in);
     virtual shared_t<source_t> add_source(const string_t& name_in, const string_t& type_in);
     virtual shared_t<source_t> get_source(const string_t& name_in);
     virtual shared_t<sink_t> add_sink(const string_t& name_in, const string_t& type_in);
