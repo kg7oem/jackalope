@@ -25,8 +25,10 @@ protected:
     pool_list_t<shared_t<object_t>> objects;
 
 public:
+    static shared_t<graph_t> make(const init_list_t& init_args_in);
     graph_t(const init_list_t& init_args_in);
     shared_t<object_t> add_object(const init_list_t& init_args_in);
+    virtual void start() override;
 };
 
 } // namespace jackalope

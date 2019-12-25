@@ -17,6 +17,8 @@
 #include <jackalope/jackalope.h>
 #include <jackalope/log/dest.h>
 #include <jackalope/logging.h>
+#include <jackalope/object.h>
+#include <jackalope/pcm.h>
 
 #define BUFFER_SIZE 128
 #define SAMPLE_RATE 48000
@@ -49,8 +51,10 @@ int main(int argc_in, char ** argv_in)
     // });
 
     auto input_file = graph->add_object({
-        { "object.class", "pcm::sndfile" },
-        { "node.name", "input file" },
+        { JACKALOPE_OBJECT_PROPERTY_CLASS, "pcm::sndfile" },
+        { JACKALOPE_OBJECT_PROPERTY_NAME, "input file" },
+        { JACKALOPE_PCM_PROPERTY_SAMPLE_RATE, to_string(48000) },
+        { JACKALOPE_PCM_PROPERTY_BUFFER_SIZE, to_string(256) },
         { "config.path", argv_in[1] },
     });
 
@@ -73,9 +77,11 @@ int main(int argc_in, char ** argv_in)
     // left_tube->link("Audio Output 1", driver, "left");
     // right_tube->link("Audio Output 1", driver, "right");
 
-    graph->run();
+    graph->start();
 
-    log_info("after run() was called");
+    log_info("after start() was called");
+
+    graph->wait_stop();
 
     jackalope_shutdown();
 

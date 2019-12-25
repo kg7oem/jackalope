@@ -22,7 +22,7 @@ namespace jackalope {
 
 shared_t<foreign_graph_t> make_graph(const init_list_t& init_list_in)
 {
-    auto graph = jackalope::make_shared<graph_t>(init_list_in);
+    auto graph = graph_t::make(init_list_in);
     return jackalope::make_shared<foreign_graph_t>(graph);
 }
 
@@ -57,12 +57,11 @@ foreign_graph_t::foreign_graph_t(shared_t<graph_t> graph_in)
     assert(graph != nullptr);
 }
 
-void foreign_graph_t::run()
+void foreign_graph_t::start()
 {
     wait_job<void>([this] {
         auto lock = graph->get_object_lock();
-        log_info("job inside run() wrapper ran!");
-        // graph->run();
+        graph->start();
     });
 }
 
@@ -74,6 +73,11 @@ shared_t<foreign_object_t> foreign_graph_t::add_object(const init_list_t& init_l
     });
 
     return jackalope::make_shared<foreign_object_t>(new_object);
+}
+
+void foreign_graph_t::wait_stop()
+{
+    graph->wait_stop();
 }
 
 } // namespace jackalope

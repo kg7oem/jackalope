@@ -31,8 +31,12 @@ shared_t<object_t> object_t::make(const init_list_t& init_list_in)
 
     auto object_class = init_list_get("object.class", init_list_in);
     auto constructor = object_library->get_constructor(object_class);
+    auto new_object = constructor(init_list_in);
+    auto new_object_lock = new_object->get_object_lock();
 
-    return constructor(init_list_in);
+    new_object->init();
+
+    return new_object;
 }
 
 object_t::object_t(const init_list_t& init_list_in)
@@ -42,6 +46,17 @@ object_t::object_t(const init_list_t& init_list_in)
 void object_t::init()
 {
     assert_lockable_owner();
+
+    add_slot("object.stop", [this] (shared_t<signal_t> signal_in) {
+        object_stop_handler(signal_in);
+    });
+}
+
+void object_t::object_stop_handler(shared_t<signal_t>)
+{
+    assert_lockable_owner();
+
+    stop();
 }
 
 void object_t::activate()
@@ -52,11 +67,52 @@ void object_t::activate()
 void object_t::start()
 {
     assert_lockable_owner();
+
+    if (stop_flag) {
+        throw_runtime_error("start called when object had already been started");
+    }
+
+    stop_flag = false;
 }
 
 void object_t::stop()
 {
     assert_lockable_owner();
+    auto stop_lock = std::unique_lock<std::mutex>(stop_mutex);
+
+    if (! stop_flag) {
+        throw_runtime_error("stop called when object had not been started");
+    }
+
+    stop_flag = true;
+    stop_condition.notify_all();
+}
+
+void object_t::wait_stop()
+{
+    auto stop_lock = std::unique_lock<std::mutex>(stop_mutex);
+
+    stop_condition.wait(stop_lock, [this] {
+        return stop_flag;
+    });
+}
+
+void object_t::set_graph(shared_t<graph_t> graph_in)
+{
+    assert_lockable_owner();
+
+    graph = graph_in;
+}
+
+shared_t<graph_t> object_t::get_graph()
+{
+    assert_lockable_owner();
+
+    auto strong_graph = graph.lock();
+
+    assert(strong_graph != nullptr);
+
+    return strong_graph;
 }
 
 shared_t<signal_t> object_t::add_signal(const string_t& name_in)
@@ -86,7 +142,7 @@ shared_t<signal_t> object_t::get_signal(const string_t& name_in)
     return found->second;
 }
 
-shared_t<slot_t> object_t::add_slot(const string_t& name_in)
+shared_t<slot_t> object_t::add_slot(const string_t& name_in, slot_handler_t handler_in)
 {
     assert_lockable_owner();
 
@@ -94,21 +150,10 @@ shared_t<slot_t> object_t::add_slot(const string_t& name_in)
         throw_runtime_error("Duplicate slot name: ", name_in);
     }
 
-    auto new_slot = jackalope::make_shared<slot_t>(name_in, [&] (shared_t<signal_t> signal_in) {
-        assert_lockable_owner();
-
-        auto slot = get_slot(name_in);
-        this->handle_slot(slot, signal_in);
-    });
-
+    auto new_slot = jackalope::make_shared<slot_t>(name_in, handler_in);
     slots.insert({ name_in, new_slot });
 
     return new_slot;
-}
-
-void object_t::handle_slot(shared_t<slot_t>, shared_t<signal_t>)
-{
-    assert_lockable_owner();
 }
 
 shared_t<slot_t> object_t::get_slot(const string_t& name_in)

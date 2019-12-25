@@ -51,14 +51,21 @@ void sndfile_object_t::init()
     assert_lockable_owner();
 
     add_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE, property_t::type_t::size);
+    if (init_list_has(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE, init_args)) {
+        get_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE)->set(init_list_get(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE, init_args));
+    }
+
     add_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE, property_t::type_t::size);
+    if (init_list_has(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE, init_args)) {
+        get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE)->set(init_list_get(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE, init_args));
+    }
 
     add_property(JACKALOPE_PCM_SNDFILE_CONFIG_PATH, property_t::type_t::string);
     if (init_list_has(JACKALOPE_PCM_SNDFILE_CONFIG_PATH, init_args)) {
         get_property(JACKALOPE_PCM_SNDFILE_CONFIG_PATH)->set(init_list_get(JACKALOPE_PCM_SNDFILE_CONFIG_PATH, init_args));
     }
 
-    add_signal("file:eof");
+    add_signal("file.eof");
 
     object_t::init();
 }
@@ -83,9 +90,9 @@ void sndfile_object_t::activate()
         throw_runtime_error("File sample rate did not match node sample rate: ", source_info.samplerate);
     }
 
-    for(int i = 0; i < source_info.channels; i++) {
-        add_source(to_string("output ", i + 1), JACKALOPE_PCM_CHANNEL_TYPE_REAL);
-    }
+    // for(int i = 0; i < source_info.channels; i++) {
+    //     add_source(to_string("output ", i + 1), JACKALOPE_PCM_CHANNEL_TYPE_REAL);
+    // }
 
     auto buffer_size = get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE)->get_size();
     source_buffer = new real_t[source_info.channels * buffer_size];

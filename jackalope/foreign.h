@@ -40,8 +40,9 @@ struct foreign_graph_t : public base_t {
 
     foreign_graph_t(shared_t<graph_t> graph_in);
     shared_t<foreign_object_t> add_object(const init_list_t& init_list_in);
-    void run();
     void start();
+    void stop();
+    void wait_stop();
 };
 
 } // namespace jackalope

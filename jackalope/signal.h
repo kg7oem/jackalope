@@ -17,8 +17,8 @@
 #include <jackalope/string.h>
 #include <jackalope/types.h>
 
-#define JACKALOPE_SIGNAL_FILE_EOF "file:eof"
-#define JACKALOPE_SLOT_SYSTEM_TERMINATE "system:terminate"
+#define JACKALOPE_SIGNAL_FILE_EOF "file.eof"
+#define JACKALOPE_SLOT_SYSTEM_TERMINATE "system.terminate"
 
 namespace jackalope {
 
