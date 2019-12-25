@@ -14,6 +14,7 @@
 #pragma once
 
 #include <condition_variable>
+#include <future>
 #include <mutex>
 #include <thread>
 
@@ -26,6 +27,10 @@
 namespace jackalope {
 
 using condition_t = std::condition_variable;
+template <typename T>
+using future_t = std::future<T>;
+template <typename T>
+using promise_t = std::promise<T>;
 using thread_t = std::thread;
 
 class debug_mutex_t : public base_t {
@@ -58,6 +63,8 @@ class lockable_t {
 
 protected:
     mutex_t object_mutex;
+
+public:
     lock_t get_object_lock();
 };
 

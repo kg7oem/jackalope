@@ -66,7 +66,7 @@ int main(int argc_in, char ** argv_in)
         { "plugin.id", to_string(LADSPA_ZAMTUBE_ID) },
     });
 
-    input_file->connect("file.eof", graph, "system.shutdown");
+    input_file->connect("file.eof", graph, "object.stop");
 
     input_file->link("output 1", left_tube, "Audio Input 1");
     input_file->link("output 1", right_tube, "Audio Input 1");
@@ -74,6 +74,10 @@ int main(int argc_in, char ** argv_in)
     right_tube->link("Audio Output 1", driver, "right");
 
     graph->run();
+
+    log_info("after run() was called");
+
+    jackalope_shutdown();
 
     return(0);
 }

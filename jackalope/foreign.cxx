@@ -12,8 +12,10 @@
 
 #include <thread>
 
+#include <jackalope/async.h>
 #include <jackalope/foreign.h>
 #include <jackalope/graph.h>
+#include <jackalope/logging.h>
 #include <jackalope/object.h>
 
 namespace jackalope {
@@ -47,10 +49,11 @@ foreign_graph_t::foreign_graph_t(shared_t<graph_t> graph_in)
 
 void foreign_graph_t::run()
 {
-    while(true) {
-        using namespace std::chrono_literals;
-        std::this_thread::sleep_for(1s);
-    }
+    wait_job<void>([this] {
+        auto lock = graph->get_object_lock();
+        log_info("job inside run() wrapper ran!");
+        // graph->run();
+    });
 }
 
 shared_t<foreign_object_t> foreign_graph_t::add_object(const init_list_t& init_list_in)

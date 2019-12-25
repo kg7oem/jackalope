@@ -13,14 +13,15 @@ endif (VERBOSE)
 # don't change anything below this line
 set(CMAKE_CXX_STANDARD 17)
 
+include(CMake/LocalBoost.cmake)
+
 add_definitions(-fPIC)
 add_definitions(-Wfatal-errors -Werror)
 add_definitions(-Wall -Wextra)
 
 # . gives us jackalope/ with out it being a system directory
 include_directories(.)
-
-include(CMake/LocalBoost.cmake)
+include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 
 project(jackalope)
 
@@ -33,6 +34,7 @@ find_package(Threads REQUIRED)
 add_library(
     jackalope SHARED
 
+    jackalope/async.cxx
     jackalope/channel.cxx
 #    jackalope/domain.cxx
 #    jackalope/driver.cxx

@@ -11,6 +11,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
+#include <jackalope/async.h>
 #include <jackalope/jackalope.h>
 // #include <jackalope/pcm.h>
 // #include <jackalope/pcm/ladspa.h>
@@ -19,8 +20,15 @@
 
 void jackalope_init()
 {
+    jackalope::async_init();
+
     // jackalope::pcm_init();
     // jackalope::pcm::ladspa_init();
     // jackalope::pcm::portaudio_init();
     // jackalope::pcm::sndfile_init();
+}
+
+void jackalope_shutdown()
+{
+    jackalope::async_shutdown();
 }
