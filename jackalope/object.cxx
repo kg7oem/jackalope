@@ -24,11 +24,11 @@ void object_t::init()
 {
     assert_lockable_owner();
 
-    add_signal(JACKALOPE_OBJECT_SIGNAL_STARTED);
-    add_signal(JACKALOPE_OBJECT_SIGNAL_STOPPED);
+    add_signal(JACKALOPE_SIGNAL_OBJECT_STARTED);
+    add_signal(JACKALOPE_SIGNAL_OBJECT_STOPPED);
 
-    add_slot(JACKALOPE_OBJECT_SLOT_START, std::bind(&object_t::start, this));
-    add_slot(JACKALOPE_OBJECT_SLOT_STOP, std::bind(&object_t::stop, this));
+    add_slot(JACKALOPE_SLOT_OBJECT_START, std::bind(&object_t::start, this));
+    add_slot(JACKALOPE_SLOT_OBJECT_STOP, std::bind(&object_t::stop, this));
 }
 
 void object_t::activate()
@@ -40,14 +40,14 @@ void object_t::start()
 {
     assert_lockable_owner();
 
-    get_signal(JACKALOPE_OBJECT_SIGNAL_STARTED)->send();
+    get_signal(JACKALOPE_SIGNAL_OBJECT_STARTED)->send();
 }
 
 void object_t::stop()
 {
     assert_lockable_owner();
 
-    get_signal(JACKALOPE_OBJECT_SIGNAL_STOPPED)->send();
+    get_signal(JACKALOPE_SIGNAL_OBJECT_STOPPED)->send();
 }
 
 shared_t<signal_t> object_t::add_signal(const string_t& name_in)

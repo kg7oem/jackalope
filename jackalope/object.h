@@ -20,10 +20,10 @@
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
 
-#define JACKALOPE_OBJECT_SIGNAL_STARTED    "object.started"
-#define JACKALOPE_OBJECT_SIGNAL_STOPPED    "object.stopped"
-#define JACKALOPE_OBJECT_SLOT_START        "object.start"
-#define JACKALOPE_OBJECT_SLOT_STOP         "object.stop"
+#define JACKALOPE_SIGNAL_OBJECT_STARTED    "object.started"
+#define JACKALOPE_SIGNAL_OBJECT_STOPPED    "object.stopped"
+#define JACKALOPE_SLOT_OBJECT_START        "object.start"
+#define JACKALOPE_SLOT_OBJECT_STOP         "object.stop"
 
 namespace jackalope {
 

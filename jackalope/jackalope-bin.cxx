@@ -68,7 +68,7 @@ int main(int argc_in, char ** argv_in)
     //     { "plugin.id", to_string(LADSPA_ZAMTUBE_ID) },
     // });
 
-    input_file->connect(JACKALOPE_SIGNAL_FILE_EOF, graph, JACKALOPE_OBJECT_SLOT_STOP);
+    input_file->connect(JACKALOPE_SIGNAL_FILE_EOF, graph, JACKALOPE_SLOT_OBJECT_STOP);
 
     // input_file->link("output 1", left_tube, "Audio Input 1");
     // input_file->link("output 1", right_tube, "Audio Input 1");
