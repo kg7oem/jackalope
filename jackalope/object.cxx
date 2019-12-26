@@ -24,8 +24,10 @@ void object_t::init()
 {
     assert_lockable_owner();
 
+    add_signal(JACKALOPE_OBJECT_SIGNAL_STARTED);
     add_signal(JACKALOPE_OBJECT_SIGNAL_STOPPED);
 
+    add_slot(JACKALOPE_OBJECT_SLOT_START, std::bind(&object_t::start, this));
     add_slot(JACKALOPE_OBJECT_SLOT_STOP, std::bind(&object_t::stop, this));
 }
 
@@ -38,11 +40,7 @@ void object_t::start()
 {
     assert_lockable_owner();
 
-    if (! stop_flag) {
-        throw_runtime_error("start called when object had already been started");
-    }
-
-    stop_flag = false;
+    get_signal(JACKALOPE_OBJECT_SIGNAL_STARTED)->send();
 }
 
 void object_t::stop()

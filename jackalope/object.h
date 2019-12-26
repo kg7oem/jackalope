@@ -20,7 +20,9 @@
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
 
+#define JACKALOPE_OBJECT_SIGNAL_STARTED    "object.started"
 #define JACKALOPE_OBJECT_SIGNAL_STOPPED    "object.stopped"
+#define JACKALOPE_OBJECT_SLOT_START        "object.start"
 #define JACKALOPE_OBJECT_SLOT_STOP         "object.stop"
 
 namespace jackalope {
@@ -37,9 +39,6 @@ protected:
     pool_map_t<string_t, shared_t<slot_t>> slots;
     pool_map_t<string_t, shared_t<source_t>> sources;
     pool_map_t<string_t, shared_t<sink_t>> sinks;
-    bool stop_flag = true;
-    std::mutex stop_mutex;
-    condition_t stop_condition;
 
     object_t(const init_list_t& init_list_in);
 
