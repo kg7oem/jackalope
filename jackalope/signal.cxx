@@ -31,9 +31,28 @@ void signal_t::send()
 {
     auto lock = get_object_lock();
 
+    for(auto& i : waiters) {
+        i.set_value();
+    }
+
+    waiters.empty();
+
     for (auto i : connections) {
         submit_job([i] { i->invoke(); });
     }
+}
+
+void signal_t::wait()
+{
+    future_t<void> wakeup_future;
+
+    {
+        auto lock = get_object_lock();
+        auto& wakeup_promise = waiters.emplace_back();
+        wakeup_future = wakeup_promise.get_future();
+    }
+
+   wakeup_future.get();
 }
 
 slot_t::slot_t(const string_t& name_in, slot_handler_t handler_in)

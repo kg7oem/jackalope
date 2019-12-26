@@ -75,9 +75,14 @@ shared_t<foreign_node_t> foreign_graph_t::add_node(const init_list_t& init_list_
     return jackalope::make_shared<foreign_node_t>(new_node);
 }
 
-void foreign_graph_t::wait_stop()
+void foreign_graph_t::wait_signal(const string_t& signal_name_in)
 {
-    graph->wait_stop();
+    auto signal = wait_job<shared_t<signal_t>>([&] {
+        auto lock = graph->get_object_lock();
+        return graph->get_signal(signal_name_in);
+    });
+
+    signal->wait();
 }
 
 } // namespace jackalope

@@ -79,7 +79,7 @@ int main(int argc_in, char ** argv_in)
 
     log_info("after start() was called");
 
-    graph->wait_stop();
+    graph->wait_signal("object.stopped");
 
     log_info("after wait_stop() was called");
 

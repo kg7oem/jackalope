@@ -24,7 +24,9 @@ void object_t::init()
 {
     assert_lockable_owner();
 
-    add_slot("object.stop", std::bind(&object_t::stop, this));
+    add_signal(JACKALOPE_OBJECT_SIGNAL_STOPPED);
+
+    add_slot(JACKALOPE_OBJECT_SLOT_STOP, std::bind(&object_t::stop, this));
 }
 
 void object_t::activate()
@@ -46,23 +48,8 @@ void object_t::start()
 void object_t::stop()
 {
     assert_lockable_owner();
-    auto stop_lock = std::unique_lock<std::mutex>(stop_mutex);
 
-    if (stop_flag) {
-        throw_runtime_error("stop called when object had not been started");
-    }
-
-    stop_flag = true;
-    stop_condition.notify_all();
-}
-
-void object_t::wait_stop()
-{
-    auto stop_lock = std::unique_lock<std::mutex>(stop_mutex);
-
-    stop_condition.wait(stop_lock, [this] {
-        return stop_flag;
-    });
+    get_signal(JACKALOPE_OBJECT_SIGNAL_STOPPED)->send();
 }
 
 shared_t<signal_t> object_t::add_signal(const string_t& name_in)

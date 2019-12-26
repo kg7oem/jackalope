@@ -26,7 +26,7 @@
 
 namespace jackalope {
 
-using condition_t = std::condition_variable;
+using condition_t = std::condition_variable_any;
 template <typename T>
 using future_t = std::future<T>;
 template <typename T>

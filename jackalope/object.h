@@ -57,7 +57,6 @@ public:
     virtual void activate();
     virtual void start();
     virtual void stop();
-    virtual void wait_stop();
     virtual void link(const string_t& source_name_in, shared_t<object_t> target_in, const string_t& sink_name_in);
 };
 

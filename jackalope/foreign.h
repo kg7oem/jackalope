@@ -42,7 +42,7 @@ struct foreign_graph_t : public base_t {
     shared_t<foreign_node_t> add_node(const init_list_t& init_list_in);
     void start();
     void stop();
-    void wait_stop();
+    virtual void wait_signal(const string_t& signal_name_in);
 };
 
 } // namespace jackalope

@@ -31,10 +31,12 @@ using slot_handler_t = function_t<void ()>;
 struct signal_t : public base_t, public shared_obj_t<signal_t>, lockable_t {
     const string_t name;
     pool_list_t<shared_t<slot_t>> connections;
+    pool_list_t<promise_t<void>> waiters;
 
     signal_t(const string_t& name_in);
     void connect(shared_t<slot_t> dest_in);
     void send();
+    void wait();
 };
 
 // Thread safe because everything is const
