@@ -40,7 +40,9 @@ shared_t<node_t> node_t::make(const init_list_t& init_list_in)
 
 node_t::node_t(const init_list_t& init_list_in)
 : object_t(init_list_in)
-{ }
+{
+    name = init_args_get(JACKALOPE_PROPERTY_NODE_NAME, init_args);
+}
 
 void node_t::init_undef_property(const string_t& name_in)
 {
@@ -59,6 +61,13 @@ void node_t::init_undef_property(const string_t& name_in)
         auto value = init_args_get(name_str, graph_init_args);
         property->set(init_args_get(name_str, graph_init_args));
     }
+}
+
+string_t node_t::get_name()
+{
+    assert_lockable_owner();
+
+    return name;
 }
 
 void node_t::set_graph(shared_t<graph_t> graph_in)
