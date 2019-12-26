@@ -36,8 +36,6 @@ add_library(
 
     jackalope/async.cxx
     jackalope/channel.cxx
-#    jackalope/domain.cxx
-#    jackalope/driver.cxx
     jackalope/foreign.cxx
     jackalope/graph.cxx
     jackalope/jackalope.cxx
