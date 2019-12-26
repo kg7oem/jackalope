@@ -38,8 +38,8 @@ int main(int argc_in, char ** argv_in)
     jackalope_init();
 
     auto graph = make_graph({
-        { JACKALOPE_PCM_PROPERTY_SAMPLE_RATE, to_string(SAMPLE_RATE) },
-        { JACKALOPE_PCM_PROPERTY_BUFFER_SIZE, to_string(BUFFER_SIZE) },
+        { JACKALOPE_PROPERTY_PCM_SAMPLE_RATE, to_string(SAMPLE_RATE) },
+        { JACKALOPE_PROPERTY_PCM_BUFFER_SIZE, to_string(BUFFER_SIZE) },
     });
 
     // auto driver = graph->add_object({

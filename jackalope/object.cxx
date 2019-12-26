@@ -64,6 +64,16 @@ shared_t<signal_t> object_t::add_signal(const string_t& name_in)
     return signal;
 }
 
+shared_t<signal_t> object_t::add_signal(const string_t& name_in, slot_function_t handler_in)
+{
+    assert_lockable_owner();
+
+    auto signal = add_signal(name_in);
+    signal->connect(handler_in);
+
+    return signal;
+}
+
 shared_t<signal_t> object_t::get_signal(const string_t& name_in)
 {
     assert_lockable_owner();

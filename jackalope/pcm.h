@@ -13,116 +13,129 @@
 
 #pragma once
 
-#include <jackalope/channel.h>
+// #include <jackalope/channel.h>
 #include <jackalope/exception.h>
+#include <jackalope/node.h>
 #include <jackalope/pcm.tools.h>
 #include <jackalope/types.h>
 
-#define JACKALOPE_PCM_CHANNEL_TYPE_REAL    "pcm[real]"
-#define JACKALOPE_PCM_CHANNEL_TYPE_QUAD    "pcm[quad]"
-#define JACKALOPE_PCM_PROPERTY_BUFFER_SIZE  "pcm.buffer_size"
-#define JACKALOPE_PCM_PROPERTY_SAMPLE_RATE  "pcm.sample_rate"
+#define JACKALOPE_CHANNEL_TYPE_PCM_REAL      "pcm[real]"
+#define JACKALOPE_CHANNEL_TYPE_PCM_QUAD      "pcm[quad]"
+#define JACKALOPE_PROPERTY_PCM_BUFFER_SIZE   "pcm.buffer_size"
+#define JACKALOPE_PROPERTY_PCM_SAMPLE_RATE   "pcm.sample_rate"
+#define JACKALOPE_SIGNAL_PCM_READY           "pcm.ready"
 
 namespace jackalope {
 
 void pcm_init();
 
-template <typename T>
-class pcm_buffer_t : public base_t {
+class pcm_node_t : public node_t {
 
 protected:
-    size_t num_samples = 0;
-    T * data = nullptr;
+    virtual void pcm_ready();
 
 public:
-    pcm_buffer_t() { }
-
-    pcm_buffer_t(const size_t num_samples_in)
-    : num_samples(num_samples_in)
-    {
-        set_num_samples(num_samples_in);
-    }
-
-    virtual ~pcm_buffer_t()
-    {
-        if (data != nullptr) {
-            delete data;
-            data = nullptr;
-            num_samples = 0;
-        }
-    }
-
-    void set_num_samples(const size_t num_samples_in)
-    {
-        if (num_samples_in == 0) {
-            throw_runtime_error("number of samples must be greater than 0");
-        }
-
-        if (data != nullptr) {
-            delete data;
-        }
-
-        data = new T[num_samples_in];
-        pcm_zero(data, num_samples_in);
-    }
-
-    T * get_pointer()
-    {
-        assert(data != nullptr);
-        return data;
-    }
+    pcm_node_t(const init_list_t& init_list_in);
+    virtual void init() override;
+    virtual void activate() override;
 };
 
-template <typename T>
-class pcm_source_t : public source_t {
+// template <typename T>
+// class pcm_buffer_t : public base_t {
 
-protected:
-    pcm_buffer_t<T> buffer;
+// protected:
+//     size_t num_samples = 0;
+//     T * data = nullptr;
 
-public:
-    pcm_source_t(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)
-    : source_t(name_in, type_in, parent_in)
-    { }
+// public:
+//     pcm_buffer_t() { }
 
-    virtual void activate() override
-    {
-        auto& buffer_size_prop = get_parent()->get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE);
+//     pcm_buffer_t(const size_t num_samples_in)
+//     : num_samples(num_samples_in)
+//     {
+//         set_num_samples(num_samples_in);
+//     }
 
-        buffer.set_num_samples(buffer_size_prop->get_size());
+//     virtual ~pcm_buffer_t()
+//     {
+//         if (data != nullptr) {
+//             delete data;
+//             data = nullptr;
+//             num_samples = 0;
+//         }
+//     }
 
-        source_t::activate();
-    }
+//     void set_num_samples(const size_t num_samples_in)
+//     {
+//         if (num_samples_in == 0) {
+//             throw_runtime_error("number of samples must be greater than 0");
+//         }
 
-    pcm_buffer_t<T>& get_buffer()
-    {
-        return buffer;
-    }
-};
+//         if (data != nullptr) {
+//             delete data;
+//         }
 
-template <typename T>
-class pcm_sink_t : public sink_t {
+//         data = new T[num_samples_in];
+//         pcm_zero(data, num_samples_in);
+//     }
 
-protected:
-    pcm_buffer_t<T> buffer;
+//     T * get_pointer()
+//     {
+//         assert(data != nullptr);
+//         return data;
+//     }
+// };
 
-public:
-    pcm_sink_t(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)
-    : sink_t(name_in, type_in, parent_in)
-    { }
+// template <typename T>
+// class pcm_source_t : public source_t {
 
-    virtual void activate() override
-    {
-        auto& buffer_size_prop = get_parent()->get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE);
+// protected:
+//     pcm_buffer_t<T> buffer;
 
-        buffer.set_num_samples(buffer_size_prop->get_size());
+// public:
+//     pcm_source_t(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)
+//     : source_t(name_in, type_in, parent_in)
+//     { }
 
-        sink_t::activate();
-    }
+//     virtual void activate() override
+//     {
+//         auto& buffer_size_prop = get_parent()->get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE);
 
-    pcm_buffer_t<T>& get_buffer()
-    {
-        return buffer;
-    }
-};
+//         buffer.set_num_samples(buffer_size_prop->get_size());
+
+//         source_t::activate();
+//     }
+
+//     pcm_buffer_t<T>& get_buffer()
+//     {
+//         return buffer;
+//     }
+// };
+
+// template <typename T>
+// class pcm_sink_t : public sink_t {
+
+// protected:
+//     pcm_buffer_t<T> buffer;
+
+// public:
+//     pcm_sink_t(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)
+//     : sink_t(name_in, type_in, parent_in)
+//     { }
+
+//     virtual void activate() override
+//     {
+//         auto& buffer_size_prop = get_parent()->get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE);
+
+//         buffer.set_num_samples(buffer_size_prop->get_size());
+
+//         sink_t::activate();
+//     }
+
+//     pcm_buffer_t<T>& get_buffer()
+//     {
+//         return buffer;
+//     }
+// };
 
 } // namespace jackalope

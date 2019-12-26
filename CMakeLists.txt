@@ -43,7 +43,7 @@ add_library(
     jackalope/log/engine.cxx
     jackalope/node.cxx
     jackalope/object.cxx
-#    jackalope/pcm.cxx
+    jackalope/pcm.cxx
 #    jackalope/pcm/ladspa.cxx
 #    jackalope/pcm/portaudio.cxx
     jackalope/pcm/sndfile.cxx
