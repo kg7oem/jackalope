@@ -11,26 +11,27 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
+#include <jackalope/logging.h>
 #include <jackalope/node.h>
 #include <jackalope/pcm.h>
 #include <jackalope/types.h>
 
 namespace jackalope {
 
-// static shared_t<source_t> pcm_source_real_constructor(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)
-// {
-//     return jackalope::make_shared<pcm_source_t<real_t>>(name_in, type_in, parent_in);
-// }
+static shared_t<source_t> pcm_source_real_constructor(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)
+{
+    return jackalope::make_shared<pcm_source_t<real_t>>(name_in, type_in, parent_in);
+}
 
-// static shared_t<sink_t> pcm_sink_real_constructor(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)
-// {
-//     return jackalope::make_shared<pcm_sink_t<real_t>>(name_in, type_in, parent_in);
-// }
+static shared_t<sink_t> pcm_sink_real_constructor(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)
+{
+    return jackalope::make_shared<pcm_sink_t<real_t>>(name_in, type_in, parent_in);
+}
 
 void pcm_init()
 {
-    // add_source_constructor(JACKALOPE_PCM_CHANNEL_TYPE_REAL, pcm_source_real_constructor);
-    // add_sink_constructor(JACKALOPE_PCM_CHANNEL_TYPE_REAL, pcm_sink_real_constructor);
+    add_source_constructor(JACKALOPE_CHANNEL_TYPE_PCM_REAL, pcm_source_real_constructor);
+    add_sink_constructor(JACKALOPE_CHANNEL_TYPE_PCM_REAL, pcm_sink_real_constructor);
 }
 
 pcm_node_t::pcm_node_t(const init_list_t& init_list_in)
@@ -50,6 +51,14 @@ void pcm_node_t::init()
         auto lock = get_object_lock();
         this->pcm_ready();
     });
+
+    for(auto& i : init_args_find("source", init_args)) {
+        add_source(i.first, i.second);
+    }
+
+    for(auto& i : init_args_find("sink", init_args)) {
+        add_sink(i.first, i.second);
+    }
 }
 
 void pcm_node_t::activate()

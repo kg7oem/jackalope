@@ -54,6 +54,8 @@ int main(int argc_in, char ** argv_in)
         { JACKALOPE_PROPERTY_NODE_CLASS, "pcm::sndfile" },
         { JACKALOPE_PROPERTY_NODE_NAME, "input file" },
         { "config.path", argv_in[1] },
+        { "source.left", JACKALOPE_CHANNEL_TYPE_PCM_REAL },
+        { "source.right", JACKALOPE_CHANNEL_TYPE_PCM_REAL },
     });
 
     // auto left_tube = graph->add_object({
