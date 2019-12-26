@@ -77,7 +77,7 @@ shared_t<signal_t> object_t::get_signal(const string_t& name_in)
     return found->second;
 }
 
-shared_t<slot_t> object_t::add_slot(const string_t& name_in, slot_handler_t handler_in)
+shared_t<slot_t> object_t::add_slot(const string_t& name_in, slot_function_t handler_in)
 {
     assert_lockable_owner();
 

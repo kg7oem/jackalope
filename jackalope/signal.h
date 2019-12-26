@@ -25,16 +25,17 @@ namespace jackalope {
 struct signal_t;
 struct slot_t;
 
-using slot_handler_t = function_t<void ()>;
+using slot_function_t = function_t<void ()>;
 
 // Thread safe with out user requirements
 struct signal_t : public base_t, public shared_obj_t<signal_t>, lockable_t {
     const string_t name;
-    pool_list_t<shared_t<slot_t>> connections;
+    pool_list_t<slot_function_t> connections;
     pool_list_t<promise_t<void>> waiters;
 
     signal_t(const string_t& name_in);
-    void connect(shared_t<slot_t> dest_in);
+    void connect(slot_function_t handler_in);
+    void connect(shared_t<slot_t> handler_in);
     void send();
     void wait();
 };
@@ -42,9 +43,9 @@ struct signal_t : public base_t, public shared_obj_t<signal_t>, lockable_t {
 // Thread safe because everything is const
 struct slot_t : public base_t, public shared_obj_t<slot_t> {
     const string_t name;
-    const slot_handler_t handler;
+    const slot_function_t handler;
 
-    slot_t(const string_t& name_in, slot_handler_t handler_in);
+    slot_t(const string_t& name_in, slot_function_t handler_in);
     void invoke();
 };
 

@@ -46,7 +46,7 @@ public:
     const init_args_t init_args;
     virtual shared_t<signal_t> add_signal(const string_t& name_in);
     virtual shared_t<signal_t> get_signal(const string_t& name_in);
-    virtual shared_t<slot_t> add_slot(const string_t& name_in, slot_handler_t handler_in);
+    virtual shared_t<slot_t> add_slot(const string_t& name_in, slot_function_t handler_in);
     virtual shared_t<slot_t> get_slot(const string_t& name_in);
     virtual shared_t<source_t> add_source(const string_t& name_in, const string_t& type_in);
     virtual shared_t<source_t> get_source(const string_t& name_in);
