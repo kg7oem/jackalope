@@ -13,8 +13,8 @@
 
 #pragma once
 
+#include <jackalope/node.h>
 #include <jackalope/pcm.h>
-#include <jackalope/object.h>
 
 #define JACKALOPE_PCM_SNDFILE_CLASS "pcm::sndfile"
 #define JACKALOPE_PCM_SNDFILE_CONFIG_PATH "config.path"
@@ -36,7 +36,7 @@ using sndfile_info_t = sndfile::SF_INFO;
 
 void sndfile_init();
 
-struct sndfile_object_t : public object_t {
+struct sndfile_object_t : public node_t {
     const string_t class_name = JACKALOPE_PCM_SNDFILE_CLASS;
 
     thread_t * io_thread = nullptr;

@@ -17,7 +17,7 @@
 #include <jackalope/jackalope.h>
 #include <jackalope/log/dest.h>
 #include <jackalope/logging.h>
-#include <jackalope/object.h>
+#include <jackalope/node.h>
 #include <jackalope/pcm.h>
 
 #define BUFFER_SIZE 128
@@ -50,9 +50,9 @@ int main(int argc_in, char ** argv_in)
     //     { "sink.right", "pcm[real]" },
     // });
 
-    auto input_file = graph->add_object({
-        { JACKALOPE_OBJECT_PROPERTY_CLASS, "pcm::sndfile" },
-        { JACKALOPE_OBJECT_PROPERTY_NAME, "input file" },
+    auto input_file = graph->add_node({
+        { JACKALOPE_PROPERTY_NODE_CLASS, "pcm::sndfile" },
+        { JACKALOPE_PROPERTY_NODE_NAME, "input file" },
         { JACKALOPE_PCM_PROPERTY_SAMPLE_RATE, to_string(48000) },
         { JACKALOPE_PCM_PROPERTY_BUFFER_SIZE, to_string(256) },
         { "config.path", argv_in[1] },
@@ -70,7 +70,7 @@ int main(int argc_in, char ** argv_in)
     //     { "plugin.id", to_string(LADSPA_ZAMTUBE_ID) },
     // });
 
-    input_file->connect(JACKALOPE_SIGNAL_FILE_EOF, graph, JACKALOPE_OBJECT_SIGNAL_STOPPED);
+    input_file->connect(JACKALOPE_SIGNAL_FILE_EOF, graph, JACKALOPE_OBJECT_SLOT_STOP);
 
     // input_file->link("output 1", left_tube, "Audio Input 1");
     // input_file->link("output 1", right_tube, "Audio Input 1");

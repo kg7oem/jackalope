@@ -30,26 +30,26 @@ graph_t::graph_t(const init_list_t& init_args_in)
 : object_t(init_args_in)
 { }
 
-shared_t<object_t> graph_t::add_object(const init_list_t& init_args_in)
+shared_t<node_t> graph_t::add_node(const init_list_t& init_args_in)
 {
     assert_lockable_owner();
 
-    auto new_object = object_t::make(init_args_in);
-    auto new_object_lock = new_object->get_object_lock();
+    auto new_node = node_t::make(init_args_in);
+    auto new_node_lock = new_node->get_object_lock();
 
-    new_object->set_graph(shared_obj<graph_t>());
-    new_object->activate();
+    new_node->set_graph(shared_obj<graph_t>());
+    new_node->activate();
 
-    objects.push_back(new_object);
+    nodes.push_back(new_node);
 
-    return new_object;
+    return new_node;
 }
 
 void graph_t::start()
 {
     assert_lockable_owner();
 
-    for(auto i : objects) {
+    for(auto i : nodes) {
         auto lock = i->get_object_lock();
         i->start();
     }

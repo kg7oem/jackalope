@@ -27,11 +27,11 @@ static shared_t<sndfile_object_t> sndfile_object_constructor(const init_list_t& 
 
 void sndfile_init()
 {
-    add_object_constructor(JACKALOPE_PCM_SNDFILE_CLASS, sndfile_object_constructor);
+    add_node_constructor(JACKALOPE_PCM_SNDFILE_CLASS, sndfile_object_constructor);
 }
 
 sndfile_object_t::sndfile_object_t(const init_list_t& init_list_in)
-: object_t(init_list_in)
+: node_t(init_list_in)
 { }
 
 sndfile_object_t::~sndfile_object_t()

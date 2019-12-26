@@ -16,29 +16,6 @@
 
 namespace jackalope {
 
-static auto object_library = new object_library_t;
-
-void add_object_constructor(const string_t& class_name_in, object_library_t::constructor_t constructor_in)
-{
-    object_library->add_constructor(class_name_in, constructor_in);
-}
-
-shared_t<object_t> object_t::make(const init_list_t& init_list_in)
-{
-    if (! init_list_has("object.class", init_list_in)) {
-        throw_runtime_error("missing required init arg: ", "object.class");
-    }
-
-    auto object_class = init_list_get("object.class", init_list_in);
-    auto constructor = object_library->get_constructor(object_class);
-    auto new_object = constructor(init_list_in);
-    auto new_object_lock = new_object->get_object_lock();
-
-    new_object->init();
-
-    return new_object;
-}
-
 object_t::object_t(const init_list_t& init_list_in)
 : init_args(init_list_in)
 { }
@@ -95,24 +72,6 @@ void object_t::wait_stop()
     stop_condition.wait(stop_lock, [this] {
         return stop_flag;
     });
-}
-
-void object_t::set_graph(shared_t<graph_t> graph_in)
-{
-    assert_lockable_owner();
-
-    graph = graph_in;
-}
-
-shared_t<graph_t> object_t::get_graph()
-{
-    assert_lockable_owner();
-
-    auto strong_graph = graph.lock();
-
-    assert(strong_graph != nullptr);
-
-    return strong_graph;
 }
 
 shared_t<signal_t> object_t::add_signal(const string_t& name_in)

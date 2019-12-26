@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include <jackalope/object.h>
+#include <jackalope/node.h>
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
 
@@ -22,12 +22,12 @@ class graph_t : public object_t {
 
 protected:
     const init_list_t init_args;
-    pool_list_t<shared_t<object_t>> objects;
+    pool_list_t<shared_t<node_t>> nodes;
 
 public:
     static shared_t<graph_t> make(const init_list_t& init_args_in);
     graph_t(const init_list_t& init_args_in);
-    shared_t<object_t> add_object(const init_list_t& init_args_in);
+    shared_t<node_t> add_node(const init_list_t& init_args_in);
     virtual void start() override;
 };
 

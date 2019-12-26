@@ -23,12 +23,13 @@ void add_node_constructor(const string_t& class_name_in, node_library_t::constru
 
 shared_t<node_t> node_t::make(const init_list_t& init_list_in)
 {
-    if (! init_list_has("node:class", init_list_in)) {
+    if (! init_list_has(JACKALOPE_PROPERTY_NODE_CLASS, init_list_in)) {
         throw_runtime_error("missing node class in arguments");
     }
 
-    auto node_class = init_list_get("node:class", init_list_in);
+    auto node_class = init_list_get(JACKALOPE_PROPERTY_NODE_CLASS, init_list_in);
     auto node = node_library->make(node_class, init_list_in);
+    auto node_lock = node->get_object_lock();
 
     node->init();
 
@@ -39,16 +40,22 @@ node_t::node_t(const init_list_t& init_list_in)
 : object_t(init_list_in)
 { }
 
-void node_t::set_domain(shared_t<domain_t> domain_in)
+void node_t::set_graph(shared_t<graph_t> graph_in)
 {
-    domain = domain_in;
+    assert_lockable_owner();
+
+    graph = graph_in;
 }
 
-shared_t<domain_t> node_t::get_domain()
+shared_t<graph_t> node_t::get_graph()
 {
-    assert(! domain.expired());
+    assert_lockable_owner();
 
-    return domain.lock();
+    auto strong_graph = graph.lock();
+
+    assert(strong_graph != nullptr);
+
+    return strong_graph;
 }
 
 } // namespace jackalope

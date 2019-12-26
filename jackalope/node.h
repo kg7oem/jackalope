@@ -18,6 +18,9 @@
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
 
+#define JACKALOPE_PROPERTY_NODE_NAME     "node.name"
+#define JACKALOPE_PROPERTY_NODE_CLASS    "node.class"
+
 namespace jackalope {
 
 class domain_t;
@@ -27,16 +30,16 @@ using node_library_t = library_t<node_t, const init_list_t&>;
 
 void add_node_constructor(const string_t& class_name_in, node_library_t::constructor_t constructor_in);
 
-class node_t : public base_t, public object_t {
+class node_t : public object_t {
 
 protected:
-    weak_t<domain_t> domain;
+    weak_t<graph_t> graph;
 
 public:
     static shared_t<node_t> make(const init_list_t& init_list_in);
     node_t(const init_list_t& init_list_in);
-    void set_domain(shared_t<domain_t> domain_in);
-    shared_t<domain_t> get_domain();
+    void set_graph(shared_t<graph_t>);
+    virtual shared_t<graph_t> get_graph();
 };
 
 } // namespace jackalope
