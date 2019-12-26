@@ -21,7 +21,6 @@ namespace jackalope {
 class graph_t : public object_t {
 
 protected:
-    const init_list_t init_args;
     pool_list_t<shared_t<node_t>> nodes;
 
 public:

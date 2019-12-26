@@ -69,6 +69,7 @@ protected:
 
 public:
     virtual shared_t<property_t> add_property(const string_t& name_in, property_t::type_t type_in);
+    virtual shared_t<property_t> add_property(const string_t& name_in, property_t::type_t type_in, const init_list_t& init_args_in);
     virtual shared_t<property_t> get_property(const string_t& name_in);
 };
 

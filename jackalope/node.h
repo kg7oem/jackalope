@@ -34,6 +34,7 @@ class node_t : public object_t {
 
 protected:
     weak_t<graph_t> graph;
+    virtual void init_undef_property(const string_t& name_in);
 
 public:
     static shared_t<node_t> make(const init_list_t& init_list_in);

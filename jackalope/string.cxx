@@ -14,6 +14,7 @@
 #include <cstring>
 
 #include <jackalope/exception.h>
+#include <jackalope/logging.h>
 #include <jackalope/string.h>
 
 namespace jackalope {
@@ -33,6 +34,8 @@ bool init_list_has(const char * name_in, const init_list_t& init_list_in)
     auto name = to_string(name_in);
 
     for(auto i : init_list_in) {
+        log_info("init_list_has(): ", i.first, " == ", name);
+
         if (i.first == name) {
             return true;
         }

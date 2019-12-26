@@ -56,20 +56,9 @@ void sndfile_object_t::init()
 {
     assert_lockable_owner();
 
-    add_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE, property_t::type_t::size);
-    if (init_list_has(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE, init_args)) {
-        get_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE)->set(init_list_get(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE, init_args));
-    }
-
-    add_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE, property_t::type_t::size);
-    if (init_list_has(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE, init_args)) {
-        get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE)->set(init_list_get(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE, init_args));
-    }
-
-    add_property(JACKALOPE_PCM_SNDFILE_CONFIG_PATH, property_t::type_t::string);
-    if (init_list_has(JACKALOPE_PCM_SNDFILE_CONFIG_PATH, init_args)) {
-        get_property(JACKALOPE_PCM_SNDFILE_CONFIG_PATH)->set(init_list_get(JACKALOPE_PCM_SNDFILE_CONFIG_PATH, init_args));
-    }
+    add_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE, property_t::type_t::size, init_args);
+    add_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE, property_t::type_t::size, init_args);
+    add_property(JACKALOPE_PCM_SNDFILE_CONFIG_PATH, property_t::type_t::string, init_args);
 
     add_signal("file.eof");
 
@@ -80,8 +69,8 @@ void sndfile_object_t::activate()
 {
     assert_lockable_owner();
 
-    // get_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE)->set(get_domain()->get_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE).get_size());
-    // get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE)->set(get_domain()->get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE).get_size());
+    init_undef_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE);
+    init_undef_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE);
 
     auto source_file_name = get_property(JACKALOPE_PCM_SNDFILE_CONFIG_PATH)->get();
     source_file = sndfile::sf_open(source_file_name.c_str(), sndfile::SFM_READ, &source_info);

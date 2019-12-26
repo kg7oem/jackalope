@@ -10,7 +10,9 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
+#include <jackalope/graph.h>
 #include <jackalope/node.h>
+#include <jackalope/logging.h>
 
 namespace jackalope {
 
@@ -39,6 +41,34 @@ shared_t<node_t> node_t::make(const init_list_t& init_list_in)
 node_t::node_t(const init_list_t& init_list_in)
 : object_t(init_list_in)
 { }
+
+void node_t::init_undef_property(const string_t& name_in)
+{
+    assert_lockable_owner();
+
+    auto property = get_property(name_in);
+
+    log_info("checking for init of property needed: ", name_in);
+
+    if (property->is_defined()) {
+        return;
+    }
+
+    log_info("property was not defined: ", name_in);
+
+    auto name_str = name_in.c_str();
+    auto graph_init_args = get_graph()->init_args;
+
+    for(auto i : graph_init_args) {
+        log_info("    ", i.first, " = ", i.second);
+    }
+
+    if (init_list_has(name_str, graph_init_args)) {
+        auto value = init_list_get(name_str, graph_init_args);
+        log_info("got default for ", name_in, ": ", value);
+        property->set(init_list_get(name_str, graph_init_args));
+    }
+}
 
 void node_t::set_graph(shared_t<graph_t> graph_in)
 {

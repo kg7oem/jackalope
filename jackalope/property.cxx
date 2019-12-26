@@ -202,4 +202,16 @@ shared_t<property_t> prop_obj_t::get_property(const string_t& name_in)
     return found->second;
 }
 
+shared_t<property_t> prop_obj_t::add_property(const string_t& name_in, property_t::type_t type_in, const init_list_t& init_args_in)
+{
+    auto new_property = add_property(name_in, type_in);
+    auto name_str = name_in.c_str();
+
+    if (init_list_has(name_str, init_args_in)) {
+        new_property->set(init_list_get(name_str, init_args_in));
+    }
+
+    return new_property;
+}
+
 } // namespace jackalope

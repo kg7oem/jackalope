@@ -33,7 +33,6 @@ class object_t : public prop_obj_t, public lockable_t, public shared_obj_t<objec
 using stop_promise_t = promise_t<void>;
 
 protected:
-    const init_list_t init_args;
     pool_map_t<string_t, shared_t<signal_t>> signals;
     pool_map_t<string_t, shared_t<slot_t>> slots;
     pool_map_t<string_t, shared_t<source_t>> sources;
@@ -46,7 +45,7 @@ protected:
     virtual void object_stop_handler(shared_t<signal_t> signal_in);
 
 public:
-    // static shared_t<object_t> make(const init_list_t& init_list_in);
+    const init_list_t init_args;
     virtual shared_t<signal_t> add_signal(const string_t& name_in);
     virtual shared_t<signal_t> get_signal(const string_t& name_in);
     virtual shared_t<slot_t> add_slot(const string_t& name_in, slot_handler_t handler_in);
