@@ -121,18 +121,12 @@ void sndfile_object_t::start()
 
 void sndfile_object_t::io_thread_handler()
 {
-    log_info("sndfile io thread started");
-
     while(1) {
-        log_info("starting IO loop");
-
         auto lock = get_object_lock();
         assert(source_file != nullptr);
 
         auto buffer_size =  get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE)->get_size();
         size_t frames_read = sndfile::sf_readf_float(source_file, source_buffer, buffer_size);
-
-        log_info("sndfile read: ", frames_read);
 
         if (frames_read == 0) {
             close_file(source_file);

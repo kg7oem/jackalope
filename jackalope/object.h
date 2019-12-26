@@ -45,7 +45,7 @@ protected:
     virtual void object_stop_handler(shared_t<signal_t> signal_in);
 
 public:
-    const init_list_t init_args;
+    const init_args_t init_args;
     virtual shared_t<signal_t> add_signal(const string_t& name_in);
     virtual shared_t<signal_t> get_signal(const string_t& name_in);
     virtual shared_t<slot_t> add_slot(const string_t& name_in, slot_handler_t handler_in);

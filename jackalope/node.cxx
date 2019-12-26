@@ -48,25 +48,16 @@ void node_t::init_undef_property(const string_t& name_in)
 
     auto property = get_property(name_in);
 
-    log_info("checking for init of property needed: ", name_in);
-
     if (property->is_defined()) {
         return;
     }
 
-    log_info("property was not defined: ", name_in);
-
     auto name_str = name_in.c_str();
     auto graph_init_args = get_graph()->init_args;
 
-    for(auto i : graph_init_args) {
-        log_info("    ", i.first, " = ", i.second);
-    }
-
-    if (init_list_has(name_str, graph_init_args)) {
-        auto value = init_list_get(name_str, graph_init_args);
-        log_info("got default for ", name_in, ": ", value);
-        property->set(init_list_get(name_str, graph_init_args));
+    if (init_args_has(name_str, graph_init_args)) {
+        auto value = init_args_get(name_str, graph_init_args);
+        property->set(init_args_get(name_str, graph_init_args));
     }
 }
 

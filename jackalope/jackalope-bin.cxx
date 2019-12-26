@@ -51,7 +51,6 @@ int main(int argc_in, char ** argv_in)
     // });
 
     auto input_file = graph->add_node({
-        { "foo", "bar " },
         { JACKALOPE_PROPERTY_NODE_CLASS, "pcm::sndfile" },
         { JACKALOPE_PROPERTY_NODE_NAME, "input file" },
         { "config.path", argv_in[1] },

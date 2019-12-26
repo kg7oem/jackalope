@@ -34,8 +34,6 @@ bool init_list_has(const char * name_in, const init_list_t& init_list_in)
     auto name = to_string(name_in);
 
     for(auto i : init_list_in) {
-        log_info("init_list_has(): ", i.first, " == ", name);
-
         if (i.first == name) {
             return true;
         }
@@ -57,13 +55,66 @@ string_t init_list_get(const char * name_in, const init_list_t& init_list_in)
     throw_runtime_error("could not find init arg: ", name);
 }
 
-pool_list_t<std::pair<const string_t, const string_t>> init_list_find(const char * prefix_in, const init_list_t& init_list_in)
+init_args_t init_list_find(const char * prefix_in, const init_list_t& init_list_in)
 {
     auto prefix = to_string(prefix_in);
-    pool_list_t<std::pair<const string_t, const string_t>> found;
+    init_args_t found;
 
     for (auto& i : init_list_in) {
-        auto parts = split_string(i.first, ':');
+        auto parts = split_string(i.first, '.');
+
+        if (parts.front() == prefix) {
+            found.push_back(i);
+        }
+    }
+
+    return found;
+}
+
+init_args_t init_args_from_list(const init_list_t& init_list_in)
+{
+    init_args_t init_args;
+
+    for(auto&& i : init_list_in) {
+        init_args.emplace_back(i);
+    }
+
+    return init_args;
+}
+
+bool init_args_has(const char * name_in, const init_args_t& init_args_in)
+{
+    const auto name = to_string(name_in);
+
+    for(auto&& i : init_args_in) {
+        if (name == i.first) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+string_t init_args_get(const char * name_in, const init_args_t& init_args_in)
+{
+    const auto name = to_string(name_in);
+
+    for(auto&& i : init_args_in) {
+        if (name == i.first) {
+            return i.second;
+        }
+    }
+
+    throw_runtime_error("could not find init arg: ", name_in);
+}
+
+init_args_t init_args_find(const char * prefix_in, const init_args_t& init_args_in)
+{
+    auto prefix = to_string(prefix_in);
+    init_args_t found;
+
+    for (auto& i : init_args_in) {
+        auto parts = split_string(i.first, '.');
 
         if (parts.front() == prefix) {
             found.push_back(i);

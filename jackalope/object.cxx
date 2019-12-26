@@ -17,7 +17,7 @@
 namespace jackalope {
 
 object_t::object_t(const init_list_t& init_list_in)
-: init_args(init_list_in)
+: init_args(init_args_from_list(init_list_in))
 { }
 
 void object_t::init()

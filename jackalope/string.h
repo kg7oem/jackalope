@@ -21,6 +21,7 @@ namespace jackalope {
 
 using string_t = std::basic_string<char_t, std::char_traits<char_t>, pool_allocator_t<char_t>>;
 using stringstream_t = std::basic_stringstream<char_t, std::char_traits<char_t>, pool_allocator_t<char_t>>;
+using init_args_t = pool_vector_t<std::pair<const string_t, const string_t>>;
 using init_list_t = std::initializer_list<std::pair<const string_t, const string_t>>;
 
 template <typename T>
@@ -56,6 +57,11 @@ pool_vector_t<string_t> split_string(const string_t& string_in, const char delim
 
 bool init_list_has(const char * name_in, const init_list_t& init_list_in);
 string_t init_list_get(const char * name_in, const init_list_t& init_list_in);
-pool_list_t<std::pair<const string_t, const string_t>> init_list_find(const char * prefix_in, const init_list_t& init_list_in);
+init_args_t init_list_find(const char * prefix_in, const init_list_t& init_list_in);
+
+init_args_t init_args_from_list(const init_list_t& init_list_in);
+bool init_args_has(const char * name_in, const init_args_t& init_args_in);
+string_t init_args_get(const char * name_in, const init_args_t& init_args_in);
+init_args_t init_args_find(const char * prefix_in, const init_args_t& init_args_in);
 
 }
