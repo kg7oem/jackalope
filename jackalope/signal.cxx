@@ -11,6 +11,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
+#include <jackalope/async.h>
 #include <jackalope/logging.h>
 #include <jackalope/signal.h>
 
@@ -22,17 +23,17 @@ signal_t::signal_t(const string_t& name_in)
 
 void signal_t::connect(shared_t<slot_t> slot_in)
 {
+    auto lock = get_object_lock();
     connections.push_back(slot_in);
 }
 
 void signal_t::send()
 {
+    auto lock = get_object_lock();
     auto shared_this = shared_obj<signal_t>();
 
-    log_info("sending signal: ", name);
-
-    for (auto& i : connections) {
-        i->invoke(shared_this);
+    for (auto i : connections) {
+        submit_job([i, shared_this] { i->invoke(shared_this); });
     }
 }
 

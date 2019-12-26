@@ -27,7 +27,8 @@ struct slot_t;
 
 using slot_handler_t = function_t<void (shared_t<signal_t> sender_in)>;
 
-struct signal_t : public base_t, public shared_obj_t<signal_t> {
+// Thread safe with out user requirements
+struct signal_t : public base_t, public shared_obj_t<signal_t>, lockable_t {
     const string_t name;
     pool_list_t<shared_t<slot_t>> connections;
 
@@ -36,6 +37,7 @@ struct signal_t : public base_t, public shared_obj_t<signal_t> {
     void send();
 };
 
+// Thread safe because everything is const
 struct slot_t : public base_t, public shared_obj_t<slot_t> {
     const string_t name;
     const slot_handler_t handler;
