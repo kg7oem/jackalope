@@ -24,16 +24,7 @@ void object_t::init()
 {
     assert_lockable_owner();
 
-    add_slot("object.stop", [this] (shared_t<signal_t> signal_in) {
-        object_stop_handler(signal_in);
-    });
-}
-
-void object_t::object_stop_handler(shared_t<signal_t>)
-{
-    auto lock = get_object_lock();
-
-    stop();
+    add_slot("object.stop", std::bind(&object_t::stop, this));
 }
 
 void object_t::activate()
@@ -109,7 +100,11 @@ shared_t<slot_t> object_t::add_slot(const string_t& name_in, slot_handler_t hand
         throw_runtime_error("Duplicate slot name: ", name_in);
     }
 
-    auto new_slot = jackalope::make_shared<slot_t>(name_in, handler_in);
+    auto shared_this = shared_obj();
+    auto new_slot = jackalope::make_shared<slot_t>(name_in, [shared_this, handler_in] {
+        auto lock = shared_this->get_object_lock();
+        handler_in();
+    });
     slots.insert({ name_in, new_slot });
 
     return new_slot;

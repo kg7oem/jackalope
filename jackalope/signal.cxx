@@ -30,10 +30,9 @@ void signal_t::connect(shared_t<slot_t> slot_in)
 void signal_t::send()
 {
     auto lock = get_object_lock();
-    auto shared_this = shared_obj<signal_t>();
 
     for (auto i : connections) {
-        submit_job([i, shared_this] { i->invoke(shared_this); });
+        submit_job([i] { i->invoke(); });
     }
 }
 
@@ -41,9 +40,9 @@ slot_t::slot_t(const string_t& name_in, slot_handler_t handler_in)
 : name(name_in), handler(handler_in)
 { }
 
-void slot_t::invoke(shared_t<signal_t> from_in)
+void slot_t::invoke()
 {
-    handler(from_in);
+    handler();
 }
 
 } // namespace jackalope

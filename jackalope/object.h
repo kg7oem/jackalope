@@ -42,7 +42,6 @@ protected:
     condition_t stop_condition;
 
     object_t(const init_list_t& init_list_in);
-    virtual void object_stop_handler(shared_t<signal_t> signal_in);
 
 public:
     const init_args_t init_args;
