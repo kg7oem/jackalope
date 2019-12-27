@@ -12,6 +12,7 @@
 // GNU Lesser General Public License for more details.
 
 #include <jackalope/async.h>
+#include <jackalope/exception.h>
 #include <jackalope/logging.h>
 #include <jackalope/signal.h>
 
@@ -68,6 +69,52 @@ slot_t::slot_t(const string_t& name_in, slot_function_t handler_in)
 void slot_t::invoke()
 {
     handler();
+}
+
+shared_t<signal_t> signal_obj_t::add_signal(const string_t& name_in)
+{
+    if (signals.find(name_in) != signals.end()) {
+        throw_runtime_error("Duplicate signal name: ", name_in);
+    }
+
+    auto signal = jackalope::make_shared<signal_t>(name_in);
+    signals.insert({ name_in, signal });
+
+    return signal;
+}
+
+shared_t<signal_t> signal_obj_t::get_signal(const string_t& name_in)
+{
+    auto found = signals.find(name_in);
+
+    if (found == signals.end()) {
+        throw_runtime_error("Could not find a signal: ", name_in);
+    }
+
+    return found->second;
+}
+
+shared_t<slot_t> signal_obj_t::add_slot(const string_t& name_in, slot_function_t handler_in)
+{
+    if (slots.find(name_in) != slots.end()) {
+        throw_runtime_error("Duplicate slot name: ", name_in);
+    }
+
+    auto new_slot = jackalope::make_shared<slot_t>(name_in, handler_in);
+    slots.insert({ name_in, new_slot });
+
+    return new_slot;
+}
+
+shared_t<slot_t> signal_obj_t::get_slot(const string_t& name_in)
+{
+    auto found = slots.find(name_in);
+
+    if (found == slots.end()) {
+        throw_runtime_error("could not find a slot: ", name_in);
+    }
+
+    return found->second;
 }
 
 } // namespace jackalope

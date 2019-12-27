@@ -71,68 +71,48 @@ shared_t<signal_t> object_t::add_signal(const string_t& name_in)
 {
     assert_lockable_owner();
 
-    if (signals.find(name_in) != signals.end()) {
-        throw_runtime_error("Duplicate signal name: ", name_in);
-    }
-
-    auto signal = jackalope::make_shared<signal_t>(name_in);
-    signals.insert({ name_in, signal });
-
-    return signal;
+    return signal_obj_t::add_signal(name_in);
 }
 
 shared_t<signal_t> object_t::add_signal(const string_t& name_in, slot_function_t handler_in)
 {
     assert_lockable_owner();
 
-    auto signal = add_signal(name_in);
-    signal->connect(handler_in);
+    auto new_signal = signal_obj_t::add_signal(name_in);
+    auto shared_this = shared_obj();
 
-    return signal;
+    new_signal->connect([shared_this, handler_in] {
+        auto lock = shared_this->get_object_lock();
+        handler_in();
+    });
+
+    return new_signal;
 }
 
 shared_t<signal_t> object_t::get_signal(const string_t& name_in)
 {
     assert_lockable_owner();
 
-    auto found = signals.find(name_in);
-
-    if (found == signals.end()) {
-        throw_runtime_error("Could not find a signal: ", name_in);
-    }
-
-    return found->second;
+    return signal_obj_t::get_signal(name_in);
 }
 
 shared_t<slot_t> object_t::add_slot(const string_t& name_in, slot_function_t handler_in)
 {
     assert_lockable_owner();
 
-    if (slots.find(name_in) != slots.end()) {
-        throw_runtime_error("Duplicate slot name: ", name_in);
-    }
-
     auto shared_this = shared_obj();
-    auto new_slot = jackalope::make_shared<slot_t>(name_in, [shared_this, handler_in] {
+
+    return signal_obj_t::add_slot(name_in, [shared_this, handler_in] {
         auto lock = shared_this->get_object_lock();
         handler_in();
     });
-    slots.insert({ name_in, new_slot });
-
-    return new_slot;
 }
 
 shared_t<slot_t> object_t::get_slot(const string_t& name_in)
 {
     assert_lockable_owner();
 
-    auto found = slots.find(name_in);
-
-    if (found == slots.end()) {
-        throw_runtime_error("could not find a slot: ", name_in);
-    }
-
-    return found->second;
+    return signal_obj_t::get_slot(name_in);
 }
 
 shared_t<source_t> object_t::add_source(const string_t& name_in, const string_t& type_in)

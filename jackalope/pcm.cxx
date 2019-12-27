@@ -135,10 +135,16 @@ void pcm_node_t::reset()
 
     assert_lockable_owner();
 
-    reset_pcm();
+    reset_pcm_sinks();
+    reset_pcm_sources();
 }
 
-void pcm_node_t::reset_pcm()
+void pcm_node_t::reset_pcm_sinks()
+{
+    assert_lockable_owner();
+}
+
+void pcm_node_t::reset_pcm_sources()
 {
     assert_lockable_owner();
 }

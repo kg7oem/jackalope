@@ -19,6 +19,9 @@
 #include <jackalope/string.h>
 #include <jackalope/types.h>
 
+#define JACKALOPE_SIGNAL_CHANNEL_AVAILABLE     "channel.available"
+#define JACKALOPE_SIGNAL_CHANNEL_READY         "channel.ready"
+
 namespace jackalope {
 
 using source_library_t = library_t<source_t, const string_t&, const string_t&, shared_t<object_t>>;
@@ -39,7 +42,7 @@ public:
     shared_t<sink_t> get_to();
 };
 
-class channel_t : base_t {
+class channel_t : base_t, public signal_obj_t {
 
 protected:
     const weak_t<object_t> parent;
@@ -63,6 +66,7 @@ public:
     static shared_t<source_t> make(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in);
     source_t(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in);
     virtual void link(shared_t<sink_t> sink_in);
+    virtual void reset();
 };
 
 class sink_t : public channel_t, public shared_obj_t<sink_t> {
@@ -70,6 +74,7 @@ class sink_t : public channel_t, public shared_obj_t<sink_t> {
 public:
     static shared_t<sink_t> make(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in);
     sink_t(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in);
+    virtual void reset();
     virtual void source_ready(shared_t<source_t> source_in);
 };
 

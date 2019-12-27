@@ -85,7 +85,8 @@ public:
     virtual void init() override;
     virtual void activate() override;
     virtual void reset() override;
-    virtual void reset_pcm();
+    virtual void reset_pcm_sinks();
+    virtual void reset_pcm_sources();
 };
 
 class pcm_real_sink_t : public sink_t {

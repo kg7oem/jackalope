@@ -70,6 +70,9 @@ void channel_t::add_link(shared_t<link_t> link_in)
 void channel_t::init()
 {
     assert_object_owner(get_parent());
+
+    add_signal(JACKALOPE_SIGNAL_CHANNEL_AVAILABLE);
+    add_signal(JACKALOPE_SIGNAL_CHANNEL_READY);
 }
 
 void channel_t::activate()
@@ -98,6 +101,13 @@ void source_t::link(shared_t<sink_t> sink_in)
     sink_in->add_link(link);
 }
 
+void source_t::reset()
+{
+    assert_object_owner(get_parent());
+
+    get_signal(JACKALOPE_SIGNAL_CHANNEL_AVAILABLE)->send();
+}
+
 shared_t<sink_t> sink_t::make(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)
 {
     auto sink = sink_library->make(type_in, name_in, type_in, parent_in);
@@ -109,11 +119,16 @@ sink_t::sink_t(const string_t& name_in, const string_t& type_in,  shared_t<objec
 : channel_t(name_in, type_in, parent_in)
 { }
 
-void sink_t::source_ready(shared_t<source_t> source_in)
+void sink_t::reset()
 {
     assert_object_owner(get_parent());
 
-    log_info("pcm source ready '", source_in->name, "' for sink '", name, "'");
+    get_signal(JACKALOPE_SIGNAL_CHANNEL_READY)->send();
+}
+
+void sink_t::source_ready(shared_t<source_t> source_in)
+{
+    assert_object_owner(get_parent());
 }
 
 } // namespace jackalope

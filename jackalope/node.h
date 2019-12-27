@@ -37,7 +37,7 @@ void add_node_constructor(const string_t& class_name_in, node_library_t::constru
  * construct
  * init - shared this now available; node is locked
  * activate - node has a graph set
- * start
+ * start - no more connection/link changes
  *   reset
  * stop
  *

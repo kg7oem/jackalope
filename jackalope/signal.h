@@ -49,4 +49,17 @@ struct slot_t : public base_t, public shared_obj_t<slot_t> {
     void invoke();
 };
 
+class signal_obj_t {
+
+protected:
+    pool_map_t<string_t, shared_t<signal_t>> signals;
+    pool_map_t<string_t, shared_t<slot_t>> slots;
+
+public:
+    virtual shared_t<signal_t> add_signal(const string_t& name_in);
+    virtual shared_t<signal_t> get_signal(const string_t& name_in);
+    virtual shared_t<slot_t> add_slot(const string_t& name_in, slot_function_t handler_in);
+    virtual shared_t<slot_t> get_slot(const string_t& name_in);
+};
+
 } // namespace jackalope
