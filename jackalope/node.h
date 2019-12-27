@@ -35,16 +35,18 @@ class node_t : public object_t {
 protected:
     string_t name;
     weak_t<graph_t> graph;
+    bool activated = false;
 
     virtual void init_undef_property(const string_t& name_in);
 
 public:
-
     static shared_t<node_t> make(const init_list_t& init_list_in);
     node_t(const init_list_t& init_list_in);
     void set_graph(shared_t<graph_t>);
     virtual string_t get_name();
     virtual shared_t<graph_t> get_graph();
+    virtual void activate();
+    virtual void start() override;
 };
 
 } // namespace jackalope

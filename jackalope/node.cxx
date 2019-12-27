@@ -88,4 +88,30 @@ shared_t<graph_t> node_t::get_graph()
     return strong_graph;
 }
 
+void node_t::activate()
+{
+    assert_lockable_owner();
+
+    if (! initialized) {
+        throw_runtime_error("can not activate an object that has not been initialized");
+    }
+
+    if (activated) {
+        throw_runtime_error("can not activate an object that is already activated");
+    }
+
+    activated = true;
+}
+
+void node_t::start()
+{
+    assert_lockable_owner();
+
+    if (! activated) {
+        throw_runtime_error("can not start a node that has not been activated");
+    }
+
+    object_t::start();
+}
+
 } // namespace jackalope

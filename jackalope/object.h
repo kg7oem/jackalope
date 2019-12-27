@@ -41,6 +41,8 @@ protected:
     pool_map_t<string_t, shared_t<source_t>> sources_by_name;
     pool_vector_t<shared_t<sink_t>> sinks;
     pool_map_t<string_t, shared_t<sink_t>> sinks_by_name;
+    bool initialized = false;
+    bool started = false;
 
     object_t(const init_list_t& init_list_in);
 
@@ -60,7 +62,6 @@ public:
     virtual shared_t<sink_t> get_sink(const size_t number_in);
     virtual const pool_vector_t<shared_t<sink_t>>& get_sinks();
     virtual void init();
-    virtual void activate();
     virtual void start();
     virtual void stop();
     virtual void link(const string_t& source_name_in, shared_t<object_t> target_in, const string_t& sink_name_in);

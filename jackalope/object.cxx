@@ -24,21 +24,32 @@ void object_t::init()
 {
     assert_lockable_owner();
 
+    if (initialized) {
+        throw_runtime_error("can not initialize an object that is already initialized");
+    }
+
     add_signal(JACKALOPE_SIGNAL_OBJECT_STARTED);
     add_signal(JACKALOPE_SIGNAL_OBJECT_STOPPED);
 
     add_slot(JACKALOPE_SLOT_OBJECT_START, std::bind(&object_t::start, this));
     add_slot(JACKALOPE_SLOT_OBJECT_STOP, std::bind(&object_t::stop, this));
-}
 
-void object_t::activate()
-{
-    assert_lockable_owner();
+    initialized = true;
 }
 
 void object_t::start()
 {
     assert_lockable_owner();
+
+    if (! initialized) {
+        throw_runtime_error("can not start an object that has not been initialized");
+    }
+
+    if (started) {
+        throw_runtime_error("can not start an object that has already been started");
+    }
+
+    started = true;
 
     get_signal(JACKALOPE_SIGNAL_OBJECT_STARTED)->send();
 }
@@ -46,6 +57,12 @@ void object_t::start()
 void object_t::stop()
 {
     assert_lockable_owner();
+
+    if (! started) {
+        throw_runtime_error("can not stop an object that has not been started");
+    }
+
+    started = false;
 
     get_signal(JACKALOPE_SIGNAL_OBJECT_STOPPED)->send();
 }
