@@ -58,22 +58,22 @@ int main(int argc_in, char ** argv_in)
         { "source.right", JACKALOPE_CHANNEL_TYPE_PCM_REAL },
     });
 
-    // auto left_tube = graph->add_object({
-    //     { "object.class", "pcm::ladspa" },
-    //     { "object.name", "left tube" },
-    //     { "plugin.id", to_string(LADSPA_ZAMTUBE_ID) },
-    // });
+    auto left_tube = graph->add_node({
+        { JACKALOPE_PROPERTY_NODE_CLASS, "pcm::ladspa" },
+        { JACKALOPE_PROPERTY_NODE_NAME, "left tube" },
+        { "plugin.id", to_string(LADSPA_ZAMTUBE_ID) },
+    });
 
-    // auto right_tube = graph->add_object({
-    //     { "object.class", "pcm::ladspa" },
-    //     { "object.name", "right tube" },
-    //     { "plugin.id", to_string(LADSPA_ZAMTUBE_ID) },
-    // });
+    auto right_tube = graph->add_node({
+        { JACKALOPE_PROPERTY_NODE_CLASS, "pcm::ladspa" },
+        { JACKALOPE_PROPERTY_NODE_NAME, "right tube" },
+        { "plugin.id", to_string(LADSPA_ZAMTUBE_ID) },
+    });
 
     input_file->connect(JACKALOPE_SIGNAL_FILE_EOF, graph, JACKALOPE_SLOT_OBJECT_STOP);
 
-    // input_file->link("output 1", left_tube, "Audio Input 1");
-    // input_file->link("output 1", right_tube, "Audio Input 1");
+    input_file->link("left", left_tube, "Audio Input 1");
+    input_file->link("right", right_tube, "Audio Input 1");
     // left_tube->link("Audio Output 1", driver, "left");
     // right_tube->link("Audio Output 1", driver, "right");
 

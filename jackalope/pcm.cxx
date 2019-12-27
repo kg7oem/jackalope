@@ -53,11 +53,15 @@ void pcm_node_t::init()
     });
 
     for(auto& i : init_args_find("source", init_args)) {
-        add_source(i.first, i.second);
+        auto parts = split_string(i.first, '.');
+        auto name = parts[1];
+        add_source(name, i.second);
     }
 
     for(auto& i : init_args_find("sink", init_args)) {
-        add_sink(i.first, i.second);
+        auto parts = split_string(i.first, '.');
+        auto name = parts[1];
+        add_sink(name, i.second);
     }
 }
 

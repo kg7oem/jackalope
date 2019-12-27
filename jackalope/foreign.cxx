@@ -13,6 +13,7 @@
 #include <thread>
 
 #include <jackalope/async.h>
+#include <jackalope/channel.h>
 #include <jackalope/foreign.h>
 #include <jackalope/graph.h>
 #include <jackalope/logging.h>
@@ -48,8 +49,17 @@ void foreign_node_t::connect(const string_t& signal_name_in, shared_t<foreign_gr
     });
 }
 
-void foreign_node_t::link(const string_t& , shared_t<foreign_node_t> , const string_t&)
-{ }
+void foreign_node_t::link(const string_t& source_name_in, shared_t<foreign_node_t> sink_node_in, const string_t& sink_name_in)
+{
+    wait_job<void>([&] {
+        auto source_node = node;
+        auto source_node_lock = node->get_object_lock();
+        auto sink_node = sink_node_in->node;
+        auto sink_node_lock = sink_node->get_object_lock();
+
+        source_node->get_source(source_name_in)->link(sink_node->get_sink(sink_name_in));
+    });
+}
 
 foreign_graph_t::foreign_graph_t(shared_t<graph_t> graph_in)
 : graph(graph_in)

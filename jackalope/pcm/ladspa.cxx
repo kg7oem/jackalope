@@ -18,7 +18,6 @@
 
 #include <boost/filesystem.hpp>
 
-#include <jackalope/domain.h>
 #include <jackalope/exception.h>
 #include <jackalope/jackalope.h>
 #include <jackalope/logging.h>
@@ -52,7 +51,7 @@ void ladspa_init()
 }
 
 ladspa_node_t::ladspa_node_t(const init_list_t& init_list_in)
-: node_t(init_list_in)
+: pcm_node_t(init_list_in)
 { }
 
 ladspa_node_t::~ladspa_node_t()
@@ -89,47 +88,33 @@ static ladspa_file_t * make_file_by_id(const ladspa_id_t id_in)
     throw_runtime_error("could not find LADSPA file for type: ", id_in);
 }
 
-void ladspa_node_t::init__e()
+void ladspa_node_t::init()
 {
     assert_lockable_owner();
 
-    add_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE, property_t::type_t::size);
-    add_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE, property_t::type_t::size);
+    pcm_node_t::init();
 
-    add_property(JACKALOPE_PCM_LADSPA_PROPERTY_FILE, property_t::type_t::string);
-    add_property(JACKALOPE_PCM_LADSPA_PROPERTY_ID, property_t::type_t::size);
-
-    node_t::init__e();
+    add_property(JACKALOPE_PCM_LADSPA_PROPERTY_FILE, property_t::type_t::string, init_args);
+    add_property(JACKALOPE_PCM_LADSPA_PROPERTY_ID, property_t::type_t::size, init_args);
 }
 
-void ladspa_node_t::init_file__e()
+void ladspa_node_t::init_file()
 {
     assert_lockable_owner();
 
-    get_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE).set(get_domain()->get_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE).get_size());
-    get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE).set(get_domain()->get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE).get_size());
+    auto type_property = get_property(JACKALOPE_PCM_LADSPA_PROPERTY_ID);
+    auto file_property = get_property(JACKALOPE_PCM_LADSPA_PROPERTY_FILE);
 
-    auto& type_property = get_property(JACKALOPE_PCM_LADSPA_PROPERTY_ID);
-    auto& file_property = get_property(JACKALOPE_PCM_LADSPA_PROPERTY_FILE);
-
-    if (init_list_has(JACKALOPE_PCM_LADSPA_PROPERTY_ID, init_args)) {
-        type_property.set(init_list_get(JACKALOPE_PCM_LADSPA_PROPERTY_ID, init_args));
-    }
-
-    if (init_list_has(JACKALOPE_PCM_LADSPA_PROPERTY_FILE, init_args)) {
-        type_property.set(init_list_get(JACKALOPE_PCM_LADSPA_PROPERTY_FILE, init_args));
-    }
-
-    auto type_is_defined = type_property.is_defined();
-    auto file_is_defined = file_property.is_defined();
+    auto type_is_defined = type_property->is_defined();
+    auto file_is_defined = file_property->is_defined();
 
     if(! type_is_defined && ! file_is_defined) {
         throw_runtime_error("no LADSPA type and no filename was specified");
     } else if(! file_is_defined) {
-        file = make_file_by_id(type_property.get_size());
-        file_property.set_string(file->path);
+        file = make_file_by_id(type_property->get_size());
+        file_property->set_string(file->path);
     } else if (! type_is_defined) {
-        file = new ladspa_file_t(file_property.get_string());
+        file = new ladspa_file_t(file_property->get_string());
 
         auto descriptors = file->get_descriptors();
 
@@ -137,15 +122,15 @@ void ladspa_node_t::init_file__e()
             throw_runtime_error("LADSPA file had more than one ID and no ID was specified");
         }
 
-        type_property.set_size(descriptors[0]->UniqueID);
+        type_property->set_size(descriptors[0]->UniqueID);
     }
 }
 
-void ladspa_node_t::init_instance__e()
+void ladspa_node_t::init_instance()
 {
     assert_lockable_owner();
 
-    instance = new ladspa_instance_t(*file, get_property(JACKALOPE_PCM_LADSPA_PROPERTY_ID).get_size());
+    instance = new ladspa_instance_t(*file, get_property(JACKALOPE_PCM_LADSPA_PROPERTY_ID)->get_size());
 
     for(size_t port_num = 0; port_num < instance->get_num_ports(); port_num++) {
         auto descriptor = instance->get_port_descriptor(port_num);
@@ -153,27 +138,30 @@ void ladspa_node_t::init_instance__e()
 
         if (LADSPA_IS_PORT_CONTROL(descriptor)) {
             if (LADSPA_IS_PORT_INPUT(descriptor)) {
-                auto property_name = to_string("config:", port_name);
+                auto property_name = to_string("config.", port_name);
                 add_property(property_name, property_t::type_t::real);
             } else if (LADSPA_IS_PORT_OUTPUT(descriptor)) {
-                auto property_name = to_string("state:", port_name);
-                add_property(property_name, property_t::type_t::real).set(0);
+                auto property_name = to_string("state.", port_name);
+                add_property(property_name, property_t::type_t::real)->set(0);
             }
         } else if(LADSPA_IS_PORT_AUDIO(descriptor)) {
             if (LADSPA_IS_PORT_INPUT(descriptor)) {
-                add_sink(port_name, JACKALOPE_PCM_CHANNEL_TYPE_REAL);
+                add_sink(port_name, JACKALOPE_CHANNEL_TYPE_PCM_REAL);
             } else if (LADSPA_IS_PORT_OUTPUT(descriptor)) {
-                add_source(port_name, JACKALOPE_PCM_CHANNEL_TYPE_REAL);
+                add_source(port_name, JACKALOPE_CHANNEL_TYPE_PCM_REAL);
             }
         }
     }
 }
 
-void ladspa_node_t::activate__e()
+void ladspa_node_t::activate()
 {
     assert_lockable_owner();
 
-    auto& sample_rat_prop = get_property(JACKALOPE_PCM_PROPERTY_SAMPLE_RATE);
+    pcm_node_t::activate();
+
+    auto sample_rate_prop = get_property(JACKALOPE_PROPERTY_PCM_SAMPLE_RATE);
+    auto sample_rate = sample_rate_prop->get_size();
     // auto& buffer_size_prop = get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE);
 
     // for (auto i : outputs) {
@@ -181,10 +169,10 @@ void ladspa_node_t::activate__e()
     //     pcm_output->set_num_samples(buffer_size_prop.get_size());
     // }
 
-    init_file__e();
-    init_instance__e();
+    init_file();
+    init_instance();
 
-    instance->instantiate(sample_rat_prop.get_size());
+    instance->instantiate(sample_rate);
     instance->activate();
 
     for(size_t port_num = 0; port_num < instance->get_num_ports(); port_num++) {
@@ -193,17 +181,17 @@ void ladspa_node_t::activate__e()
 
         if (LADSPA_IS_PORT_CONTROL(descriptor)) {
             if (LADSPA_IS_PORT_INPUT(descriptor)) {
-                auto property_name = to_string("config:", port_name);
-                auto& property = get_property(property_name);
+                auto property_name = to_string("config.", port_name);
+                auto property = get_property(property_name);
 
-                property.set(instance->get_port_default(port_num));
-                instance->connect_port(port_num, &property.get_real());
+                property->set(instance->get_port_default(port_num));
+                instance->connect_port(port_num, &property->get_real());
             } else if (LADSPA_IS_PORT_OUTPUT(descriptor)) {
-                auto property_name = to_string("state:", port_name);
-                auto& property = get_property(property_name);
+                auto property_name = to_string("state.", port_name);
+                auto property = get_property(property_name);
 
-                property.set(0);
-                instance->connect_port(port_num, &property.get_real());
+                property->set(0);
+                instance->connect_port(port_num, &property->get_real());
             }
         } else if(LADSPA_IS_PORT_AUDIO(descriptor)) {
             // inputs get connected right before the LADSPA plugin is run
@@ -214,8 +202,6 @@ void ladspa_node_t::activate__e()
             }
         }
     }
-
-    node_t::activate__e();
 }
 
 // void ladspa_node_t::pcm_ready()
