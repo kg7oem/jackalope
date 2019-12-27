@@ -13,6 +13,7 @@
 
 #include <jackalope/channel.h>
 #include <jackalope/exception.h>
+#include <jackalope/logging.h>
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
 
@@ -107,5 +108,12 @@ shared_t<sink_t> sink_t::make(const string_t& name_in, const string_t& type_in, 
 sink_t::sink_t(const string_t& name_in, const string_t& type_in,  shared_t<object_t> parent_in)
 : channel_t(name_in, type_in, parent_in)
 { }
+
+void sink_t::source_ready(shared_t<source_t> source_in)
+{
+    assert_object_owner(get_parent());
+
+    log_info("pcm source ready '", source_in->name, "' for sink '", name, "'");
+}
 
 } // namespace jackalope

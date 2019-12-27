@@ -70,6 +70,7 @@ class sink_t : public channel_t, public shared_obj_t<sink_t> {
 public:
     static shared_t<sink_t> make(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in);
     sink_t(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in);
+    virtual void source_ready(shared_t<source_t> source_in);
 };
 
 } // namespace jackalope

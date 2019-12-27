@@ -11,6 +11,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
+#include <jackalope/async.h>
 #include <jackalope/logging.h>
 #include <jackalope/node.h>
 #include <jackalope/pcm.h>
@@ -20,18 +21,66 @@ namespace jackalope {
 
 static shared_t<source_t> pcm_source_real_constructor(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)
 {
-    return jackalope::make_shared<pcm_source_t<real_t>>(name_in, type_in, parent_in);
+    return jackalope::make_shared<pcm_real_source_t>(name_in, type_in, parent_in);
 }
 
 static shared_t<sink_t> pcm_sink_real_constructor(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)
 {
-    return jackalope::make_shared<pcm_sink_t<real_t>>(name_in, type_in, parent_in);
+    return jackalope::make_shared<pcm_real_sink_t>(name_in, type_in, parent_in);
 }
 
 void pcm_init()
 {
     add_source_constructor(JACKALOPE_CHANNEL_TYPE_PCM_REAL, pcm_source_real_constructor);
     add_sink_constructor(JACKALOPE_CHANNEL_TYPE_PCM_REAL, pcm_sink_real_constructor);
+}
+
+pcm_real_sink_t::pcm_real_sink_t(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)
+: sink_t(name_in, type_in, parent_in)
+{ }
+
+pcm_real_source_t::pcm_real_source_t(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)
+: source_t(name_in, type_in, parent_in)
+{ }
+
+void pcm_real_source_t::set_buffer(shared_t<buffer_t> buffer_in)
+{
+    assert_object_owner(get_parent());
+
+    if (buffer != nullptr) {
+        throw_runtime_error("set_buffer() called when a buffer was already present");
+    }
+
+    buffer = buffer_in;
+    notify();
+}
+
+void pcm_real_source_t::notify()
+{
+    assert_object_owner(get_parent());
+
+    log_info("notify() called for pcm source: ", name);
+
+    for(auto i : links) {
+        auto sink = i->get_to()->shared_obj<pcm_real_sink_t>();
+        auto source = shared_obj<pcm_real_source_t>();
+
+        submit_job([source, sink] {
+            auto lock = sink->get_parent()->get_object_lock();
+            sink->source_ready(source);
+        });
+    }
+}
+
+void pcm_real_source_t::link(shared_t<sink_t> sink_in)
+{
+    assert_object_owner(get_parent());
+
+    if (type != sink_in->type) {
+        throw_runtime_error("incompatible types during link: ", type, " != ", sink_in->type);
+    }
+
+    source_t::link(sink_in);
 }
 
 pcm_node_t::pcm_node_t(const init_list_t& init_list_in)

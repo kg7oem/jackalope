@@ -166,8 +166,8 @@ void sndfile_node_t::io_thread_handler()
                         throw_runtime_error("Unexpected channel type: ", i->type);
                     }
 
-                    auto pcm_source = dynamic_pointer_cast<pcm_source_t<real_t>>(i);
-                    pcm_source->set_buffer(pcm_buffer);
+                    auto pcm_source = dynamic_pointer_cast<pcm_real_source_t>(i);
+                    // pcm_source->set_buffer(pcm_buffer);
                 }
             } else {
                 for(size_t i = 0; i < num_channels; i++) {
@@ -177,8 +177,8 @@ void sndfile_node_t::io_thread_handler()
                         throw_runtime_error("Unexpected channel type: ", source->type);
                     }
 
-                    auto pcm_source = dynamic_pointer_cast<pcm_source_t<real_t>>(source);
-                    pcm_source->set_buffer(buffer_list[i]);
+                    auto pcm_source = dynamic_pointer_cast<pcm_real_source_t>(source);
+                    // pcm_source->set_buffer(buffer_list[i]);
                 }
             }
         }
