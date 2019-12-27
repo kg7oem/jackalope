@@ -30,11 +30,13 @@ void add_sink_constructor(const string_t& class_name_in, sink_library_t::constru
 class link_t : base_t, public shared_obj_t<link_t> {
 
 protected:
-    const shared_t<source_t> from;
-    const shared_t<sink_t> to;
+    const weak_t<source_t> from;
+    const weak_t<sink_t> to;
 
 public:
     link_t(shared_t<source_t> from_in, shared_t<sink_t> to_in);
+    shared_t<source_t> get_from();
+    shared_t<sink_t> get_to();
 };
 
 class channel_t : base_t {

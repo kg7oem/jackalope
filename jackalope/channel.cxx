@@ -33,7 +33,20 @@ void add_sink_constructor(const string_t& class_name_in, sink_library_t::constru
 
 link_t::link_t(shared_t<source_t> from_in, shared_t<sink_t> to_in)
 : from(from_in), to(to_in)
-{ }
+{
+    assert(from_in != nullptr);
+    assert(to_in != nullptr);
+}
+
+shared_t<source_t> link_t::get_from()
+{
+    return from.lock();
+}
+
+shared_t<sink_t> link_t::get_to()
+{
+    return to.lock();
+}
 
 channel_t::channel_t(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)
 : parent(parent_in), name(name_in), type(type_in)
