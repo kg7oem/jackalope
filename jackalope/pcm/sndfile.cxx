@@ -70,6 +70,10 @@ void sndfile_node_t::activate()
 
     pcm_node_t::activate();
 
+    if (sinks.size() > 0) {
+        throw_runtime_error("sndfile does not support having sinks");
+    }
+
     auto source_file_name = get_property(JACKALOPE_PCM_SNDFILE_CONFIG_PATH)->get();
     source_file = sndfile::sf_open(source_file_name.c_str(), sndfile::SFM_READ, &source_info);
 
@@ -83,12 +87,15 @@ void sndfile_node_t::activate()
         throw_runtime_error("File sample rate did not match node sample rate: ", source_info.samplerate);
     }
 
-    // for(int i = 0; i < source_info.channels; i++) {
-    //     add_source(to_string("output ", i + 1), JACKALOPE_PCM_CHANNEL_TYPE_REAL);
-    // }
+    auto sources_count = sources.size();
+    size_t channel_count = source_info.channels;
 
-    auto buffer_size = get_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE)->get_size();
-    source_buffer = new real_t[source_info.channels * buffer_size];
+    if (sources_count == channel_count && channel_count != 1) {
+        throw_runtime_error("number of sources and channels must match or channels must be 1");
+    }
+
+    // auto buffer_size = get_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE)->get_size();
+    // source_buffer = new real_t[source_info.channels * buffer_size];
 
     // for(auto i : outputs) {
     //     auto pcm_output = dynamic_pointer_cast<pcm_real_output_t>(i);
@@ -118,16 +125,62 @@ void sndfile_node_t::start()
 void sndfile_node_t::io_thread_handler()
 {
     while(1) {
-        auto lock = get_object_lock();
-        assert(source_file != nullptr);
+        size_t buffer_size = 0;
 
-        auto buffer_size =  get_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE)->get_size();
-        size_t frames_read = sndfile::sf_readf_float(source_file, source_buffer, buffer_size);
+        {
+            auto lock = get_object_lock();
+            buffer_size =  get_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE)->get_size();
+        }
+
+        size_t num_channels = source_info.channels;
+        pcm_buffer_t<real_t> sndfile_buffer(num_channels * buffer_size);
+        auto sndfile_buffer_ptr = sndfile_buffer.get_pointer();
+
+        assert(source_file != nullptr);
+        size_t frames_read = sndfile::sf_readf_float(source_file, sndfile_buffer_ptr, buffer_size);
 
         if (frames_read == 0) {
             close_file(source_file);
+
+            auto lock = get_object_lock();
             get_signal(JACKALOPE_SIGNAL_FILE_EOF)->send();
             return;
+        }
+
+        pool_vector_t<shared_t<pcm_buffer_t<real_t>>> buffer_list;
+
+        for(size_t i = 0; i < num_channels; i++) {
+            auto source_buffer = jackalope::make_shared<pcm_buffer_t<real_t>>(buffer_size);
+
+            pcm_extract_interleave(sndfile_buffer_ptr, source_buffer->get_pointer(), i, num_channels, frames_read);
+            buffer_list.push_back(source_buffer);
+        }
+
+        {
+            auto lock = get_object_lock();
+
+            if (num_channels == 1) {
+                auto pcm_buffer = buffer_list.front();
+                for(auto i : get_sources()) {
+                    if (i->type != JACKALOPE_CHANNEL_TYPE_PCM_REAL) {
+                        throw_runtime_error("Unexpected channel type: ", i->type);
+                    }
+
+                    auto pcm_source = dynamic_pointer_cast<pcm_source_t<real_t>>(i);
+                    pcm_source->set_buffer(pcm_buffer);
+                }
+            } else {
+                for(size_t i = 0; i < num_channels; i++) {
+                    auto source = get_source(i);
+
+                    if (source->type != JACKALOPE_CHANNEL_TYPE_PCM_REAL) {
+                        throw_runtime_error("Unexpected channel type: ", source->type);
+                    }
+
+                    auto pcm_source = dynamic_pointer_cast<pcm_source_t<real_t>>(source);
+                    pcm_source->set_buffer(buffer_list[i]);
+                }
+            }
         }
     }
 }

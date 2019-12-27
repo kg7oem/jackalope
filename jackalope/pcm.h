@@ -15,6 +15,7 @@
 
 #include <jackalope/channel.h>
 #include <jackalope/exception.h>
+#include <jackalope/logging.h>
 #include <jackalope/node.h>
 #include <jackalope/pcm.tools.h>
 #include <jackalope/types.h>
@@ -29,22 +30,14 @@ namespace jackalope {
 
 void pcm_init();
 
-class pcm_node_t : public node_t {
-
-protected:
-    virtual void pcm_ready();
-
-public:
-    pcm_node_t(const init_list_t& init_list_in);
-    virtual void init() override;
-    virtual void activate() override;
-};
-
 template <typename T>
 class pcm_buffer_t : public base_t {
 
+public:
+    using pcm_t = T;
+
 protected:
-    T * data = nullptr;
+    pcm_t * data = nullptr;
 
 public:
     const size_t num_samples;
@@ -70,57 +63,52 @@ public:
         }
     }
 
-    T * get_pointer()
+    pcm_t * get_pointer()
     {
         assert(data != nullptr);
         return data;
     }
 };
 
+class pcm_node_t : public node_t {
+
+protected:
+    virtual void pcm_ready();
+
+public:
+    pcm_node_t(const init_list_t& init_list_in);
+    virtual void init() override;
+    virtual void activate() override;
+};
+
 template <typename T>
 class pcm_source_t : public source_t {
 
 public:
+    using pcm_t = T;
+    using buffer_t = pcm_buffer_t<pcm_t>;
+
     pcm_source_t(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)
     : source_t(name_in, type_in, parent_in)
     { }
 
-    // virtual void activate() override
-    // {
-    //     auto& buffer_size_prop = get_parent()->get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE);
-
-    //     buffer.set_num_samples(buffer_size_prop->get_size());
-
-    //     source_t::activate();
-    // }
-
-    // pcm_buffer_t<T>& get_buffer()
-    // {
-    //     return buffer;
-    // }
+    virtual void set_buffer(shared_t<buffer_t>)
+    {
+        log_info("set_buffer() called for source: ", name);
+    }
 };
 
 template <typename T>
 class pcm_sink_t : public sink_t {
 
 public:
+    using pcm_t = T;
+    using buffer_t = pcm_buffer_t<pcm_t>;
+
     pcm_sink_t(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)
     : sink_t(name_in, type_in, parent_in)
     { }
 
-    // virtual void activate() override
-    // {
-    //     auto& buffer_size_prop = get_parent()->get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE);
-
-    //     buffer.set_num_samples(buffer_size_prop->get_size());
-
-    //     sink_t::activate();
-    // }
-
-    // pcm_buffer_t<T>& get_buffer()
-    // {
-    //     return buffer;
-    // }
 };
 
 } // namespace jackalope

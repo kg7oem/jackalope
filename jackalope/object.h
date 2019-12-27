@@ -37,8 +37,10 @@ using stop_promise_t = promise_t<void>;
 protected:
     pool_map_t<string_t, shared_t<signal_t>> signals;
     pool_map_t<string_t, shared_t<slot_t>> slots;
-    pool_map_t<string_t, shared_t<source_t>> sources;
-    pool_map_t<string_t, shared_t<sink_t>> sinks;
+    pool_vector_t<shared_t<source_t>> sources;
+    pool_map_t<string_t, shared_t<source_t>> sources_by_name;
+    pool_vector_t<shared_t<sink_t>> sinks;
+    pool_map_t<string_t, shared_t<sink_t>> sinks_by_name;
 
     object_t(const init_list_t& init_list_in);
 
@@ -51,8 +53,12 @@ public:
     virtual shared_t<slot_t> get_slot(const string_t& name_in);
     virtual shared_t<source_t> add_source(const string_t& name_in, const string_t& type_in);
     virtual shared_t<source_t> get_source(const string_t& name_in);
+    virtual shared_t<source_t> get_source(const size_t number_in);
+    virtual const pool_vector_t<shared_t<source_t>>& get_sources();
     virtual shared_t<sink_t> add_sink(const string_t& name_in, const string_t& type_in);
     virtual shared_t<sink_t> get_sink(const string_t& name_in);
+    virtual shared_t<sink_t> get_sink(const size_t number_in);
+    virtual const pool_vector_t<shared_t<sink_t>>& get_sinks();
     virtual void init();
     virtual void activate();
     virtual void start();
