@@ -50,7 +50,7 @@ public:
     const string_t type;
 
     shared_t<object_t> get_parent();
-    void add_link(shared_t<link_t> link_in);
+    virtual void add_link(shared_t<link_t> link_in);
     virtual void init();
     virtual void activate();
 };

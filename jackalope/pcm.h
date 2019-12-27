@@ -96,6 +96,15 @@ public:
     {
         log_info("set_buffer() called for source: ", name);
     }
+
+    virtual void link(shared_t<sink_t> sink_in) override
+    {
+        if (type != sink_in->type) {
+            throw_runtime_error("incompatible types during link: ", type, " != ", sink_in->type);
+        }
+
+        source_t::link(sink_in);
+    }
 };
 
 template <typename T>
