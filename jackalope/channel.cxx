@@ -67,10 +67,14 @@ void channel_t::add_link(shared_t<link_t> link_in)
 }
 
 void channel_t::init()
-{ }
+{
+    assert_object_owner(get_parent());
+}
 
 void channel_t::activate()
-{ }
+{
+    assert_object_owner(get_parent());
+}
 
 shared_t<source_t> source_t::make(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)
 {
