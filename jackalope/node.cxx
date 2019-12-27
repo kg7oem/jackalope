@@ -114,4 +114,13 @@ void node_t::start()
     object_t::start();
 }
 
+void node_t::reset()
+{
+    assert_lockable_owner();
+
+    if (! started) {
+        throw_runtime_error("can not reset a node that has not been started");
+    }
+}
+
 } // namespace jackalope

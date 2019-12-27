@@ -129,6 +129,20 @@ void pcm_node_t::activate()
     init_undef_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE);
 }
 
+void pcm_node_t::reset()
+{
+    node_t::reset();
+
+    assert_lockable_owner();
+
+    reset_pcm();
+}
+
+void pcm_node_t::reset_pcm()
+{
+    assert_lockable_owner();
+}
+
 void pcm_node_t::pcm_sinks_ready()
 {
     assert_lockable_owner();

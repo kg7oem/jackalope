@@ -30,6 +30,19 @@ using node_library_t = library_t<node_t, const init_list_t&>;
 
 void add_node_constructor(const string_t& class_name_in, node_library_t::constructor_t constructor_in);
 
+/*
+ *
+ * Node Lifecycle
+ *
+ * construct
+ * init - shared this now available; node is locked
+ * activate - node has a graph set
+ * start
+ *   reset
+ * stop
+ *
+ */
+
 class node_t : public object_t {
 
 protected:
@@ -47,6 +60,7 @@ public:
     virtual shared_t<graph_t> get_graph();
     virtual void activate();
     virtual void start() override;
+    virtual void reset();
 };
 
 } // namespace jackalope

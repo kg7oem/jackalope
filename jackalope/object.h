@@ -30,6 +30,17 @@ namespace jackalope {
 class graph_t;
 class object_t;
 
+/*
+ *
+ * Object Lifecycle
+ *
+ * construct
+ * init - shared this now available
+ * start
+ * stop
+ *
+ */
+
 class object_t : public prop_obj_t, public lockable_t, public shared_obj_t<object_t> {
 
 using stop_promise_t = promise_t<void>;
