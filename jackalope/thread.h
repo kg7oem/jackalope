@@ -22,9 +22,12 @@
 
 #define assert_mutex_owner(mutex) assert(mutex.get_owner_id() == std::this_thread::get_id())
 #define assert_lock_owner(lock) assert_mutex_owner(*lock.mutex())
-#define assert_lockable_owner() assert_mutex_owner(this->object_mutex)
+#define assert_object_owner(object) assert(object->thread_owns_mutex())
+#define assert_lockable_owner() assert_object_owner(this)
 
 namespace jackalope {
+
+class lockable_t;
 
 using condition_t = std::condition_variable_any;
 template <typename T>
@@ -65,6 +68,7 @@ protected:
     mutex_t object_mutex;
 
 public:
+    bool thread_owns_mutex();
     lock_t get_object_lock();
 };
 

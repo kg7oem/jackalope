@@ -48,6 +48,8 @@ shared_t<object_t> channel_t::get_parent()
 
 void channel_t::add_link(shared_t<link_t> link_in)
 {
+    assert_object_owner(get_parent());
+
     links.push_back(link_in);
 }
 
@@ -70,6 +72,9 @@ source_t::source_t(const string_t& name_in, const string_t& type_in, shared_t<ob
 
 void source_t::link(shared_t<sink_t> sink_in)
 {
+    assert_object_owner(get_parent());
+    assert_object_owner(sink_in->get_parent());
+
     auto link = jackalope::make_shared<link_t>(shared_obj(), sink_in);
     add_link(link);
     sink_in->add_link(link);

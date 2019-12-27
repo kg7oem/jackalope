@@ -96,11 +96,15 @@ public:
 
     virtual void set_buffer(shared_t<buffer_t>)
     {
+        assert_object_owner(get_parent());
+
         log_info("set_buffer() called for source: ", name);
     }
 
     virtual void link(shared_t<sink_t> sink_in) override
     {
+        assert_object_owner(get_parent());
+
         if (type != sink_in->type) {
             throw_runtime_error("incompatible types during link: ", type, " != ", sink_in->type);
         }
@@ -119,7 +123,6 @@ public:
     pcm_sink_t(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)
     : sink_t(name_in, type_in, parent_in)
     { }
-
 };
 
 } // namespace jackalope
