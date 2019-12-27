@@ -47,9 +47,14 @@ void pcm_node_t::init()
     add_property(JACKALOPE_PROPERTY_PCM_SAMPLE_RATE, property_t::type_t::size, init_args);
     add_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE, property_t::type_t::size, init_args);
 
-    add_signal(JACKALOPE_SIGNAL_PCM_READY, [this] {
+    add_signal(JACKALOPE_SIGNAL_PCM_SINKS_READY, [this] {
         auto lock = get_object_lock();
-        this->pcm_ready();
+        this->pcm_sinks_ready();
+    });
+
+    add_signal(JACKALOPE_SIGNAL_PCM_SOURCES_READY, [this] {
+        auto lock = get_object_lock();
+        this->pcm_sources_ready();
     });
 
     for(auto& i : init_args_find("source", init_args)) {
@@ -75,7 +80,12 @@ void pcm_node_t::activate()
     init_undef_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE);
 }
 
-void pcm_node_t::pcm_ready()
+void pcm_node_t::pcm_sinks_ready()
+{
+    assert_lockable_owner();
+}
+
+void pcm_node_t::pcm_sources_ready()
 {
     assert_lockable_owner();
 }

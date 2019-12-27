@@ -24,7 +24,8 @@
 #define JACKALOPE_CHANNEL_TYPE_PCM_QUAD      "pcm[quad]"
 #define JACKALOPE_PROPERTY_PCM_BUFFER_SIZE   "pcm.buffer_size"
 #define JACKALOPE_PROPERTY_PCM_SAMPLE_RATE   "pcm.sample_rate"
-#define JACKALOPE_SIGNAL_PCM_READY           "pcm.ready"
+#define JACKALOPE_SIGNAL_PCM_SINKS_READY     "pcm.sinks_ready"
+#define JACKALOPE_SIGNAL_PCM_SOURCES_READY   "pcm.sources_ready"
 
 namespace jackalope {
 
@@ -73,7 +74,8 @@ public:
 class pcm_node_t : public node_t {
 
 protected:
-    virtual void pcm_ready();
+    virtual void pcm_sinks_ready();
+    virtual void pcm_sources_ready();
 
 public:
     pcm_node_t(const init_list_t& init_list_in);
