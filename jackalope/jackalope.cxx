@@ -13,19 +13,19 @@
 
 #include <jackalope/async.h>
 #include <jackalope/jackalope.h>
-#include <jackalope/pcm.h>
-#include <jackalope/pcm/ladspa.h>
+// #include <jackalope/pcm.h>
+// #include <jackalope/pcm/ladspa.h>
 // #include <jackalope/pcm/portaudio.h>
-#include <jackalope/pcm/sndfile.h>
+// #include <jackalope/pcm/sndfile.h>
 
 void jackalope_init()
 {
     jackalope::async_init();
 
-    jackalope::pcm_init();
-    jackalope::pcm::ladspa_init();
-    // jackalope::pcm::portaudio_init();
-    jackalope::pcm::sndfile_init();
+    // jackalope::pcm_init();
+    // jackalope::pcm::ladspa_init();
+    // // jackalope::pcm::portaudio_init();
+    // jackalope::pcm::sndfile_init();
 }
 
 void jackalope_shutdown()

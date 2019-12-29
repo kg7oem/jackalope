@@ -35,20 +35,20 @@ add_library(
     jackalope SHARED
 
     jackalope/async.cxx
-    jackalope/channel.cxx
-    jackalope/foreign.cxx
-    jackalope/graph.cxx
+#    jackalope/channel.cxx
+#    jackalope/foreign.cxx
+#    jackalope/graph.cxx
     jackalope/jackalope.cxx
     jackalope/log/dest.cxx
     jackalope/log/engine.cxx
-    jackalope/node.cxx
-    jackalope/object.cxx
-    jackalope/pcm.cxx
-    jackalope/pcm/ladspa.cxx
+#    jackalope/node.cxx
+#    jackalope/object.cxx
+#    jackalope/pcm.cxx
+#    jackalope/pcm/ladspa.cxx
 #    jackalope/pcm/portaudio.cxx
-    jackalope/pcm/sndfile.cxx
+#    jackalope/pcm/sndfile.cxx
     jackalope/property.cxx
-    jackalope/signal.cxx
+#    jackalope/signal.cxx
     jackalope/string.cxx
     jackalope/thread.cxx
     jackalope/types.cxx

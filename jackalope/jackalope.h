@@ -15,8 +15,6 @@
 
 #include <iostream>
 
-#include <jackalope/foreign.h>
-
 #define jackalope_panic(...) { std::cerr << to_string(__VA_ARGS__) << std::endl; abort(); }
 
 void jackalope_init();
