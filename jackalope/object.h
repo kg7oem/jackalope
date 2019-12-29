@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include <jackalope/channel.forward.h>
+#include <jackalope/channel.h>
 #include <jackalope/library.h>
 #include <jackalope/property.h>
 #include <jackalope/signal.h>
@@ -41,35 +41,32 @@ class object_t;
  *
  */
 
-class object_t : public prop_obj_t, public signal_obj_t, public lockable_t, public shared_obj_t<object_t> {
+class object_t : public prop_obj_t, public signal_obj_t, public channel_obj_t, public lockable_t, public shared_obj_t<object_t> {
 
 using stop_promise_t = promise_t<void>;
 
 protected:
-    pool_vector_t<shared_t<source_t>> sources;
-    pool_map_t<string_t, shared_t<source_t>> sources_by_name;
-    pool_vector_t<shared_t<sink_t>> sinks;
-    pool_map_t<string_t, shared_t<sink_t>> sinks_by_name;
     bool initialized = false;
     bool started = false;
 
     object_t(const init_list_t& init_list_in);
 
 public:
-    const init_args_t init_args;
     virtual shared_t<signal_t> add_signal(const string_t& name_in) override;
     virtual shared_t<signal_t> add_signal(const string_t& name_in, slot_function_t handler_in);
     virtual shared_t<signal_t> get_signal(const string_t& name_in) override;
     virtual shared_t<slot_t> add_slot(const string_t& name_in, slot_function_t handler_in);
     virtual shared_t<slot_t> get_slot(const string_t& name_in);
-    virtual shared_t<source_t> add_source(const string_t& name_in, const string_t& type_in);
-    virtual shared_t<source_t> get_source(const string_t& name_in);
-    virtual shared_t<source_t> get_source(const size_t number_in);
-    virtual const pool_vector_t<shared_t<source_t>>& get_sources();
-    virtual shared_t<sink_t> add_sink(const string_t& name_in, const string_t& type_in);
-    virtual shared_t<sink_t> get_sink(const string_t& name_in);
-    virtual shared_t<sink_t> get_sink(const size_t number_in);
-    virtual const pool_vector_t<shared_t<sink_t>>& get_sinks();
+    virtual shared_t<source_t> add_source(const string_t& name_in, const string_t& type_in) override;
+    virtual shared_t<source_t> get_source(const string_t& name_in) override;
+    virtual shared_t<source_t> get_source(const size_t number_in) override;
+    virtual const pool_vector_t<shared_t<source_t>>& get_sources() override;
+    virtual shared_t<sink_t> add_sink(const string_t& name_in, const string_t& type_in) override;
+    virtual shared_t<sink_t> get_sink(const string_t& name_in) override;
+    virtual shared_t<sink_t> get_sink(const size_t number_in) override;
+    virtual const pool_vector_t<shared_t<sink_t>>& get_sinks() override;
+
+    const init_args_t init_args;
     virtual void init();
     virtual void start();
     virtual void stop();

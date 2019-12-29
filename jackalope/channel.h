@@ -15,7 +15,7 @@
 
 #include <jackalope/channel.forward.h>
 #include <jackalope/library.h>
-#include <jackalope/object.h>
+#include <jackalope/signal.h>
 #include <jackalope/string.h>
 #include <jackalope/types.h>
 
@@ -24,8 +24,8 @@
 
 namespace jackalope {
 
-using source_library_t = library_t<source_t, const string_t&, const string_t&, shared_t<object_t>>;
-using sink_library_t = library_t<sink_t, const string_t&, const string_t&, shared_t<object_t>>;
+using source_library_t = library_t<source_t, const string_t&, const string_t&>;
+using sink_library_t = library_t<sink_t, const string_t&, const string_t&>;
 
 void add_source_constructor(const string_t& class_name_in, source_library_t::constructor_t constructor_in);
 void add_sink_constructor(const string_t& class_name_in, sink_library_t::constructor_t constructor_in);
@@ -45,16 +45,14 @@ public:
 class channel_t : base_t, public signal_obj_t {
 
 protected:
-    const weak_t<object_t> parent;
     pool_list_t<shared_t<link_t>> links;
 
-    channel_t(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in);
+    channel_t(const string_t& name_in, const string_t& type_in);
 
 public:
     const string_t name;
     const string_t type;
 
-    shared_t<object_t> get_parent();
     virtual void add_link(shared_t<link_t> link_in);
     virtual void init();
     virtual void activate();
@@ -63,8 +61,8 @@ public:
 class source_t : public channel_t, public shared_obj_t<source_t> {
 
 public:
-    static shared_t<source_t> make(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in);
-    source_t(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in);
+    static shared_t<source_t> make(const string_t& name_in, const string_t& type_in);
+    source_t(const string_t& name_in, const string_t& type_in);
     virtual void link(shared_t<sink_t> sink_in);
     virtual void reset();
 };
@@ -72,10 +70,28 @@ public:
 class sink_t : public channel_t, public shared_obj_t<sink_t> {
 
 public:
-    static shared_t<sink_t> make(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in);
-    sink_t(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in);
+    static shared_t<sink_t> make(const string_t& name_in, const string_t& type_in);
+    sink_t(const string_t& name_in, const string_t& type_in);
     virtual void reset();
-    virtual void source_ready(shared_t<source_t> source_in);
+};
+
+class channel_obj_t {
+
+protected:
+    pool_vector_t<shared_t<source_t>> sources;
+    pool_map_t<string_t, shared_t<source_t>> sources_by_name;
+    pool_vector_t<shared_t<sink_t>> sinks;
+    pool_map_t<string_t, shared_t<sink_t>> sinks_by_name;
+
+public:
+    virtual shared_t<source_t> add_source(const string_t& name_in, const string_t& type_in);
+    virtual shared_t<source_t> get_source(const string_t& name_in);
+    virtual shared_t<source_t> get_source(const size_t number_in);
+    virtual const pool_vector_t<shared_t<source_t>>& get_sources();
+    virtual shared_t<sink_t> add_sink(const string_t& name_in, const string_t& type_in);
+    virtual shared_t<sink_t> get_sink(const string_t& name_in);
+    virtual shared_t<sink_t> get_sink(const size_t number_in);
+    virtual const pool_vector_t<shared_t<sink_t>>& get_sinks();
 };
 
 } // namespace jackalope

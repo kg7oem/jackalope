@@ -95,7 +95,7 @@ public:
     using pcm_t = real_t;
     using buffer_t = pcm_buffer_t<pcm_t>;
 
-    pcm_real_sink_t(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in);
+    pcm_real_sink_t(const string_t& name_in, const string_t& type_in);
 };
 
 class pcm_real_source_t : public source_t {
@@ -108,7 +108,7 @@ protected:
     shared_t<buffer_t> buffer;
 
 public:
-    pcm_real_source_t(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in);
+    pcm_real_source_t(const string_t& name_in, const string_t& type_in);
     virtual void set_buffer(shared_t<buffer_t> buffer_in);
     virtual void notify();
     virtual void link(shared_t<sink_t> sink_in);

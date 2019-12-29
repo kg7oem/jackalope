@@ -119,96 +119,56 @@ shared_t<source_t> object_t::add_source(const string_t& name_in, const string_t&
 {
     assert_lockable_owner();
 
-    if (sources_by_name.find(name_in) != sources_by_name.end()) {
-        throw_runtime_error("Attempt to add duplicate source: ", name_in);
-    }
-
-    auto source = source_t::make(name_in, type_in, shared_obj());
-    source->activate();
-
-    sources_by_name[name_in] = source;
-    sources.push_back(source);
-
-    return source;
+    return channel_obj_t::add_source(name_in, type_in);
 }
 
 shared_t<source_t> object_t::get_source(const string_t& name_in)
 {
     assert_lockable_owner();
 
-    auto found = sources_by_name.find(name_in);
-
-    if (found == sources_by_name.end()) {
-        throw_runtime_error("Unknown source name: ", name_in);
-    }
-
-    return found->second;
+    return channel_obj_t::get_source(name_in);
 }
 
 shared_t<source_t> object_t::get_source(const size_t number_in)
 {
     assert_lockable_owner();
 
-    if (number_in >= sources.size()) {
-        throw_runtime_error("Request for invalid source number: ", number_in);
-    }
-
-    return sources[number_in];
+    return channel_obj_t::get_source(number_in);
 }
 
 const pool_vector_t<shared_t<source_t>>& object_t::get_sources()
 {
     assert_lockable_owner();
 
-    return sources;
+    return channel_obj_t::get_sources();
 }
 
 shared_t<sink_t> object_t::add_sink(const string_t& name_in, const string_t& type_in)
 {
     assert_lockable_owner();
 
-    if (sinks_by_name.find(name_in) != sinks_by_name.end()) {
-        throw_runtime_error("Attempt to add duplicate sink: ", name_in);
-    }
-
-    auto sink = sink_t::make(name_in, type_in, shared_obj());
-    sink->activate();
-
-    sinks_by_name[name_in] = sink;
-    sinks.push_back(sink);
-
-    return sink;
+    return channel_obj_t::add_sink(name_in, type_in);
 }
 
 shared_t<sink_t> object_t::get_sink(const string_t& name_in)
 {
     assert_lockable_owner();
 
-    auto found = sinks_by_name.find(name_in);
-
-    if (found == sinks_by_name.end()) {
-        throw_runtime_error("Unknown sink name: ", name_in);
-    }
-
-    return found->second;
+    return channel_obj_t::get_sink(name_in);
 }
 
 shared_t<sink_t> object_t::get_sink(const size_t number_in)
 {
     assert_lockable_owner();
 
-    if (number_in >= sinks.size()) {
-        throw_runtime_error("Request for invalid sink number: ", number_in);
-    }
-
-    return sinks[number_in];
+    return channel_obj_t::get_sink(number_in);
 }
 
 const pool_vector_t<shared_t<sink_t>>& object_t::get_sinks()
 {
     assert_lockable_owner();
 
-    return sinks;
+    return channel_obj_t::get_sinks();
 }
 
 void object_t::link(const string_t& source_name_in, shared_t<object_t> target_in, const string_t& sink_name_in)
