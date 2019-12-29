@@ -17,6 +17,7 @@
 #include <jackalope/jackalope.h>
 #include <jackalope/log/dest.h>
 #include <jackalope/logging.h>
+#include <jackalope/object.h>
 
 #define BUFFER_SIZE 128
 #define SAMPLE_RATE 48000
@@ -34,6 +35,8 @@ int main(int argc_in, char **)
     log::get_engine()->add_destination(dest);
 
     jackalope_init();
+
+    auto object = object_t::make();
 
     // auto graph = make_graph({
     //     { JACKALOPE_PROPERTY_PCM_SAMPLE_RATE, to_string(SAMPLE_RATE) },
