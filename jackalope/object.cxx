@@ -79,10 +79,9 @@ shared_t<signal_t> object_t::add_signal(const string_t& name_in, slot_function_t
     assert_lockable_owner();
 
     auto new_signal = signal_obj_t::add_signal(name_in);
-    auto shared_this = shared_obj();
 
-    new_signal->connect([shared_this, handler_in] {
-        auto lock = shared_this->get_object_lock();
+    new_signal->connect([this, handler_in] {
+        auto lock = get_object_lock();
         handler_in();
     });
 
@@ -100,10 +99,8 @@ shared_t<slot_t> object_t::add_slot(const string_t& name_in, slot_function_t han
 {
     assert_lockable_owner();
 
-    auto shared_this = shared_obj();
-
-    return signal_obj_t::add_slot(name_in, [shared_this, handler_in] {
-        auto lock = shared_this->get_object_lock();
+    return signal_obj_t::add_slot(name_in, [this, handler_in] {
+        auto lock = get_object_lock();
         handler_in();
     });
 }
