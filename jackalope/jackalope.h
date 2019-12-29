@@ -15,7 +15,7 @@
 
 #include <iostream>
 
-#define jackalope_panic(...) { std::cerr << to_string(__VA_ARGS__) << std::endl; abort(); }
+#define jackalope_panic(...) { auto message = to_string(__VA_ARGS__); std::cerr << message << std::endl; abort(); }
 
 void jackalope_init();
 void jackalope_shutdown();
