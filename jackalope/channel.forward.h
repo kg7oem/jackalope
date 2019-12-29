@@ -11,13 +11,13 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
-#include <jackalope/channel.h>
+#pragma once
 
 namespace jackalope {
 
-size_t get_link_id() {
-    static atomic_t<size_t> next_id = 0;
-    return next_id++;
-}
+struct channel_t;
+struct source_t;
+struct sink_t;
+struct link_t;
 
 } //namespace jackalope

@@ -13,6 +13,7 @@
 
 #pragma once
 
+#include <atomic>
 #include <boost/pool/pool_alloc.hpp>
 #include <complex>
 #include <exception>
@@ -24,6 +25,8 @@
 
 namespace jackalope {
 
+template <typename T>
+using atomic_t = std::atomic<T>;
 using char_t = char;
 using int_t = int;
 using size_t = unsigned long;

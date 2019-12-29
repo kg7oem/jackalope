@@ -13,15 +13,39 @@
 
 #pragma once
 
+#include <jackalope/channel.forward.h>
 #include <jackalope/types.h>
 
 namespace jackalope {
 
-struct source_t : public base_t {
+size_t get_link_id();
+
+struct link_t : public base_t, public shared_obj_t<link_t> {
+
+protected:
+    const weak_t<source_t> from;
+    const weak_t<sink_t> to;
+
+public:
+    const size_t id = get_link_id();
+
+    link_t(shared_t<source_t> from_in, shared_t<sink_t> to_in);
+    shared_t<source_t> get_from();
+    shared_t<sink_t> get_to();
+};
+
+struct channel_t : public base_t {
+
+protected:
+    channel_t() = default;
+    virtual ~channel_t() = default;
+};
+
+struct source_t : public channel_t, public shared_obj_t<source_t> {
 
 };
 
-struct sink_t : public base_t {
+struct sink_t : public channel_t, public shared_obj_t<sink_t> {
 
 };
 
