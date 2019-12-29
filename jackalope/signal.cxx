@@ -22,13 +22,13 @@ signal_t::signal_t(const string_t& name_in)
 : name(name_in)
 { }
 
-void signal_t::connect(slot_function_t handler_in)
+void signal_t::subscribe(slot_function_t handler_in)
 {
     auto lock = get_object_lock();
     connections.push_back(handler_in);
 }
 
-void signal_t::connect(shared_t<slot_t> handler_in)
+void signal_t::subscribe(shared_t<slot_t> handler_in)
 {
     auto lock = get_object_lock();
     connections.push_back([handler_in] { handler_in->invoke(); });

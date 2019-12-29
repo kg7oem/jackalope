@@ -37,6 +37,11 @@ link_t::link_t(shared_t<source_t> from_in, shared_t<sink_t> to_in)
 {
     assert(from_in != nullptr);
     assert(to_in != nullptr);
+
+    add_signal(JACKALOPE_SIGNAL_LINK_AVAILABLE);
+    add_signal(JACKALOPE_SIGNAL_LINK_READY);
+    add_signal(JACKALOPE_SIGNAL_LINK_UNAVAILABLE);
+    add_signal(JACKALOPE_SIGNAL_LINK_UNREADY);
 }
 
 shared_t<source_t> link_t::get_from()

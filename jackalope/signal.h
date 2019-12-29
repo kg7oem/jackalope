@@ -34,8 +34,8 @@ struct signal_t : public base_t, public shared_obj_t<signal_t>, lockable_t {
     pool_list_t<promise_t<void>> waiters;
 
     signal_t(const string_t& name_in);
-    void connect(slot_function_t handler_in);
-    void connect(shared_t<slot_t> handler_in);
+    void subscribe(slot_function_t handler_in);
+    void subscribe(shared_t<slot_t> handler_in);
     void send();
     void wait();
 };

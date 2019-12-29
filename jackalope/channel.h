@@ -21,6 +21,10 @@
 
 #define JACKALOPE_SIGNAL_CHANNEL_AVAILABLE     "channel.available"
 #define JACKALOPE_SIGNAL_CHANNEL_READY         "channel.ready"
+#define JACKALOPE_SIGNAL_LINK_AVAILABLE        "link.available"
+#define JACKALOPE_SIGNAL_LINK_UNAVAILABLE      "link.unavailable"
+#define JACKALOPE_SIGNAL_LINK_READY            "link.ready"
+#define JACKALOPE_SIGNAL_LINK_UNREADY          "link.unready"
 
 namespace jackalope {
 
@@ -30,16 +34,23 @@ using sink_library_t = library_t<sink_t, const string_t&, const string_t&>;
 void add_source_constructor(const string_t& class_name_in, source_library_t::constructor_t constructor_in);
 void add_sink_constructor(const string_t& class_name_in, sink_library_t::constructor_t constructor_in);
 
-class link_t : base_t, public shared_obj_t<link_t> {
+class link_t : base_t, public signal_obj_t, public shared_obj_t<link_t>, lockable_t {
 
 protected:
     const weak_t<source_t> from;
     const weak_t<sink_t> to;
+    bool available = false;
+    bool ready = false;
 
 public:
     link_t(shared_t<source_t> from_in, shared_t<sink_t> to_in);
     shared_t<source_t> get_from();
     shared_t<sink_t> get_to();
+    void connect(const string_t& name_in, slot_function_t handler_in);
+    bool is_available();
+    bool set_available(const bool is_available_in);
+    bool is_ready();
+    bool set_ready(const bool is_ready_in);
 };
 
 class channel_t : base_t, public signal_obj_t {

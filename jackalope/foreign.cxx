@@ -45,7 +45,7 @@ void foreign_node_t::connect(const string_t& signal_name_in, shared_t<foreign_gr
         auto signal = node->get_signal(signal_name_in);
         auto slot = target_graph_in->graph->get_slot(target_slot_in);
 
-        signal->connect(slot);
+        signal->subscribe(slot);
     });
 }
 

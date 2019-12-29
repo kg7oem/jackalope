@@ -80,7 +80,7 @@ shared_t<signal_t> object_t::add_signal(const string_t& name_in, slot_function_t
 
     auto new_signal = signal_obj_t::add_signal(name_in);
 
-    new_signal->connect([this, handler_in] {
+    new_signal->subscribe([this, handler_in] {
         auto lock = get_object_lock();
         handler_in();
     });
