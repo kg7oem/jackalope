@@ -11,28 +11,19 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
-#pragma once
-
-#include <jackalope/thread.h>
-#include <jackalope/types.h>
+#include <jackalope/node.h>
 
 namespace jackalope {
 
-class object_t : public shared_obj_t<object_t>, protected lockable_t, public base_t {
+void node_t::slot_sink_ready(shared_t<sink_t>)
+{
+    auto lock = get_object_lock();
+    // TODO handle sinks being ready
+}
 
-public:
-    template <class T = object_t, typename... Args>
-    static shared_t<T> make(Args... args)
-    {
-        auto new_object = make_shared<T>(args...);
-        auto lock = new_object->get_object_lock();
-        new_object->init();
-        return new_object;
-    }
-
-    virtual void init();
-    virtual void start();
-    virtual void stop();
-};
+void node_t::slot_source_available(shared_t<source_t>) {
+    auto lock = get_object_lock();
+    // TODO handle sources being available
+}
 
 } //namespace jackalope

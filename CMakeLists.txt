@@ -35,13 +35,13 @@ add_library(
     jackalope SHARED
 
     jackalope/async.cxx
-#    jackalope/channel.cxx
+    jackalope/channel.cxx
 #    jackalope/foreign.cxx
 #    jackalope/graph.cxx
     jackalope/jackalope.cxx
     jackalope/log/dest.cxx
     jackalope/log/engine.cxx
-#    jackalope/node.cxx
+    jackalope/node.cxx
     jackalope/object.cxx
 #    jackalope/pcm.cxx
 #    jackalope/pcm/ladspa.cxx

@@ -13,26 +13,17 @@
 
 #pragma once
 
-#include <jackalope/thread.h>
+#include <jackalope/channel.h>
+#include <jackalope/object.h>
 #include <jackalope/types.h>
 
 namespace jackalope {
 
-class object_t : public shared_obj_t<object_t>, protected lockable_t, public base_t {
+class node_t : public object_t {
 
 public:
-    template <class T = object_t, typename... Args>
-    static shared_t<T> make(Args... args)
-    {
-        auto new_object = make_shared<T>(args...);
-        auto lock = new_object->get_object_lock();
-        new_object->init();
-        return new_object;
-    }
-
-    virtual void init();
-    virtual void start();
-    virtual void stop();
+    void slot_source_available(shared_t<source_t>);
+    void slot_sink_ready(shared_t<sink_t>);
 };
 
 } //namespace jackalope
