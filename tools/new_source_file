@@ -7,14 +7,15 @@ main() {
     local file_prefix="$1"
     local header_file="${file_prefix}.h"
     local source_file="${file_prefix}.cxx"
+    local output_dir="$(dirname $0)/../jackalope"
 
     if [ "$file_prefix" == "" ]; then
         echo "Must specify a filename prefix" >&2
         exit 1
     fi
 
-    make_header > "$header_file"
-    make_source "$header_file" > "$source_file"
+    make_header > "$output_dir/$header_file"
+    make_source "$header_file" > "$output_dir/$source_file"
 }
 
 make_copyright() {
