@@ -35,8 +35,8 @@ shared_t<sink_t> link_t::get_to()
     return to.lock();
 }
 
-channel_t::channel_t(shared_t<object_t> parent_in)
-: parent(parent_in)
+channel_t::channel_t(const string_t name_in, shared_t<object_t> parent_in)
+: parent(parent_in), name(name_in)
 {
     assert(parent_in != nullptr);
 }
@@ -81,5 +81,13 @@ void source_t::notify_source_available()
 
     parent->slot_source_available(shared_obj());
 }
+
+source_t::source_t(const string_t name_in, shared_t<object_t> parent_in)
+: channel_t(name_in, parent_in)
+{ }
+
+sink_t::sink_t(const string_t name_in, shared_t<object_t> parent_in)
+: channel_t(name_in, parent_in)
+{ }
 
 } //namespace jackalope

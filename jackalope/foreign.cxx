@@ -17,10 +17,28 @@ namespace jackalope {
 
 namespace foreign {
 
-node_t::node_t(shared_t<jackalope::node_t> node_in)
-: node(node_in)
+source_t::source_t(shared_t<jackalope::source_t> wrapped_in)
+: wrapper_t(wrapped_in)
+{ }
+
+sink_t::sink_t(shared_t<jackalope::sink_t> wrapped_in)
+: wrapper_t(wrapped_in)
+{ }
+
+node_t::node_t(shared_t<jackalope::node_t> wrapped_in)
+: wrapper_t(wrapped_in)
+{ }
+
+source_t node_t::add_source(const string_t& name_in)
 {
-    assert (node != nullptr);
+    auto lock = wrapped->get_object_lock();
+    return wrapped->add_source(name_in);
+}
+
+void node_t::start()
+{
+    auto lock = wrapped->get_object_lock();
+    wrapped->start();
 }
 
 } // namespace foreign

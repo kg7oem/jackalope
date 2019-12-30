@@ -13,6 +13,7 @@
 
 #pragma once
 
+#include <jackalope/foreign.forward.h>
 #include <jackalope/node.h>
 #include <jackalope/types.h>
 
@@ -20,13 +21,31 @@ namespace jackalope {
 
 namespace foreign {
 
-struct node_t {
+template <typename T>
+class wrapper_t {
 
 protected:
-    const shared_t<jackalope::node_t> node;
+    const shared_t<T> wrapped;
 
-public:
-    node_t(shared_t<jackalope::node_t> node_in);
+    wrapper_t(shared_t<T> wrapped_in)
+    : wrapped(wrapped_in)
+    {
+        assert(wrapped_in != nullptr);
+    }
+};
+
+struct source_t : public wrapper_t<jackalope::source_t> {
+    source_t(shared_t<jackalope::source_t> wrapped_in);
+};
+
+struct sink_t : public wrapper_t<jackalope::sink_t> {
+    sink_t(shared_t<jackalope::sink_t> wrapped_in);
+};
+
+struct node_t : public wrapper_t<jackalope::node_t> {
+    node_t(shared_t<jackalope::node_t> wrapped_in);
+    source_t add_source(const string_t& name_in);
+    void start();
 };
 
 template <typename... T>

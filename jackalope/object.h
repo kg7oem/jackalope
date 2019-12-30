@@ -14,12 +14,20 @@
 #pragma once
 
 #include <jackalope/channel.h>
+#include <jackalope/foreign.forward.h>
+#include <jackalope/string.h>
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
 
 namespace jackalope {
 
 class object_t : public shared_obj_t<object_t>, protected lockable_t, public base_t {
+
+    friend foreign::node_t;
+
+protected:
+    pool_vector_t<shared_t<source_t>> sources;
+    pool_map_t<string_t, shared_t<source_t>> sources_by_name;
 
 public:
     template <class T = object_t, typename... Args>
@@ -31,6 +39,9 @@ public:
         return new_object;
     }
 
+    virtual shared_t<source_t> add_source(const string_t& source_name_in);
+    virtual shared_t<source_t> get_source(const string_t& source_name_in);
+    virtual shared_t<source_t> get_source(const size_t source_num_in);
     virtual void init();
     virtual void start();
     virtual void stop();

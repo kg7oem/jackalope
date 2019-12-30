@@ -11,9 +11,51 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
+#include <jackalope/exception.h>
 #include <jackalope/object.h>
 
 namespace jackalope {
+
+shared_t<source_t> object_t::add_source(const string_t& source_name_in)
+{
+    assert_lockable_owner();
+
+    auto found = sources_by_name.find(source_name_in);
+
+    if (found != sources_by_name.end()) {
+        throw_runtime_error("Can not add duplicate source name: ", source_name_in);
+    }
+
+    auto new_source = jackalope::make_shared<source_t>(source_name_in, shared_obj());
+    sources.push_back(new_source);
+    sources_by_name[new_source->name] = new_source;
+
+    return new_source;
+}
+
+shared_t<source_t> object_t::get_source(const string_t& source_name_in)
+{
+    assert_lockable_owner();
+
+    auto found = sources_by_name.find(source_name_in);
+
+    if (found == sources_by_name.end()) {
+        throw_runtime_error("Unknown source name: ", source_name_in);
+    }
+
+    return found->second;
+}
+
+shared_t<source_t> object_t::get_source(const size_t source_num_in)
+{
+    assert_lockable_owner();
+
+    if (source_num_in >= sources.size()) {
+        throw_runtime_error("Source number is out of bounds: ", source_num_in);
+    }
+
+    return sources[source_num_in];
+}
 
 void object_t::init()
 {

@@ -38,6 +38,8 @@ int main(int argc_in, char **)
     jackalope_init();
 
     auto node = make_node();
+    node.add_source("testing");
+    node.start();
 
     // auto graph = make_graph({
     //     { JACKALOPE_PROPERTY_PCM_SAMPLE_RATE, to_string(SAMPLE_RATE) },

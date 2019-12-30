@@ -15,6 +15,7 @@
 
 #include <jackalope/channel.forward.h>
 #include <jackalope/object.forward.h>
+#include <jackalope/string.h>
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
 
@@ -42,7 +43,9 @@ protected:
     pool_list_t<shared_t<link_t>> links;
 
 public:
-    channel_t(shared_t<object_t> parent_in);
+    const string_t name;
+
+    channel_t(const string_t name_in, shared_t<object_t> parent_in);
     virtual ~channel_t() = default;
     shared_t<object_t> get_parent();
 };
@@ -53,7 +56,7 @@ protected:
     bool known_available = false;
 
 public:
-    source_t(shared_t<object_t> parent_in);
+    source_t(const string_t name_in, shared_t<object_t> parent_in);
     virtual ~source_t() = default;
     bool is_available();
     void link_available(shared_t<link_t> available_link_in);
@@ -61,7 +64,7 @@ public:
 };
 
 struct sink_t : public channel_t, public shared_obj_t<sink_t> {
-    sink_t(shared_t<object_t> parent_in);
+    sink_t(const string_t name_in, shared_t<object_t> parent_in);
     virtual ~sink_t() = default;
     bool is_ready();
 };
