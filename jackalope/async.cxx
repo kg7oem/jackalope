@@ -76,7 +76,7 @@ void async_shutdown()
 
 void submit_job(async_job_t<void> job_in)
 {
-    get_asio_io()->dispatch(job_in);
+    get_asio_io()->post(job_in);
 }
 
 } // namespace jackalope
