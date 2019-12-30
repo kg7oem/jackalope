@@ -33,6 +33,7 @@ class audio_source_t : public source_t {
 public:
     audio_source_t(const string_t name_in, shared_t<object_t> parent_in);
     virtual shared_t<link_t> make_link(shared_t<source_t> from_in, shared_t<sink_t> to_in) override;
+    virtual void link(shared_t<sink_t> sink_in) override;
 };
 
 class audio_sink_t : public sink_t {
