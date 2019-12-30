@@ -66,7 +66,8 @@ public:
     bool is_available();
     bool _is_available();
     void _check_available();
-    void link_available(shared_t<link_t> available_link_in);
+    void link_available(shared_t<link_t> link_in);
+    void link_unavailable(shared_t<link_t> link_in);
     void _notify_source_available();
 };
 
@@ -79,6 +80,8 @@ public:
     sink_t(const string_t name_in, shared_t<object_t> parent_in);
     virtual ~sink_t() = default;
     void add_link(shared_t<link_t> link_in);
+    void _set_links_available();
+    void _set_links_unavailable();
     void start();
     bool is_ready();
     bool _is_ready();

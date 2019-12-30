@@ -104,6 +104,13 @@ void source_t::link_available(shared_t<link_t>)
     _check_available();
 }
 
+void source_t::link_unavailable(shared_t<link_t>)
+{
+    auto lock = get_object_lock();
+
+    _check_available();
+}
+
 void source_t::_check_available()
 {
     assert_lockable_owner();
@@ -130,6 +137,36 @@ sink_t::sink_t(const string_t name_in, shared_t<object_t> parent_in)
 : channel_t(name_in, parent_in)
 { }
 
+void sink_t::_set_links_available()
+{
+    assert_lockable_owner();
+
+    for(auto link : links) {
+        auto source = link->get_from();
+
+        link->is_available = true;
+
+        submit_job([source, link] {
+            source->link_available(link);
+        });
+    }
+}
+
+void sink_t::_set_links_unavailable()
+{
+    assert_lockable_owner();
+
+    for(auto link : links) {
+        auto source = link->get_from();
+
+        link->is_available = false;
+
+        submit_job([source, link] {
+            source->link_unavailable(link);
+         });
+    }
+}
+
 void sink_t::add_link(shared_t<link_t> link_in)
 {
     auto lock = get_object_lock();
@@ -141,6 +178,7 @@ void sink_t::start()
 {
     auto lock = get_object_lock();
 
+    _set_links_available();
     _check_ready();
 }
 
