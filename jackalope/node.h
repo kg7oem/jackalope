@@ -21,9 +21,6 @@ namespace jackalope {
 
 class node_t : public object_t {
 
-public:
-    void slot_source_available(shared_t<source_t>);
-    void slot_sink_ready(shared_t<sink_t>);
 };
 
 } //namespace jackalope

@@ -23,7 +23,8 @@
 #define SAMPLE_RATE 48000
 #define LADSPA_ZAMTUBE_ID 1515476290
 
-using namespace jackalope;
+using namespace jackalope::foreign;
+using namespace jackalope::log;
 
 int main(int argc_in, char **)
 {
@@ -31,12 +32,12 @@ int main(int argc_in, char **)
         jackalope_panic("must specify exactly one audio file to play");
     }
 
-    auto dest = make_shared<log::console_dest_t>(log::level_t::info);
-    log::get_engine()->add_destination(dest);
+    auto dest = jackalope::make_shared<console_dest_t>(level_t::info);
+    get_engine()->add_destination(dest);
 
     jackalope_init();
 
-    auto object = object_t::make();
+    auto node = make_node();
 
     // auto graph = make_graph({
     //     { JACKALOPE_PROPERTY_PCM_SAMPLE_RATE, to_string(SAMPLE_RATE) },

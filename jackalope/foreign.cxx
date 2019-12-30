@@ -11,13 +11,18 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
-#pragma once
-
-#include <iostream>
-
 #include <jackalope/foreign.h>
 
-#define jackalope_panic(...) { auto message = jackalope::to_string(__VA_ARGS__); std::cerr << message << std::endl; abort(); }
+namespace jackalope {
 
-void jackalope_init();
-void jackalope_shutdown();
+namespace foreign {
+
+node_t::node_t(shared_t<jackalope::node_t> node_in)
+: node(node_in)
+{
+    assert (node != nullptr);
+}
+
+} // namespace foreign
+
+} //namespace jackalope

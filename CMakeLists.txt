@@ -36,7 +36,7 @@ add_library(
 
     jackalope/async.cxx
     jackalope/channel.cxx
-#    jackalope/foreign.cxx
+    jackalope/foreign.cxx
 #    jackalope/graph.cxx
     jackalope/jackalope.cxx
     jackalope/log/dest.cxx

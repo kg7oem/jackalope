@@ -13,11 +13,29 @@
 
 #pragma once
 
-#include <iostream>
+#include <jackalope/node.h>
+#include <jackalope/types.h>
 
-#include <jackalope/foreign.h>
+namespace jackalope {
 
-#define jackalope_panic(...) { auto message = jackalope::to_string(__VA_ARGS__); std::cerr << message << std::endl; abort(); }
+namespace foreign {
 
-void jackalope_init();
-void jackalope_shutdown();
+struct node_t {
+
+protected:
+    const shared_t<jackalope::node_t> node;
+
+public:
+    node_t(shared_t<jackalope::node_t> node_in);
+};
+
+template <typename... T>
+node_t make_node(T... args)
+{
+    auto new_node = jackalope::object_t::make<jackalope::node_t>(args...);
+    return node_t(new_node);
+}
+
+} // namespace foreign
+
+} //namespace jackalope

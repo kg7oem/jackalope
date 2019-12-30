@@ -15,15 +15,4 @@
 
 namespace jackalope {
 
-void node_t::slot_sink_ready(shared_t<sink_t>)
-{
-    auto lock = get_object_lock();
-    // TODO handle sinks being ready
-}
-
-void node_t::slot_source_available(shared_t<source_t>) {
-    auto lock = get_object_lock();
-    // TODO handle sources being available
-}
-
 } //namespace jackalope
