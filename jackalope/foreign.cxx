@@ -11,6 +11,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
+#include <jackalope/async.h>
 #include <jackalope/foreign.h>
 
 namespace jackalope {
@@ -31,14 +32,20 @@ node_t::node_t(shared_t<jackalope::node_t> wrapped_in)
 
 source_t node_t::add_source(const string_t& name_in)
 {
-    auto lock = wrapped->get_object_lock();
-    return wrapped->add_source(name_in);
+    auto new_source = wait_job<shared_t<jackalope::source_t>>([&] {
+        auto lock = wrapped->get_object_lock();
+        return wrapped->add_source(name_in);
+    });
+
+    return source_t(new_source);
 }
 
 void node_t::start()
 {
-    auto lock = wrapped->get_object_lock();
-    wrapped->start();
+    wait_job<void>([&] {
+        auto lock = wrapped->get_object_lock();
+        wrapped->start();
+    });
 }
 
 } // namespace foreign
