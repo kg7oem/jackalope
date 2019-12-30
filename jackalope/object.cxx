@@ -67,7 +67,9 @@ void object_t::start()
 {
     assert_lockable_owner();
 
-    check_sources_available();
+    for(auto i : sources) {
+        i->start();
+    }
 }
 
 void object_t::stop()
@@ -77,6 +79,14 @@ void object_t::stop()
 
 void object_t::check_sources_available()
 {
+    assert_lockable_owner();
+
+    // if there are no sources then no
+    // sources can be available
+    if (sources.size() == 0) {
+        return;
+    }
+
     bool all_available = true;
 
     for(auto i : sources) {
@@ -99,6 +109,10 @@ void object_t::check_sources_available()
 void object_t::source_available(shared_t<source_t>)
 {
     assert_lockable_owner();
+
+    log_info("source available");
+
+    check_sources_available();
 }
 
 void object_t::slot_source_available(shared_t<source_t> available_source_in)

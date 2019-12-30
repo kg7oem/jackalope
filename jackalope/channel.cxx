@@ -13,6 +13,7 @@
 
 #include <cassert>
 
+#include <jackalope/async.h>
 #include <jackalope/channel.h>
 #include <jackalope/object.h>
 
@@ -41,16 +42,31 @@ channel_t::channel_t(const string_t name_in, shared_t<object_t> parent_in)
     assert(parent_in != nullptr);
 }
 
+// thread safe because parent is const
 shared_t<object_t> channel_t::get_parent()
 {
     return parent.lock();
 }
 
-// a source is available if none
-// of the links are not available
+void source_t::start()
+{
+    auto lock = get_object_lock();
+
+    _check_available();
+}
+
 bool source_t::is_available()
 {
     auto lock = get_object_lock();
+
+    return _is_available();
+}
+
+// a source is available if none
+// of the links are not available
+bool source_t::_is_available()
+{
+    assert_lockable_owner();
 
     for(auto& i : links) {
         if (! i->is_available) {
@@ -63,23 +79,31 @@ bool source_t::is_available()
 
 void source_t::link_available(shared_t<link_t>)
 {
+    auto lock = get_object_lock();
+
+    _check_available();
+}
+
+void source_t::_check_available()
+{
     assert_lockable_owner();
 
-    if (is_available() && ! known_available) {
+    if (_is_available() && ! known_available) {
         known_available = true;
-        notify_source_available();
+        _notify_source_available();
     }
 }
 
-void source_t::notify_source_available()
+void source_t::_notify_source_available()
 {
-    auto lock = get_object_lock();
+    assert_lockable_owner();
+
+    auto parent = get_parent();
+    auto shared_this = shared_obj();
 
     assert(known_available == true);
 
-    auto parent = get_parent();
-
-    parent->slot_source_available(shared_obj());
+    submit_job([parent, shared_this] { parent->slot_source_available(shared_this); });
 }
 
 source_t::source_t(const string_t name_in, shared_t<object_t> parent_in)

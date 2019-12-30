@@ -15,6 +15,7 @@
 
 #include <jackalope/channel.h>
 #include <jackalope/foreign.forward.h>
+#include <jackalope/signal.h>
 #include <jackalope/string.h>
 #include <jackalope/thread.h>
 #include <jackalope/types.h>

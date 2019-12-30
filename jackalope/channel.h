@@ -15,6 +15,7 @@
 
 #include <jackalope/channel.forward.h>
 #include <jackalope/object.forward.h>
+#include <jackalope/signal.h>
 #include <jackalope/string.h>
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
@@ -58,9 +59,12 @@ protected:
 public:
     source_t(const string_t name_in, shared_t<object_t> parent_in);
     virtual ~source_t() = default;
+    void start();
     bool is_available();
+    bool _is_available();
+    void _check_available();
     void link_available(shared_t<link_t> available_link_in);
-    void notify_source_available();
+    void _notify_source_available();
 };
 
 struct sink_t : public channel_t, public shared_obj_t<sink_t> {
