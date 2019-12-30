@@ -12,6 +12,7 @@
 // GNU Lesser General Public License for more details.
 
 #include <jackalope/exception.h>
+#include <jackalope/logging.h>
 #include <jackalope/object.h>
 
 namespace jackalope {
@@ -65,11 +66,34 @@ void object_t::init()
 void object_t::start()
 {
     assert_lockable_owner();
+
+    check_sources_available();
 }
 
 void object_t::stop()
 {
     assert_lockable_owner();
+}
+
+void object_t::check_sources_available()
+{
+    bool all_available = true;
+
+    for(auto i : sources) {
+        if (! i->is_available()) {
+            all_available = false;
+            break;
+        }
+    }
+
+    if (! all_available) {
+        return;
+    }
+
+    if (! sources_known_available) {
+        sources_known_available = true;
+        all_sources_available();
+    }
 }
 
 void object_t::source_available(shared_t<source_t>)
@@ -82,6 +106,13 @@ void object_t::slot_source_available(shared_t<source_t> available_source_in)
     auto lock = get_object_lock();
 
     source_available(available_source_in);
+}
+
+void object_t::all_sources_available()
+{
+    assert_lockable_owner();
+
+    log_info("All sources are available!");
 }
 
 } //namespace jackalope

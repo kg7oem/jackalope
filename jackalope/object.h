@@ -28,6 +28,7 @@ class object_t : public shared_obj_t<object_t>, protected lockable_t, public bas
 protected:
     pool_vector_t<shared_t<source_t>> sources;
     pool_map_t<string_t, shared_t<source_t>> sources_by_name;
+    bool sources_known_available = false;
 
 public:
     template <class T = object_t, typename... Args>
@@ -47,6 +48,8 @@ public:
     virtual void stop();
     virtual void source_available(shared_t<source_t> available_source_in);
     virtual void slot_source_available(shared_t<source_t> available_source_in);
+    virtual void check_sources_available();
+    virtual void all_sources_available();
 };
 
 } //namespace jackalope
