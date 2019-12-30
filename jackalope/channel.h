@@ -36,12 +36,14 @@ protected:
     const weak_t<sink_t> to;
 
 public:
-    atomic_t<bool> is_available = ATOMIC_VAR_INIT(false);
-    atomic_t<bool> is_ready = ATOMIC_VAR_INIT(false);
 
     link_t(shared_t<source_t> from_in, shared_t<sink_t> to_in);
     shared_t<source_t> get_from();
     shared_t<sink_t> get_to();
+    virtual bool is_available() = 0;
+    virtual void set_available(const bool available_in) = 0;
+    virtual bool is_ready() = 0;
+    virtual void set_ready(const bool ready_in) = 0;
 };
 
 struct channel_t : public base_t, protected lockable_t {
@@ -78,7 +80,7 @@ public:
     virtual void link(shared_t<sink_t> sink_in);
     virtual shared_t<link_t> make_link(shared_t<source_t> from_in, shared_t<sink_t> to_in) = 0;
     virtual bool is_available();
-    virtual bool _is_available();
+    virtual bool _is_available() = 0;
     virtual void _check_available();
     virtual void link_available(shared_t<link_t> link_in);
     virtual void link_unavailable(shared_t<link_t> link_in);
@@ -101,7 +103,7 @@ public:
     virtual void _set_links_unavailable();
     virtual void _start() override;
     virtual bool is_ready();
-    virtual bool _is_ready();
+    virtual bool _is_ready() = 0;
     virtual void _check_ready();
     virtual void link_ready(shared_t<link_t> ready_link_in);
     virtual void _notify_sink_ready();

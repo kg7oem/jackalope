@@ -39,9 +39,44 @@ audio_link_t::audio_link_t(shared_t<source_t> source_in, shared_t<sink_t> sink_i
     assert(source_in->type == sink_in->type);
 }
 
+bool audio_link_t::is_available()
+{
+    return available_flag;
+}
+
+void audio_link_t::set_available(const bool available_in)
+{
+    available_flag = available_in;
+}
+
+bool audio_link_t::is_ready()
+{
+    return ready_flag;
+}
+
+void audio_link_t::set_ready(const bool ready_in)
+{
+    ready_flag = ready_in;
+}
+
 audio_source_t::audio_source_t(const string_t name_in, shared_t<object_t> parent_in)
 : source_t(name_in, JACKALOPE_TYPE_AUDIO, parent_in)
 { }
+
+// a source is available if none
+// of the links are not available
+bool audio_source_t::_is_available()
+{
+    assert_lockable_owner();
+
+    for(auto& i : links) {
+        if (! i->is_available()) {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 shared_t <link_t> audio_source_t::make_link(shared_t<source_t> from_in, shared_t<sink_t> to_in)
 {
@@ -60,5 +95,20 @@ void audio_source_t::link(shared_t<sink_t> sink_in)
 audio_sink_t::audio_sink_t(const string_t name_in, shared_t<object_t> parent_in)
 : sink_t(name_in, JACKALOPE_TYPE_AUDIO, parent_in)
 { }
+
+// a sink is ready if none
+// of the links are not ready
+bool audio_sink_t::_is_ready()
+{
+    assert_lockable_owner();
+
+    for(auto& i : links) {
+        if (! i->is_ready()) {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 } //namespace jackalope

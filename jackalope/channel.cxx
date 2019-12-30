@@ -118,21 +118,6 @@ bool source_t::is_available()
     return _is_available();
 }
 
-// a source is available if none
-// of the links are not available
-bool source_t::_is_available()
-{
-    assert_lockable_owner();
-
-    for(auto& i : links) {
-        if (! i->is_available) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
 void source_t::link_available(shared_t<link_t>)
 {
     auto lock = get_object_lock();
@@ -211,7 +196,7 @@ void sink_t::_set_links_available()
     for(auto link : links) {
         auto source = link->get_from();
 
-        link->is_available = true;
+        link->set_available(true);
 
         submit_job([source, link] {
             source->link_available(link);
@@ -226,7 +211,7 @@ void sink_t::_set_links_unavailable()
     for(auto link : links) {
         auto source = link->get_from();
 
-        link->is_available = false;
+        link->set_available(false);
 
         submit_job([source, link] {
             source->link_unavailable(link);
@@ -256,21 +241,6 @@ bool sink_t::is_ready()
     auto lock = get_object_lock();
 
     return _is_ready();
-}
-
-// a sink is ready if none
-// of the links are not ready
-bool sink_t::_is_ready()
-{
-    assert_lockable_owner();
-
-    for(auto& i : links) {
-        if (! i->is_ready) {
-            return false;
-        }
-    }
-
-    return true;
 }
 
 void sink_t::link_ready(shared_t<link_t>)
