@@ -11,35 +11,10 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
-#include <jackalope/object.h>
+#pragma once
 
 namespace jackalope {
 
-void object_t::init()
-{
-    assert_lockable_owner();
-}
+struct object_t;
 
-void object_t::start()
-{
-    assert_lockable_owner();
-}
-
-void object_t::stop()
-{
-    assert_lockable_owner();
-}
-
-void object_t::source_available(shared_t<source_t>)
-{
-    assert_lockable_owner();
-}
-
-void object_t::slot_source_available(shared_t<source_t> available_source_in)
-{
-    auto lock = get_object_lock();
-
-    source_available(available_source_in);
-}
-
-} //namespace jackalope
+} // namespace jackalope

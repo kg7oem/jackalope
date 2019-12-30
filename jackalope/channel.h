@@ -14,11 +14,11 @@
 #pragma once
 
 #include <jackalope/channel.forward.h>
+#include <jackalope/object.forward.h>
+#include <jackalope/thread.h>
 #include <jackalope/types.h>
 
 namespace jackalope {
-
-size_t get_link_id();
 
 struct link_t : public base_t, public shared_obj_t<link_t> {
 
@@ -27,26 +27,43 @@ protected:
     const weak_t<sink_t> to;
 
 public:
-    const size_t id = get_link_id();
+    atomic_t<bool> is_available = ATOMIC_VAR_INIT(false);
+    atomic_t<bool> is_ready = ATOMIC_VAR_INIT(false);
 
     link_t(shared_t<source_t> from_in, shared_t<sink_t> to_in);
     shared_t<source_t> get_from();
     shared_t<sink_t> get_to();
 };
 
-struct channel_t : public base_t {
+struct channel_t : public base_t, protected lockable_t {
 
 protected:
-    channel_t() = default;
+    const weak_t<object_t> parent;
+    pool_list_t<shared_t<link_t>> links;
+
+public:
+    channel_t(shared_t<object_t> parent_in);
     virtual ~channel_t() = default;
+    shared_t<object_t> get_parent();
 };
 
 struct source_t : public channel_t, public shared_obj_t<source_t> {
 
+protected:
+    bool known_available = false;
+
+public:
+    source_t(shared_t<object_t> parent_in);
+    virtual ~source_t() = default;
+    bool is_available();
+    void link_available(shared_t<link_t> available_link_in);
+    void notify_source_available();
 };
 
 struct sink_t : public channel_t, public shared_obj_t<sink_t> {
-
+    sink_t(shared_t<object_t> parent_in);
+    virtual ~sink_t() = default;
+    bool is_ready();
 };
 
 } //namespace jackalope

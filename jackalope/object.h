@@ -13,6 +13,7 @@
 
 #pragma once
 
+#include <jackalope/channel.h>
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
 
@@ -33,6 +34,8 @@ public:
     virtual void init();
     virtual void start();
     virtual void stop();
+    virtual void source_available(shared_t<source_t> available_source_in);
+    virtual void slot_source_available(shared_t<source_t> available_source_in);
 };
 
 } //namespace jackalope
