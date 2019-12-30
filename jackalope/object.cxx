@@ -170,11 +170,25 @@ void object_t::source_available(shared_t<source_t>)
     check_sources_available();
 }
 
-void object_t::slot_source_available(shared_t<source_t> available_source_in)
+void object_t::slot_source_available(shared_t<source_t> source_in)
 {
     auto lock = get_object_lock();
 
-    source_available(available_source_in);
+    source_available(source_in);
+}
+
+void object_t::source_unavailable(shared_t<source_t>)
+{
+    assert_lockable_owner();
+
+    log_info("source unavailable");
+}
+
+void object_t::slot_source_unavailable(shared_t<source_t> source_in)
+{
+    auto lock = get_object_lock();
+
+    source_unavailable(source_in);
 }
 
 void object_t::all_sources_available()

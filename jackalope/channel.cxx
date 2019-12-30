@@ -142,6 +142,11 @@ void source_t::_check_available()
         known_available = true;
         _notify_source_available();
     }
+
+    if (! _is_available() && known_available) {
+        known_available = false;
+        _notify_source_unavailable();
+    }
 }
 
 void source_t::_notify_source_available()
@@ -154,6 +159,18 @@ void source_t::_notify_source_available()
     assert(known_available == true);
 
     submit_job([parent, shared_this] { parent->slot_source_available(shared_this); });
+}
+
+void source_t::_notify_source_unavailable()
+{
+    assert_lockable_owner();
+
+    auto parent = get_parent();
+    auto shared_this = shared_obj();
+
+    assert(known_available == false);
+
+    submit_job([parent, shared_this] { parent->slot_source_unavailable(shared_this); });
 }
 
 sink_t::sink_t(const string_t name_in, shared_t<object_t> parent_in)
