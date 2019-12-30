@@ -46,6 +46,7 @@ struct node_t : public wrapper_t<jackalope::node_t> {
     node_t(shared_t<jackalope::node_t> wrapped_in);
     source_t add_source(const string_t& name_in);
     sink_t add_sink(const string_t& name_in);
+    void link(const string_t& source_name_in, node_t target_object_in, const string_t& target_sink_name_in);
     void start();
 };
 

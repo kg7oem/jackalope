@@ -50,6 +50,19 @@ sink_t node_t::add_sink(const string_t& name_in)
     return sink_t(new_sink);
 }
 
+void node_t::link(const string_t& source_name_in, node_t target_object_in, const string_t& target_sink_name_in)
+{
+    wait_job<void>([this, source_name_in, target_object_in, target_sink_name_in] {
+        auto source_lock = wrapped->get_object_lock();
+        auto source = wrapped->get_source(source_name_in);
+        auto target = target_object_in.wrapped;
+        auto target_lock = target->get_object_lock();
+        auto target_sink = target->get_sink(target_sink_name_in);
+
+        source->link(target_sink);
+    });
+}
+
 void node_t::start()
 {
     wait_job<void>([&] {

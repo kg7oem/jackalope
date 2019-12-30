@@ -43,6 +43,8 @@ protected:
     const weak_t<object_t> parent;
     pool_list_t<shared_t<link_t>> links;
 
+    void _add_link(shared_t<link_t> link_in);
+
 public:
     const string_t name;
 
@@ -60,6 +62,7 @@ public:
     source_t(const string_t name_in, shared_t<object_t> parent_in);
     virtual ~source_t() = default;
     void start();
+    void link(shared_t<sink_t> sink_in);
     bool is_available();
     bool _is_available();
     void _check_available();
@@ -75,6 +78,7 @@ protected:
 public:
     sink_t(const string_t name_in, shared_t<object_t> parent_in);
     virtual ~sink_t() = default;
+    void add_link(shared_t<link_t> link_in);
     void start();
     bool is_ready();
     bool _is_ready();

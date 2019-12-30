@@ -42,6 +42,13 @@ channel_t::channel_t(const string_t name_in, shared_t<object_t> parent_in)
     assert(parent_in != nullptr);
 }
 
+void channel_t::_add_link(shared_t<link_t> link_in)
+{
+    assert_lockable_owner();
+
+    links.push_back(link_in);
+}
+
 source_t::source_t(const string_t name_in, shared_t<object_t> parent_in)
 : channel_t(name_in, parent_in)
 { }
@@ -57,6 +64,15 @@ void source_t::start()
     auto lock = get_object_lock();
 
     _check_available();
+}
+
+void source_t::link(shared_t<sink_t> sink_in)
+{
+    auto lock = get_object_lock();
+    auto new_link = jackalope::make_shared<link_t>(shared_obj(), sink_in);
+
+    _add_link(new_link);
+    sink_in->add_link(new_link);
 }
 
 bool source_t::is_available()
@@ -113,6 +129,13 @@ void source_t::_notify_source_available()
 sink_t::sink_t(const string_t name_in, shared_t<object_t> parent_in)
 : channel_t(name_in, parent_in)
 { }
+
+void sink_t::add_link(shared_t<link_t> link_in)
+{
+    auto lock = get_object_lock();
+
+    _add_link(link_in);
+}
 
 void sink_t::start()
 {

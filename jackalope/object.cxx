@@ -99,6 +99,16 @@ shared_t<sink_t> object_t::get_sink(const size_t sink_num_in)
     return sinks[sink_num_in];
 }
 
+void object_t::link(const string_t& source_name_in, shared_t<object_t> target_object_in, const string_t& target_sink_name_in)
+{
+    assert_lockable_owner();
+
+    auto target_sink = target_object_in->get_sink(target_sink_name_in);
+    auto source = get_source(source_name_in);
+
+    source->link(target_sink);
+}
+
 void object_t::init()
 {
     assert_lockable_owner();

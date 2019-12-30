@@ -37,12 +37,19 @@ int main(int argc_in, char **)
 
     jackalope_init();
 
-    auto node = make_node();
-    node.add_source("testing");
-    node.add_source("testing 2");
-    node.add_sink("coffee");
-    node.add_sink("coffee 2");
-    node.start();
+    auto test = make_node();
+    test.add_source("testing");
+    test.add_source("testing 2");
+
+    auto coffee = make_node();
+    coffee.add_sink("coffee");
+    coffee.add_sink("coffee 2");
+
+    test.link("testing", coffee, "coffee");
+
+    for(auto i : { test, coffee }) {
+        i.start();
+    }
 
     // auto graph = make_graph({
     //     { JACKALOPE_PROPERTY_PCM_SAMPLE_RATE, to_string(SAMPLE_RATE) },
