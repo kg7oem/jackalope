@@ -40,6 +40,16 @@ source_t node_t::add_source(const string_t& name_in)
     return source_t(new_source);
 }
 
+sink_t node_t::add_sink(const string_t& name_in)
+{
+    auto new_sink = wait_job<shared_t<jackalope::sink_t>>([&] {
+        auto lock = wrapped->get_object_lock();
+        return wrapped->add_sink(name_in);
+    });
+
+    return sink_t(new_sink);
+}
+
 void node_t::start()
 {
     wait_job<void>([&] {

@@ -68,9 +68,19 @@ public:
 };
 
 struct sink_t : public channel_t, public shared_obj_t<sink_t> {
+
+protected:
+    bool known_ready = false;
+
+public:
     sink_t(const string_t name_in, shared_t<object_t> parent_in);
     virtual ~sink_t() = default;
+    void start();
     bool is_ready();
+    bool _is_ready();
+    void _check_ready();
+    void link_ready(shared_t<link_t> ready_link_in);
+    void _notify_sink_ready();
 };
 
 } //namespace jackalope

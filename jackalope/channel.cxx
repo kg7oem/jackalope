@@ -42,6 +42,10 @@ channel_t::channel_t(const string_t name_in, shared_t<object_t> parent_in)
     assert(parent_in != nullptr);
 }
 
+source_t::source_t(const string_t name_in, shared_t<object_t> parent_in)
+: channel_t(name_in, parent_in)
+{ }
+
 // thread safe because parent is const
 shared_t<object_t> channel_t::get_parent()
 {
@@ -106,12 +110,66 @@ void source_t::_notify_source_available()
     submit_job([parent, shared_this] { parent->slot_source_available(shared_this); });
 }
 
-source_t::source_t(const string_t name_in, shared_t<object_t> parent_in)
-: channel_t(name_in, parent_in)
-{ }
-
 sink_t::sink_t(const string_t name_in, shared_t<object_t> parent_in)
 : channel_t(name_in, parent_in)
 { }
+
+void sink_t::start()
+{
+    auto lock = get_object_lock();
+
+    _check_ready();
+}
+
+bool sink_t::is_ready()
+{
+    auto lock = get_object_lock();
+
+    return _is_ready();
+}
+
+// a sink is ready if none
+// of the links are not ready
+bool sink_t::_is_ready()
+{
+    assert_lockable_owner();
+
+    for(auto& i : links) {
+        if (! i->is_ready) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void sink_t::link_ready(shared_t<link_t>)
+{
+    auto lock = get_object_lock();
+
+    _check_ready();
+}
+
+void sink_t::_check_ready()
+{
+    assert_lockable_owner();
+
+    if (_is_ready() && ! known_ready) {
+        known_ready = true;
+        _notify_sink_ready();
+    }
+}
+
+void sink_t::_notify_sink_ready()
+{
+    assert_lockable_owner();
+
+    auto parent = get_parent();
+    auto shared_this = shared_obj();
+
+    assert(known_ready == true);
+
+    submit_job([parent, shared_this] { parent->slot_sink_ready(shared_this); });
+}
 
 } //namespace jackalope

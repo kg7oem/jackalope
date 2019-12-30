@@ -40,6 +40,8 @@ int main(int argc_in, char **)
     auto node = make_node();
     node.add_source("testing");
     node.add_source("testing 2");
+    node.add_sink("coffee");
+    node.add_sink("coffee 2");
     node.start();
 
     // auto graph = make_graph({
