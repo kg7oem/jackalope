@@ -27,6 +27,7 @@ class object_t : public shared_obj_t<object_t>, protected lockable_t, public bas
     friend foreign::node_t;
 
 protected:
+    bool running_flag = false;
     pool_vector_t<shared_t<source_t>> sources;
     pool_map_t<string_t, shared_t<source_t>> sources_by_name;
     bool sources_known_available = false;

@@ -42,8 +42,13 @@ struct channel_t : public base_t, protected lockable_t {
 protected:
     const weak_t<object_t> parent;
     pool_list_t<shared_t<link_t>> links;
+    bool started = false;
 
-    void _add_link(shared_t<link_t> link_in);
+    virtual void _add_link(shared_t<link_t> link_in);
+
+public:
+    virtual void _start();
+    virtual void start();
 
 public:
     const string_t name;
@@ -61,14 +66,14 @@ protected:
 public:
     source_t(const string_t name_in, shared_t<object_t> parent_in);
     virtual ~source_t() = default;
-    void start();
-    void link(shared_t<sink_t> sink_in);
-    bool is_available();
-    bool _is_available();
-    void _check_available();
-    void link_available(shared_t<link_t> link_in);
-    void link_unavailable(shared_t<link_t> link_in);
-    void _notify_source_available();
+    virtual void _start() override;
+    virtual void link(shared_t<sink_t> sink_in);
+    virtual bool is_available();
+    virtual bool _is_available();
+    virtual void _check_available();
+    virtual void link_available(shared_t<link_t> link_in);
+    virtual void link_unavailable(shared_t<link_t> link_in);
+    virtual void _notify_source_available();
 };
 
 struct sink_t : public channel_t, public shared_obj_t<sink_t> {
@@ -79,15 +84,15 @@ protected:
 public:
     sink_t(const string_t name_in, shared_t<object_t> parent_in);
     virtual ~sink_t() = default;
-    void add_link(shared_t<link_t> link_in);
-    void _set_links_available();
-    void _set_links_unavailable();
-    void start();
-    bool is_ready();
-    bool _is_ready();
-    void _check_ready();
-    void link_ready(shared_t<link_t> ready_link_in);
-    void _notify_sink_ready();
+    virtual void add_link(shared_t<link_t> link_in);
+    virtual void _set_links_available();
+    virtual void _set_links_unavailable();
+    virtual void _start() override;
+    virtual bool is_ready();
+    virtual bool _is_ready();
+    virtual void _check_ready();
+    virtual void link_ready(shared_t<link_t> ready_link_in);
+    virtual void _notify_sink_ready();
 };
 
 } //namespace jackalope
