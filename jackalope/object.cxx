@@ -17,7 +17,7 @@
 
 namespace jackalope {
 
-shared_t<source_t> object_t::add_source(const string_t& source_name_in)
+shared_t<source_t> object_t::add_source(const string_t& source_name_in, const string_t& type_in)
 {
     assert_lockable_owner();
 
@@ -27,7 +27,7 @@ shared_t<source_t> object_t::add_source(const string_t& source_name_in)
         throw_runtime_error("Can not add duplicate source name: ", source_name_in);
     }
 
-    auto new_source = jackalope::make_shared<source_t>(source_name_in, shared_obj());
+    auto new_source = source_t::make(source_name_in, type_in, shared_obj());
     sources.push_back(new_source);
     sources_by_name[new_source->name] = new_source;
 
@@ -58,7 +58,7 @@ shared_t<source_t> object_t::get_source(const size_t source_num_in)
     return sources[source_num_in];
 }
 
-shared_t<sink_t> object_t::add_sink(const string_t& sink_name_in)
+shared_t<sink_t> object_t::add_sink(const string_t& sink_name_in, const string_t& type_in)
 {
     assert_lockable_owner();
 
@@ -68,7 +68,7 @@ shared_t<sink_t> object_t::add_sink(const string_t& sink_name_in)
         throw_runtime_error("Can not add duplicate sink name: ", sink_name_in);
     }
 
-    auto new_source = jackalope::make_shared<sink_t>(sink_name_in, shared_obj());
+    auto new_source = sink_t::make(sink_name_in, type_in, shared_obj());
     sinks.push_back(new_source);
     sinks_by_name[new_source->name] = new_source;
 

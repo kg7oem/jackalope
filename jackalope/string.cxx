@@ -29,48 +29,6 @@ pool_vector_t<string_t> split_string(const string_t& string_in, const char delim
     return parts;
 }
 
-bool init_list_has(const char * name_in, const init_list_t& init_list_in)
-{
-    auto name = to_string(name_in);
-
-    for(auto i : init_list_in) {
-        if (i.first == name) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-string_t init_list_get(const char * name_in, const init_list_t& init_list_in)
-{
-    auto name = to_string(name_in);
-
-    for(auto i : init_list_in) {
-        if (i.first == name) {
-            return i.second;
-        }
-    }
-
-    throw_runtime_error("could not find init arg: ", name);
-}
-
-init_args_t init_list_find(const char * prefix_in, const init_list_t& init_list_in)
-{
-    auto prefix = to_string(prefix_in);
-    init_args_t found;
-
-    for (auto& i : init_list_in) {
-        auto parts = split_string(i.first, '.');
-
-        if (parts.front() == prefix) {
-            found.push_back(i);
-        }
-    }
-
-    return found;
-}
-
 init_args_t init_args_from_list(const init_list_t& init_list_in)
 {
     init_args_t init_args;

@@ -38,12 +38,12 @@ int main(int argc_in, char **)
     jackalope_init();
 
     auto test = make_node();
-    test.add_source("testing");
-    test.add_source("testing 2");
+    test.add_source("testing", "audio");
+    test.add_source("testing 2", "audio");
 
     auto coffee = make_node();
-    coffee.add_sink("coffee");
-    coffee.add_sink("coffee 2");
+    coffee.add_sink("coffee", "audio");
+    coffee.add_sink("coffee 2", "audio");
 
     test.link("testing", coffee, "coffee");
 

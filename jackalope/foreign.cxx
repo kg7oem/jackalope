@@ -30,21 +30,21 @@ node_t::node_t(shared_t<jackalope::node_t> wrapped_in)
 : wrapper_t(wrapped_in)
 { }
 
-source_t node_t::add_source(const string_t& name_in)
+source_t node_t::add_source(const string_t& name_in, const string_t& type_in)
 {
     auto new_source = wait_job<shared_t<jackalope::source_t>>([&] {
         auto lock = wrapped->get_object_lock();
-        return wrapped->add_source(name_in);
+        return wrapped->add_source(name_in, type_in);
     });
 
     return source_t(new_source);
 }
 
-sink_t node_t::add_sink(const string_t& name_in)
+sink_t node_t::add_sink(const string_t& name_in, const string_t& type_in)
 {
     auto new_sink = wait_job<shared_t<jackalope::sink_t>>([&] {
         auto lock = wrapped->get_object_lock();
-        return wrapped->add_sink(name_in);
+        return wrapped->add_sink(name_in, type_in);
     });
 
     return sink_t(new_sink);

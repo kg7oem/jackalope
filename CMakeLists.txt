@@ -35,6 +35,7 @@ add_library(
     jackalope SHARED
 
     jackalope/async.cxx
+    jackalope/audio.cxx
     jackalope/channel.cxx
     jackalope/foreign.cxx
 #    jackalope/graph.cxx

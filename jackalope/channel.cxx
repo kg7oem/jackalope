@@ -19,6 +19,19 @@
 
 namespace jackalope {
 
+static source_library_t * source_library = new source_library_t();
+static sink_library_t * sink_library = new sink_library_t();
+
+void add_source_constructor(const string_t& class_name_in, source_library_t::constructor_t constructor_in)
+{
+    source_library->add_constructor(class_name_in, constructor_in);
+}
+
+void add_sink_constructor(const string_t& class_name_in, sink_library_t::constructor_t constructor_in)
+{
+    sink_library->add_constructor(class_name_in, constructor_in);
+}
+
 link_t::link_t(shared_t<source_t> from_in, shared_t<sink_t> to_in)
 : from(from_in), to(to_in)
 {
@@ -36,10 +49,12 @@ shared_t<sink_t> link_t::get_to()
     return to.lock();
 }
 
-channel_t::channel_t(const string_t name_in, shared_t<object_t> parent_in)
-: parent(parent_in), name(name_in)
+channel_t::channel_t(const string_t name_in, const string_t& type_in, shared_t<object_t> parent_in)
+: parent(parent_in), name(name_in), type(type_in)
 {
     assert(parent_in != nullptr);
+    assert(name != "");
+    assert(type != "");
 }
 
 void channel_t::_add_link(shared_t<link_t> link_in)
@@ -62,8 +77,14 @@ void channel_t::start()
     _start();
 }
 
-source_t::source_t(const string_t name_in, shared_t<object_t> parent_in)
-: channel_t(name_in, parent_in)
+shared_t<source_t> source_t::make(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)
+{
+    auto constructor = source_library->get_constructor(type_in);
+    return constructor(name_in, parent_in);
+}
+
+source_t::source_t(const string_t name_in, const string_t& type_in, shared_t<object_t> parent_in)
+: channel_t(name_in, type_in, parent_in)
 { }
 
 // thread safe because parent is const
@@ -84,7 +105,7 @@ void source_t::_start()
 void source_t::link(shared_t<sink_t> sink_in)
 {
     auto lock = get_object_lock();
-    auto new_link = jackalope::make_shared<link_t>(shared_obj(), sink_in);
+    auto new_link = make_link(shared_obj(), sink_in);
 
     _add_link(new_link);
     sink_in->add_link(new_link);
@@ -173,8 +194,14 @@ void source_t::_notify_source_unavailable()
     submit_job([parent, shared_this] { parent->slot_source_unavailable(shared_this); });
 }
 
-sink_t::sink_t(const string_t name_in, shared_t<object_t> parent_in)
-: channel_t(name_in, parent_in)
+shared_t<sink_t> sink_t::make(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)
+{
+    auto constructor = sink_library->get_constructor(type_in);
+    return constructor(name_in, parent_in);
+}
+
+sink_t::sink_t(const string_t name_in, const string_t& type_in, shared_t<object_t> parent_in)
+: channel_t(name_in, type_in, parent_in)
 { }
 
 void sink_t::_set_links_available()

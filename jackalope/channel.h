@@ -14,6 +14,7 @@
 #pragma once
 
 #include <jackalope/channel.forward.h>
+#include <jackalope/library.h>
 #include <jackalope/object.forward.h>
 #include <jackalope/signal.h>
 #include <jackalope/string.h>
@@ -21,6 +22,12 @@
 #include <jackalope/types.h>
 
 namespace jackalope {
+
+using source_library_t = library_t<source_t, const string_t&, shared_t<object_t>>;
+using sink_library_t = library_t<sink_t, const string_t&, shared_t<object_t>>;
+
+void add_source_constructor(const string_t& type_name_in, source_library_t::constructor_t constructor_in);
+void add_sink_constructor(const string_t& type_name_in, sink_library_t::constructor_t constructor_in);
 
 struct link_t : public base_t, public shared_obj_t<link_t> {
 
@@ -47,27 +54,29 @@ protected:
     virtual void _add_link(shared_t<link_t> link_in);
 
 public:
-    virtual void _start();
-    virtual void start();
-
-public:
     const string_t name;
+    const string_t type;
 
-    channel_t(const string_t name_in, shared_t<object_t> parent_in);
+    channel_t(const string_t name_in, const string_t& type_in, shared_t<object_t> parent_in);
     virtual ~channel_t() = default;
     shared_t<object_t> get_parent();
+
+    virtual void _start();
+    virtual void start();
 };
 
 struct source_t : public channel_t, public shared_obj_t<source_t> {
 
 protected:
     bool known_available = false;
+    source_t(const string_t name_in, const string_t& type_in, shared_t<object_t> parent_in);
 
 public:
-    source_t(const string_t name_in, shared_t<object_t> parent_in);
+    static shared_t<source_t> make(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in);
     virtual ~source_t() = default;
     virtual void _start() override;
     virtual void link(shared_t<sink_t> sink_in);
+    virtual shared_t<link_t> make_link(shared_t<source_t> from_in, shared_t<sink_t> to_in) = 0;
     virtual bool is_available();
     virtual bool _is_available();
     virtual void _check_available();
@@ -82,8 +91,10 @@ struct sink_t : public channel_t, public shared_obj_t<sink_t> {
 protected:
     bool known_ready = false;
 
+    sink_t(const string_t name_in, const string_t& type_in, shared_t<object_t> parent_in);
+
 public:
-    sink_t(const string_t name_in, shared_t<object_t> parent_in);
+    static shared_t<sink_t> make(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in);
     virtual ~sink_t() = default;
     virtual void add_link(shared_t<link_t> link_in);
     virtual void _set_links_available();
