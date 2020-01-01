@@ -14,21 +14,23 @@
 #pragma once
 
 #include <jackalope/channel.h>
+#include <jackalope/node.forward.h>
 #include <jackalope/object.h>
 #include <jackalope/types.h>
 
 #define JACKALOPE_PROPERTY_NODE_NAME "node.name"
-#define JACKALOPE_PROPERTY_NODE_TYPE "node.type"
 
 namespace jackalope {
 
 class node_t : public object_t {
 
+protected:
+    node_t(const init_list_t init_list_in);
+
 public:
-    const string_t type;
     const string_t name;
 
-    node_t(const init_list_t init_list_in);
+    virtual void activate();
 };
 
 } //namespace jackalope

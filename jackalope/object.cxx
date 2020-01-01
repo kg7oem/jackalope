@@ -17,9 +17,34 @@
 
 namespace jackalope {
 
+static object_library_t * object_library = new object_library_t();
+
+void add_object_constructor(const string_t& class_name_in, object_library_t::constructor_t constructor_in)
+{
+    object_library->add_constructor(class_name_in, constructor_in);
+}
+
+shared_t<object_t> object_t::_make(const init_list_t init_list_in)
+{
+    auto init_args = init_args_from_list(init_list_in);
+
+    if (! init_args_has(JACKALOPE_PROPERTY_OBJECT_TYPE, init_args)) {
+        throw_runtime_error("missing object type");
+    }
+
+    auto object_type = init_args_get(JACKALOPE_PROPERTY_OBJECT_TYPE, init_args);
+    auto constructor = object_library->get_constructor(object_type);
+    auto new_object = constructor(init_list_in);
+    auto lock = new_object->get_object_lock();
+    new_object->init();
+    return new_object;
+}
+
 object_t::object_t(const init_list_t init_list_in)
-: init_args(init_args_from_list(init_list_in))
-{ }
+: init_args(init_args_from_list(init_list_in)), type(init_args_get(JACKALOPE_PROPERTY_OBJECT_TYPE, init_args))
+{
+    assert(type != "");
+}
 
 shared_t<source_t> object_t::add_source(const string_t& source_name_in, const string_t& type_in)
 {

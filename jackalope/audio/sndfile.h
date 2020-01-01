@@ -13,14 +13,16 @@
 
 #pragma once
 
+#include <jackalope/audio.h>
+#include <jackalope/node.h>
 #include <jackalope/pcm.h>
 
-#define JACKALOPE_PCM_SNDFILE_CLASS "pcm::sndfile"
-#define JACKALOPE_PCM_SNDFILE_CONFIG_PATH "config.path"
+#define JACKALOPE_AUDIO_SNDFILE_TYPE "audio::sndfile"
+#define JACKALOPE_AUDIO_SNDFILE_CONFIG_PATH "config.path"
 
 namespace jackalope {
 
-namespace pcm {
+namespace audio {
 
 namespace sndfile {
 
@@ -35,20 +37,15 @@ using sndfile_info_t = sndfile::SF_INFO;
 
 void sndfile_init();
 
-struct sndfile_node_t : public pcm_node_t {
-    const string_t class_name = JACKALOPE_PCM_SNDFILE_CLASS;
-
-    thread_t * io_thread = nullptr;
+struct sndfile_node_t : public node_t {
     sndfile_handle_t * source_file = nullptr;
     sndfile_info_t source_info;
-    real_t * source_buffer;
 
     sndfile_node_t(const init_list_t& init_list_in);
     virtual ~sndfile_node_t();
     virtual void init() override;
     virtual void activate() override;
     virtual void start() override;
-    virtual void io_thread_handler();
     virtual void close_file(sndfile_handle_t * file_in);
 };
 

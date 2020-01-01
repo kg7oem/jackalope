@@ -15,6 +15,7 @@
 
 #include <jackalope/channel.h>
 #include <jackalope/foreign.forward.h>
+#include <jackalope/property.h>
 #include <jackalope/signal.h>
 #include <jackalope/string.h>
 #include <jackalope/thread.h>
@@ -22,12 +23,19 @@
 
 namespace jackalope {
 
-class object_t : public shared_obj_t<object_t>, protected lockable_t, public base_t {
+#define JACKALOPE_PROPERTY_OBJECT_TYPE "object.type"
+
+using object_library_t = library_t<object_t, const init_list_t>;
+
+void add_object_constructor(const string_t& class_name_in, object_library_t::constructor_t constructor_in);
+
+class object_t : public prop_obj_t, public shared_obj_t<object_t>, protected lockable_t, public base_t {
 
     friend foreign::node_t;
 
 protected:
     const init_args_t init_args;
+    const string_t type;
     bool running_flag = false;
     pool_vector_t<shared_t<source_t>> sources;
     pool_map_t<string_t, shared_t<source_t>> sources_by_name;
@@ -36,17 +44,15 @@ protected:
     pool_map_t<string_t, shared_t<sink_t>> sinks_by_name;
     bool sinks_known_ready = false;
 
-public:
-    template <class T = object_t, typename... Args>
-    static shared_t<T> make(Args... args)
-    {
-        auto new_object = jackalope::make_shared<T>(args...);
-        auto lock = new_object->get_object_lock();
-        new_object->init();
-        return new_object;
-    }
-
     object_t(const init_list_t init_list_in);
+    static shared_t<object_t> _make(const init_list_t init_list_in);
+
+public:
+    template <class T = object_t>
+    static shared_t<T> make(const init_list_t init_list_in)
+    {
+        return dynamic_pointer_cast<T>(_make(init_list_in));
+    }
 
     virtual shared_t<source_t> add_source(const string_t& source_name_in, const string_t& type_in);
     virtual shared_t<source_t> get_source(const string_t& source_name_in);

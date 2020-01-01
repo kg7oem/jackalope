@@ -26,7 +26,7 @@
 using namespace jackalope::foreign;
 using namespace jackalope::log;
 
-int main(int argc_in, char **)
+int main(int argc_in, char ** argv_in)
 {
     if (argc_in != 2) {
         jackalope_panic("must specify exactly one audio file to play");
@@ -38,11 +38,14 @@ int main(int argc_in, char **)
     jackalope_init();
 
     auto test = make_node({
-        { "node.type", "audio::sndfile"},
+        { "object.type", "audio::sndfile"},
         { "node.name", "test" },
+        { "pcm.buffer_size", jackalope::to_string(256) },
+        { "config.path", argv_in[1] },
     });
 
     for(auto i : { test }) {
+        i.activate();
         i.start();
     }
 

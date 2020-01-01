@@ -69,6 +69,14 @@ void node_t::link(const string_t& source_name_in, node_t target_object_in, const
     });
 }
 
+void node_t::activate()
+{
+    wait_job<void>([&] {
+        auto lock = wrapped->get_object_lock();
+        wrapped->activate();
+    });
+}
+
 void node_t::start()
 {
     wait_job<void>([&] {

@@ -13,6 +13,7 @@
 
 #include <cassert>
 
+#include <jackalope/audio/sndfile.h>
 #include <jackalope/async.h>
 #include <jackalope/audio.h>
 
@@ -32,6 +33,8 @@ void audio_init()
 {
     add_source_constructor(JACKALOPE_TYPE_AUDIO, audio_source_constructor);
     add_sink_constructor(JACKALOPE_TYPE_AUDIO, audio_sink_constructor);
+
+    audio::sndfile_init();
 }
 
 audio_link_t::audio_link_t(shared_t<source_t> source_in, shared_t<sink_t> sink_in)

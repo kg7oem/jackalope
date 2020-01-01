@@ -11,19 +11,18 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
+#pragma once
+
+#include <jackalope/channel.h>
+#include <jackalope/exception.h>
+#include <jackalope/logging.h>
 #include <jackalope/node.h>
+#include <jackalope/pcm.tools.h>
+#include <jackalope/types.h>
+
+#define JACKALOPE_PROPERTY_PCM_BUFFER_SIZE   "pcm.buffer_size"
+#define JACKALOPE_PROPERTY_PCM_SAMPLE_RATE   "pcm.sample_rate"
 
 namespace jackalope {
 
-node_t::node_t(const init_list_t init_list_in)
-: object_t(init_list_in), name(init_args_get(JACKALOPE_PROPERTY_NODE_NAME, init_args))
-{
-    assert(name != "");
-}
-
-void node_t::activate()
-{
-    assert_lockable_owner();
-}
-
-} //namespace jackalope
+} // namespace jackalope

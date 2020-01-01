@@ -36,6 +36,7 @@ add_library(
 
     jackalope/async.cxx
     jackalope/audio.cxx
+    jackalope/audio/sndfile.cxx
     jackalope/channel.cxx
     jackalope/foreign.cxx
 #    jackalope/graph.cxx
@@ -47,7 +48,6 @@ add_library(
 #    jackalope/pcm.cxx
 #    jackalope/pcm/ladspa.cxx
 #    jackalope/pcm/portaudio.cxx
-#    jackalope/pcm/sndfile.cxx
     jackalope/property.cxx
 #    jackalope/signal.cxx
     jackalope/string.cxx
