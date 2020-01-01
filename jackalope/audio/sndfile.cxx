@@ -39,8 +39,7 @@ sndfile_node_t::sndfile_node_t(const init_list_t& init_list_in)
 sndfile_node_t::~sndfile_node_t()
 {
     if (source_file != nullptr) {
-        close_file(source_file);
-        source_file = nullptr;
+        close_file();
     }
 }
 
@@ -93,9 +92,10 @@ void sndfile_node_t::activate()
     }
 }
 
-void sndfile_node_t::close_file(sndfile_handle_t * file_in)
+void sndfile_node_t::close_file()
 {
-    auto result = sndfile::sf_close(file_in);
+    auto result = sndfile::sf_close(source_file);
+    source_file = nullptr;
 
     if (result != 0) {
         throw_runtime_error("Could not close sndfile: ", sndfile::sf_strerror(nullptr));
@@ -124,7 +124,31 @@ void sndfile_node_t::run()
 {
     assert_lockable_owner();
 
-    log_info("sndfile node is running");
+    assert(source_file != nullptr);
+
+    size_t buffer_size = get_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE)->get_size();
+    size_t channels = source_info.channels;
+
+    real_t * buffer = new real_t[buffer_size * channels];
+    size_t frames_read = sndfile::sf_readf_float(source_file, buffer, buffer_size);
+
+    log_info("sndfile read: ", frames_read);
+
+    if (frames_read == 0) {
+        stop();
+        return;
+    }
+
+    delete buffer;
+}
+
+void sndfile_node_t::stop()
+{
+    assert_lockable_owner();
+
+    close_file();
+
+    node_t::stop();
 }
 
 // void sndfile_node_t::io_thread_handler()

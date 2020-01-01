@@ -36,7 +36,7 @@ class object_t : public prop_obj_t, public shared_obj_t<object_t>, protected loc
 protected:
     const init_args_t init_args;
     const string_t type;
-    bool running_flag = false;
+    bool stopped_flag = false;
     pool_vector_t<shared_t<source_t>> sources;
     pool_map_t<string_t, shared_t<source_t>> sources_by_name;
     bool sources_known_available = false;

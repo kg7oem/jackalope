@@ -159,6 +159,8 @@ void object_t::start()
 void object_t::stop()
 {
     assert_lockable_owner();
+
+    stopped_flag = true;
 }
 
 void object_t::check_sources_available()

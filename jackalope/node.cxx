@@ -27,6 +27,13 @@ void node_t::activate()
     assert_lockable_owner();
 }
 
+void node_t::stop()
+{
+    assert_lockable_owner();
+
+    object_t::stop();
+}
+
 void node_t::source_available(shared_t<source_t> source_in)
 {
     assert_lockable_owner();
@@ -67,7 +74,7 @@ void node_t::check_run_needed()
 {
     assert_lockable_owner();
 
-    if (should_run()) {
+    if (! stopped_flag && should_run()) {
         schedule_run();
     }
 }
