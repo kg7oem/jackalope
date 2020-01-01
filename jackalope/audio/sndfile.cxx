@@ -27,12 +27,14 @@ static shared_t<sndfile_node_t> sndfile_object_constructor(const init_list_t& in
 
 void sndfile_init()
 {
-    add_object_constructor(JACKALOPE_AUDIO_SNDFILE_TYPE, sndfile_object_constructor);
+    add_object_constructor(JACKALOPE_AUDIO_SNDFILE_OBJECT_TYPE, sndfile_object_constructor);
 }
 
 sndfile_node_t::sndfile_node_t(const init_list_t& init_list_in)
 : node_t(init_list_in)
-{ }
+{
+    assert(type == JACKALOPE_AUDIO_SNDFILE_OBJECT_TYPE);
+}
 
 sndfile_node_t::~sndfile_node_t()
 {
@@ -50,7 +52,7 @@ void sndfile_node_t::init()
 
     add_property(JACKALOPE_PROPERTY_PCM_SAMPLE_RATE, property_t::type_t::size, init_args);
     add_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE, property_t::type_t::size, init_args);
-    add_property(JACKALOPE_AUDIO_SNDFILE_CONFIG_PATH, property_t::type_t::string, init_args);
+    add_property(JACKALOPE_AUDIO_SNDFILE_PROPERTY_CONFIG_PATH, property_t::type_t::string, init_args);
 
     // add_signal("file.eof");
 }
@@ -65,7 +67,7 @@ void sndfile_node_t::activate()
         throw_runtime_error("sndfile does not support having sinks");
     }
 
-    auto source_file_name = get_property(JACKALOPE_AUDIO_SNDFILE_CONFIG_PATH)->get();
+    auto source_file_name = get_property(JACKALOPE_AUDIO_SNDFILE_PROPERTY_CONFIG_PATH)->get();
     source_file = sndfile::sf_open(source_file_name.c_str(), sndfile::SFM_READ, &source_info);
 
     if (source_file == nullptr) {
@@ -79,6 +81,8 @@ void sndfile_node_t::activate()
         if (source_info.samplerate != sample_rate) {
             throw_runtime_error("File sample rate did not match node sample rate: ", source_info.samplerate);
         }
+    } else {
+        sample_rate_property->set(source_info.samplerate);
     }
 
     size_t channel_count = source_info.channels;

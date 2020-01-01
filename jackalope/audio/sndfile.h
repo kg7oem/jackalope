@@ -17,8 +17,8 @@
 #include <jackalope/node.h>
 #include <jackalope/pcm.h>
 
-#define JACKALOPE_AUDIO_SNDFILE_TYPE "audio::sndfile"
-#define JACKALOPE_AUDIO_SNDFILE_CONFIG_PATH "config.path"
+#define JACKALOPE_AUDIO_SNDFILE_OBJECT_TYPE "audio::sndfile"
+#define JACKALOPE_AUDIO_SNDFILE_PROPERTY_CONFIG_PATH "config.path"
 
 namespace jackalope {
 
