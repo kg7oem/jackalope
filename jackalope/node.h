@@ -25,12 +25,23 @@ namespace jackalope {
 class node_t : public object_t {
 
 protected:
+    bool running = false;
+
     node_t(const init_list_t init_list_in);
 
 public:
     const string_t name;
 
     virtual void activate();
+    virtual void check_run_needed();
+    virtual bool should_run() = 0;
+    virtual void schedule_run();
+    virtual void handle_run();
+    virtual void run() = 0;
+    virtual void source_available(shared_t<source_t> source_in) override;
+    virtual void all_sources_available() override;
+    virtual void sink_ready(shared_t<sink_t> sink_in) override;
+    virtual void all_sinks_ready() override;
 };
 
 } //namespace jackalope

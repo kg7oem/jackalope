@@ -11,6 +11,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
+#include <jackalope/async.h>
 #include <jackalope/node.h>
 
 namespace jackalope {
@@ -24,6 +25,82 @@ node_t::node_t(const init_list_t init_list_in)
 void node_t::activate()
 {
     assert_lockable_owner();
+}
+
+void node_t::source_available(shared_t<source_t> source_in)
+{
+    assert_lockable_owner();
+
+    object_t::source_available(source_in);
+
+    check_run_needed();
+}
+
+void node_t::all_sources_available()
+{
+    assert_lockable_owner();
+
+    object_t::all_sources_available();
+
+    check_run_needed();
+}
+
+void node_t::sink_ready(shared_t<sink_t> sink_in)
+{
+    assert_lockable_owner();
+
+    object_t::sink_ready(sink_in);
+
+    check_run_needed();
+}
+
+void node_t::all_sinks_ready()
+{
+    assert_lockable_owner();
+
+    object_t::all_sinks_ready();
+
+    check_run_needed();
+}
+
+void node_t::check_run_needed()
+{
+    assert_lockable_owner();
+
+    if (should_run()) {
+        schedule_run();
+    }
+}
+
+void node_t::schedule_run()
+{
+    assert_lockable_owner();
+
+    if (running) {
+        return;
+    }
+
+    auto shared_this = shared_obj<node_t>();
+
+    running = true;
+
+    submit_job([shared_this] {
+        auto lock = shared_this->get_object_lock();
+        shared_this->handle_run();
+    });
+}
+
+void node_t::handle_run()
+{
+    assert_lockable_owner();
+
+    if (should_run()) {
+        run();
+    }
+
+    running = false;
+
+    check_run_needed();
 }
 
 } //namespace jackalope

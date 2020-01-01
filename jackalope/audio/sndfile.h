@@ -46,6 +46,8 @@ struct sndfile_node_t : public node_t {
     virtual void init() override;
     virtual void activate() override;
     virtual void start() override;
+    virtual bool should_run() override;
+    virtual void run() override;
     virtual void close_file(sndfile_handle_t * file_in);
 };
 

@@ -109,6 +109,24 @@ void sndfile_node_t::start()
     object_t::start();
 }
 
+bool sndfile_node_t::should_run()
+{
+    assert_lockable_owner();
+
+    if (sources_known_available) {
+        return true;
+    }
+
+    return false;
+}
+
+void sndfile_node_t::run()
+{
+    assert_lockable_owner();
+
+    log_info("sndfile node is running");
+}
+
 // void sndfile_node_t::io_thread_handler()
 // {
 //     while(1) {
