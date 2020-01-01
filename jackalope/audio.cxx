@@ -13,6 +13,7 @@
 
 #include <cassert>
 
+#include <jackalope/async.h>
 #include <jackalope/audio.h>
 
 namespace jackalope {
@@ -41,22 +42,32 @@ audio_link_t::audio_link_t(shared_t<source_t> source_in, shared_t<sink_t> sink_i
 
 bool audio_link_t::is_available()
 {
-    return available_flag;
+    auto lock = get_object_lock();
+
+    return buffer == nullptr;
 }
 
-void audio_link_t::set_available(const bool available_in)
+void audio_link_t::reset()
 {
-    available_flag = available_in;
+    auto lock = get_object_lock();
+
+    buffer = nullptr;
 }
 
 bool audio_link_t::is_ready()
 {
-    return ready_flag;
+    auto lock = get_object_lock();
+
+    return buffer != nullptr;
 }
 
-void audio_link_t::set_ready(const bool ready_in)
+void audio_link_t::set_buffer(shared_t<audio_buffer_t> buffer_in)
 {
-    ready_flag = ready_in;
+    auto lock = get_object_lock();
+
+    assert(buffer != nullptr);
+
+    buffer = buffer_in;
 }
 
 audio_source_t::audio_source_t(const string_t name_in, shared_t<object_t> parent_in)
@@ -109,6 +120,29 @@ bool audio_sink_t::_is_ready()
     }
 
     return true;
+}
+
+void audio_sink_t::_set_links_available()
+{
+    assert_lockable_owner();
+
+    for(auto link : links) {
+        auto source = link->get_from();
+        auto audio_link = link->shared_obj<audio_link_t>();
+
+        audio_link->reset();
+
+        submit_job([source, link] {
+            source->link_available(link);
+        });
+    }
+}
+
+void audio_sink_t::_reset()
+{
+    assert_lockable_owner();
+
+    _set_links_available();
 }
 
 } //namespace jackalope

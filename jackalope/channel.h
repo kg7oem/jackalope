@@ -38,12 +38,21 @@ protected:
 public:
 
     link_t(shared_t<source_t> from_in, shared_t<sink_t> to_in);
-    shared_t<source_t> get_from();
-    shared_t<sink_t> get_to();
+
+    template <class T = source_t>
+    shared_t<T> get_from()
+    {
+        return dynamic_pointer_cast<T>(from.lock());
+    }
+
+    template <class T = sink_t>
+    shared_t<T> get_to()
+    {
+        return dynamic_pointer_cast<T>(to.lock());
+    }
+
     virtual bool is_available() = 0;
-    virtual void set_available(const bool available_in) = 0;
     virtual bool is_ready() = 0;
-    virtual void set_ready(const bool ready_in) = 0;
 };
 
 struct channel_t : public base_t, protected lockable_t {
@@ -99,8 +108,7 @@ public:
     static shared_t<sink_t> make(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in);
     virtual ~sink_t() = default;
     virtual void add_link(shared_t<link_t> link_in);
-    virtual void _set_links_available();
-    virtual void _set_links_unavailable();
+    virtual void _reset() = 0;
     virtual void _start() override;
     virtual bool is_ready();
     virtual bool _is_ready() = 0;

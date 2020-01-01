@@ -26,18 +26,17 @@ class audio_buffer_t : public base_t, shared_obj_t<audio_buffer_t> {
 
 };
 
-class audio_link_t : public link_t {
+class audio_link_t : public link_t, public lockable_t {
 
 protected:
-    atomic_t<bool> available_flag = ATOMIC_VAR_INIT(false);
-    atomic_t<bool> ready_flag = ATOMIC_VAR_INIT(false);
+    shared_t<audio_buffer_t> buffer = nullptr;
 
 public:
     audio_link_t(shared_t<source_t> from_in, shared_t<sink_t> to_in);
     virtual bool is_available() override;
-    virtual void set_available(const bool available_in) override;
     virtual bool is_ready() override;
-    virtual void set_ready(const bool ready_in) override;
+    virtual void set_buffer(shared_t<audio_buffer_t> buffer_in);
+    virtual void reset();
 };
 
 class audio_source_t : public source_t {
@@ -54,6 +53,8 @@ class audio_sink_t : public sink_t {
 public:
     audio_sink_t(const string_t name_in, shared_t<object_t> parent_in);
     virtual bool _is_ready();
+    virtual void _set_links_available();
+    virtual void _reset() override;
 };
 
 } //namespace jackalope
