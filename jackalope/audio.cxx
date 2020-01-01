@@ -103,6 +103,24 @@ void audio_source_t::link(shared_t<sink_t> sink_in)
     source_t::link(sink_in);
 }
 
+void audio_source_t::notify_buffer(shared_t<audio_buffer_t> buffer_in)
+{
+    auto lock = get_object_lock();
+
+    for (auto i : links) {
+        auto link = i->shared_obj<audio_link_t>();
+
+        link->set_buffer(buffer_in);
+
+        submit_job([link] {
+            auto sink = link->get_to();
+            sink->link_ready(link);
+        });
+    }
+
+    _check_available();
+}
+
 audio_sink_t::audio_sink_t(const string_t name_in, shared_t<object_t> parent_in)
 : sink_t(name_in, JACKALOPE_TYPE_AUDIO, parent_in)
 { }

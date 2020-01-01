@@ -46,6 +46,7 @@ public:
     virtual bool _is_available() override;
     virtual shared_t<link_t> make_link(shared_t<source_t> from_in, shared_t<sink_t> to_in) override;
     virtual void link(shared_t<sink_t> sink_in) override;
+    virtual void notify_buffer(shared_t<audio_buffer_t> buffer_in);
 };
 
 class audio_sink_t : public sink_t {
