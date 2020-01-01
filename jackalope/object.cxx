@@ -17,6 +17,10 @@
 
 namespace jackalope {
 
+object_t::object_t(const init_list_t init_list_in)
+: init_args(init_args_from_list(init_list_in))
+{ }
+
 shared_t<source_t> object_t::add_source(const string_t& source_name_in, const string_t& type_in)
 {
     assert_lockable_owner();

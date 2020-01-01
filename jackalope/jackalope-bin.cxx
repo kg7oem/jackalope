@@ -37,17 +37,12 @@ int main(int argc_in, char **)
 
     jackalope_init();
 
-    auto test = make_node();
-    test.add_source("testing", "audio");
-    test.add_source("testing 2", "audio");
+    auto test = make_node({
+        { "node.type", "audio::sndfile"},
+        { "node.name", "test" },
+    });
 
-    auto coffee = make_node();
-    coffee.add_sink("coffee", "audio");
-    coffee.add_sink("coffee 2", "audio");
-
-    test.link("testing", coffee, "coffee");
-
-    for(auto i : { test, coffee }) {
+    for(auto i : { test }) {
         i.start();
     }
 

@@ -17,10 +17,18 @@
 #include <jackalope/object.h>
 #include <jackalope/types.h>
 
+#define JACKALOPE_PROPERTY_NODE_NAME "node.name"
+#define JACKALOPE_PROPERTY_NODE_TYPE "node.type"
+
 namespace jackalope {
 
 class node_t : public object_t {
 
+public:
+    const string_t type;
+    const string_t name;
+
+    node_t(const init_list_t init_list_in);
 };
 
 } //namespace jackalope

@@ -18,6 +18,12 @@ namespace jackalope {
 
 namespace foreign {
 
+node_t make_node(const init_list_t init_list_in)
+{
+    auto new_node = jackalope::object_t::make<jackalope::node_t>(init_list_in);
+    return node_t(new_node);
+}
+
 source_t::source_t(shared_t<jackalope::source_t> wrapped_in)
 : wrapper_t(wrapped_in)
 { }

@@ -50,12 +50,7 @@ struct node_t : public wrapper_t<jackalope::node_t> {
     void start();
 };
 
-template <typename... T>
-node_t make_node(T... args)
-{
-    auto new_node = jackalope::object_t::make<jackalope::node_t>(args...);
-    return node_t(new_node);
-}
+node_t make_node(const init_list_t init_list_in);
 
 } // namespace foreign
 

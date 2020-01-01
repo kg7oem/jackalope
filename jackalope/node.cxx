@@ -15,4 +15,11 @@
 
 namespace jackalope {
 
+node_t::node_t(const init_list_t init_list_in)
+: object_t(init_list_in), type(init_args_get(JACKALOPE_PROPERTY_NODE_TYPE, init_args)), name(init_args_get(JACKALOPE_PROPERTY_NODE_NAME, init_args))
+{
+    assert(type != "");
+    assert(name != "");
+}
+
 } //namespace jackalope
