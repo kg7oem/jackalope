@@ -24,6 +24,15 @@ void audio_init();
 
 class audio_buffer_t : public base_t, shared_obj_t<audio_buffer_t> {
 
+protected:
+    real_t * buffer = nullptr;
+
+public:
+    const size_t num_samples;
+
+    audio_buffer_t(const size_t num_samples_in);
+    virtual ~audio_buffer_t();
+    real_t * get_pointer();
 };
 
 class audio_link_t : public link_t, public lockable_t {

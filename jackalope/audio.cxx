@@ -37,6 +37,25 @@ void audio_init()
     audio::sndfile_init();
 }
 
+audio_buffer_t::audio_buffer_t(const size_t num_samples_in)
+: num_samples(num_samples_in)
+{
+    buffer = new real_t[num_samples];
+}
+
+audio_buffer_t::~audio_buffer_t()
+{
+    if (buffer != nullptr) {
+        delete buffer;
+        buffer = nullptr;
+    }
+}
+
+real_t * audio_buffer_t::get_pointer()
+{
+    return buffer;
+}
+
 audio_link_t::audio_link_t(shared_t<source_t> source_in, shared_t<sink_t> sink_in)
 : link_t(source_in, sink_in)
 {
@@ -112,6 +131,8 @@ void audio_source_t::notify_buffer(shared_t<audio_buffer_t> buffer_in)
 
     for (auto i : links) {
         auto link = i->shared_obj<audio_link_t>();
+
+        assert(link->is_available());
 
         link->set_buffer(buffer_in);
 

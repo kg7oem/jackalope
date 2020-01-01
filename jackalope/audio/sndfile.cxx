@@ -129,8 +129,9 @@ void sndfile_node_t::run()
     size_t buffer_size = get_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE)->get_size();
     size_t channels = source_info.channels;
 
-    real_t * buffer = new real_t[buffer_size * channels];
-    size_t frames_read = sndfile::sf_readf_float(source_file, buffer, buffer_size);
+    audio_buffer_t sndfile_buffer(buffer_size * channels);
+
+    size_t frames_read = sndfile::sf_readf_float(source_file, sndfile_buffer.get_pointer(), buffer_size);
 
     log_info("sndfile read: ", frames_read);
 
@@ -139,7 +140,13 @@ void sndfile_node_t::run()
         return;
     }
 
-    delete buffer;
+    for(int i = 0; i < source_info.channels; i++) {
+        auto source = get_source(i)->shared_obj<audio_source_t>();
+        auto source_buffer = jackalope::make_shared<audio_buffer_t>(buffer_size);
+
+        pcm_extract_interleave(sndfile_buffer.get_pointer(), source_buffer->get_pointer(), i, source_info.channels, frames_read);
+        source->notify_buffer(source_buffer);
+    }
 }
 
 void sndfile_node_t::stop()
