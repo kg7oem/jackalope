@@ -53,6 +53,8 @@ portaudio_node_t::~portaudio_node_t()
 {
     auto lock = get_portaudio_lock();
 
+    assert(stopped_flag);
+
     if (stream != nullptr) {
         Pa_StopStream(stream);
         Pa_CloseStream(stream);

@@ -38,6 +38,12 @@ sndfile_node_t::sndfile_node_t(const init_list_t& init_list_in)
 
 sndfile_node_t::~sndfile_node_t()
 {
+    if (io_thread != nullptr) {
+        io_thread->join();
+        delete io_thread;
+        io_thread = nullptr;
+    }
+
     if (source_file != nullptr) {
         close_file();
     }
@@ -52,8 +58,16 @@ void sndfile_node_t::init()
     add_property(JACKALOPE_PROPERTY_PCM_SAMPLE_RATE, property_t::type_t::size, init_args);
     add_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE, property_t::type_t::size, init_args);
     add_property(JACKALOPE_AUDIO_SNDFILE_PROPERTY_CONFIG_PATH, property_t::type_t::string, init_args);
+    auto read_ahead = add_property(JACKALOPE_AUDIO_SNDFILE_PROPERTY_READ_AHEAD, property_t::type_t::size, init_args);
+    auto read_size = add_property(JACKALOPE_AUDIO_SNDFILE_PROPERTY_READ_SIZE, property_t::type_t::size, init_args);
 
-    // add_signal("file.eof");
+    if (! read_ahead->is_defined()) {
+        read_ahead->set(JACKALOPE_AUDIO_SNDFILE_DEFAULT_READ_AHEAD);
+    }
+
+    if (! read_size->is_defined()) {
+        read_size->set(JACKALOPE_AUDIO_SNDFILE_DEFAULT_READ_SIZE);
+    }
 }
 
 void sndfile_node_t::activate()
@@ -95,11 +109,12 @@ void sndfile_node_t::activate()
 void sndfile_node_t::close_file()
 {
     auto result = sndfile::sf_close(source_file);
-    source_file = nullptr;
 
     if (result != 0) {
         throw_runtime_error("Could not close sndfile: ", sndfile::sf_strerror(nullptr));
     }
+
+    source_file = nullptr;
 }
 
 void sndfile_node_t::start()
@@ -107,6 +122,8 @@ void sndfile_node_t::start()
     assert_lockable_owner();
 
     node_t::start();
+
+    io_thread = new thread_t(std::bind(&sndfile_node_t::be_io_thread, this));
 }
 
 bool sndfile_node_t::should_run()
@@ -122,31 +139,95 @@ bool sndfile_node_t::should_run()
     return true;
 }
 
+void sndfile_node_t::be_io_thread()
+{
+    while(true) {
+        auto lock = get_object_lock();
+
+        if (source_file == nullptr) {
+            return;
+        }
+
+        auto read_ahead = get_property(JACKALOPE_AUDIO_SNDFILE_PROPERTY_READ_AHEAD)->get_size();
+        auto read_size = get_property(JACKALOPE_AUDIO_SNDFILE_PROPERTY_READ_SIZE)->get_size();
+        auto buffer_size = get_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE)->get_size();
+        size_t num_channels = source_info.channels;
+        auto min_thread_work_size = read_ahead / buffer_size;
+
+        NODE_LOG(info, "read_ahead: ", read_ahead, "; read_size: ", read_size, "; min_thread_work_size: ", min_thread_work_size);
+
+        NODE_LOG(info, "waiting for sndfile io thread to have work to do");
+        thread_work_cond.wait(lock, [&] { return stopped_flag || thread_work.size() < min_thread_work_size; });
+        NODE_LOG(info, "sndfile io thread woke up");
+
+        if (stopped_flag) {
+            NODE_LOG(info, "sndfile io node is exiting because the node is stopped");
+            return;
+        }
+
+        auto buffer = jackalope::make_shared<audio_buffer_t>(num_channels * read_size);
+        assert(source_file != nullptr);
+        size_t frames_read = sndfile::sf_readf_float(source_file, buffer->get_pointer(), read_size);
+        NODE_LOG(info, "sndfile io thread read: ", frames_read);
+
+        if (frames_read == 0) {
+            close_file();
+            thread_work.push_back(nullptr);
+        } else {
+            auto samples_left = frames_read;
+            auto p = buffer->get_pointer();
+
+            while(samples_left > 0) {
+                auto buffer = jackalope::make_shared<audio_buffer_t>(num_channels * buffer_size);
+                auto copy_num = num_channels * buffer_size;
+
+                if (samples_left < copy_num) {
+                    copy_num = samples_left;
+                }
+
+                pcm_copy(p, buffer->get_pointer(), copy_num);
+                thread_work.push_back(buffer);
+
+                samples_left -= copy_num;
+                p += copy_num;
+            }
+        }
+
+        thread_work_cond.notify_all();
+    }
+}
+
 void sndfile_node_t::run()
 {
     assert_lockable_owner();
 
-    assert(source_file != nullptr);
+    NODE_LOG(info, "waiting for work from sndfile io thread");
+    thread_work_cond.wait(object_mutex, [this] { return stopped_flag || thread_work.size() > 0; });
+    assert_lockable_owner();
+    NODE_LOG(info, "done waiting for sndfile io thread");
 
-    size_t buffer_size = get_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE)->get_size();
-    size_t channels = source_info.channels;
+    if (stopped_flag) {
+        return;
+    }
 
-    audio_buffer_t sndfile_buffer(buffer_size * channels);
+    auto buffer = thread_work.front();
+    thread_work.pop_front();
 
-    size_t frames_read = sndfile::sf_readf_float(source_file, sndfile_buffer.get_pointer(), buffer_size);
+    thread_work_cond.notify_all();
 
-    NODE_LOG(info, "sndfile read: ", frames_read);
-
-    if (frames_read == 0) {
+    if (buffer == nullptr) {
+        NODE_LOG(info, "got EOF from sndfile io thread");
         stop();
         return;
     }
 
-    for(int i = 0; i < source_info.channels; i++) {
-        auto source = get_source(i)->shared_obj<audio_source_t>();
-        auto source_buffer = jackalope::make_shared<audio_buffer_t>(buffer_size);
+    auto buffer_size = get_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE)->get_size();
 
-        pcm_extract_interleave(sndfile_buffer.get_pointer(), source_buffer->get_pointer(), i, source_info.channels, frames_read);
+    for(int i = 0; i < source_info.channels; i++) {
+        auto source_buffer = jackalope::make_shared<audio_buffer_t>(buffer_size);
+        auto source = get_source(i)->shared_obj<audio_source_t>();
+
+        pcm_extract_interleave(buffer->get_pointer(), source_buffer->get_pointer(), i, source_info.channels, buffer_size);
         source->notify_buffer(source_buffer);
     }
 }
@@ -155,106 +236,10 @@ void sndfile_node_t::stop()
 {
     assert_lockable_owner();
 
-    close_file();
-
     node_t::stop();
+
+    thread_work_cond.notify_all();
 }
-
-// void sndfile_node_t::io_thread_handler()
-// {
-//     while(1) {
-//         size_t buffer_size = 0;
-
-//         {
-//             auto lock = get_object_lock();
-//             buffer_size =  get_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE)->get_size();
-//         }
-
-//         size_t num_channels = source_info.channels;
-//         pcm_buffer_t<real_t> sndfile_buffer(num_channels * buffer_size);
-//         auto sndfile_buffer_ptr = sndfile_buffer.get_pointer();
-
-//         assert(source_file != nullptr);
-//         size_t frames_read = sndfile::sf_readf_float(source_file, sndfile_buffer_ptr, buffer_size);
-
-//         if (frames_read == 0) {
-//             close_file(source_file);
-
-//             auto lock = get_object_lock();
-//             get_signal(JACKALOPE_SIGNAL_FILE_EOF)->send();
-//             return;
-//         }
-
-//         pool_vector_t<shared_t<pcm_buffer_t<real_t>>> buffer_list;
-
-//         for(size_t i = 0; i < num_channels; i++) {
-//             auto source_buffer = jackalope::make_shared<pcm_buffer_t<real_t>>(buffer_size);
-
-//             pcm_extract_interleave(sndfile_buffer_ptr, source_buffer->get_pointer(), i, num_channels, frames_read);
-//             buffer_list.push_back(source_buffer);
-//         }
-
-//         {
-//             auto lock = get_object_lock();
-
-//             if (num_channels == 1) {
-//                 auto pcm_buffer = buffer_list.front();
-//                 for(auto i : get_sources()) {
-//                     if (i->type != JACKALOPE_CHANNEL_TYPE_PCM_REAL) {
-//                         throw_runtime_error("Unexpected channel type: ", i->type);
-//                     }
-
-//                     auto pcm_source = dynamic_pointer_cast<pcm_real_source_t>(i);
-//                     // pcm_source->set_buffer(pcm_buffer);
-//                 }
-//             } else {
-//                 for(size_t i = 0; i < num_channels; i++) {
-//                     auto source = get_source(i);
-
-//                     if (source->type != JACKALOPE_CHANNEL_TYPE_PCM_REAL) {
-//                         throw_runtime_error("Unexpected channel type: ", source->type);
-//                     }
-
-//                     auto pcm_source = dynamic_pointer_cast<pcm_real_source_t>(source);
-//                     // pcm_source->set_buffer(buffer_list[i]);
-//                 }
-//             }
-//         }
-//     }
-// }
-
-// void sndfile_node_t::pcm_ready()
-// {
-//     audio_node_t::pcm_ready();
-
-//     for(auto i : outputs) {
-//         auto pcm_output = dynamic_pointer_cast<pcm_real_output_t>(i);
-//         pcm_output->zero_buffer();
-//         pcm_output->set_dirty();
-//     }
-
-//     if (source_file != nullptr) {
-//         size_t frames_read = sndfile::sf_readf_float(source_file, source_buffer, get_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE).get_size());
-
-//         // log_info("Got ", frames_read, " frames from sndlib");
-
-//         if (frames_read == 0) {
-//             close_file(source_file);
-//             source_file = nullptr;
-
-//             get_signal(JACKALOPE_SIGNAL_FILE_EOF)->send();
-//         }
-
-//         for (size_t i = 0; i < outputs.size(); i++) {
-//             auto pcm_output = dynamic_pointer_cast<pcm_real_output_t>(outputs[i]);
-//             auto dest_buffer = pcm_output->get_buffer_pointer();
-//             auto buffer_size = get_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE).get_size();
-//             pcm_extract_interleaved_channel(source_buffer, dest_buffer, i, source_info.channels, buffer_size);
-//         }
-//     }
-
-//     notify();
-// }
 
 } // namespace pcm
 

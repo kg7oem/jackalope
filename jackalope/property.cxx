@@ -67,7 +67,7 @@ void property_t::set(const double value_in)
         case type_t::size: set_size(value_in); return;
         case type_t::integer: set_integer(value_in); return;
         case type_t::real: set_real(value_in); return;
-        case type_t::string: set_string(to_string(value_in));
+        case type_t::string: set_string(to_string(value_in)); return;
     }
 
     throw_runtime_error("should never get out of switch statement");

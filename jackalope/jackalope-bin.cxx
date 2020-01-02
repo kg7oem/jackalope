@@ -20,7 +20,7 @@
 #include <jackalope/logging.h>
 #include <jackalope/object.h>
 
-#define BUFFER_SIZE 4096
+#define BUFFER_SIZE 512
 #define SAMPLE_RATE 48000
 #define LADSPA_ZAMTUBE_ID 1515476290
 
@@ -67,6 +67,7 @@ int main(int argc_in, char ** argv_in)
     input_file.link("Output 1", system_audio, "left");
     input_file.link("Output 1", system_audio, "right");
 
+    // FIXME start order can influence runtime behavior
     system_audio.start();
     input_file.start();
 
