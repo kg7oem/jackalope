@@ -40,10 +40,8 @@ protected:
     bool stopped_flag = false;
     pool_vector_t<shared_t<source_t>> sources;
     pool_map_t<string_t, shared_t<source_t>> sources_by_name;
-    bool sources_known_available = false;
     pool_vector_t<shared_t<sink_t>> sinks;
     pool_map_t<string_t, shared_t<sink_t>> sinks_by_name;
-    bool sinks_known_ready = false;
 
     object_t(const init_list_t init_list_in);
     static shared_t<object_t> _make(const init_list_t init_list_in);
@@ -70,12 +68,8 @@ public:
     virtual void slot_source_available(shared_t<source_t> source_in);
     virtual void source_unavailable(shared_t<source_t> source_in);
     virtual void slot_source_unavailable(shared_t<source_t> source_in);
-    virtual void check_sources_available();
-    virtual void all_sources_available();
     virtual void sink_ready(shared_t<sink_t> ready_sink_in);
     virtual void slot_sink_ready(shared_t<sink_t> ready_sink_in);
-    virtual void check_sinks_ready();
-    virtual void all_sinks_ready();
 };
 
 } //namespace jackalope

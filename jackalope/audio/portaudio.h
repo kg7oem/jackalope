@@ -36,6 +36,12 @@ class portaudio_node_t : public node_t {
 
 protected:
     portaudio_stream_t * stream = nullptr;
+    mutex_t thread_mutex;
+    pool_vector_t<shared_t<audio_buffer_t>> sink_buffers;
+    bool thread_start = false;
+    condition_t thread_start_cond;
+    bool thread_done = false;
+    condition_t thread_done_cond;
 
     virtual void init() override;
     virtual void activate() override;
@@ -46,7 +52,7 @@ protected:
 public:
     portaudio_node_t(const init_list_t& init_list_in);
     virtual ~portaudio_node_t();
-    virtual int process(const void *input_buffer_in, void *output_buffer_in, size_t frames_per_buffer_in, const portaudio_stream_cb_time_info_t *time_info_in, portaudio_stream_cb_flags status_flags_in);
+    virtual int process(const void * source_buffer_in, void * sink_buffer_in, size_t frames_per_buffer_in, const portaudio_stream_cb_time_info_t *time_info_in, portaudio_stream_cb_flags status_flags_in);
 };
 
 } // namespace pcm

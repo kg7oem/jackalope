@@ -106,7 +106,7 @@ void sndfile_node_t::start()
 {
     assert_lockable_owner();
 
-    object_t::start();
+    node_t::start();
 }
 
 bool sndfile_node_t::should_run()
@@ -127,7 +127,6 @@ void sndfile_node_t::run()
     assert_lockable_owner();
 
     assert(source_file != nullptr);
-    assert(sources_known_available);
 
     size_t buffer_size = get_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE)->get_size();
     size_t channels = source_info.channels;

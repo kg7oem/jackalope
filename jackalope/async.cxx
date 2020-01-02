@@ -71,7 +71,7 @@ void async_shutdown()
         i.join();
     }
 
-    asio_threads.empty();
+    asio_threads.clear();
 }
 
 void submit_job(async_job_t<void> job_in)

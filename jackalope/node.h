@@ -35,6 +35,7 @@ public:
     const string_t name;
 
     virtual void activate();
+    virtual void start() override;
     virtual void run() = 0;
     virtual void stop() override;
     virtual void check_run_needed();
@@ -42,9 +43,7 @@ public:
     virtual void schedule_run();
     virtual void handle_run();
     virtual void source_available(shared_t<source_t> source_in) override;
-    virtual void all_sources_available() override;
     virtual void sink_ready(shared_t<sink_t> sink_in) override;
-    virtual void all_sinks_ready() override;
 };
 
 } //namespace jackalope

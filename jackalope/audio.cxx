@@ -116,7 +116,9 @@ bool audio_source_t::_is_available()
     assert_lockable_owner();
 
     for(auto& i : links) {
-        if (! i->is_available()) {
+        auto available = i->is_available();
+
+        if (! available) {
             return false;
         }
     }

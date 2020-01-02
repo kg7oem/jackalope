@@ -92,9 +92,9 @@ public:
     virtual bool _is_available() = 0;
     virtual void _check_available();
     virtual void link_available(shared_t<link_t> link_in);
-    virtual void link_unavailable(shared_t<link_t> link_in);
+    // virtual void link_unavailable(shared_t<link_t> link_in);
     virtual void _notify_source_available();
-    virtual void _notify_source_unavailable();
+    // virtual void _notify_source_unavailable();
 };
 
 struct sink_t : public channel_t, public shared_obj_t<sink_t> {

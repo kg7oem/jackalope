@@ -120,30 +120,39 @@ void source_t::link_available(shared_t<link_t>)
     _check_available();
 }
 
-void source_t::link_unavailable(shared_t<link_t>)
-{
-    auto lock = get_object_lock();
+// void source_t::link_unavailable(shared_t<link_t>)
+// {
+//     auto lock = get_object_lock();
 
-    if (! started) {
-        return;
-    }
+//     if (! started) {
+//         return;
+//     }
 
-    _check_available();
-}
+//     _check_available();
+// }
 
 void source_t::_check_available()
 {
     assert_lockable_owner();
 
-    if (_is_available() && ! known_available) {
-        known_available = true;
-        _notify_source_available();
+    if (_is_available()) {
+        if (! known_available) {
+            known_available = true;
+            _notify_source_available();
+        }
+    } else {
+        known_available = false;
     }
 
-    if (! _is_available() && known_available) {
-        known_available = false;
-        _notify_source_unavailable();
-    }
+    // if (_is_available() && ! known_available) {
+    //     known_available = true;
+    //     _notify_source_available();
+    // }
+
+    // if (! _is_available() && known_available) {
+    //     known_available = false;
+    //     // _notify_source_unavailable();
+    // }
 }
 
 void source_t::_notify_source_available()
@@ -158,17 +167,17 @@ void source_t::_notify_source_available()
     submit_job([parent, shared_this] { parent->slot_source_available(shared_this); });
 }
 
-void source_t::_notify_source_unavailable()
-{
-    assert_lockable_owner();
+// void source_t::_notify_source_unavailable()
+// {
+//     assert_lockable_owner();
 
-    auto parent = get_parent();
-    auto shared_this = shared_obj();
+//     auto parent = get_parent();
+//     auto shared_this = shared_obj();
 
-    assert(known_available == false);
+//     assert(known_available == false);
 
-    submit_job([parent, shared_this] { parent->slot_source_unavailable(shared_this); });
-}
+//     submit_job([parent, shared_this] { parent->slot_source_unavailable(shared_this); });
+// }
 
 shared_t<sink_t> sink_t::make(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)
 {

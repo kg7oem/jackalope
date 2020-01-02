@@ -170,43 +170,11 @@ void object_t::stop()
     stopped_flag = true;
 }
 
-void object_t::check_sources_available()
-{
-    assert_lockable_owner();
-
-    // if there are no sources then no
-    // sources can be available
-    if (sources.size() == 0) {
-        return;
-    }
-
-    bool all_available = true;
-
-    for(auto i : sources) {
-        if (! i->is_available()) {
-            all_available = false;
-            break;
-        }
-    }
-
-    if (! all_available) {
-        sources_known_available = false;
-        return;
-    }
-
-    if (! sources_known_available) {
-        sources_known_available = true;
-        all_sources_available();
-    }
-}
-
 void object_t::source_available(shared_t<source_t> source_in)
 {
     assert_lockable_owner();
 
     log_info("source available: ", source_in->name);
-
-    check_sources_available();
 }
 
 void object_t::slot_source_available(shared_t<source_t> source_in)
@@ -221,8 +189,6 @@ void object_t::source_unavailable(shared_t<source_t> source_in)
     assert_lockable_owner();
 
     log_info("source unavailable: ", source_in->name);
-
-    check_sources_available();
 }
 
 void object_t::slot_source_unavailable(shared_t<source_t> source_in)
@@ -232,50 +198,11 @@ void object_t::slot_source_unavailable(shared_t<source_t> source_in)
     source_unavailable(source_in);
 }
 
-void object_t::all_sources_available()
-{
-    assert_lockable_owner();
-
-    log_info("All sources are available!");
-}
-
-void object_t::check_sinks_ready()
-{
-    assert_lockable_owner();
-
-    // if there are no sources then no
-    // sources can be available
-    if (sinks.size() == 0) {
-        return;
-    }
-
-    bool all_available = true;
-
-    for(auto i : sinks) {
-        if (! i->is_ready()) {
-            all_available = false;
-            break;
-        }
-    }
-
-    if (! all_available) {
-        sinks_known_ready = false;
-        return;
-    }
-
-    if (! sinks_known_ready) {
-        sinks_known_ready = true;
-        all_sinks_ready();
-    }
-}
-
 void object_t::sink_ready(shared_t<sink_t> sink_in)
 {
     assert_lockable_owner();
 
     log_info("sink ready: ", sink_in->name);
-
-    check_sinks_ready();
 }
 
 void object_t::slot_sink_ready(shared_t<sink_t> available_sink_in)
@@ -283,13 +210,6 @@ void object_t::slot_sink_ready(shared_t<sink_t> available_sink_in)
     auto lock = get_object_lock();
 
     sink_ready(available_sink_in);
-}
-
-void object_t::all_sinks_ready()
-{
-    assert_lockable_owner();
-
-    log_info("All sinks are ready!");
 }
 
 } //namespace jackalope
