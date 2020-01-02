@@ -44,6 +44,7 @@ public:
     audio_link_t(shared_t<source_t> from_in, shared_t<sink_t> to_in);
     virtual bool is_available() override;
     virtual bool is_ready() override;
+    virtual shared_t<audio_buffer_t> get_buffer();
     virtual void set_buffer(shared_t<audio_buffer_t> buffer_in);
     virtual void reset();
 };
@@ -62,6 +63,8 @@ class audio_sink_t : public sink_t {
 
 public:
     audio_sink_t(const string_t name_in, shared_t<object_t> parent_in);
+    virtual shared_t<audio_buffer_t> get_buffer();
+    virtual shared_t<audio_buffer_t> _get_buffer();
     virtual bool _is_ready();
     virtual void _set_links_available();
     virtual void _reset() override;

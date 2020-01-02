@@ -24,6 +24,13 @@ void add_object_constructor(const string_t& class_name_in, object_library_t::con
     object_library->add_constructor(class_name_in, constructor_in);
 }
 
+size_t _get_object_id()
+{
+    static atomic_t<size_t> current_id = ATOMIC_VAR_INIT(0);
+
+    return current_id++;
+}
+
 shared_t<object_t> object_t::_make(const init_list_t init_list_in)
 {
     auto init_args = init_args_from_list(init_list_in);
@@ -183,6 +190,7 @@ void object_t::check_sources_available()
     }
 
     if (! all_available) {
+        sources_known_available = false;
         return;
     }
 
@@ -192,11 +200,11 @@ void object_t::check_sources_available()
     }
 }
 
-void object_t::source_available(shared_t<source_t>)
+void object_t::source_available(shared_t<source_t> source_in)
 {
     assert_lockable_owner();
 
-    log_info("source available");
+    log_info("source available: ", source_in->name);
 
     check_sources_available();
 }
@@ -208,11 +216,13 @@ void object_t::slot_source_available(shared_t<source_t> source_in)
     source_available(source_in);
 }
 
-void object_t::source_unavailable(shared_t<source_t>)
+void object_t::source_unavailable(shared_t<source_t> source_in)
 {
     assert_lockable_owner();
 
-    log_info("source unavailable");
+    log_info("source unavailable: ", source_in->name);
+
+    check_sources_available();
 }
 
 void object_t::slot_source_unavailable(shared_t<source_t> source_in)
@@ -249,6 +259,7 @@ void object_t::check_sinks_ready()
     }
 
     if (! all_available) {
+        sinks_known_ready = false;
         return;
     }
 
@@ -258,11 +269,11 @@ void object_t::check_sinks_ready()
     }
 }
 
-void object_t::sink_ready(shared_t<sink_t>)
+void object_t::sink_ready(shared_t<sink_t> sink_in)
 {
     assert_lockable_owner();
 
-    log_info("sink ready");
+    log_info("sink ready: ", sink_in->name);
 
     check_sinks_ready();
 }

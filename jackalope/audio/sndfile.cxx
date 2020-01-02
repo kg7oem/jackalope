@@ -113,11 +113,13 @@ bool sndfile_node_t::should_run()
 {
     assert_lockable_owner();
 
-    if (sources_known_available) {
-        return true;
+    for (auto i : sources) {
+        if (! i->is_available()) {
+            return false;
+        }
     }
 
-    return false;
+    return true;
 }
 
 void sndfile_node_t::run()
@@ -125,6 +127,7 @@ void sndfile_node_t::run()
     assert_lockable_owner();
 
     assert(source_file != nullptr);
+    assert(sources_known_available);
 
     size_t buffer_size = get_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE)->get_size();
     size_t channels = source_info.channels;
@@ -133,7 +136,7 @@ void sndfile_node_t::run()
 
     size_t frames_read = sndfile::sf_readf_float(source_file, sndfile_buffer.get_pointer(), buffer_size);
 
-    log_info("sndfile read: ", frames_read);
+    NODE_LOG(info, "sndfile read: ", frames_read);
 
     if (frames_read == 0) {
         stop();

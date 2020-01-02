@@ -17,15 +17,14 @@ extern "C" {
 #include <portaudio.h>
 }
 
-#include <jackalope/channel.h>
-#include <jackalope/driver.h>
-#include <jackalope/pcm.h>
+#include <jackalope/audio.h>
+#include <jackalope/node.h>
 
-#define JACKALOPE_PORTAUDIO_DRIVER_CLASS "pcm::portaudio"
+#define JACKALOPE_AUDIO_PORTAUDIO_OBJECT_TYPE "audio::portaudio"
 
 namespace jackalope {
 
-namespace pcm {
+namespace audio {
 
 using portaudio_stream_t = PaStream;
 using portaudio_stream_cb_time_info_t = PaStreamCallbackTimeInfo;
@@ -33,21 +32,20 @@ using portaudio_stream_cb_flags = PaStreamCallbackFlags;
 
 void portaudio_init();
 
-class portaudio_driver_t : public driver_t {
+class portaudio_node_t : public node_t {
 
 protected:
-    const string_t class_name = JACKALOPE_PORTAUDIO_DRIVER_CLASS;
     portaudio_stream_t * stream = nullptr;
-    pool_list_t<weak_t<sink_t>> sinks;
-    pool_list_t<weak_t<source_t>> sources;
 
-    virtual void init__e() override;
-    virtual void activate__e() override;
-    virtual void start__e() override;
+    virtual void init() override;
+    virtual void activate() override;
+    virtual void start() override;
+    virtual bool should_run() override;
+    virtual void run() override;
 
 public:
-    portaudio_driver_t(const init_list_t& init_list_in);
-    virtual ~portaudio_driver_t();
+    portaudio_node_t(const init_list_t& init_list_in);
+    virtual ~portaudio_node_t();
     virtual int process(const void *input_buffer_in, void *output_buffer_in, size_t frames_per_buffer_in, const portaudio_stream_cb_time_info_t *time_info_in, portaudio_stream_cb_flags status_flags_in);
 };
 

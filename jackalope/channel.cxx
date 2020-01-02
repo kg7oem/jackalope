@@ -15,6 +15,7 @@
 
 #include <jackalope/async.h>
 #include <jackalope/channel.h>
+#include <jackalope/logging.h>
 #include <jackalope/object.h>
 
 namespace jackalope {
@@ -186,6 +187,20 @@ void sink_t::add_link(shared_t<link_t> link_in)
     _add_link(link_in);
 }
 
+void sink_t::reset()
+{
+    auto lock = get_object_lock();
+
+    _reset();
+}
+
+void sink_t::_reset()
+{
+    assert_lockable_owner();
+
+    _check_ready();
+}
+
 void sink_t::_start()
 {
     assert_lockable_owner();
@@ -193,7 +208,6 @@ void sink_t::_start()
     channel_t::_start();
 
     _reset();
-    _check_ready();
 }
 
 bool sink_t::is_ready()
@@ -203,9 +217,11 @@ bool sink_t::is_ready()
     return _is_ready();
 }
 
-void sink_t::link_ready(shared_t<link_t>)
+void sink_t::link_ready(shared_t<link_t> link_in)
 {
     auto lock = get_object_lock();
+
+    log_info("link ready for sink '", name, "': ", link_in->get_from()->name);
 
     _check_ready();
 }

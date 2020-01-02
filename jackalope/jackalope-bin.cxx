@@ -11,6 +11,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
+#include <chrono>
 #include <iostream>
 #include <string>
 
@@ -37,15 +38,36 @@ int main(int argc_in, char ** argv_in)
 
     jackalope_init();
 
-    auto test = make_node({
+    std::vector<node_t> nodes;
+
+    auto input_file = make_node({
         { "object.type", "audio::sndfile"},
-        { "node.name", "test" },
-        { "pcm.buffer_size", jackalope::to_string(256) },
+        { "node.name", "input file" },
+        { "pcm.buffer_size", jackalope::to_string(BUFFER_SIZE) },
         { "config.path", argv_in[1] },
     });
 
-    for(auto i : { test }) {
+    nodes.push_back(input_file);
+
+    auto system_audio = make_node({
+        { "object.type", "audio::portaudio" },
+        { "node.name", "system audio" },
+        { "pcm.buffer_size", jackalope::to_string(BUFFER_SIZE) },
+        { "pcm.sample_rate", jackalope::to_string(SAMPLE_RATE) },
+        { "sink.left", "audio" },
+        { "sink.right", "audio" },
+    });
+
+    nodes.push_back(system_audio);
+
+    for(auto& i : nodes) {
         i.activate();
+    }
+
+    input_file.link("Output 1", system_audio, "left");
+    input_file.link("Output 1", system_audio, "right");
+
+    for(auto& i : nodes) {
         i.start();
     }
 
@@ -96,6 +118,11 @@ int main(int argc_in, char ** argv_in)
     // graph->wait_signal("object.stopped");
 
     // log_info("after wait_stop() was called");
+
+    // while(1) {
+    //     using namespace std::chrono_literals;
+    //     std::this_thread::sleep_for(1s);
+    // }
 
     jackalope_shutdown();
 

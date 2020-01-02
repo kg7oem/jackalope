@@ -108,7 +108,8 @@ public:
     static shared_t<sink_t> make(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in);
     virtual ~sink_t() = default;
     virtual void add_link(shared_t<link_t> link_in);
-    virtual void _reset() = 0;
+    virtual void reset();
+    virtual void _reset();
     virtual void _start() override;
     virtual bool is_ready();
     virtual bool _is_ready() = 0;

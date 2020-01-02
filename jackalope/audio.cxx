@@ -13,6 +13,7 @@
 
 #include <cassert>
 
+#include <jackalope/audio/portaudio.h>
 #include <jackalope/audio/sndfile.h>
 #include <jackalope/async.h>
 #include <jackalope/audio.h>
@@ -34,6 +35,7 @@ void audio_init()
     add_source_constructor(JACKALOPE_TYPE_AUDIO, audio_source_constructor);
     add_sink_constructor(JACKALOPE_TYPE_AUDIO, audio_sink_constructor);
 
+    audio::portaudio_init();
     audio::sndfile_init();
 }
 
@@ -41,6 +43,8 @@ audio_buffer_t::audio_buffer_t(const size_t num_samples_in)
 : num_samples(num_samples_in)
 {
     buffer = new real_t[num_samples];
+
+    pcm_zero(buffer, num_samples);
 }
 
 audio_buffer_t::~audio_buffer_t()
@@ -83,11 +87,20 @@ bool audio_link_t::is_ready()
     return buffer != nullptr;
 }
 
-void audio_link_t::set_buffer(shared_t<audio_buffer_t> buffer_in)
+shared_t<audio_buffer_t> audio_link_t::get_buffer()
 {
     auto lock = get_object_lock();
 
     assert(buffer != nullptr);
+
+    return buffer;
+}
+
+void audio_link_t::set_buffer(shared_t<audio_buffer_t> buffer_in)
+{
+    auto lock = get_object_lock();
+
+    assert(buffer == nullptr);
 
     buffer = buffer_in;
 }
@@ -134,10 +147,15 @@ void audio_source_t::notify_buffer(shared_t<audio_buffer_t> buffer_in)
 
         assert(link->is_available());
 
+        log_info("Setting buffer for sink: ", link->get_to()->name);
         link->set_buffer(buffer_in);
+
+        assert(! link->is_available());
 
         submit_job([link] {
             auto sink = link->get_to();
+
+            log_info("notifying link ready for sink: ", sink->name);
             sink->link_ready(link);
         });
     }
@@ -148,6 +166,30 @@ void audio_source_t::notify_buffer(shared_t<audio_buffer_t> buffer_in)
 audio_sink_t::audio_sink_t(const string_t name_in, shared_t<object_t> parent_in)
 : sink_t(name_in, JACKALOPE_TYPE_AUDIO, parent_in)
 { }
+
+shared_t<audio_buffer_t> audio_sink_t::get_buffer()
+{
+    auto lock = get_object_lock();
+
+    return _get_buffer();
+}
+
+shared_t<audio_buffer_t> audio_sink_t::_get_buffer()
+{
+    assert_lockable_owner();
+
+    auto buffer_size = get_parent()->get_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE)->get_size();
+    auto links_size = links.size();
+
+    if (links_size == 0) {
+        return jackalope::make_shared<audio_buffer_t>(buffer_size);
+    } else if (links_size == 1) {
+        auto audio_link = links.front()->shared_obj<audio_link_t>();
+        return audio_link->get_buffer();
+    } else {
+        throw_runtime_error("can't handle more than 1 link");
+    }
+}
 
 // a sink is ready if none
 // of the links are not ready
@@ -183,6 +225,10 @@ void audio_sink_t::_set_links_available()
 void audio_sink_t::_reset()
 {
     assert_lockable_owner();
+
+    sink_t::_reset();
+
+    known_ready = false;
 
     _set_links_available();
 }

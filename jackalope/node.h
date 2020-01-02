@@ -20,6 +20,8 @@
 
 #define JACKALOPE_PROPERTY_NODE_NAME "node.name"
 
+#define NODE_LOG(level, ...) JACKALOPE_LOG_VARGS(JACKALOPE_LOG_NAME, jackalope::log::level_t::level,  "node(", this->name, "): ", __VA_ARGS__)
+
 namespace jackalope {
 
 class node_t : public object_t {

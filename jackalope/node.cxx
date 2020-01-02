@@ -12,6 +12,7 @@
 // GNU Lesser General Public License for more details.
 
 #include <jackalope/async.h>
+#include <jackalope/logging.h>
 #include <jackalope/node.h>
 
 namespace jackalope {
@@ -39,8 +40,6 @@ void node_t::source_available(shared_t<source_t> source_in)
     assert_lockable_owner();
 
     object_t::source_available(source_in);
-
-    check_run_needed();
 }
 
 void node_t::all_sources_available()
@@ -57,8 +56,6 @@ void node_t::sink_ready(shared_t<sink_t> sink_in)
     assert_lockable_owner();
 
     object_t::sink_ready(sink_in);
-
-    check_run_needed();
 }
 
 void node_t::all_sinks_ready()
@@ -74,7 +71,8 @@ void node_t::check_run_needed()
 {
     assert_lockable_owner();
 
-    if (! stopped_flag && should_run()) {
+    if (! stopped_flag && ! running && should_run()) {
+        NODE_LOG(info, "scheduling run of node");
         schedule_run();
     }
 }
@@ -82,10 +80,6 @@ void node_t::check_run_needed()
 void node_t::schedule_run()
 {
     assert_lockable_owner();
-
-    if (running) {
-        return;
-    }
 
     auto shared_this = shared_obj<node_t>();
 
@@ -102,7 +96,9 @@ void node_t::handle_run()
     assert_lockable_owner();
 
     if (should_run()) {
+        NODE_LOG(info, "Running node");
         run();
+        NODE_LOG(info, "Done running node");
     }
 
     running = false;

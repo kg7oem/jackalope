@@ -28,6 +28,7 @@ namespace jackalope {
 using object_library_t = library_t<object_t, const init_list_t>;
 
 void add_object_constructor(const string_t& class_name_in, object_library_t::constructor_t constructor_in);
+size_t _get_object_id();
 
 class object_t : public prop_obj_t, public shared_obj_t<object_t>, protected lockable_t, public base_t {
 
@@ -48,6 +49,7 @@ protected:
     static shared_t<object_t> _make(const init_list_t init_list_in);
 
 public:
+    const size_t id = _get_object_id();
     template <class T = object_t>
     static shared_t<T> make(const init_list_t init_list_in)
     {
