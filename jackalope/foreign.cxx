@@ -24,6 +24,34 @@ node_t make_node(const init_list_t init_list_in)
     return node_t(new_node);
 }
 
+graph_t make_graph(const init_list_t init_list_in)
+{
+    auto new_graph = jackalope::make_shared<jackalope::graph_t>(init_list_in);
+    return graph_t(new_graph);
+}
+
+graph_t::graph_t(shared_t<jackalope::graph_t> wrapped_in)
+: wrapper_t(wrapped_in)
+{ }
+
+node_t graph_t::add_node(const init_list_t& init_list_in)
+{
+    auto new_node = wait_job<shared_t<jackalope::node_t>>([&] {
+        auto lock = wrapped->get_object_lock();
+        return wrapped->add_node(init_list_in);
+    });
+
+    return node_t(new_node);
+}
+
+void graph_t::start()
+{
+    wait_job<void>([&] {
+        auto lock = wrapped->get_object_lock();
+        wrapped->start();
+    });
+}
+
 source_t::source_t(shared_t<jackalope::source_t> wrapped_in)
 : wrapper_t(wrapped_in)
 { }

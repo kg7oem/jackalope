@@ -43,7 +43,7 @@ add_library(
     jackalope/audio/sndfile.cxx
     jackalope/channel.cxx
     jackalope/foreign.cxx
-#    jackalope/graph.cxx
+    jackalope/graph.cxx
     jackalope/jackalope.cxx
     jackalope/log/dest.cxx
     jackalope/log/engine.cxx

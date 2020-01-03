@@ -70,6 +70,12 @@ object_t::object_t(const init_list_t init_list_in)
     assert(type != "");
 }
 
+object_t::object_t(const string_t& type_in, const init_list_t init_list_in)
+: init_args(init_args_from_list(init_list_in)), type(type_in)
+{
+    assert(type != "");
+}
+
 shared_t<abstract_message_handler_t> object_t::get_message_handler(const string_t& name_in)
 {
     assert_lockable_owner();
@@ -249,6 +255,11 @@ void object_t::init()
 
     add_message_handler<link_ready_message_t>([this] (shared_t<link_t> link_in) { this->message_link_ready(link_in); });
     add_message_handler<link_available_message_t>([this] (shared_t<link_t> link_in) { this->message_link_available(link_in); });
+}
+
+void object_t::activate()
+{
+    assert_lockable_owner();
 }
 
 void object_t::start()

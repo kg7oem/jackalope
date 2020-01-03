@@ -32,7 +32,7 @@ protected:
 public:
     const string_t name;
 
-    virtual void activate();
+    virtual void activate() override;
     virtual void start() override;
     virtual void run() = 0;
     virtual void stop() override;

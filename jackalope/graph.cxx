@@ -27,17 +27,17 @@ shared_t<graph_t> graph_t::make(const init_list_t& init_args_in)
 }
 
 graph_t::graph_t(const init_list_t& init_args_in)
-: object_t(init_args_in)
+: object_t(JACKALOPE_TYPE_GRAPH, init_args_in)
 { }
 
 shared_t<node_t> graph_t::add_node(const init_list_t& init_args_in)
 {
     assert_lockable_owner();
 
-    auto new_node = node_t::make(init_args_in);
+    auto new_node = object_t::make<node_t>(init_args_in);
     auto new_node_lock = new_node->get_object_lock();
 
-    new_node->set_graph(shared_obj<graph_t>());
+    // new_node->set_graph(shared_obj<graph_t>());
     new_node->activate();
 
     nodes.push_back(new_node);

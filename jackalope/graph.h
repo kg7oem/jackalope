@@ -12,9 +12,12 @@
 
 #pragma once
 
+#include <jackalope/object.forward.h>
 #include <jackalope/node.h>
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
+
+#define JACKALOPE_TYPE_GRAPH "jackalope::graph"
 
 namespace jackalope {
 

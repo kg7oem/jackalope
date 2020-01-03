@@ -26,6 +26,8 @@ node_t::node_t(const init_list_t init_list_in)
 void node_t::activate()
 {
     assert_lockable_owner();
+
+    object_t::activate();
 }
 
 void node_t::start()

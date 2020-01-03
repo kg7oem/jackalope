@@ -61,6 +61,8 @@ protected:
     pool_map_t<string_t, shared_t<sink_t>> sinks_by_name;
 
     object_t(const init_list_t init_list_in);
+    object_t(const string_t& type_in, const init_list_t init_list_in);
+
     static shared_t<object_t> _make(const init_list_t init_list_in);
 
     template <typename T>
@@ -123,6 +125,7 @@ public:
     virtual shared_t<sink_t> get_sink(const size_t sink_num_in);
     virtual void link(const string_t& source_name_in, shared_t<object_t> target_object_in, const string_t& target_sink_name_in);
     virtual void init();
+    virtual void activate();
     virtual void start();
     virtual void stop();
 };

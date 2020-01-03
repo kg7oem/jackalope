@@ -14,12 +14,16 @@
 #pragma once
 
 #include <jackalope/foreign.forward.h>
+#include <jackalope/graph.h>
 #include <jackalope/node.h>
 #include <jackalope/types.h>
 
 namespace jackalope {
 
 namespace foreign {
+
+node_t make_node(const init_list_t init_list_in);
+graph_t make_graph(const init_list_t init_list_in);
 
 template <typename T>
 class wrapper_t {
@@ -32,6 +36,12 @@ protected:
     {
         assert(wrapped_in != nullptr);
     }
+};
+
+struct graph_t : public wrapper_t<jackalope::graph_t> {
+    graph_t(shared_t<jackalope::graph_t> wrapped_in);
+    node_t add_node(const init_list_t& init_args_in);
+    void start();
 };
 
 struct source_t : public wrapper_t<jackalope::source_t> {
@@ -51,7 +61,6 @@ struct node_t : public wrapper_t<jackalope::node_t> {
     void start();
 };
 
-node_t make_node(const init_list_t init_list_in);
 
 } // namespace foreign
 

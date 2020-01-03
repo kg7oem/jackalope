@@ -38,23 +38,19 @@ int main(int argc_in, char ** argv_in)
 
     jackalope_init();
 
-    std::vector<node_t> nodes;
+    auto graph = make_graph({
+        { "pcm.sample_rate", jackalope::to_string(SAMPLE_RATE) },
+        { "pcm.buffer_size", jackalope::to_string(BUFFER_SIZE) },
+    });
 
-    // auto graph = make_graph({
-    //     { JACKALOPE_PROPERTY_PCM_SAMPLE_RATE, to_string(SAMPLE_RATE) },
-    //     { JACKALOPE_PROPERTY_PCM_BUFFER_SIZE, to_string(BUFFER_SIZE) },
-    // });
-
-    auto input_file = make_node({
+    auto input_file = graph.add_node({
         { "object.type", "audio::sndfile"},
         { "node.name", "input file" },
         { "pcm.buffer_size", jackalope::to_string(BUFFER_SIZE) },
         { "config.path", argv_in[1] },
     });
 
-    nodes.push_back(input_file);
-
-    auto system_audio = make_node({
+    auto system_audio = graph.add_node({
         { "object.type", "audio::portaudio" },
         { "node.name", "system audio" },
         { "pcm.buffer_size", jackalope::to_string(BUFFER_SIZE) },
@@ -63,9 +59,7 @@ int main(int argc_in, char ** argv_in)
         { "sink.right", "audio" },
     });
 
-    nodes.push_back(system_audio);
-
-    auto left_tube = make_node({
+    auto left_tube = graph.add_node({
         { "object.type", "audio::ladspa" },
         { "node.name", "left tube" },
         { "pcm.buffer_size", jackalope::to_string(BUFFER_SIZE) },
@@ -73,21 +67,13 @@ int main(int argc_in, char ** argv_in)
         { "plugin.id", jackalope::to_string(LADSPA_ZAMTUBE_ID) },
     });
 
-    nodes.push_back(left_tube);
-
-    auto right_tube = make_node({
+    auto right_tube = graph.add_node({
         { "object.type", "audio::ladspa" },
         { "node.name", "right tube" },
         { "pcm.buffer_size", jackalope::to_string(BUFFER_SIZE) },
         { "pcm.sample_rate", jackalope::to_string(SAMPLE_RATE) },
         { "plugin.id", jackalope::to_string(LADSPA_ZAMTUBE_ID) },
     });
-
-    nodes.push_back(right_tube);
-
-    for(auto& i : nodes) {
-        i.activate();
-    }
 
     // input_file->connect(JACKALOPE_SIGNAL_FILE_EOF, graph, JACKALOPE_SLOT_OBJECT_STOP);
 
@@ -96,11 +82,7 @@ int main(int argc_in, char ** argv_in)
     left_tube.link("Audio Output 1", system_audio, "left");
     right_tube.link("Audio Output 1", system_audio, "right");
 
-    for(auto& i : nodes) {
-        i.start();
-    }
-
-    // graph->start();
+    graph.start();
 
     // log_info("after start() was called");
 

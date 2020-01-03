@@ -9,6 +9,7 @@ namespace jackalope {
 
 namespace foreign {
 
+struct graph_t;
 struct node_t;
 struct source_t;
 struct sink_t;
