@@ -166,11 +166,9 @@ void portaudio_node_t::stop()
 
     node_t::stop();
 
+    assert(stopped_flag);
     thread_run_cond.notify_all();
     thread_run_cond.wait(object_mutex, [&] { return thread_run == false; });
-
-    auto portaudio_lock = get_portaudio_lock();
-    Pa_StopStream(stream);
 }
 
 int portaudio_node_t::process(const void *, void * sink_buffer_in, size_t frames_per_buffer_in, const portaudio_stream_cb_time_info_t *, portaudio_stream_cb_flags status_flags_in)
