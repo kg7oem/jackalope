@@ -51,6 +51,7 @@ struct sndfile_node_t : public node_t {
     sndfile_node_t(const init_list_t& init_list_in);
     virtual ~sndfile_node_t();
     virtual void be_io_thread();
+    virtual void wait_work_available();
     virtual void init() override;
     virtual void activate() override;
     virtual void start() override;
