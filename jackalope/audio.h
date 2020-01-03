@@ -25,7 +25,7 @@ void audio_init();
 class audio_buffer_t : public base_t, shared_obj_t<audio_buffer_t> {
 
 protected:
-    real_t * buffer = nullptr;
+    pool_vector_t<real_t> buffer;
 
 public:
     const size_t num_samples;

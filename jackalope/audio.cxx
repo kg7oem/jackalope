@@ -44,22 +44,17 @@ void audio_init()
 audio_buffer_t::audio_buffer_t(const size_t num_samples_in)
 : num_samples(num_samples_in)
 {
-    buffer = new real_t[num_samples];
+    buffer.reserve(num_samples);
 
-    pcm_zero(buffer, num_samples);
+    pcm_zero(get_pointer(), num_samples);
 }
 
 audio_buffer_t::~audio_buffer_t()
-{
-    if (buffer != nullptr) {
-        delete buffer;
-        buffer = nullptr;
-    }
-}
+{ }
 
 real_t * audio_buffer_t::get_pointer()
 {
-    return buffer;
+    return buffer.data();
 }
 
 audio_link_t::audio_link_t(shared_t<source_t> source_in, shared_t<sink_t> sink_in)
