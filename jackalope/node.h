@@ -27,8 +27,6 @@ namespace jackalope {
 class node_t : public object_t {
 
 protected:
-    bool running = false;
-
     node_t(const init_list_t init_list_in);
 
 public:
@@ -38,12 +36,13 @@ public:
     virtual void start() override;
     virtual void run() = 0;
     virtual void stop() override;
-    virtual void check_run_needed();
+    virtual void deliver_one_message(shared_t<abstract_message_t> message_in) override;
+    virtual void run_if_needed();
     virtual bool should_run() = 0;
-    virtual void schedule_run();
-    virtual void handle_run();
-    virtual void source_available(shared_t<source_t> source_in) override;
-    virtual void sink_ready(shared_t<sink_t> sink_in) override;
+    // virtual void schedule_run();
+    // virtual void handle_run();
+//     virtual void source_available(shared_t<source_t> source_in) override;
+//     virtual void sink_ready(shared_t<sink_t> sink_in) override;
 };
 
 } //namespace jackalope

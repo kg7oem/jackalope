@@ -36,12 +36,8 @@ class portaudio_node_t : public node_t {
 
 protected:
     portaudio_stream_t * stream = nullptr;
-    mutex_t thread_mutex;
-    pool_vector_t<shared_t<audio_buffer_t>> sink_buffers;
-    bool thread_start = false;
-    condition_t thread_start_cond;
-    bool thread_done = false;
-    condition_t thread_done_cond;
+    bool thread_run = false;
+    condition_t thread_run_cond;
 
     virtual void init() override;
     virtual void activate() override;

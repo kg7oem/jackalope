@@ -34,6 +34,8 @@ using real_t = float;
 using complex_t = std::complex<real_t>;
 template <typename T>
 using function_t = std::function<T>;
+template <typename... T>
+using tuple_t = std::tuple<T...>;
 
 template <typename T>
 using pool_allocator_t = boost::pool_allocator<T>;

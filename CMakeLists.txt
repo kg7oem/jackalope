@@ -19,6 +19,8 @@ add_definitions(-fPIC)
 add_definitions(-Wfatal-errors -Werror)
 add_definitions(-Wall -Wextra)
 
+add_definitions(-Og)
+
 # . gives us jackalope/ with out it being a system directory
 include_directories(.)
 include_directories(SYSTEM ${Boost_INCLUDE_DIR})
@@ -44,6 +46,7 @@ add_library(
     jackalope/jackalope.cxx
     jackalope/log/dest.cxx
     jackalope/log/engine.cxx
+    jackalope/message.cxx
     jackalope/node.cxx
     jackalope/object.cxx
 #    jackalope/pcm.cxx

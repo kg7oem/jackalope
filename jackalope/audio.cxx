@@ -78,6 +78,8 @@ void audio_link_t::reset()
     auto lock = get_object_lock();
 
     buffer = nullptr;
+
+    get_from()->get_parent()->send_message<link_available_message_t>(shared_obj());
 }
 
 bool audio_link_t::is_ready()
@@ -98,9 +100,15 @@ shared_t<audio_buffer_t> audio_link_t::get_buffer()
 
 void audio_link_t::set_buffer(shared_t<audio_buffer_t> buffer_in)
 {
+    log_info("waiting for audio link lock");
     auto lock = get_object_lock();
+    log_info("done waiting for audio link lock");
 
     assert(buffer == nullptr);
+
+    log_info("sending link ready message");
+    get_to()->get_parent()->send_message<link_ready_message_t>(shared_obj());
+    log_info("done sending link ready message");
 
     buffer = buffer_in;
 }
@@ -151,18 +159,10 @@ void audio_source_t::notify_buffer(shared_t<audio_buffer_t> buffer_in)
 
         log_info("Setting buffer for sink: ", link->get_to()->name);
         link->set_buffer(buffer_in);
+        log_info("Done setting buffer for sink: ", link->get_to()->name);
 
         assert(! link->is_available());
-
-        submit_job([link] {
-            auto sink = link->get_to();
-
-            log_info("notifying link ready for sink: ", sink->name);
-            sink->link_ready(link);
-        });
     }
-
-    _check_available();
 }
 
 audio_sink_t::audio_sink_t(const string_t name_in, shared_t<object_t> parent_in)
@@ -208,31 +208,53 @@ bool audio_sink_t::_is_ready()
     return true;
 }
 
-void audio_sink_t::_set_links_available()
+// a sink is available if none of the
+// links are ready
+bool audio_sink_t::_is_available()
 {
     assert_lockable_owner();
 
-    for(auto link : links) {
-        auto source = link->get_from();
-        auto audio_link = link->shared_obj<audio_link_t>();
-
-        audio_link->reset();
-
-        submit_job([source, link] {
-            source->link_available(link);
-        });
+    for(auto& i : links) {
+        if (i->is_ready()) {
+            return false;
+        }
     }
+
+    return true;
+}
+
+void audio_sink_t::reset()
+{
+    auto lock = get_object_lock();
+
+    _reset();
 }
 
 void audio_sink_t::_reset()
 {
     assert_lockable_owner();
 
-    sink_t::_reset();
+    log_info("reseting sink: ", name);
 
-    known_ready = false;
+    for(auto i : links) {
+        auto link = i->shared_obj<audio_link_t>();
 
-    _set_links_available();
+        if (! link->is_available()) {
+            link->reset();
+        }
+    }
+}
+
+void audio_sink_t::_start()
+{
+    assert_lockable_owner();
+
+    sink_t::_start();
+
+    for(auto i : links) {
+        auto link = i->shared_obj<audio_link_t>();
+        link->reset();
+    }
 }
 
 } //namespace jackalope

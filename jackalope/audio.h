@@ -65,9 +65,11 @@ public:
     audio_sink_t(const string_t name_in, shared_t<object_t> parent_in);
     virtual shared_t<audio_buffer_t> get_buffer();
     virtual shared_t<audio_buffer_t> _get_buffer();
-    virtual bool _is_ready();
-    virtual void _set_links_available();
-    virtual void _reset() override;
+    virtual bool _is_available() override;
+    virtual bool _is_ready() override;
+    virtual void _start() override;
+    virtual void reset();
+    virtual void _reset();
 };
 
 } //namespace jackalope

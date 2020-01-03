@@ -90,11 +90,7 @@ public:
     virtual shared_t<link_t> make_link(shared_t<source_t> from_in, shared_t<sink_t> to_in) = 0;
     virtual bool is_available();
     virtual bool _is_available() = 0;
-    virtual void _check_available();
     virtual void link_available(shared_t<link_t> link_in);
-    // virtual void link_unavailable(shared_t<link_t> link_in);
-    virtual void _notify_source_available();
-    // virtual void _notify_source_unavailable();
 };
 
 struct sink_t : public channel_t, public shared_obj_t<sink_t> {
@@ -108,14 +104,12 @@ public:
     static shared_t<sink_t> make(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in);
     virtual ~sink_t() = default;
     virtual void add_link(shared_t<link_t> link_in);
-    virtual void reset();
-    virtual void _reset();
     virtual void _start() override;
     virtual bool is_ready();
     virtual bool _is_ready() = 0;
-    virtual void _check_ready();
-    virtual void link_ready(shared_t<link_t> ready_link_in);
-    virtual void _notify_sink_ready();
+    virtual bool is_available();
+    virtual bool _is_available() = 0;
+    virtual void link_ready(shared_t<link_t> link_in);
 };
 
 } //namespace jackalope

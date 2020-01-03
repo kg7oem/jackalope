@@ -128,6 +128,10 @@ bool portaudio_node_t::should_run()
 {
     assert_lockable_owner();
 
+    if (thread_run) {
+        return false;
+    }
+
     for(auto i : sinks) {
         if (! i->is_ready()) {
             return false;
@@ -143,53 +147,23 @@ void portaudio_node_t::run()
 
     NODE_LOG(info, "portaudio node running");
 
-    {
-        lock_t thread_lock(thread_mutex);
+    assert(thread_run == false);
 
-        assert(sink_buffers.size() == 0);
-        assert(thread_done == false);
-        assert(thread_start == false);
+    thread_run = true;
+    thread_run_cond.notify_all();
 
-        for(auto i : sinks) {
-            auto audio_sink = i->shared_obj<audio_sink_t>();
-            auto buffer = audio_sink->get_buffer();
-            sink_buffers.push_back(buffer);
-        }
-
-        thread_start = true;
-        thread_start_cond.notify_all();
-    }
-
-    lock_t thread_lock(thread_mutex);
-
-    NODE_LOG(info, "waiting for portaudio thread to finish");
-    thread_done_cond.wait(thread_lock, [this] { return thread_done; });
-    NODE_LOG(info, "done waiting for portaudio thread");
-
-    thread_done = false;
-
-    sink_buffers.clear();
-
-    for(auto i : sinks) {
-        i->reset();
-    }
+    NODE_LOG(info, "told portaudio thread to start");
 }
 
 int portaudio_node_t::process(const void *, void * sink_buffer_in, size_t frames_per_buffer_in, const portaudio_stream_cb_time_info_t *, portaudio_stream_cb_flags status_flags_in)
 {
     NODE_LOG(info, "portaudio process() invoked");
-
-    lock_t thread_lock(thread_mutex);
-
-    NODE_LOG(info, "portaudio process() got thread lock");
+    auto lock = get_object_lock();
+    NODE_LOG(info, "portaudio process() got object lock");
 
     NODE_LOG(info, "PortAudio thread is waiting to run");
-    thread_start_cond.wait(thread_lock, [this] { return thread_start; });
-    thread_start = false;
-
+    thread_run_cond.wait(lock, [this] { return thread_run; });
     NODE_LOG(info, "PortAudio is done waiting to run");
-
-    assert(thread_done == false);
 
     // auto source_buffer = static_cast<const real_t *>(source_buffer_in);
     auto sink_buffer = static_cast<real_t *>(sink_buffer_in);
@@ -225,15 +199,18 @@ int portaudio_node_t::process(const void *, void * sink_buffer_in, size_t frames
         }
     }
 
-    auto num_channels = sink_buffers.size();
+    auto num_channels = sinks.size();
 
     for(size_t i = 0; i < num_channels; i++) {
-        auto buffer = sink_buffers[i];
+        auto sink = get_sink(i)->shared_obj<audio_sink_t>();
+
+        auto buffer = sink->get_buffer();
+        sink->reset();
+
         pcm_insert_interleave(buffer->get_pointer(), sink_buffer, i, num_channels, frames_per_buffer_in);
     }
 
-    thread_done = true;
-    thread_done_cond.notify_all();
+    thread_run = false;
 
     NODE_LOG(info, "portaudio thread is done");
 
