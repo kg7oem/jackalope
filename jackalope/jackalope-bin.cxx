@@ -20,7 +20,7 @@
 #include <jackalope/logging.h>
 #include <jackalope/object.h>
 
-#define BUFFER_SIZE 4096
+#define BUFFER_SIZE 512
 #define SAMPLE_RATE 48000
 #define LADSPA_ZAMTUBE_ID 1515476290
 

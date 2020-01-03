@@ -62,7 +62,6 @@ struct node_t : public wrapper_t<jackalope::node_t> {
     void start();
 };
 
-
 } // namespace foreign
 
 } //namespace jackalope
