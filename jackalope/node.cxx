@@ -57,29 +57,15 @@ void node_t::deliver_one_message(shared_t<abstract_message_t> message_in)
     run_if_needed();
 }
 
-// void node_t::source_available(shared_t<source_t> source_in)
-// {
-//     assert_lockable_owner();
-
-//     object_t::source_available(source_in);
-
-//     check_run_needed();
-// }
-
-// void node_t::sink_ready(shared_t<sink_t> sink_in)
-// {
-//     assert_lockable_owner();
-
-//     object_t::sink_ready(sink_in);
-
-//     check_run_needed();
-// }
-
 void node_t::run_if_needed()
 {
     assert_lockable_owner();
 
-    if (should_run()) {
+    while(1) {
+        if (stopped_flag || ! should_run()) {
+            break;
+        }
+
         run();
     }
 }
