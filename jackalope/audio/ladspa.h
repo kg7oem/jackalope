@@ -13,18 +13,19 @@
 
 #pragma once
 
-#include <jackalope/pcm.h>
+#include <jackalope/audio.h>
+#include <jackalope/node.h>
 #include <jackalope/types.h>
 
 #define JACKALOPE_PCM_LADSPA_PATH_ENV "LADSPA_PATH"
 #define JACKALOPE_PCM_LADSPA_PATH_DEFAULT "/usr/lib/ladspa"
-#define JACKALOPE_PCM_LADSPA_CLASS "pcm::ladspa"
+#define JACKALOPE_AUDIO_LADSPA_OBJECT_TYPE "audio::ladspa"
 #define JACKALOPE_PCM_LADSPA_PROPERTY_ID "plugin.id"
 #define JACKALOPE_PCM_LADSPA_PROPERTY_FILE "plugin.file"
 
 namespace jackalope {
 
-namespace pcm {
+namespace audio {
 
 extern "C" {
 #include "ext/ladspa.h"
@@ -73,9 +74,7 @@ struct ladspa_instance_t : public base_t {
     void connect_port(const size_t port_num_in, ladspa_data_t * pointer_in);
 };
 
-struct ladspa_node_t : public pcm_node_t {
-    const string_t class_name = JACKALOPE_PCM_LADSPA_CLASS;
-
+struct ladspa_node_t : public node_t {
     ladspa_file_t * file = nullptr;
     ladspa_instance_t * instance = nullptr;
 
@@ -85,7 +84,8 @@ struct ladspa_node_t : public pcm_node_t {
     virtual void init_file();
     virtual void init_instance();
     virtual void activate() override;
-    // virtual void pcm_ready() override;
+    virtual bool should_run() override;
+    virtual void run() override;
 };
 
 } // namespace pcm

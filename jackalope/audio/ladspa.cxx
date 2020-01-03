@@ -18,17 +18,18 @@
 
 #include <boost/filesystem.hpp>
 
+#include <jackalope/audio/ladspa.h>
 #include <jackalope/exception.h>
 #include <jackalope/jackalope.h>
 #include <jackalope/logging.h>
-#include <jackalope/pcm/ladspa.h>
+#include <jackalope/pcm.h>
 #include <jackalope/string.h>
 
 #define LADSPA_DESCRIPTOR_SYMBOL "ladspa_descriptor"
 
 namespace jackalope {
 
-namespace pcm {
+namespace audio {
 
 static string_t ladspa_path;
 
@@ -47,11 +48,11 @@ void ladspa_init()
         ladspa_path = from_env;
     }
 
-    add_node_constructor(JACKALOPE_PCM_LADSPA_CLASS, ladspa_node_constructor);
+    add_object_constructor(JACKALOPE_AUDIO_LADSPA_OBJECT_TYPE, ladspa_node_constructor);
 }
 
 ladspa_node_t::ladspa_node_t(const init_list_t& init_list_in)
-: pcm_node_t(init_list_in)
+: node_t(init_list_in)
 { }
 
 ladspa_node_t::~ladspa_node_t()
@@ -92,8 +93,10 @@ void ladspa_node_t::init()
 {
     assert_lockable_owner();
 
-    pcm_node_t::init();
+    node_t::init();
 
+    add_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE, property_t::type_t::size, init_args);
+    add_property(JACKALOPE_PROPERTY_PCM_SAMPLE_RATE, property_t::type_t::size, init_args);
     add_property(JACKALOPE_PCM_LADSPA_PROPERTY_FILE, property_t::type_t::string, init_args);
     add_property(JACKALOPE_PCM_LADSPA_PROPERTY_ID, property_t::type_t::size, init_args);
 }
@@ -146,9 +149,9 @@ void ladspa_node_t::init_instance()
             }
         } else if(LADSPA_IS_PORT_AUDIO(descriptor)) {
             if (LADSPA_IS_PORT_INPUT(descriptor)) {
-                add_sink(port_name, JACKALOPE_CHANNEL_TYPE_PCM_REAL);
+                add_sink(port_name, JACKALOPE_TYPE_AUDIO);
             } else if (LADSPA_IS_PORT_OUTPUT(descriptor)) {
-                add_source(port_name, JACKALOPE_CHANNEL_TYPE_PCM_REAL);
+                add_source(port_name, JACKALOPE_TYPE_AUDIO);
             }
         }
     }
@@ -158,7 +161,7 @@ void ladspa_node_t::activate()
 {
     assert_lockable_owner();
 
-    pcm_node_t::activate();
+    node_t::activate();
 
     auto sample_rate_prop = get_property(JACKALOPE_PROPERTY_PCM_SAMPLE_RATE);
     auto sample_rate = sample_rate_prop->get_size();
@@ -193,12 +196,75 @@ void ladspa_node_t::activate()
                 property->set(0);
                 instance->connect_port(port_num, &property->get_real());
             }
-        } else if(LADSPA_IS_PORT_AUDIO(descriptor)) {
-            // inputs get connected right before the LADSPA plugin is run
-            if (LADSPA_IS_PORT_OUTPUT(descriptor)) {
-                auto port_name = instance->get_port_name(port_num);
-                // auto output = get_output<pcm_real_output_t>(port_name);
-                // instance->connect_port(port_num, output->get_buffer_pointer());
+        }
+    }
+}
+
+bool ladspa_node_t::should_run()
+{
+    assert_lockable_owner();
+
+    if (sources.size() == 0 && sinks.size() == 0) {
+        throw_runtime_error("LADSPA plugin had no sinks and no sources");
+    }
+
+    for (auto i : sources) {
+        if (! i->is_available()) {
+            return false;
+        }
+    }
+
+    for (auto i : sinks) {
+        if (! i->is_ready()) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void ladspa_node_t::run()
+{
+    assert_lockable_owner();
+
+    auto buffer_size = get_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE)->get_size();
+    pool_map_t<string_t, shared_t<audio_buffer_t>> source_buffers;
+
+    for(size_t port_num = 0; port_num < instance->get_num_ports(); port_num++) {
+        auto descriptor = instance->get_port_descriptor(port_num);
+
+        if (LADSPA_IS_PORT_AUDIO(descriptor)) {
+            auto port_name = instance->get_port_name(port_num);
+
+            if(LADSPA_IS_PORT_INPUT(descriptor)) {
+                auto sink = get_sink(port_name)->shared_obj<audio_sink_t>();
+                auto buffer = sink->get_buffer();
+                instance->connect_port(port_num, buffer->get_pointer());
+            } else if (LADSPA_IS_PORT_OUTPUT(descriptor)) {
+                auto buffer = jackalope::make_shared<audio_buffer_t>(buffer_size);
+                source_buffers[port_name] = buffer;
+                instance->connect_port(port_num, buffer->get_pointer());
+            }
+        }
+    }
+
+    instance->run(buffer_size);
+
+    for(size_t port_num = 0; port_num < instance->get_num_ports(); port_num++) {
+        auto descriptor = instance->get_port_descriptor(port_num);
+
+        if(LADSPA_IS_PORT_AUDIO(descriptor)) {
+            auto port_name = instance->get_port_name(port_num);
+
+            instance->connect_port(port_num, nullptr);
+
+            if (LADSPA_IS_PORT_INPUT(descriptor)) {
+                auto sink = get_sink(port_name)->shared_obj<audio_sink_t>();
+                sink->reset();
+            } else if (LADSPA_IS_PORT_OUTPUT(descriptor)) {
+                auto buffer = source_buffers[port_name];
+                auto source = get_source(port_name)->shared_obj<audio_source_t>();
+                source->notify_buffer(buffer);
             }
         }
     }

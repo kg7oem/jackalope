@@ -14,18 +14,11 @@
 #include <jackalope/async.h>
 #include <jackalope/audio.h>
 #include <jackalope/jackalope.h>
-// #include <jackalope/pcm.h>
-// #include <jackalope/pcm/ladspa.h>
-// #include <jackalope/pcm/portaudio.h>
 
 void jackalope_init()
 {
     jackalope::async_init();
     jackalope::audio_init();
-
-    // jackalope::pcm_init();
-    // jackalope::pcm::ladspa_init();
-    // // jackalope::pcm::portaudio_init();
 }
 
 void jackalope_shutdown()

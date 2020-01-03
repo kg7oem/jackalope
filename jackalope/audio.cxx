@@ -13,6 +13,7 @@
 
 #include <cassert>
 
+#include <jackalope/audio/ladspa.h>
 #include <jackalope/audio/portaudio.h>
 #include <jackalope/audio/sndfile.h>
 #include <jackalope/async.h>
@@ -35,6 +36,7 @@ void audio_init()
     add_source_constructor(JACKALOPE_TYPE_AUDIO, audio_source_constructor);
     add_sink_constructor(JACKALOPE_TYPE_AUDIO, audio_sink_constructor);
 
+    audio::ladspa_init();
     audio::portaudio_init();
     audio::sndfile_init();
 }
@@ -156,12 +158,7 @@ void audio_source_t::notify_buffer(shared_t<audio_buffer_t> buffer_in)
         auto link = i->shared_obj<audio_link_t>();
 
         assert(link->is_available());
-
-        log_info("Setting buffer for sink: ", link->get_to()->name);
         link->set_buffer(buffer_in);
-        log_info("Done setting buffer for sink: ", link->get_to()->name);
-
-        assert(! link->is_available());
     }
 }
 

@@ -40,6 +40,11 @@ int main(int argc_in, char ** argv_in)
 
     std::vector<node_t> nodes;
 
+    // auto graph = make_graph({
+    //     { JACKALOPE_PROPERTY_PCM_SAMPLE_RATE, to_string(SAMPLE_RATE) },
+    //     { JACKALOPE_PROPERTY_PCM_BUFFER_SIZE, to_string(BUFFER_SIZE) },
+    // });
+
     auto input_file = make_node({
         { "object.type", "audio::sndfile"},
         { "node.name", "input file" },
@@ -60,56 +65,40 @@ int main(int argc_in, char ** argv_in)
 
     nodes.push_back(system_audio);
 
+    auto left_tube = make_node({
+        { "object.type", "audio::ladspa" },
+        { "node.name", "left tube" },
+        { "pcm.buffer_size", jackalope::to_string(BUFFER_SIZE) },
+        { "pcm.sample_rate", jackalope::to_string(SAMPLE_RATE) },
+        { "plugin.id", jackalope::to_string(LADSPA_ZAMTUBE_ID) },
+    });
+
+    nodes.push_back(left_tube);
+
+    auto right_tube = make_node({
+        { "object.type", "audio::ladspa" },
+        { "node.name", "right tube" },
+        { "pcm.buffer_size", jackalope::to_string(BUFFER_SIZE) },
+        { "pcm.sample_rate", jackalope::to_string(SAMPLE_RATE) },
+        { "plugin.id", jackalope::to_string(LADSPA_ZAMTUBE_ID) },
+    });
+
+    nodes.push_back(right_tube);
+
     for(auto& i : nodes) {
         i.activate();
     }
 
-    input_file.link("Output 1", system_audio, "left");
-    input_file.link("Output 1", system_audio, "right");
+    // input_file->connect(JACKALOPE_SIGNAL_FILE_EOF, graph, JACKALOPE_SLOT_OBJECT_STOP);
+
+    input_file.link("Output 1", left_tube, "Audio Input 1");
+    input_file.link("Output 1", right_tube, "Audio Input 1");
+    left_tube.link("Audio Output 1", system_audio, "left");
+    right_tube.link("Audio Output 1", system_audio, "right");
 
     for(auto& i : nodes) {
         i.start();
     }
-
-    // auto graph = make_graph({
-    //     { JACKALOPE_PROPERTY_PCM_SAMPLE_RATE, to_string(SAMPLE_RATE) },
-    //     { JACKALOPE_PROPERTY_PCM_BUFFER_SIZE, to_string(BUFFER_SIZE) },
-    // });
-
-    // auto driver = graph->add_object({
-    //     { "object.class", "pcm::portaudio" },
-    //     { "source.left", "pcm[real]" },
-    //     { "source.right", "pcm[real]" },
-    //     { "sink.left", "pcm[real]" },
-    //     { "sink.right", "pcm[real]" },
-    // });
-
-    // auto input_file = graph->add_node({
-    //     { JACKALOPE_PROPERTY_NODE_CLASS, "pcm::sndfile" },
-    //     { JACKALOPE_PROPERTY_NODE_NAME, "input file" },
-    //     { "config.path", argv_in[1] },
-    //     { "source.left", JACKALOPE_CHANNEL_TYPE_PCM_REAL },
-    //     { "source.right", JACKALOPE_CHANNEL_TYPE_PCM_REAL },
-    // });
-
-    // auto left_tube = graph->add_node({
-    //     { JACKALOPE_PROPERTY_NODE_CLASS, "pcm::ladspa" },
-    //     { JACKALOPE_PROPERTY_NODE_NAME, "left tube" },
-    //     { "plugin.id", to_string(LADSPA_ZAMTUBE_ID) },
-    // });
-
-    // auto right_tube = graph->add_node({
-    //     { JACKALOPE_PROPERTY_NODE_CLASS, "pcm::ladspa" },
-    //     { JACKALOPE_PROPERTY_NODE_NAME, "right tube" },
-    //     { "plugin.id", to_string(LADSPA_ZAMTUBE_ID) },
-    // });
-
-    // input_file->connect(JACKALOPE_SIGNAL_FILE_EOF, graph, JACKALOPE_SLOT_OBJECT_STOP);
-
-    // input_file->link("left", left_tube, "Audio Input 1");
-    // input_file->link("right", right_tube, "Audio Input 1");
-    // left_tube->link("Audio Output 1", driver, "left");
-    // right_tube->link("Audio Output 1", driver, "right");
 
     // graph->start();
 
