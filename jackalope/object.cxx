@@ -130,6 +130,14 @@ void object_t::check_execute()
     submit_job(std::bind(&object_t::deliver_messages, this));
 }
 
+void object_t::message_invoke_slot(const string_t name_in)
+{
+    assert_lockable_owner();
+
+    auto slot = get_slot(name_in);
+    slot->invoke();
+}
+
 void object_t::message_link_available(shared_t<link_t> link_in) {
     assert_lockable_owner();
 
@@ -155,6 +163,13 @@ void object_t::message_link_ready(shared_t<link_t> link_in)
     }
 
     sink->link_ready(link_in);
+}
+
+bool object_t::is_stopped()
+{
+    assert_lockable_owner();
+
+    return stopped_flag;
 }
 
 shared_t<source_t> object_t::add_source(const string_t& source_name_in, const string_t& type_in)
@@ -255,6 +270,13 @@ void object_t::init()
 
     add_message_handler<link_ready_message_t>([this] (shared_t<link_t> link_in) { this->message_link_ready(link_in); });
     add_message_handler<link_available_message_t>([this] (shared_t<link_t> link_in) { this->message_link_available(link_in); });
+
+    add_slot(JACKALOPE_SLOT_OBJECT_STOP, [this] () {
+        auto lock = get_object_lock();
+        this->stop();
+    });
+
+    add_signal(JACKALOPE_SIGNAL_OBJECT_STOPPED);
 }
 
 void object_t::activate()
@@ -280,6 +302,8 @@ void object_t::stop()
     assert_lockable_owner();
 
     stopped_flag = true;
+
+    get_signal(JACKALOPE_SIGNAL_OBJECT_STOPPED)->send();
 }
 
 } //namespace jackalope

@@ -51,7 +51,7 @@ add_library(
     jackalope/node.cxx
     jackalope/object.cxx
     jackalope/property.cxx
-#    jackalope/signal.cxx
+    jackalope/signal.cxx
     jackalope/string.cxx
     jackalope/thread.cxx
     jackalope/types.cxx

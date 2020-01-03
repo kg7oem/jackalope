@@ -75,28 +75,18 @@ int main(int argc_in, char ** argv_in)
         { "plugin.id", jackalope::to_string(LADSPA_ZAMTUBE_ID) },
     });
 
-    // input_file->connect(JACKALOPE_SIGNAL_FILE_EOF, graph, JACKALOPE_SLOT_OBJECT_STOP);
+    input_file.connect(JACKALOPE_SIGNAL_OBJECT_STOPPED, graph, JACKALOPE_SLOT_OBJECT_STOP);
 
     input_file.link("Output 1", left_tube, "Audio Input 1");
     input_file.link("Output 1", right_tube, "Audio Input 1");
     left_tube.link("Audio Output 1", system_audio, "left");
     right_tube.link("Audio Output 1", system_audio, "right");
 
-    graph.start();
+    graph.run();
 
-    // log_info("after start() was called");
-
-    // graph->wait_signal("object.stopped");
-
-    // log_info("after wait_stop() was called");
-
-    while(1) {
-        using namespace std::chrono_literals;
-        std::this_thread::sleep_for(1s);
-    }
-
-    jackalope_shutdown();
     log_info("shutting down");
+    jackalope_shutdown();
+    log_info("done shutting down");
 
     return(0);
 }

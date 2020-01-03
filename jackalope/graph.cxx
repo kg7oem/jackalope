@@ -57,4 +57,22 @@ void graph_t::start()
     object_t::start();
 }
 
+void graph_t::stop()
+{
+    assert_lockable_owner();
+
+    log_info("graph is stopping");
+
+    for(auto i : nodes) {
+        auto lock = i->get_object_lock();
+
+        if (! i->is_stopped()) {
+            log_info("stopping node: ", i->name);
+            i->stop();
+        }
+    }
+
+    object_t::stop();
+}
+
 } // namespace jackalope

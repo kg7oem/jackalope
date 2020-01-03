@@ -155,6 +155,19 @@ void portaudio_node_t::run()
     NODE_LOG(info, "told portaudio thread to start");
 }
 
+void portaudio_node_t::stop()
+{
+    assert_lockable_owner();
+
+    node_t::stop();
+
+    thread_run_cond.notify_all();
+    thread_run_cond.wait(object_mutex, [&] { return thread_run == false; });
+
+    auto portaudio_lock = get_portaudio_lock();
+    Pa_StopStream(stream);
+}
+
 int portaudio_node_t::process(const void *, void * sink_buffer_in, size_t frames_per_buffer_in, const portaudio_stream_cb_time_info_t *, portaudio_stream_cb_flags status_flags_in)
 {
     NODE_LOG(info, "portaudio process() invoked");
@@ -162,8 +175,16 @@ int portaudio_node_t::process(const void *, void * sink_buffer_in, size_t frames
     NODE_LOG(info, "portaudio process() got object lock");
 
     NODE_LOG(info, "PortAudio thread is waiting to run");
-    thread_run_cond.wait(lock, [this] { return thread_run; });
+    thread_run_cond.wait(lock, [this] { return stopped_flag || thread_run; });
     NODE_LOG(info, "PortAudio is done waiting to run");
+
+    thread_run = false;
+    thread_run_cond.notify_all();
+
+    if (stopped_flag) {
+        NODE_LOG(info, "portaudio thread is returning because the node is stopped");
+        return paAbort;
+    }
 
     // auto source_buffer = static_cast<const real_t *>(source_buffer_in);
     auto sink_buffer = static_cast<real_t *>(sink_buffer_in);
@@ -210,11 +231,9 @@ int portaudio_node_t::process(const void *, void * sink_buffer_in, size_t frames
         pcm_insert_interleave(buffer->get_pointer(), sink_buffer, i, num_channels, frames_per_buffer_in);
     }
 
-    thread_run = false;
-
     NODE_LOG(info, "portaudio thread is done");
 
-    return 0;
+    return paContinue;
 }
 
 } // namespace pcm

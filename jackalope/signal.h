@@ -1,4 +1,4 @@
-// Jackalope Audio Engine
+ // Jackalope Audio Engine
 // Copyright 2019 Tyler Riddle <kg7oem@gmail.com>
 
 // This program is free software: you can redistribute it and/or modify
@@ -13,49 +13,52 @@
 
 #pragma once
 
-#include <jackalope/thread.h>
+#include <jackalope/message.h>
+#include <jackalope/string.h>
 #include <jackalope/types.h>
+
+#define JACKALOPE_MESSAGE_OBJECT_INVOKE_SLOT "object.invoke_slot"
 
 namespace jackalope {
 
-template <typename... Args>
-class signal_t : public base_t {
+struct signal_t;
+struct slot_t;
 
-public:
-    using slot_t = function_t<void (Args...)>;
-    using wait_promise_t = std::promise<void>;
-    using wait_future_t = std::future<void>;
+using slot_function_t = function_t<void ()>;
 
-protected:
-    pool_vector_t<slot_t> subscriptions;
-    pool_vector_t<promise_t<void>> waiters;
-    const weak_t<object_t> parent;
+// Thread safe with out user requirements
+struct signal_t : public base_t, public shared_obj_t<signal_t>, lockable_t {
+    const string_t name;
+    pool_list_t<slot_function_t> connections;
+    pool_list_t<promise_t<void>> waiters;
 
-public:
-    // thread safe because parent is const
-    shared_t<object_t> get_parent()
-    {
-        return parent.lock();
-    }
-
-    void subscribe(slot_t slot_in)
-    {
-        assert_object_owner(get_parent());
-
-        subscriptions.push_back(slot_in);
-    }
-
-    void wait()
-    {
-        wait_future_t future;
-
-        {
-            auto lock = get_parent()->get_object_lock();
-            future = waiters.emplace_back().get_future();
-        }
-
-        future.get();
-    }
+    signal_t(const string_t& name_in);
+    void subscribe(slot_function_t handler_in);
+    void subscribe(shared_t<slot_t> handler_in);
+    void send();
+    void wait();
 };
 
-} //namespace jackalope
+// Thread safe because everything is const
+struct slot_t : public base_t, public shared_obj_t<slot_t> {
+    const string_t name;
+    const slot_function_t handler;
+
+    slot_t(const string_t& name_in, slot_function_t handler_in);
+    void invoke();
+};
+
+class signal_obj_t {
+
+protected:
+    pool_map_t<string_t, shared_t<signal_t>> signals;
+    pool_map_t<string_t, shared_t<slot_t>> slots;
+
+public:
+    virtual shared_t<signal_t> add_signal(const string_t& name_in);
+    virtual shared_t<signal_t> get_signal(const string_t& name_in);
+    virtual shared_t<slot_t> add_slot(const string_t& name_in, slot_function_t handler_in);
+    virtual shared_t<slot_t> get_slot(const string_t& name_in);
+};
+
+} // namespace jackalope

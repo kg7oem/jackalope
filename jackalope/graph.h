@@ -31,6 +31,7 @@ public:
     graph_t(const init_list_t& init_args_in);
     shared_t<node_t> add_node(const init_list_t& init_args_in);
     virtual void start() override;
+    virtual void stop() override;
 };
 
 } // namespace jackalope

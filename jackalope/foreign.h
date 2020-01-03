@@ -26,9 +26,8 @@ node_t make_node(const init_list_t init_list_in);
 graph_t make_graph(const init_list_t init_list_in);
 
 template <typename T>
-class wrapper_t {
+struct wrapper_t {
 
-protected:
     const shared_t<T> wrapped;
 
     wrapper_t(shared_t<T> wrapped_in)
@@ -42,6 +41,7 @@ struct graph_t : public wrapper_t<jackalope::graph_t> {
     graph_t(shared_t<jackalope::graph_t> wrapped_in);
     node_t add_node(const init_list_t& init_args_in);
     void start();
+    void run();
 };
 
 struct source_t : public wrapper_t<jackalope::source_t> {
@@ -56,6 +56,7 @@ struct node_t : public wrapper_t<jackalope::node_t> {
     node_t(shared_t<jackalope::node_t> wrapped_in);
     source_t add_source(const string_t& name_in, const string_t& type_in);
     sink_t add_sink(const string_t& name_in, const string_t& type_in);
+    void connect(const string_t& signal_name_in, graph_t target_in, const string_t& slot_name_in);
     void link(const string_t& source_name_in, node_t target_object_in, const string_t& target_sink_name_in);
     void activate();
     void start();

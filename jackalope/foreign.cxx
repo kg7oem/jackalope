@@ -26,7 +26,7 @@ node_t make_node(const init_list_t init_list_in)
 
 graph_t make_graph(const init_list_t init_list_in)
 {
-    auto new_graph = jackalope::make_shared<jackalope::graph_t>(init_list_in);
+    auto new_graph = jackalope::graph_t::make(init_list_in);
     return graph_t(new_graph);
 }
 
@@ -50,6 +50,19 @@ void graph_t::start()
         auto lock = wrapped->get_object_lock();
         wrapped->start();
     });
+}
+
+void graph_t::run()
+{
+    auto stopped_signal = wait_job<shared_t<signal_t>>([&] {
+        auto lock = wrapped->get_object_lock();
+        auto signal = wrapped->get_signal(JACKALOPE_SIGNAL_OBJECT_STOPPED);
+
+        wrapped->start();
+        return signal;
+    });
+
+    stopped_signal->wait();
 }
 
 source_t::source_t(shared_t<jackalope::source_t> wrapped_in)
@@ -82,6 +95,19 @@ sink_t node_t::add_sink(const string_t& name_in, const string_t& type_in)
     });
 
     return sink_t(new_sink);
+}
+
+void node_t::connect(const string_t& signal_name_in, graph_t target_in, const string_t& slot_name_in)
+{
+    wait_job<void>([&] {
+        auto from_lock = wrapped->get_object_lock();
+        auto to_lock = target_in.wrapped->get_object_lock();
+
+        auto signal = wrapped->get_signal(signal_name_in);
+        auto slot = target_in.wrapped->get_slot(slot_name_in);
+
+        signal->subscribe(slot);
+    });
 }
 
 void node_t::link(const string_t& source_name_in, node_t target_object_in, const string_t& target_sink_name_in)

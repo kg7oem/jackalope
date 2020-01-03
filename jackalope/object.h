@@ -25,9 +25,11 @@
 
 namespace jackalope {
 
-#define JACKALOPE_MESSAGE_OBJECT_LINK_AVAILABLE "object.link_available"
-#define JACKALOPE_MESSAGE_OBJECT_LINK_READY "object.link_ready"
-#define JACKALOPE_PROPERTY_OBJECT_TYPE "object.type"
+#define JACKALOPE_MESSAGE_OBJECT_LINK_AVAILABLE    "object.link_available"
+#define JACKALOPE_MESSAGE_OBJECT_LINK_READY        "object.link_ready"
+#define JACKALOPE_PROPERTY_OBJECT_TYPE             "object.type"
+#define JACKALOPE_SLOT_OBJECT_STOP                 "object.stop"
+#define JACKALOPE_SIGNAL_OBJECT_STOPPED            "object.stopped"
 
 using object_library_t = library_t<object_t, const init_list_t>;
 
@@ -44,7 +46,7 @@ struct link_ready_message_t : public message_t<shared_t<link_t>> {
     link_ready_message_t(shared_t<link_t> link_in);
 };
 
-class object_t : public prop_obj_t, public shared_obj_t<object_t>, public lockable_t, public base_t {
+class object_t : public prop_obj_t, public signal_obj_t, public shared_obj_t<object_t>, public lockable_t, public base_t {
 
     friend foreign::node_t;
 
@@ -114,9 +116,11 @@ public:
         });
     }
 
+    virtual void message_invoke_slot(const string_t name_in);
     virtual void message_link_available(shared_t<link_t> link_in);
     virtual void message_link_ready(shared_t<link_t> link_in);
 
+    virtual bool is_stopped();
     virtual shared_t<source_t> add_source(const string_t& source_name_in, const string_t& type_in);
     virtual shared_t<source_t> get_source(const string_t& source_name_in);
     virtual shared_t<source_t> get_source(const size_t source_num_in);

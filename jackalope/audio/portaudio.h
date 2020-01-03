@@ -44,6 +44,7 @@ protected:
     virtual void start() override;
     virtual bool should_run() override;
     virtual void run() override;
+    virtual void stop() override;
 
 public:
     portaudio_node_t(const init_list_t& init_list_in);
