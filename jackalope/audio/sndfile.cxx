@@ -74,6 +74,10 @@ void sndfile_node_t::activate()
 {
     assert_lockable_owner();
 
+    for (auto i : { JACKALOPE_PROPERTY_PCM_SAMPLE_RATE, JACKALOPE_PROPERTY_PCM_BUFFER_SIZE }) {
+        set_undef_property(i);
+    }
+
     node_t::activate();
 
     if (sinks.size() > 0) {
@@ -201,14 +205,13 @@ void sndfile_node_t::run()
 {
     assert_lockable_owner();
 
+    assert(started_flag);
+    assert(stopped_flag == false);
+
     NODE_LOG(info, "waiting for work from sndfile io thread");
     thread_work_cond.wait(object_mutex, [this] { return stopped_flag || thread_work.size() > 0; });
     assert_lockable_owner();
     NODE_LOG(info, "done waiting for sndfile io thread");
-
-    if (stopped_flag) {
-        return;
-    }
 
     auto buffer = thread_work.front();
     thread_work.pop_front();

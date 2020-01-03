@@ -105,6 +105,8 @@ void ladspa_node_t::init_file()
 {
     assert_lockable_owner();
 
+    assert(init_flag);
+
     auto type_property = get_property(JACKALOPE_PCM_LADSPA_PROPERTY_ID);
     auto file_property = get_property(JACKALOPE_PCM_LADSPA_PROPERTY_FILE);
 
@@ -132,6 +134,8 @@ void ladspa_node_t::init_file()
 void ladspa_node_t::init_instance()
 {
     assert_lockable_owner();
+
+    assert(init_flag);
 
     instance = new ladspa_instance_t(*file, get_property(JACKALOPE_PCM_LADSPA_PROPERTY_ID)->get_size());
 
@@ -161,16 +165,14 @@ void ladspa_node_t::activate()
 {
     assert_lockable_owner();
 
+    for (auto i : { JACKALOPE_PROPERTY_PCM_SAMPLE_RATE, JACKALOPE_PROPERTY_PCM_BUFFER_SIZE }) {
+        set_undef_property(i);
+    }
+
     node_t::activate();
 
     auto sample_rate_prop = get_property(JACKALOPE_PROPERTY_PCM_SAMPLE_RATE);
     auto sample_rate = sample_rate_prop->get_size();
-    // auto& buffer_size_prop = get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE);
-
-    // for (auto i : outputs) {
-    //     auto pcm_output = dynamic_pointer_cast<pcm_real_output_t>(i);
-    //     pcm_output->set_num_samples(buffer_size_prop.get_size());
-    // }
 
     init_file();
     init_instance();
@@ -226,6 +228,9 @@ bool ladspa_node_t::should_run()
 void ladspa_node_t::run()
 {
     assert_lockable_owner();
+
+    assert(started_flag);
+    assert(! stopped_flag);
 
     auto buffer_size = get_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE)->get_size();
     pool_map_t<string_t, shared_t<audio_buffer_t>> source_buffers;

@@ -82,6 +82,10 @@ void portaudio_node_t::activate()
 {
     assert_lockable_owner();
 
+    for (auto i : { JACKALOPE_PROPERTY_PCM_SAMPLE_RATE, JACKALOPE_PROPERTY_PCM_BUFFER_SIZE }) {
+        set_undef_property(i);
+    }
+
     for (auto& i : init_args_find("source", init_args)) {
         auto source_name = split_string(i.first, '.').at(1);
         auto source_type = i.second;
@@ -113,15 +117,14 @@ void portaudio_node_t::start()
 {
     auto lock = get_portaudio_lock();
 
-    assert(stream != nullptr);
+    node_t::start();
 
+    assert(stream != nullptr);
     auto err = Pa_StartStream(stream);
 
     if (err != paNoError) {
         throw_runtime_error("Could not start portaudio stream: ", Pa_GetErrorText(err));
     }
-
-    node_t::start();
 }
 
 bool portaudio_node_t::should_run()
@@ -144,6 +147,8 @@ bool portaudio_node_t::should_run()
 void portaudio_node_t::run()
 {
     assert_lockable_owner();
+
+    assert(started_flag);
 
     NODE_LOG(info, "portaudio node running");
 

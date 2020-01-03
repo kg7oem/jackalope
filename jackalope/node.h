@@ -14,6 +14,7 @@
 #pragma once
 
 #include <jackalope/channel.h>
+#include <jackalope/graph.forward.h>
 #include <jackalope/node.forward.h>
 #include <jackalope/object.h>
 #include <jackalope/types.h>
@@ -27,11 +28,16 @@ namespace jackalope {
 class node_t : public object_t {
 
 protected:
+    weak_t<graph_t> graph;
+
     node_t(const init_list_t init_list_in);
 
 public:
     const string_t name;
 
+    shared_t<graph_t> get_graph();
+    void set_graph(shared_t<graph_t> graph_in);
+    virtual void set_undef_property(const string_t& name_in);
     virtual void activate() override;
     virtual void start() override;
     virtual void run() = 0;

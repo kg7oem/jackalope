@@ -22,6 +22,7 @@ shared_t<graph_t> graph_t::make(const init_list_t& init_args_in)
     auto lock = graph->get_object_lock();
 
     graph->init();
+    graph->activate();
 
     return graph;
 }
@@ -37,7 +38,7 @@ shared_t<node_t> graph_t::add_node(const init_list_t& init_args_in)
     auto new_node = object_t::make<node_t>(init_args_in);
     auto new_node_lock = new_node->get_object_lock();
 
-    // new_node->set_graph(shared_obj<graph_t>());
+    new_node->set_graph(shared_obj<graph_t>());
     new_node->activate();
 
     nodes.push_back(new_node);

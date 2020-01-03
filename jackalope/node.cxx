@@ -12,6 +12,7 @@
 // GNU Lesser General Public License for more details.
 
 #include <jackalope/async.h>
+#include <jackalope/graph.h>
 #include <jackalope/logging.h>
 #include <jackalope/node.h>
 
@@ -23,9 +24,53 @@ node_t::node_t(const init_list_t init_list_in)
     assert(name != "");
 }
 
+void node_t::set_undef_property(const string_t& name_in)
+{
+    assert_lockable_owner();
+
+    auto property = get_property(name_in);
+
+    if (property->is_defined()) {
+        return;
+    }
+
+    auto graph = get_graph();
+    auto graph_init_args = graph->init_args;
+
+    if (! init_args_has(name_in.c_str(), graph_init_args)) {
+        throw_runtime_error("could not find default for undefined node property: ", name_in);
+    }
+
+    property->set(init_args_get(name_in.c_str(), graph_init_args));
+}
+
+shared_t<graph_t> node_t::get_graph()
+{
+    assert_lockable_owner();
+
+    auto shared = graph.lock();
+
+    assert(shared != nullptr);
+
+    return shared;
+}
+
+void node_t::set_graph(shared_t<graph_t> graph_in)
+{
+    assert_lockable_owner();
+
+    assert(graph_in != nullptr);
+
+    graph = graph_in;
+}
+
 void node_t::activate()
 {
     assert_lockable_owner();
+
+    if (graph.expired()) {
+        throw_runtime_error("node graph weak pointer was expired when activating node");
+    }
 
     object_t::activate();
 }

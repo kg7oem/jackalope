@@ -51,8 +51,9 @@ class object_t : public prop_obj_t, public signal_obj_t, public shared_obj_t<obj
     friend foreign::node_t;
 
 protected:
-    const init_args_t init_args;
-    const string_t type;
+    bool init_flag = false;
+    bool activated_flag = false;
+    bool started_flag = false;
     bool executing_flag = false;
     bool stopped_flag = false;
     pool_map_t<string_t, shared_t<abstract_message_handler_t>> message_handlers;
@@ -88,6 +89,8 @@ protected:
     virtual void check_execute();
 
 public:
+    const init_args_t init_args;
+    const string_t type;
     const size_t id = _get_object_id();
 
     template <class T = object_t>
@@ -116,7 +119,6 @@ public:
         });
     }
 
-    virtual void message_invoke_slot(const string_t name_in);
     virtual void message_link_available(shared_t<link_t> link_in);
     virtual void message_link_ready(shared_t<link_t> link_in);
 

@@ -46,15 +46,12 @@ int main(int argc_in, char ** argv_in)
     auto input_file = graph.add_node({
         { "object.type", "audio::sndfile"},
         { "node.name", "input file" },
-        { "pcm.buffer_size", jackalope::to_string(BUFFER_SIZE) },
         { "config.path", argv_in[1] },
     });
 
     auto system_audio = graph.add_node({
         { "object.type", "audio::portaudio" },
         { "node.name", "system audio" },
-        { "pcm.buffer_size", jackalope::to_string(BUFFER_SIZE) },
-        { "pcm.sample_rate", jackalope::to_string(SAMPLE_RATE) },
         { "sink.left", "audio" },
         { "sink.right", "audio" },
     });
@@ -62,16 +59,12 @@ int main(int argc_in, char ** argv_in)
     auto left_tube = graph.add_node({
         { "object.type", "audio::ladspa" },
         { "node.name", "left tube" },
-        { "pcm.buffer_size", jackalope::to_string(BUFFER_SIZE) },
-        { "pcm.sample_rate", jackalope::to_string(SAMPLE_RATE) },
         { "plugin.id", jackalope::to_string(LADSPA_ZAMTUBE_ID) },
     });
 
     auto right_tube = graph.add_node({
         { "object.type", "audio::ladspa" },
         { "node.name", "right tube" },
-        { "pcm.buffer_size", jackalope::to_string(BUFFER_SIZE) },
-        { "pcm.sample_rate", jackalope::to_string(SAMPLE_RATE) },
         { "plugin.id", jackalope::to_string(LADSPA_ZAMTUBE_ID) },
     });
 

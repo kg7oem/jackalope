@@ -130,14 +130,6 @@ void object_t::check_execute()
     submit_job(std::bind(&object_t::deliver_messages, this));
 }
 
-void object_t::message_invoke_slot(const string_t name_in)
-{
-    assert_lockable_owner();
-
-    auto slot = get_slot(name_in);
-    slot->invoke();
-}
-
 void object_t::message_link_available(shared_t<link_t> link_in) {
     assert_lockable_owner();
 
@@ -268,6 +260,10 @@ void object_t::init()
 {
     assert_lockable_owner();
 
+    assert(init_flag == false);
+
+    init_flag = true;
+
     add_message_handler<link_ready_message_t>([this] (shared_t<link_t> link_in) { this->message_link_ready(link_in); });
     add_message_handler<link_available_message_t>([this] (shared_t<link_t> link_in) { this->message_link_available(link_in); });
 
@@ -282,11 +278,21 @@ void object_t::init()
 void object_t::activate()
 {
     assert_lockable_owner();
+
+    assert(init_flag);
+    assert(! activated_flag);
+
+    activated_flag = true;
 }
 
 void object_t::start()
 {
     assert_lockable_owner();
+
+    assert(activated_flag);
+    assert(started_flag == false);
+
+    started_flag = true;
 
     for(auto i : sources) {
         i->start();
@@ -300,6 +306,9 @@ void object_t::start()
 void object_t::stop()
 {
     assert_lockable_owner();
+
+    assert(started_flag);
+    assert(stopped_flag == false);
 
     stopped_flag = true;
 
