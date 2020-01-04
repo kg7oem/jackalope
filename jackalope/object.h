@@ -13,6 +13,7 @@
 
 #pragma once
 
+#include <jackalope/async.h>
 #include <jackalope/channel.h>
 #include <jackalope/foreign.forward.h>
 #include <jackalope/logging.h>

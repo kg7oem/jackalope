@@ -15,6 +15,6 @@
 
 namespace jackalope {
 
-struct object_t;
+class object_t;
 
 } // namespace jackalope
