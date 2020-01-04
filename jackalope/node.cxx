@@ -84,6 +84,8 @@ void node_t::start()
     object_t::start();
 
     NODE_LOG(info, "Done starting node");
+
+    run_if_needed();
 }
 
 void node_t::stop()

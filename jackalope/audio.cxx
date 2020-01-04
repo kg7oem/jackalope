@@ -242,17 +242,6 @@ void audio_sink_t::_start()
     assert_lockable_owner();
 
     sink_t::_start();
-
-    for(auto i : links) {
-        auto link = i->shared_obj<audio_link_t>();
-
-        // FIXME sometimes this fails when starting
-        // links should probably have a start() method
-        // and they send the link available message
-        // when the link start() method is invoked
-        assert(link->is_available());
-        link->reset();
-    }
 }
 
 } //namespace jackalope
