@@ -14,37 +14,29 @@
 #include <jackalope/async.h>
 #include <jackalope/foreign.h>
 
-namespace jackalope {
+using namespace jackalope;
 
-namespace foreign {
-
-node_t make_node(const init_args_t init_args_in)
-{
-    auto new_node = jackalope::object_t::make<jackalope::node_t>(init_args_in);
-    return node_t(new_node);
-}
-
-graph_t make_graph(const init_args_t init_args_in)
+jackalope_graph_t jackalope_graph_t::make(const jackalope::init_args_t& init_args_in)
 {
     auto new_graph = jackalope::graph_t::make(init_args_in);
-    return graph_t(new_graph);
+    return jackalope_graph_t(new_graph);
 }
 
-graph_t::graph_t(shared_t<jackalope::graph_t> wrapped_in)
-: wrapper_t(wrapped_in)
+jackalope_graph_t::jackalope_graph_t(shared_t<graph_t> wrapped_in)
+: jackalope_wrapper_t(wrapped_in)
 { }
 
-node_t graph_t::add_node(const init_list_t& init_list_in)
+jackalope_node_t jackalope_graph_t::add_node(const init_list_t& init_list_in)
 {
     auto new_node = wait_job<shared_t<jackalope::node_t>>([&] {
         auto lock = wrapped->get_object_lock();
         return wrapped->add_node(init_list_in);
     });
 
-    return node_t(new_node);
+    return jackalope_node_t(new_node);
 }
 
-void graph_t::start()
+void jackalope_graph_t::start()
 {
     wait_job<void>([&] {
         auto lock = wrapped->get_object_lock();
@@ -52,7 +44,7 @@ void graph_t::start()
     });
 }
 
-void graph_t::run()
+void jackalope_graph_t::run()
 {
     auto stopped_signal = wait_job<shared_t<signal_t>>([&] {
         auto lock = wrapped->get_object_lock();
@@ -65,39 +57,45 @@ void graph_t::run()
     stopped_signal->wait();
 }
 
-source_t::source_t(shared_t<jackalope::source_t> wrapped_in)
-: wrapper_t(wrapped_in)
+jackalope_source_t::jackalope_source_t(shared_t<jackalope::source_t> wrapped_in)
+: jackalope_wrapper_t(wrapped_in)
 { }
 
-sink_t::sink_t(shared_t<jackalope::sink_t> wrapped_in)
-: wrapper_t(wrapped_in)
+jackalope_sink_t::jackalope_sink_t(shared_t<jackalope::sink_t> wrapped_in)
+: jackalope_wrapper_t(wrapped_in)
 { }
 
-node_t::node_t(shared_t<jackalope::node_t> wrapped_in)
-: wrapper_t(wrapped_in)
+jackalope_node_t jackalope_node_t::make(const init_args_t& init_args_in)
+{
+    auto new_node = jackalope::object_t::make<jackalope::node_t>(init_args_in);
+    return jackalope_node_t(new_node);
+}
+
+jackalope_node_t::jackalope_node_t(shared_t<jackalope::node_t> wrapped_in)
+: jackalope_wrapper_t(wrapped_in)
 { }
 
-source_t node_t::add_source(const string_t& name_in, const string_t& type_in)
+jackalope_source_t jackalope_node_t::add_source(const string_t& name_in, const string_t& type_in)
 {
     auto new_source = wait_job<shared_t<jackalope::source_t>>([&] {
         auto lock = wrapped->get_object_lock();
         return wrapped->add_source(name_in, type_in);
     });
 
-    return source_t(new_source);
+    return jackalope_source_t(new_source);
 }
 
-sink_t node_t::add_sink(const string_t& name_in, const string_t& type_in)
+jackalope_sink_t jackalope_node_t::add_sink(const string_t& name_in, const string_t& type_in)
 {
     auto new_sink = wait_job<shared_t<jackalope::sink_t>>([&] {
         auto lock = wrapped->get_object_lock();
         return wrapped->add_sink(name_in, type_in);
     });
 
-    return sink_t(new_sink);
+    return jackalope_sink_t(new_sink);
 }
 
-void node_t::connect(const string_t& signal_name_in, graph_t target_in, const string_t& slot_name_in)
+void jackalope_node_t::connect(const string_t& signal_name_in, jackalope_graph_t target_in, const string_t& slot_name_in)
 {
     wait_job<void>([&] {
         auto from_lock = wrapped->get_object_lock();
@@ -110,7 +108,7 @@ void node_t::connect(const string_t& signal_name_in, graph_t target_in, const st
     });
 }
 
-void node_t::link(const string_t& source_name_in, node_t target_object_in, const string_t& target_sink_name_in)
+void jackalope_node_t::link(const string_t& source_name_in, jackalope_node_t target_object_in, const string_t& target_sink_name_in)
 {
     wait_job<void>([this, source_name_in, target_object_in, target_sink_name_in] {
         auto source_lock = wrapped->get_object_lock();
@@ -123,7 +121,7 @@ void node_t::link(const string_t& source_name_in, node_t target_object_in, const
     });
 }
 
-void node_t::activate()
+void jackalope_node_t::activate()
 {
     wait_job<void>([&] {
         auto lock = wrapped->get_object_lock();
@@ -131,14 +129,10 @@ void node_t::activate()
     });
 }
 
-void node_t::start()
+void jackalope_node_t::start()
 {
     wait_job<void>([&] {
         auto lock = wrapped->get_object_lock();
         wrapped->start();
     });
 }
-
-} // namespace foreign
-
-} //namespace jackalope

@@ -24,7 +24,6 @@
 #define SAMPLE_RATE 48000
 #define LADSPA_ZAMTUBE_ID 1515476290
 
-using namespace jackalope::foreign;
 using namespace jackalope::log;
 
 int main(int argc_in, char ** argv_in)
@@ -38,7 +37,7 @@ int main(int argc_in, char ** argv_in)
 
     jackalope_init();
 
-    auto graph = make_graph({
+    auto graph = jackalope_graph_t::make({
         { "pcm.sample_rate", jackalope::to_string(SAMPLE_RATE) },
         { "pcm.buffer_size", jackalope::to_string(BUFFER_SIZE) },
     });

@@ -49,7 +49,7 @@ struct link_ready_message_t : public message_t<shared_t<link_t>> {
 
 class object_t : public prop_obj_t, public signal_obj_t, public shared_obj_t<object_t>, public lockable_t, public base_t {
 
-    friend foreign::node_t;
+    friend jackalope_node_t;
 
 protected:
     bool init_flag = false;

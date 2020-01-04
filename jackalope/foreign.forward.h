@@ -5,15 +5,7 @@
 
 #pragma once
 
-namespace jackalope {
-
-namespace foreign {
-
-struct graph_t;
-struct node_t;
-struct source_t;
-struct sink_t;
-
-} // namespace foreign
-
-} //namespace jackalope
+struct jackalope_graph_t;
+struct jackalope_node_t;
+struct jackalope_source_t;
+struct jackalope_sink_t;
