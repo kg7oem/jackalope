@@ -35,6 +35,8 @@ shared_t<node_t> graph_t::add_node(const init_list_t& init_args_in)
 {
     assert_lockable_owner();
 
+    assert(init_flag);
+
     auto new_node = object_t::make<node_t>(init_args_in);
     auto new_node_lock = new_node->get_object_lock();
 
@@ -50,6 +52,9 @@ void graph_t::start()
 {
     assert_lockable_owner();
 
+    assert(init_flag);
+    assert(! started_flag);
+
     for(auto i : nodes) {
         auto lock = i->get_object_lock();
         i->start();
@@ -61,6 +66,9 @@ void graph_t::start()
 void graph_t::stop()
 {
     assert_lockable_owner();
+
+    assert(started_flag);
+    assert(! stopped_flag);
 
     log_info("graph is stopping");
 

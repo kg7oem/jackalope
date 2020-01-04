@@ -97,13 +97,13 @@ void node_t::deliver_one_message(shared_t<abstract_message_t> message_in)
 {
     assert_lockable_owner();
 
+    assert(activated_flag);
+
     object_t::deliver_one_message(message_in);
 
-    if (! started_flag) {
-        return;
+    if (started_flag) {
+        run_if_needed();
     }
-
-    run_if_needed();
 }
 
 void node_t::run_if_needed()

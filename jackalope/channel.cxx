@@ -113,9 +113,8 @@ void source_t::link_available(shared_t<link_t> link_in)
 
     assert(link_in->get_from() == shared_obj());
 
-    if (! started) {
-        log_info("ignoring link_available because source is not started");
-        return;
+    if (_is_available()) {
+        log_info("source is available: ", name);
     }
 }
 
@@ -165,9 +164,8 @@ void sink_t::link_ready(shared_t<link_t> link_in)
 
     assert(link_in->get_to() == shared_obj());
 
-    if (! started) {
-        log_info("ignoring link_available because source is not started");
-        return;
+    if (_is_ready()) {
+        log_info("sink is ready: ", name);
     }
 }
 

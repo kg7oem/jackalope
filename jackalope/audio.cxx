@@ -245,6 +245,8 @@ void audio_sink_t::_start()
 
     for(auto i : links) {
         auto link = i->shared_obj<audio_link_t>();
+
+        assert(link->is_available());
         link->reset();
     }
 }
