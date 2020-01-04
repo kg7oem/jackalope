@@ -99,12 +99,18 @@ void node_t::deliver_one_message(shared_t<abstract_message_t> message_in)
 
     object_t::deliver_one_message(message_in);
 
+    if (! started_flag) {
+        return;
+    }
+
     run_if_needed();
 }
 
 void node_t::run_if_needed()
 {
     assert_lockable_owner();
+
+    assert(started_flag);
 
     while(1) {
         if (stopped_flag || ! should_run()) {
