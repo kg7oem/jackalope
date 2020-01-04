@@ -28,10 +28,21 @@ include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 project(jackalope)
 
 find_package(Threads REQUIRED)
+include(FindPythonLibs)
+
+# . gives us jackalope/ with out it being a system directory
+include_directories(.)
+include_directories(SYSTEM ${PYTHON_INCLUDE_PATH})
 
 # FIXME why doesn't this work?
 # pkg_check_modules(LIBSNDFILE REQUIRED libsndfile-1)
 # pkg_check_modules(PORTAUDIO REQUIRED libportaudio)
+
+add_custom_command(
+    OUTPUT ${CMAKE_BINARY_DIR}/swig.python.cxx ${CMAKE_BINARY_DIR}/jackalope.py
+    DEPENDS ${CMAKE_SOURCE_DIR}/jackalope/swig.i
+    COMMAND swig -c++ -python -o swig.python.cxx -outdir ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR}/jackalope/swig.i
+)
 
 add_library(
     jackalope SHARED
@@ -57,9 +68,17 @@ add_library(
     jackalope/types.cxx
 )
 add_dependencies(jackalope jackalope-boost)
-target_link_libraries(jackalope ${Boost_LIBRARIES})
+target_link_libraries(jackalope ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} -ldl)
+target_link_libraries(jackalope -lsndfile -lportaudio)
 
-target_link_libraries(jackalope ${CMAKE_THREAD_LIBS_INIT} -ldl -lsndfile -lportaudio)
+add_library(
+    jackalope_python SHARED
+
+    ${CMAKE_BINARY_DIR}/swig.python.cxx
+)
+set_property(TARGET jackalope_python PROPERTY PREFIX "")
+set_property(TARGET jackalope_python PROPERTY OUTPUT_NAME _jackalope)
+target_link_libraries(jackalope_python jackalope ${PYTHON_LIBRARIES})
 
 enable_testing()
 add_subdirectory(tests/stage-1)
