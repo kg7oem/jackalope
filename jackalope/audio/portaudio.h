@@ -47,7 +47,7 @@ protected:
     virtual void stop() override;
 
 public:
-    portaudio_node_t(const init_list_t& init_list_in);
+    portaudio_node_t(const init_args_t init_args_in);
     virtual ~portaudio_node_t();
     virtual int process(const void * source_buffer_in, void * sink_buffer_in, size_t frames_per_buffer_in, const portaudio_stream_cb_time_info_t *time_info_in, portaudio_stream_cb_flags status_flags_in);
 };

@@ -18,8 +18,8 @@
 
 namespace jackalope {
 
-node_t::node_t(const init_list_t init_list_in)
-: object_t(init_list_in), name(init_args_get(JACKALOPE_PROPERTY_NODE_NAME, init_args))
+node_t::node_t(const init_args_t init_args_in)
+: object_t(init_args_in), name(init_args_get(JACKALOPE_PROPERTY_NODE_NAME, init_args))
 {
     assert(name != "");
 }

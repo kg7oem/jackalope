@@ -27,9 +27,9 @@ protected:
     pool_list_t<shared_t<node_t>> nodes;
 
 public:
-    static shared_t<graph_t> make(const init_list_t& init_args_in);
-    graph_t(const init_list_t& init_args_in);
-    shared_t<node_t> add_node(const init_list_t& init_args_in);
+    static shared_t<graph_t> make(const init_args_t& init_args_in);
+    graph_t(const init_args_t& init_args_in);
+    shared_t<node_t> add_node(const init_args_t& init_args_in);
     virtual void start() override;
     virtual void stop() override;
 };

@@ -30,7 +30,7 @@ class node_t : public object_t {
 protected:
     weak_t<graph_t> graph;
 
-    node_t(const init_list_t init_list_in);
+    node_t(const init_args_t init_args_in);
 
 public:
     const string_t name;

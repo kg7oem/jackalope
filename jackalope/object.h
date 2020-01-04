@@ -32,7 +32,7 @@ namespace jackalope {
 #define JACKALOPE_SLOT_OBJECT_STOP                 "object.stop"
 #define JACKALOPE_SIGNAL_OBJECT_STOPPED            "object.stopped"
 
-using object_library_t = library_t<object_t, const init_list_t>;
+using object_library_t = library_t<object_t, const init_args_t>;
 
 void add_object_constructor(const string_t& class_name_in, object_library_t::constructor_t constructor_in);
 size_t _get_object_id();
@@ -64,10 +64,10 @@ protected:
     pool_vector_t<shared_t<sink_t>> sinks;
     pool_map_t<string_t, shared_t<sink_t>> sinks_by_name;
 
-    object_t(const init_list_t init_list_in);
-    object_t(const string_t& type_in, const init_list_t init_list_in);
+    object_t(const init_args_t init_args_in);
+    object_t(const string_t& type_in, const init_args_t init_args_in);
 
-    static shared_t<object_t> _make(const init_list_t init_list_in);
+    static shared_t<object_t> _make(const init_args_t init_args_in);
 
     template <typename T>
     void add_message_handler(typename T::handler_t handler_in)
@@ -95,9 +95,9 @@ public:
     const size_t id = _get_object_id();
 
     template <class T = object_t>
-    static shared_t<T> make(const init_list_t init_list_in)
+    static shared_t<T> make(const init_args_t init_args_in)
     {
-        return dynamic_pointer_cast<T>(_make(init_list_in));
+        return dynamic_pointer_cast<T>(_make(init_args_in));
     }
 
     template <typename T, typename... Args>

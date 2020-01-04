@@ -78,7 +78,7 @@ struct ladspa_node_t : public node_t {
     ladspa_file_t * file = nullptr;
     ladspa_instance_t * instance = nullptr;
 
-    ladspa_node_t(const init_list_t& init_list_in);
+    ladspa_node_t(const init_args_t init_args_in);
     virtual ~ladspa_node_t();
     virtual void init() override;
     virtual void init_file();

@@ -48,7 +48,7 @@ struct sndfile_node_t : public node_t {
     pool_list_t<shared_t<audio_buffer_t>> thread_work;
     condition_t thread_work_cond;
 
-    sndfile_node_t(const init_list_t& init_list_in);
+    sndfile_node_t(const init_args_t init_args_in);
     virtual ~sndfile_node_t();
     virtual void be_io_thread();
     virtual void wait_work_available();

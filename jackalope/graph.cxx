@@ -16,7 +16,7 @@
 
 namespace jackalope {
 
-shared_t<graph_t> graph_t::make(const init_list_t& init_args_in)
+shared_t<graph_t> graph_t::make(const init_args_t& init_args_in)
 {
     auto graph = jackalope::make_shared<graph_t>(init_args_in);
     auto lock = graph->get_object_lock();
@@ -27,11 +27,11 @@ shared_t<graph_t> graph_t::make(const init_list_t& init_args_in)
     return graph;
 }
 
-graph_t::graph_t(const init_list_t& init_args_in)
+graph_t::graph_t(const init_args_t& init_args_in)
 : object_t(JACKALOPE_TYPE_GRAPH, init_args_in)
 { }
 
-shared_t<node_t> graph_t::add_node(const init_list_t& init_args_in)
+shared_t<node_t> graph_t::add_node(const init_args_t& init_args_in)
 {
     assert_lockable_owner();
 

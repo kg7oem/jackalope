@@ -18,15 +18,15 @@ namespace jackalope {
 
 namespace foreign {
 
-node_t make_node(const init_list_t init_list_in)
+node_t make_node(const init_args_t init_args_in)
 {
-    auto new_node = jackalope::object_t::make<jackalope::node_t>(init_list_in);
+    auto new_node = jackalope::object_t::make<jackalope::node_t>(init_args_in);
     return node_t(new_node);
 }
 
-graph_t make_graph(const init_list_t init_list_in)
+graph_t make_graph(const init_args_t init_args_in)
 {
-    auto new_graph = jackalope::graph_t::make(init_list_in);
+    auto new_graph = jackalope::graph_t::make(init_args_in);
     return graph_t(new_graph);
 }
 

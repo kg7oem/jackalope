@@ -48,30 +48,28 @@ link_ready_message_t::link_ready_message_t(shared_t<link_t> link_in)
     assert(link_in != nullptr);
 }
 
-shared_t<object_t> object_t::_make(const init_list_t init_list_in)
+shared_t<object_t> object_t::_make(const init_args_t init_args_in)
 {
-    auto init_args = init_args_from_list(init_list_in);
-
-    if (! init_args_has(JACKALOPE_PROPERTY_OBJECT_TYPE, init_args)) {
+    if (! init_args_has(JACKALOPE_PROPERTY_OBJECT_TYPE, init_args_in)) {
         throw_runtime_error("missing object type");
     }
 
-    auto object_type = init_args_get(JACKALOPE_PROPERTY_OBJECT_TYPE, init_args);
+    auto object_type = init_args_get(JACKALOPE_PROPERTY_OBJECT_TYPE, init_args_in);
     auto constructor = object_library->get_constructor(object_type);
-    auto new_object = constructor(init_list_in);
+    auto new_object = constructor(init_args_in);
     auto lock = new_object->get_object_lock();
     new_object->init();
     return new_object;
 }
 
-object_t::object_t(const init_list_t init_list_in)
-: init_args(init_args_from_list(init_list_in)), type(init_args_get(JACKALOPE_PROPERTY_OBJECT_TYPE, init_args))
+object_t::object_t(const init_args_t init_args_in)
+: init_args(init_args_in), type(init_args_get(JACKALOPE_PROPERTY_OBJECT_TYPE, init_args))
 {
     assert(type != "");
 }
 
-object_t::object_t(const string_t& type_in, const init_list_t init_list_in)
-: init_args(init_args_from_list(init_list_in)), type(type_in)
+object_t::object_t(const string_t& type_in, const init_args_t init_args_in)
+: init_args(init_args_in), type(type_in)
 {
     assert(type != "");
 }
