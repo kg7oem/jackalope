@@ -38,12 +38,6 @@ include_directories(SYSTEM ${PYTHON_INCLUDE_PATH})
 # pkg_check_modules(LIBSNDFILE REQUIRED libsndfile-1)
 # pkg_check_modules(PORTAUDIO REQUIRED libportaudio)
 
-add_custom_command(
-    OUTPUT ${CMAKE_BINARY_DIR}/swig.python.cxx ${CMAKE_BINARY_DIR}/jackalope.py
-    DEPENDS ${CMAKE_SOURCE_DIR}/jackalope/swig.i
-    COMMAND swig -c++ -python -o swig.python.cxx -outdir ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR}/jackalope/swig.i
-)
-
 add_library(
     jackalope SHARED
 
@@ -70,15 +64,6 @@ add_library(
 add_dependencies(jackalope jackalope-boost)
 target_link_libraries(jackalope ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} -ldl)
 target_link_libraries(jackalope -lsndfile -lportaudio)
-
-add_library(
-    jackalope_python SHARED
-
-    ${CMAKE_BINARY_DIR}/swig.python.cxx
-)
-set_property(TARGET jackalope_python PROPERTY PREFIX "")
-set_property(TARGET jackalope_python PROPERTY OUTPUT_NAME _jackalope)
-target_link_libraries(jackalope_python jackalope ${PYTHON_LIBRARIES})
 
 enable_testing()
 add_subdirectory(tests/stage-1)
