@@ -206,6 +206,7 @@ void sndfile_node_t::wait_work_available()
     assert_lockable_owner();
 
     NODE_LOG(info, "waiting for work from sndfile io thread");
+    // FIXME this seems awful
     thread_work_cond.wait(object_mutex, [this] { return stopped_flag || thread_work.size() > 0; });
     assert_lockable_owner();
     NODE_LOG(info, "done waiting for sndfile io thread");

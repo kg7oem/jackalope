@@ -168,7 +168,9 @@ void portaudio_node_t::stop()
 
     assert(stopped_flag);
     thread_run_cond.notify_all();
+    // FIXME this seems awful
     thread_run_cond.wait(object_mutex, [&] { return thread_run == false; });
+    assert_lockable_owner();
 }
 
 int portaudio_node_t::process(const void *, void * sink_buffer_in, size_t frames_per_buffer_in, const portaudio_stream_cb_time_info_t *, portaudio_stream_cb_flags status_flags_in)
