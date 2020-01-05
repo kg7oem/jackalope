@@ -43,7 +43,7 @@ int main(int argc_in, char ** argv_in)
     });
 
     auto input_file = graph.add_node({
-        { "object.type", "audio::sndfile"},
+        { "object.type", "audio::sndfile" },
         { "node.name", "input file" },
         { "config.path", argv_in[1] },
     });
