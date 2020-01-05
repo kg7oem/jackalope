@@ -107,7 +107,7 @@ bool source_t::is_available()
     return _is_available();
 }
 
-void source_t::link_available(shared_t<link_t> link_in)
+void source_t::link_available(NDEBUG_UNUSED shared_t<link_t> link_in)
 {
     auto lock = get_object_lock();
 
@@ -158,7 +158,7 @@ bool sink_t::is_ready()
     return _is_ready();
 }
 
-void sink_t::link_ready(shared_t<link_t> link_in)
+void sink_t::link_ready(NDEBUG_UNUSED shared_t<link_t> link_in)
 {
     auto lock = get_object_lock();
 

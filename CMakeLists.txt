@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 3.8.2)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 include(ExternalProject)
 
+if (${CMAKE_BUILD_TYPE} STREQUAL "")
 set(CMAKE_BUILD_TYPE Debug)
+endif (${CMAKE_BUILD_TYPE} STREQUAL "")
 
 option(VERBOSE "Verbose builds" OFF)
 
@@ -19,7 +21,11 @@ add_definitions(-fPIC)
 add_definitions(-Wfatal-errors -Werror)
 add_definitions(-Wall -Wextra)
 
+if (${CMAKE_BUILD_TYPE} STREQUAL Debug)
 add_definitions(-Og)
+endif (${CMAKE_BUILD_TYPE} STREQUAL Debug)
+
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
 # . gives us jackalope/ with out it being a system directory
 include_directories(.)

@@ -16,6 +16,7 @@
 #include <cstdlib>
 #include <iostream>
 
+#include <jackalope/jackalope.h>
 #include <jackalope/string.h>
 #include <jackalope/types.h>
 
@@ -23,8 +24,7 @@ static jackalope::size_t expected_test_cases = 0;
 static jackalope::size_t completed_test_cases = 0;
 
 #define run_test(name) { std::cout << #name << " "; name(); }
-// FIXME assert() is not the right way to do this
-#define test_case(code) { assert(code); completed_test_cases++; }
+#define test_case(expr) { if(! static_cast<bool>(expr)) { jackalope_panic("Test failed at ", __FILE__, ":", __LINE__, ": ", #expr); }; completed_test_cases++; }
 
 static void exit_handler()
 {

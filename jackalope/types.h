@@ -24,6 +24,19 @@
 #include <tuple>
 #include <vector>
 
+// g++ 6.3.0 as it comes in debian/stretch does not support maybe_unused
+#ifdef __GNUC__
+#define UNUSED __attribute__((unused))
+#else
+#define UNUSED [[ maybe_unused ]]
+#endif
+
+#ifdef NDEBUG
+#define NDEBUG_UNUSED UNUSED
+#else
+#define NDEBUG_UNUSED
+#endif
+
 namespace jackalope {
 
 template <typename T>
