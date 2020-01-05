@@ -19,7 +19,7 @@ int main(const int argc_in, const char ** argv_in)
         NULL
     };
 
-    struct jackalope_graph_t * graph = jackalope_graph_make(graph_args);
+    struct jackalope_object_t * graph = jackalope_graph_make(graph_args);
 
     const char * input_file_args[] = {
         "object.type", "audio::sndfile",
@@ -28,7 +28,7 @@ int main(const int argc_in, const char ** argv_in)
         NULL
     };
 
-    struct jackalope_node_t * input_file = jackalope_graph_add_node(graph, input_file_args);
+    struct jackalope_object_t * input_file = jackalope_graph_add_node(graph, input_file_args);
 
     const char * system_audio_args[] = {
         "object.type", "audio::portaudio",
@@ -38,7 +38,7 @@ int main(const int argc_in, const char ** argv_in)
         NULL
     };
 
-    struct jackalope_node_t * system_audio = jackalope_graph_add_node(graph, system_audio_args);
+    struct jackalope_object_t * system_audio = jackalope_graph_add_node(graph, system_audio_args);
 
     const char * left_tube_args[] = {
         "object.type", "audio::ladspa",
@@ -47,7 +47,7 @@ int main(const int argc_in, const char ** argv_in)
         NULL
     };
 
-    struct jackalope_node_t * left_tube = jackalope_graph_add_node(graph, left_tube_args);
+    struct jackalope_object_t * left_tube = jackalope_graph_add_node(graph, left_tube_args);
 
     const char * right_tube_args[] = {
         "object.type", "audio::ladspa",
@@ -56,21 +56,21 @@ int main(const int argc_in, const char ** argv_in)
         NULL
     };
 
-    struct jackalope_node_t * right_tube = jackalope_graph_add_node(graph, right_tube_args);
+    struct jackalope_object_t * right_tube = jackalope_graph_add_node(graph, right_tube_args);
 
-    jackalope_node_connect(input_file, "object.stopped", (struct jackalope_object_t *)graph, "object.stop");
-    jackalope_node_link(input_file, "Output 1", (struct jackalope_object_t *)left_tube, "Audio Input 1");
-    jackalope_node_link(input_file, "Output 1", (struct jackalope_object_t *)right_tube, "Audio Input 1");
-    jackalope_node_link(left_tube, "Audio Output 1", (struct jackalope_object_t *)system_audio, "left");
-    jackalope_node_link(right_tube, "Audio Output 1", (struct jackalope_object_t *)system_audio, "right");
+    jackalope_object_connect(input_file, "object.stopped", graph, "object.stop");
+    jackalope_object_link(input_file, "Output 1", left_tube, "Audio Input 1");
+    jackalope_object_link(input_file, "Output 1", right_tube, "Audio Input 1");
+    jackalope_object_link(left_tube, "Audio Output 1", system_audio, "left");
+    jackalope_object_link(right_tube, "Audio Output 1", system_audio, "right");
 
     jackalope_graph_run(graph);
 
-    jackalope_node_delete(right_tube);
-    jackalope_node_delete(left_tube);
-    jackalope_node_delete(system_audio);
-    jackalope_node_delete(input_file);
-    jackalope_graph_delete(graph);
+    jackalope_object_delete(right_tube);
+    jackalope_object_delete(left_tube);
+    jackalope_object_delete(system_audio);
+    jackalope_object_delete(input_file);
+    jackalope_object_delete(graph);
 
     jackalope_shutdown();
 

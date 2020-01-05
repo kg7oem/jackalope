@@ -187,94 +187,98 @@ static init_args_t init_args_from_strings(const char ** strings_in)
     return init_args;
 }
 
-struct jackalope_graph_t * jackalope_graph_make(const char * init_args_in[])
+void jackalope_object_delete(jackalope_object_t * object_in)
+{
+    assert(object_in != nullptr);
+
+    delete object_in;
+}
+
+struct jackalope_source_t * jackalope_object_add_source(jackalope_object_t * object_in, const char * type_in, const char * name_in)
+{
+    assert(object_in != nullptr);
+
+    auto new_source = object_in->add_source(type_in, name_in);
+    auto wrapped_source = new_source.wrapped;
+    return new jackalope_source_t(wrapped_source);
+}
+
+struct jackalope_sink_t * jackalope_object_add_sink(jackalope_object_t * object_in, const char * type_in, const char * name_in)
+{
+    assert(object_in != nullptr);
+
+    auto new_sink = object_in->add_sink(type_in, name_in);
+    auto wrapped_sink = new_sink.wrapped;
+    return new jackalope_sink_t(wrapped_sink);
+}
+
+void jackalope_object_connect(jackalope_object_t * object_in, const char * signal_in, jackalope_object_t * target_object_in, const char * slot_in)
+{
+    assert(object_in != nullptr);
+
+    object_in->connect(signal_in, *target_object_in, slot_in);
+}
+
+void jackalope_object_link(jackalope_object_t * object_in, const char * source_in, jackalope_object_t * target_object_in, const char * sink_in)
+{
+    assert(object_in != nullptr);
+
+    object_in->link(source_in, *target_object_in, sink_in);
+}
+
+void jackalope_object_start(jackalope_object_t * object_in)
+{
+    assert(object_in != nullptr);
+
+    object_in->start();
+}
+
+void jackalope_object_stop(jackalope_object_t * object_in)
+{
+    assert(object_in != nullptr);
+
+    object_in->stop();
+}
+
+struct jackalope_object_t * jackalope_graph_make(const char * init_args_in[])
 {
     auto init_args = init_args_from_strings(init_args_in);
     auto new_graph = graph_t::make(init_args);
     return new jackalope_graph_t(new_graph);
 }
 
-void jackalope_graph_delete(jackalope_graph_t * graph_in)
+struct jackalope_object_t * jackalope_graph_add_node(jackalope_object_t * graph_in, const char * init_args_in[])
 {
     assert(graph_in != nullptr);
 
-    delete graph_in;
-}
-
-struct jackalope_node_t * jackalope_graph_add_node(struct jackalope_graph_t * graph_in, const char * init_args_in[])
-{
-    assert(graph_in != nullptr);
-
+    auto wrapped_graph = dynamic_pointer_cast<graph_t>(graph_in->wrapped);
     auto init_args = init_args_from_strings(init_args_in);
-    auto wrapped_node = graph_in->add_node(init_args);
-    return new jackalope_node_t(dynamic_pointer_cast<jackalope::node_t>(wrapped_node.wrapped));
+    auto graph_lock = wrapped_graph->get_object_lock();
+    auto new_node = wrapped_graph->add_node(init_args);
+    return new jackalope_node_t(new_node);
 }
 
-void jackalope_graph_start(struct jackalope_graph_t * graph_in)
+void jackalope_graph_run(struct jackalope_object_t * graph_in)
 {
     assert(graph_in != nullptr);
 
-    graph_in->start();
+    auto graph = dynamic_cast<jackalope_graph_t *>(graph_in);
+    graph->run();
 }
 
-void jackalope_graph_run(struct jackalope_graph_t * graph_in)
-{
-    assert(graph_in != nullptr);
-
-    graph_in->run();
-}
-
-void jackalope_graph_stop(struct jackalope_graph_t * graph_in)
-{
-    assert(graph_in != nullptr);
-
-    graph_in->stop();
-}
-
-struct jackalope_node_t * jackalope_node_make(const char ** init_args_in)
+struct jackalope_object_t * jackalope_node_make(const char ** init_args_in)
 {
     auto init_args = init_args_from_strings(init_args_in);
     auto new_node = object_t::make<jackalope::node_t>(init_args);
     return new jackalope_node_t(new_node);
 }
 
-void jackalope_node_delete(struct jackalope_node_t * node_in)
+void jackalope_node_run(struct jackalope_object_t * object_in)
 {
-    assert(node_in != nullptr);
+    assert(object_in != nullptr);
 
-    delete node_in;
-}
-
-struct jackalope_source_t * jackalope_node_add_source(jackalope_node_t * node_in, const char * type_in, const char * name_in)
-{
-    assert(node_in != nullptr);
-
-    auto new_source = node_in->add_source(type_in, name_in);
-    auto wrapped_source = new_source.wrapped;
-    return new jackalope_source_t(wrapped_source);
-}
-
-struct jackalope_sink_t * jackalope_node_add_sink(jackalope_node_t * node_in, const char * type_in, const char * name_in)
-{
-    assert(node_in != nullptr);
-
-    auto new_sink = node_in->add_sink(type_in, name_in);
-    auto wrapped_sink = new_sink.wrapped;
-    return new jackalope_sink_t(wrapped_sink);
-}
-
-void jackalope_node_connect(jackalope_node_t * node_in, const char * signal_in, jackalope_object_t * target_object_in, const char * slot_in)
-{
-    assert(node_in != nullptr);
-
-    node_in->connect(signal_in, *target_object_in, slot_in);
-}
-
-void jackalope_node_link(jackalope_node_t * node_in, const char * source_in, jackalope_object_t * target_object_in, const char * sink_in)
-{
-    assert(node_in != nullptr);
-
-    node_in->link(source_in, *target_object_in, sink_in);
+    auto node = dynamic_pointer_cast<jackalope_node_t>(object_in->wrapped);
+    node->run();
 }
 
 } // extern "C"

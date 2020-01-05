@@ -26,19 +26,21 @@ extern "C" {
 void jackalope_init();
 void jackalope_shutdown();
 
-struct jackalope_graph_t * jackalope_graph_make(const char * init_args_in[]);
-void jackalope_graph_delete(struct jackalope_graph_t * graph_in);
-struct jackalope_node_t * jackalope_graph_add_node(struct jackalope_graph_t * graph_in, const char * init_args_in[]);
-void jackalope_graph_start(struct jackalope_graph_t * graph_in);
-void jackalope_graph_run(struct jackalope_graph_t * graph_in);
-void jackalope_graph_stop(struct jackalope_graph_t * graph_in);
+void jackalope_object_delete(struct jackalope_object_t * object_in);
+struct jackalope_source_t * jackalope_object_add_source(struct jackalope_object_t * object_in, const char * type_in, const char * name_in);
+struct jackalope_sink_t * jackalope_object_add_sink(struct jackalope_object_t * object_in, const char * type_in, const char * name_in);
+void jackalope_object_connect(struct jackalope_object_t * object_in, const char * signal_in, struct jackalope_object_t * target_object_in, const char * slot_in);
+void jackalope_object_link(struct jackalope_object_t * object_in, const char * source_in, struct jackalope_object_t * target_object_in, const char * sink_in);
+void jackalope_object_start(struct jackalope_object_t * object_in);
+void jackalope_object_run(struct jackalope_object_t * object_in);
+void jackalope_object_stop(struct jackalope_object_t * object_in);
 
-struct jackalope_node_t * jackalope_node_make(const char ** init_args_in);
-void jackalope_node_delete(struct jackalope_node_t * node_in);
-struct jackalope_source_t * jackalope_node_add_source(struct jackalope_node_t * node_in, const char * type_in, const char * name_in);
-struct jackalope_sink_t * jackalope_node_add_sink(struct jackalope_node_t * node_in, const char * type_in, const char * name_in);
-void jackalope_node_connect(struct jackalope_node_t * node_in, const char * signal_in, struct jackalope_object_t * target_object_in, const char * slot_in);
-void jackalope_node_link(struct jackalope_node_t * node_in, const char * source_in, struct jackalope_object_t * target_object_in, const char * sink_in);
+struct jackalope_object_t * jackalope_graph_make(const char * init_args_in[]);
+struct jackalope_object_t * jackalope_graph_add_node(struct jackalope_object_t * graph_in, const char * init_args_in[]);
+void jackalope_graph_run(struct jackalope_object_t * graph_in);
+
+struct jackalope_object_t * jackalope_node_make(const char ** init_args_in);
+void jackalope_node_run(struct jackalope_object_t * node_in);
 
 #ifdef __cplusplus
 }
