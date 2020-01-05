@@ -111,6 +111,13 @@ void portaudio_node_t::activate()
     if (err != paNoError) {
         throw_runtime_error("Could not open portaudio default stream: ", Pa_GetErrorText(err));
     }
+
+    assert(stream != nullptr);
+    err = Pa_StartStream(stream);
+
+    if (err != paNoError) {
+        throw_runtime_error("Could not start portaudio stream: ", Pa_GetErrorText(err));
+    }
 }
 
 void portaudio_node_t::start()
@@ -118,13 +125,6 @@ void portaudio_node_t::start()
     auto lock = get_portaudio_lock();
 
     node_t::start();
-
-    assert(stream != nullptr);
-    auto err = Pa_StartStream(stream);
-
-    if (err != paNoError) {
-        throw_runtime_error("Could not start portaudio stream: ", Pa_GetErrorText(err));
-    }
 }
 
 bool portaudio_node_t::should_run()
@@ -177,6 +177,15 @@ int portaudio_node_t::process(const void *, void * sink_buffer_in, size_t frames
     auto lock = get_object_lock();
     NODE_LOG(info, "portaudio process() got object lock");
 
+    auto sink_buffer = static_cast<real_t *>(sink_buffer_in);
+    auto num_sinks = sinks.size();
+
+    pcm_zero(sink_buffer, frames_per_buffer_in * num_sinks);
+
+    if (! started_flag) {
+        return paContinue;
+    }
+
     NODE_LOG(info, "PortAudio thread is waiting to run");
     thread_run_cond.wait(lock, [this] { return stopped_flag || thread_run; });
     NODE_LOG(info, "PortAudio is done waiting to run");
@@ -189,33 +198,30 @@ int portaudio_node_t::process(const void *, void * sink_buffer_in, size_t frames
         return paAbort;
     }
 
-    // auto source_buffer = static_cast<const real_t *>(source_buffer_in);
-    auto sink_buffer = static_cast<real_t *>(sink_buffer_in);
-
     if (status_flags_in) {
         if (status_flags_in & paPrimingOutput) {
             // discard anything that is going to be used for priming
-            return 0;
+            return paContinue;
         }
 
         if (status_flags_in & paInputUnderflow) {
             status_flags_in &= ~paInputUnderflow;
-            // log_info("portaudio input underflow for node ", name);
+            log_info("portaudio input underflow for node ", name);
        }
 
         if (status_flags_in & paInputOverflow) {
             status_flags_in &= ~paInputOverflow;
-            // log_info("portaudio input overflow for node ", name);
+            log_info("portaudio input overflow for node ", name);
         }
 
         if (status_flags_in & paOutputUnderflow) {
             status_flags_in &= ~paOutputUnderflow;
-            // log_info("portaudio output underflow for node ", name);
+            log_info("portaudio output underflow for node ", name);
         }
 
         if (status_flags_in & paOutputOverflow) {
             status_flags_in &= ~paOutputOverflow;
-            // log_info("portaudio output overflow for node ", name);
+            log_info("portaudio output overflow for node ", name);
         }
 
         if (status_flags_in) {
@@ -223,15 +229,13 @@ int portaudio_node_t::process(const void *, void * sink_buffer_in, size_t frames
         }
     }
 
-    auto num_channels = sinks.size();
-
-    for(size_t i = 0; i < num_channels; i++) {
+    for(size_t i = 0; i < num_sinks; i++) {
         auto sink = get_sink(i)->shared_obj<audio_sink_t>();
 
         auto buffer = sink->get_buffer();
         sink->reset();
 
-        pcm_insert_interleave(buffer->get_pointer(), sink_buffer, i, num_channels, frames_per_buffer_in);
+        pcm_insert_interleave(buffer->get_pointer(), sink_buffer, i, num_sinks, frames_per_buffer_in);
     }
 
     NODE_LOG(info, "portaudio thread is done");
