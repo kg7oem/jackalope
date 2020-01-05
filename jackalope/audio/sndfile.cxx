@@ -124,6 +124,7 @@ void sndfile_node_t::activate()
     }
 
     io_thread = new thread_t(std::bind(&sndfile_node_t::be_io_thread, this));
+    set_thread_priority(*io_thread, thread_priority_t::normal);
     NODE_LOG(info, "waiting for IO thread to make buffers available");
     wait_work_available();
 }
