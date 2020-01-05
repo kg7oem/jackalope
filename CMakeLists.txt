@@ -85,7 +85,6 @@ add_custom_command(
     OUTPUT ${PERL_BUILD_DIR}/blib/arch/auto/Jackalope/Glue/Glue.so
     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/lang/perl/Makefile.PL
     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/lang/perl/lib/Jackalope/Glue.xs
-    DEPENDS ${PERL_BUILD_DIR}/Makefile.PL
     COMMAND mkdir -p ${PERL_BUILD_DIR}
     COMMAND cp -pr ${CMAKE_CURRENT_SOURCE_DIR}/lang/perl/* ${PERL_BUILD_DIR}
     COMMAND cd ${PERL_BUILD_DIR} && JACKALOPE_PERL_LD_FLAGS='-L${CMAKE_CURRENT_BINARY_DIR} -ljackalope' ${PERL_EXECUTABLE} Makefile.PL INC=-I${CMAKE_CURRENT_SOURCE_DIR}
