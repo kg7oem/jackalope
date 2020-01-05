@@ -36,6 +36,14 @@ template <typename T>
 using promise_t = std::promise<T>;
 using thread_t = std::thread;
 
+enum class thread_priority_t : int {
+    lowest = 1,
+    normal = 5,
+    highest = 10,
+};
+
+void set_thread_priority(thread_t& thread_in, const thread_priority_t priority_in);
+
 class debug_mutex_t : public base_t {
 public:
     using lock_t = std::unique_lock<std::mutex>;

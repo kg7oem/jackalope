@@ -12,12 +12,25 @@
 // GNU Lesser General Public License for more details.
 
 #include <cassert>
+#include <cstring>
 #include <iostream>
+#include <pthread.h>
 
 #include <jackalope/logging.h>
 #include <jackalope/thread.h>
 
 namespace jackalope {
+
+// from https://stackoverflow.com/a/31652324
+void set_thread_priority(thread_t& thread_in, const thread_priority_t priority_in)
+{
+    sched_param sch_params;
+    sch_params.sched_priority = static_cast<int>(priority_in);
+
+    if (auto error = pthread_setschedparam(thread_in.native_handle(), SCHED_RR, &sch_params)) {
+        log_info("could not set thread to realtime priority: ", strerror(error));
+    }
+}
 
 void debug_mutex_t::lock()
 {

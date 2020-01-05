@@ -56,7 +56,8 @@ void async_init()
     asio_work = new boost::asio::io_service::work(*get_asio_io());
 
     for(size_t i = 0; i < num_threads; i++) {
-        asio_threads.emplace(asio_threads.begin(), async_thread);
+        auto thread = asio_threads.emplace(asio_threads.begin(), async_thread);
+        set_thread_priority(*thread, thread_priority_t::normal);
     }
 }
 
