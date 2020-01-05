@@ -28,11 +28,9 @@ include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 project(jackalope)
 
 find_package(Threads REQUIRED)
-include(FindPythonLibs)
 
 # . gives us jackalope/ with out it being a system directory
 include_directories(.)
-include_directories(SYSTEM ${PYTHON_INCLUDE_PATH})
 
 # FIXME why doesn't this work?
 # pkg_check_modules(LIBSNDFILE REQUIRED libsndfile-1)
