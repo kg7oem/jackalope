@@ -68,3 +68,9 @@ add_subdirectory(tests/stage-1)
 
 add_executable(jackalope-bin jackalope/jackalope-bin.cxx)
 target_link_libraries(jackalope-bin jackalope)
+
+include(FindPerlLibs)
+
+if (PERLLIBS_FOUND)
+
+endif (PERLLIBS_FOUND)

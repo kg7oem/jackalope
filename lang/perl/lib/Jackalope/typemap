@@ -1,0 +1,11 @@
+TYPEMAP
+struct jackalope_object_t *      JACKALOPE_OBJECT
+
+#FIXME Setting the type to I64 can't be right everywhere
+OUTPUT
+JACKALOPE_OBJECT
+    sv_setref_iv($arg, "Jackalope::Object", (I64) $var);
+
+INPUT
+JACKALOPE_OBJECT
+    $var = (struct jackalope_object_t *)SvIV((SV*)SvRV($arg));
