@@ -15,13 +15,17 @@
 #include <jackalope/audio.h>
 #include <jackalope/jackalope.h>
 
-void jackalope_init()
+namespace jackalope {
+
+void init()
 {
     jackalope::async_init();
     jackalope::audio_init();
 }
 
-void jackalope_shutdown()
+void shutdown()
 {
     jackalope::async_shutdown();
 }
+
+} // namespace jackalope

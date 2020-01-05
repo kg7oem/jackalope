@@ -23,18 +23,22 @@
 extern "C" {
 #endif // __cplusplus
 
-struct jackalope_graph_t * jackalope_graph_make(const char ** init_args_in);
-void jackalope_graph_free(struct jackalope_graph_t * graph_in);
-struct jackalope_node_t * jackalope_graph_add_node(const char ** init_args_in);
+void jackalope_init();
+void jackalope_shutdown();
+
+struct jackalope_graph_t * jackalope_graph_make(const char * init_args_in[]);
+void jackalope_graph_delete(struct jackalope_graph_t * graph_in);
+struct jackalope_node_t * jackalope_graph_add_node(struct jackalope_graph_t * graph_in, const char * init_args_in[]);
 void jackalope_graph_start(struct jackalope_graph_t * graph_in);
 void jackalope_graph_run(struct jackalope_graph_t * graph_in);
+void jackalope_graph_stop(struct jackalope_graph_t * graph_in);
 
 struct jackalope_node_t * jackalope_node_make(const char ** init_args_in);
-void jackalope_node_free(struct jackalope_node_t * node_in);
-struct jackalope_source_t * jackalope_node_add_source(const char * type_in, const char * name_in);
-struct jackalope_sink_t * jackalope_node_add_sink(const char * type_in, const char * name_in);
-void jackalope_node_connect(const char * signal_in, jackalope_graph_t * target_object_in, const char * slot_in);
-void jackalope_node_link(const char * source_in, jackalope_node_t * target_object_in, const char * sink_in);
+void jackalope_node_delete(struct jackalope_node_t * node_in);
+struct jackalope_source_t * jackalope_node_add_source(struct jackalope_node_t * node_in, const char * type_in, const char * name_in);
+struct jackalope_sink_t * jackalope_node_add_sink(struct jackalope_node_t * node_in, const char * type_in, const char * name_in);
+void jackalope_node_connect(struct jackalope_node_t * node_in, const char * signal_in, struct jackalope_object_t * target_object_in, const char * slot_in);
+void jackalope_node_link(struct jackalope_node_t * node_in, const char * source_in, struct jackalope_object_t * target_object_in, const char * sink_in);
 
 #ifdef __cplusplus
 }
@@ -51,15 +55,6 @@ struct jackalope_wrapper_t {
     }
 };
 
-struct jackalope_graph_t : public jackalope_wrapper_t<jackalope::graph_t> {
-
-    static jackalope_graph_t make(const jackalope::init_args_t& init_args_in);
-    jackalope_graph_t(jackalope::shared_t<jackalope::graph_t> wrapped_in);
-    jackalope_node_t add_node(const jackalope::init_list_t& init_args_in);
-    void start();
-    void run();
-};
-
 struct jackalope_source_t : public jackalope_wrapper_t<jackalope::source_t> {
     jackalope_source_t(jackalope::shared_t<jackalope::source_t> wrapped_in);
 };
@@ -68,15 +63,31 @@ struct jackalope_sink_t : public jackalope_wrapper_t<jackalope::sink_t> {
     jackalope_sink_t(jackalope::shared_t<jackalope::sink_t> wrapped_in);
 };
 
-struct jackalope_node_t : public jackalope_wrapper_t<jackalope::node_t> {
+struct jackalope_object_t : public jackalope_wrapper_t<jackalope::object_t> {
+    jackalope_object_t(jackalope::shared_t<jackalope::object_t> wrapped_in);
+    virtual ~jackalope_object_t() = default;
+    virtual jackalope_source_t add_source(const jackalope::string_t& name_in, const jackalope::string_t& type_in);
+    virtual jackalope_sink_t add_sink(const jackalope::string_t& name_in, const jackalope::string_t& type_in);
+    virtual void connect(const jackalope::string_t& signal_name_in, jackalope_object_t& target_object_in, const jackalope::string_t& slot_name_in);
+    virtual void link(const jackalope::string_t& source_name_in, jackalope_object_t& target_object_in, const jackalope::string_t& target_sink_name_in);
+    virtual void activate();
+    virtual void start();
+    virtual void stop();
+};
+
+struct jackalope_graph_t : public jackalope_object_t {
+
+    static jackalope_graph_t make(const jackalope::init_args_t& init_args_in);
+    jackalope_graph_t(jackalope::shared_t<jackalope::graph_t> wrapped_in);
+    virtual jackalope_node_t add_node(const jackalope::init_args_t& init_args_in);
+    virtual void run();
+};
+
+struct jackalope_node_t : public jackalope_object_t {
+    virtual ~jackalope_node_t() = default;
     static jackalope_node_t make(const jackalope::init_args_t& init_args_in);
     jackalope_node_t(jackalope::shared_t<jackalope::node_t> wrapped_in);
-    jackalope_source_t add_source(const jackalope::string_t& name_in, const jackalope::string_t& type_in);
-    jackalope_sink_t add_sink(const jackalope::string_t& name_in, const jackalope::string_t& type_in);
-    void connect(const jackalope::string_t& signal_name_in, jackalope_graph_t target_in, const jackalope::string_t& slot_name_in);
-    void link(const jackalope::string_t& source_name_in, jackalope_node_t target_object_in, const jackalope::string_t& target_sink_name_in);
-    void activate();
-    void start();
+    virtual void run();
 };
 
 #endif // __cplusplus

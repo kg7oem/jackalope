@@ -7,5 +7,6 @@
 
 struct jackalope_graph_t;
 struct jackalope_node_t;
+struct jackalope_object_t;
 struct jackalope_source_t;
 struct jackalope_sink_t;

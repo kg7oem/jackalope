@@ -21,6 +21,7 @@
 #include <list>
 #include <map>
 #include <memory>
+#include <tuple>
 #include <vector>
 
 namespace jackalope {
