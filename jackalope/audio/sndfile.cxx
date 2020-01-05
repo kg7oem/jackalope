@@ -248,7 +248,7 @@ void sndfile_node_t::be_io_thread()
             close_file();
             thread_work.push_back(nullptr);
         } else {
-            auto samples_left = frames_read;
+            auto samples_left = frames_read * num_channels;
             auto p = buffer->get_pointer();
 
             while(samples_left > 0) {
