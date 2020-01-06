@@ -82,7 +82,8 @@ if (ENABLE_PERL)
 
     if (PERLLIBS_FOUND)
         message("  Perl support is enabled")
-        set(PERL_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/jackalope-perl)
+        # FIXME get an out of tree build working
+        set(PERL_BUILD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lang/perl)
 
         add_custom_target(
             jackalope-perl ALL
@@ -94,8 +95,6 @@ if (ENABLE_PERL)
             OUTPUT ${PERL_BUILD_DIR}/blib/arch/auto/Jackalope/Glue/Glue.so
             DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/lang/perl/Makefile.PL
             DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/lang/perl/lib/Jackalope/Glue.xs
-            COMMAND mkdir -p ${PERL_BUILD_DIR}
-            COMMAND cp -pr ${CMAKE_CURRENT_SOURCE_DIR}/lang/perl/* ${PERL_BUILD_DIR}
             COMMAND cd ${PERL_BUILD_DIR} && JACKALOPE_PERL_LD_FLAGS='-L${CMAKE_CURRENT_BINARY_DIR} -ljackalope' ${PERL_EXECUTABLE} Makefile.PL INC=-I${CMAKE_CURRENT_SOURCE_DIR}
             COMMAND cd ${PERL_BUILD_DIR} && make
         )
