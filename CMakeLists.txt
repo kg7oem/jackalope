@@ -47,6 +47,7 @@ add_library(
 
     jackalope/async.cxx
     jackalope/audio.cxx
+    jackalope/audio/jackaudio.cxx
     jackalope/audio/ladspa.cxx
     jackalope/audio/portaudio.cxx
     jackalope/audio/sndfile.cxx

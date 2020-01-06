@@ -13,6 +13,7 @@
 
 #include <cassert>
 
+#include <jackalope/audio/jackaudio.h>
 #include <jackalope/audio/ladspa.h>
 #include <jackalope/audio/portaudio.h>
 #include <jackalope/audio/sndfile.h>
@@ -36,6 +37,7 @@ void audio_init()
     add_source_constructor(JACKALOPE_TYPE_AUDIO, audio_source_constructor);
     add_sink_constructor(JACKALOPE_TYPE_AUDIO, audio_sink_constructor);
 
+    audio::jackaudio_init();
     audio::ladspa_init();
     audio::portaudio_init();
     audio::sndfile_init();
