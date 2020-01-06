@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+
+set -e
+set -x
+
+if [ "$SOURCE_ROOT" == "" ]; then
+    SOURCE_ROOT="$(readlink -f $(dirname $0))/../"
+fi
+
+if [ "$BUILD_ROOT" == "" ]; then
+    BUILD_ROOT="$SOURCE_ROOT/build/"
+fi
+
+if [ "$VALIDATE_ROOT" == "" ]; then
+    VALIDATE_ROOT="$BUILD_ROOT"
+fi
+
+main() {
+    mkdir -p "$VALIDATE_ROOT"
+    cd "$VALIDATE_ROOT"
+
+    run_fresh_cmake "$SOURCE_ROOT"
+    make jackalope-boost
+
+    validate_compiler "GNU" gcc g++
+    validate_compiler "clang" clang clang++
+}
+
+# runs in subshell
+validate_compiler() (
+    local name="$1"
+    export CC="$2"
+    export CXX="$3"
+
+    mkdir -p "$VALIDATE_ROOT"
+
+    cd "$VALIDATE_ROOT"
+
+    echo "Running validation with compiler family: $name"
+
+    run_validation -DFULL_BUILD=OFF
+    run_validation -DFULL_BUILD=ON
+)
+
+run_fresh_cmake() {
+    rm -f CMakeCache.txt
+    cmake "$@"
+}
+
+run_validation() {
+    run_fresh_cmake "$@" "$SOURCE_ROOT"
+
+    make
+    make test
+}
+
+main "$@"
