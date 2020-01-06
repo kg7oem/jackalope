@@ -76,6 +76,12 @@ add_subdirectory(tests/stage-1)
 add_executable(jackalope-bin jackalope/jackalope-bin.cxx)
 target_link_libraries(jackalope-bin jackalope)
 
+add_executable(jackalope-example-c examples/play_file.c)
+target_link_libraries(jackalope-example-c jackalope)
+
+add_executable(jackalope-example-c++ examples/play_file.cxx)
+target_link_libraries(jackalope-example-c++ jackalope)
+
 if (ENABLE_PERL)
     message("Checking for Perl libraries")
     include(FindPerlLibs)

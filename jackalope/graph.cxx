@@ -40,7 +40,12 @@ shared_t<graph_t> graph_t::make(const prop_args_t& prop_args_in)
 
 graph_t::graph_t(const init_args_t& init_args_in)
 : object_t(JACKALOPE_TYPE_GRAPH, init_args_in)
-{ }
+{
+    for(auto i : init_args_in) {
+        auto property = add_property(i.first, property_t::type_t::string);
+        property->set_string(i.second);
+    }
+}
 
 graph_t::graph_t(const prop_args_t& prop_args_in)
 : object_t(JACKALOPE_TYPE_GRAPH, { })
