@@ -14,6 +14,12 @@ jackalope_init()
 void
 jackalope_shutdown()
 
+unsigned int
+jackalope_object_get_num_sources(struct jackalope_object_t * object_in)
+
+unsigned int
+jackalope_object_get_num_sinks(struct jackalope_object_t * object_in)
+
 void
 jackalope_object_connect(struct jackalope_object_t * object_in, const char * signal_in, struct jackalope_object_t * target_in, const char * slot_in)
 

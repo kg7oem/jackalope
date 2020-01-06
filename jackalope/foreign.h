@@ -28,7 +28,9 @@ void jackalope_shutdown();
 
 void jackalope_object_delete(struct jackalope_object_t * object_in);
 struct jackalope_source_t * jackalope_object_add_source(struct jackalope_object_t * object_in, const char * type_in, const char * name_in);
+unsigned int jackalope_object_get_num_sources(struct jackalope_object_t * object_in);
 struct jackalope_sink_t * jackalope_object_add_sink(struct jackalope_object_t * object_in, const char * type_in, const char * name_in);
+unsigned int jackalope_object_get_num_sinks(struct jackalope_object_t * object_in);
 void jackalope_object_connect(struct jackalope_object_t * object_in, const char * signal_in, struct jackalope_object_t * target_object_in, const char * slot_in);
 void jackalope_object_link(struct jackalope_object_t * object_in, const char * source_in, struct jackalope_object_t * target_object_in, const char * sink_in);
 void jackalope_object_start(struct jackalope_object_t * object_in);
@@ -69,7 +71,9 @@ struct jackalope_object_t : public jackalope_wrapper_t<jackalope::object_t> {
     jackalope_object_t(jackalope::shared_t<jackalope::object_t> wrapped_in);
     virtual ~jackalope_object_t() = default;
     virtual jackalope_source_t add_source(const jackalope::string_t& name_in, const jackalope::string_t& type_in);
+    virtual jackalope::size_t get_num_sources();
     virtual jackalope_sink_t add_sink(const jackalope::string_t& name_in, const jackalope::string_t& type_in);
+    virtual jackalope::size_t get_num_sinks();
     virtual void connect(const jackalope::string_t& signal_name_in, jackalope_object_t& target_object_in, const jackalope::string_t& slot_name_in);
     virtual void link(const jackalope::string_t& source_name_in, jackalope_object_t& target_object_in, const jackalope::string_t& target_sink_name_in);
     virtual void activate();

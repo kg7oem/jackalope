@@ -127,9 +127,11 @@ public:
     virtual shared_t<source_t> add_source(const string_t& source_name_in, const string_t& type_in);
     virtual shared_t<source_t> get_source(const string_t& source_name_in);
     virtual shared_t<source_t> get_source(const size_t source_num_in);
+    virtual size_t get_num_sources();
     virtual shared_t<sink_t> add_sink(const string_t& sink_name_in, const string_t& type_in);
     virtual shared_t<sink_t> get_sink(const string_t& sink_name_in);
     virtual shared_t<sink_t> get_sink(const size_t sink_num_in);
+    virtual size_t get_num_sinks();
     virtual void link(const string_t& source_name_in, shared_t<object_t> target_object_in, const string_t& target_sink_name_in);
     virtual void init();
     virtual void activate();

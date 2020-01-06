@@ -203,6 +203,13 @@ shared_t<source_t> object_t::get_source(const size_t source_num_in)
     return sources[source_num_in];
 }
 
+size_t object_t::get_num_sources()
+{
+    assert_lockable_owner();
+
+    return sources.size();
+}
+
 shared_t<sink_t> object_t::add_sink(const string_t& sink_name_in, const string_t& type_in)
 {
     assert_lockable_owner();
@@ -242,6 +249,13 @@ shared_t<sink_t> object_t::get_sink(const size_t sink_num_in)
     }
 
     return sinks[sink_num_in];
+}
+
+size_t object_t::get_num_sinks()
+{
+    assert_lockable_owner();
+
+    return sinks.size();
 }
 
 void object_t::link(const string_t& source_name_in, shared_t<object_t> target_object_in, const string_t& target_sink_name_in)

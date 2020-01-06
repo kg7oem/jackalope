@@ -67,6 +67,14 @@ jackalope_source_t jackalope_object_t::add_source(const string_t& name_in, const
     return jackalope_source_t(new_source);
 }
 
+jackalope::size_t jackalope_object_t::get_num_sources()
+{
+    return wait_job<size_t>([&] {
+        auto lock = wrapped->get_object_lock();
+        return wrapped->get_num_sources();
+    });
+}
+
 jackalope_sink_t jackalope_object_t::add_sink(const string_t& name_in, const string_t& type_in)
 {
     auto new_sink = wait_job<shared_t<jackalope::sink_t>>([&] {
@@ -75,6 +83,14 @@ jackalope_sink_t jackalope_object_t::add_sink(const string_t& name_in, const str
     });
 
     return jackalope_sink_t(new_sink);
+}
+
+jackalope::size_t jackalope_object_t::get_num_sinks()
+{
+    return wait_job<size_t>([&] {
+        auto lock = wrapped->get_object_lock();
+        return wrapped->get_num_sources();
+    });
 }
 
 void jackalope_object_t::link(const jackalope::string_t& source_name_in, jackalope_object_t& target_object_in, const jackalope::string_t& target_sink_name_in)
@@ -203,6 +219,12 @@ struct jackalope_source_t * jackalope_object_add_source(jackalope_object_t * obj
     return new jackalope_source_t(wrapped_source);
 }
 
+unsigned int jackalope_object_get_num_sources(jackalope_object_t * object_in)
+{
+    assert(object_in != nullptr);
+    return object_in->get_num_sources();
+}
+
 struct jackalope_sink_t * jackalope_object_add_sink(jackalope_object_t * object_in, const char * type_in, const char * name_in)
 {
     assert(object_in != nullptr);
@@ -210,6 +232,12 @@ struct jackalope_sink_t * jackalope_object_add_sink(jackalope_object_t * object_
     auto new_sink = object_in->add_sink(type_in, name_in);
     auto wrapped_sink = new_sink.wrapped;
     return new jackalope_sink_t(wrapped_sink);
+}
+
+unsigned int jackalope_object_get_num_sinks(jackalope_object_t * object_in)
+{
+    assert(object_in != nullptr);
+    return object_in->get_num_sinks();
 }
 
 void jackalope_object_connect(jackalope_object_t * object_in, const char * signal_in, jackalope_object_t * target_object_in, const char * slot_in)
