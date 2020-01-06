@@ -27,9 +27,40 @@ shared_t<graph_t> graph_t::make(const init_args_t& init_args_in)
     return graph;
 }
 
+shared_t<graph_t> graph_t::make(const prop_args_t& prop_args_in)
+{
+    auto graph = jackalope::make_shared<graph_t>(prop_args_in);
+    auto lock = graph->get_object_lock();
+
+    graph->init();
+    graph->activate();
+
+    return graph;
+}
+
 graph_t::graph_t(const init_args_t& init_args_in)
 : object_t(JACKALOPE_TYPE_GRAPH, init_args_in)
 { }
+
+graph_t::graph_t(const prop_args_t& prop_args_in)
+: object_t(JACKALOPE_TYPE_GRAPH, { })
+{
+    for(auto i : prop_args_in) {
+        add_property(i.first, i.second);
+    }
+}
+
+// THREAD safe because it only calls safe methods
+shared_t<property_t> graph_t::add_property(const string_t& name_in, property_t::type_t type_in)
+{
+    return object_t::add_property(name_in, type_in);
+}
+
+// THREAD safe because it only calls safe methods
+shared_t<property_t> graph_t::add_property(const string_t& name_in, property_t::type_t type_in, const init_args_t& init_args_in)
+{
+    return object_t::add_property(name_in, type_in, init_args_in);
+}
 
 shared_t<node_t> graph_t::add_node(const init_args_t& init_args_in)
 {
@@ -48,11 +79,17 @@ shared_t<node_t> graph_t::add_node(const init_args_t& init_args_in)
     return new_node;
 }
 
+void graph_t::init()
+{
+    assert_lockable_owner();
+
+    object_t::init();
+}
+
 void graph_t::start()
 {
     assert_lockable_owner();
 
-    assert(init_flag);
     assert(! started_flag);
 
     for(auto i : nodes) {

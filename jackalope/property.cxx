@@ -40,14 +40,14 @@ property_t::~property_t()
 
 bool property_t::is_defined()
 {
+    auto lock = get_object_lock();
+
     return defined_flag;
 }
 
 string_t property_t::get()
 {
-    if (! defined_flag) {
-        return "(undefined)";
-    }
+    auto lock = get_object_lock();
 
     switch(type) {
         case type_t::unknown: throw_runtime_error("property type was not known");
@@ -60,6 +60,7 @@ string_t property_t::get()
     throw_runtime_error("should never get out of switch statement");
 }
 
+// thread safe because it only calls safe methods
 void property_t::set(const double value_in)
 {
     switch(type) {
@@ -73,6 +74,7 @@ void property_t::set(const double value_in)
     throw_runtime_error("should never get out of switch statement");
 }
 
+// thread safe because it only calls safe methods
 void property_t::set(const string_t& value_in)
 {
     auto c_str = value_in.c_str();
@@ -90,6 +92,8 @@ void property_t::set(const string_t& value_in)
 
 size_t& property_t::get_size()
 {
+    auto lock = get_object_lock();
+
     if (! defined_flag) {
         throw_runtime_error("Use of undefined property");
     }
@@ -103,6 +107,8 @@ size_t& property_t::get_size()
 
 void property_t::set_size(const size_t size_in)
 {
+    auto lock = get_object_lock();
+
     if (type != type_t::size) {
         throw_runtime_error("property is not of type: size");
     }
@@ -113,6 +119,8 @@ void property_t::set_size(const size_t size_in)
 
 int_t& property_t::get_integer()
 {
+    auto lock = get_object_lock();
+
     if (! defined_flag) {
         throw_runtime_error("Use of undefined property");
     }
@@ -126,6 +134,8 @@ int_t& property_t::get_integer()
 
 void property_t::set_integer(const int_t integer_in)
 {
+    auto lock = get_object_lock();
+
     if (type != type_t::integer) {
         throw_runtime_error("property is not of type: integer");
     }
@@ -136,6 +146,8 @@ void property_t::set_integer(const int_t integer_in)
 
 void property_t::set_real(const real_t real_in)
 {
+    auto lock = get_object_lock();
+
     if (type != type_t::real) {
         throw_runtime_error("property is not of type: real");
     }
@@ -146,6 +158,8 @@ void property_t::set_real(const real_t real_in)
 
 real_t& property_t::get_real()
 {
+    auto lock = get_object_lock();
+
     if (! defined_flag) {
         throw_runtime_error("Use of undefined property");
     }
@@ -159,6 +173,8 @@ real_t& property_t::get_real()
 
 void property_t::set_string(const string_t& string_in)
 {
+    auto lock = get_object_lock();
+
     if (type != type_t::string) {
         throw_runtime_error("property is not of type: string");
     }
@@ -169,6 +185,8 @@ void property_t::set_string(const string_t& string_in)
 
 string_t& property_t::get_string()
 {
+    auto lock = get_object_lock();
+
     if (! defined_flag) {
         throw_runtime_error("Use of undefined property");
     }
@@ -180,8 +198,35 @@ string_t& property_t::get_string()
     return *value.string;
 }
 
+lock_t prop_obj_t::get_property_lock()
+{
+    return lock_t(property_mutex);
+}
+
+shared_t<property_t> prop_obj_t::add_property(const string_t& name_in, property_t::type_t type_in, const init_args_t& init_args_in)
+{
+    auto lock = get_property_lock();
+
+    auto new_property = _add_property(name_in, type_in);
+    auto name_str = name_in.c_str();
+
+    if (init_args_has(name_str, init_args_in)) {
+        new_property->set(init_args_get(name_str, init_args_in));
+    }
+
+    return new_property;
+}
+
 shared_t<property_t> prop_obj_t::add_property(const string_t& name_in, property_t::type_t type_in)
 {
+    auto lock = get_property_lock();
+    return _add_property(name_in, type_in);
+}
+
+shared_t<property_t> prop_obj_t::_add_property(const string_t& name_in, property_t::type_t type_in)
+{
+    assert_mutex_owner(property_mutex);
+
     auto property = property_t::make(type_in);
     auto result = properties.emplace(std::make_pair(name_in, property));
 
@@ -192,8 +237,17 @@ shared_t<property_t> prop_obj_t::add_property(const string_t& name_in, property_
     return result.first->second;
 }
 
+bool prop_obj_t::has_property(const string_t& name_in)
+{
+    auto lock = get_property_lock();
+
+    return properties.count(name_in) != 0;
+}
+
 shared_t<property_t> prop_obj_t::get_property(const string_t& name_in)
 {
+    auto lock = get_property_lock();
+
     auto found = properties.find(name_in);
 
     if (found == properties.end()) {
@@ -201,18 +255,6 @@ shared_t<property_t> prop_obj_t::get_property(const string_t& name_in)
     }
 
     return found->second;
-}
-
-shared_t<property_t> prop_obj_t::add_property(const string_t& name_in, property_t::type_t type_in, const init_args_t& init_args_in)
-{
-    auto new_property = add_property(name_in, type_in);
-    auto name_str = name_in.c_str();
-
-    if (init_args_has(name_str, init_args_in)) {
-        new_property->set(init_args_get(name_str, init_args_in));
-    }
-
-    return new_property;
 }
 
 } // namespace jackalope

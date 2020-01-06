@@ -36,6 +36,28 @@ jackaudio_node_t::jackaudio_node_t(const init_args_t init_args_in)
 jackaudio_node_t::~jackaudio_node_t()
 { }
 
+shared_t<source_t> jackaudio_node_t::add_source(const string_t& source_name_in, const string_t& type_in)
+{
+    assert_lockable_owner();
+
+    if (sinks_by_name.count(source_name_in) != 0) {
+        throw_runtime_error("jackaudio sources can not have same name as sinks: ", source_name_in);
+    }
+
+    return node_t::add_source(source_name_in, type_in);
+}
+
+shared_t<sink_t> jackaudio_node_t::add_sink(const string_t& sink_name_in, const string_t& type_in)
+{
+    assert_lockable_owner();
+
+    if (sources_by_name.count(sink_name_in) != 0) {
+        throw_runtime_error("jackaudio sinks can not have same name as sources: ", sink_name_in);
+    }
+
+    return node_t::add_sink(sink_name_in, type_in);
+}
+
 void jackaudio_node_t::init()
 {
     assert_lockable_owner();
@@ -70,6 +92,19 @@ void jackaudio_node_t::activate()
     node_t::activate();
 
     open_client();
+
+    auto jack_sample_rate = jack_get_sample_rate(jack_client);
+    auto sample_rate_property = get_property(JACKALOPE_PROPERTY_PCM_SAMPLE_RATE);
+    auto jack_buffer_size = jack_get_buffer_size(jack_client);
+    auto buffer_size_property = get_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE);
+
+    if (! sample_rate_property->is_defined()) {
+        sample_rate_property->set(jack_sample_rate);
+    }
+
+    if (! buffer_size_property->is_defined()) {
+        buffer_size_property->set(jack_buffer_size);
+    }
 
     for(auto& i : sources) {
         add_port(i->name, JACK_DEFAULT_AUDIO_TYPE, jackaudio::JackPortIsInput);
@@ -135,12 +170,6 @@ int_t jackaudio_node_t::handle_jack_process(const jackaudio_nframes_t nframes_in
     NODE_LOG(info, "jackaudio thread gave us control");
     auto lock = get_object_lock();
 
-    auto const buffer_size = get_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE)->get_size();
-
-    if( buffer_size != nframes_in) {
-        throw_runtime_error("jackaudio nframes read(", nframes_in, ") was not the same as the pcm buffer size: ", buffer_size);
-    }
-
     if (! started_flag) {
         return false;
     }
@@ -151,6 +180,12 @@ int_t jackaudio_node_t::handle_jack_process(const jackaudio_nframes_t nframes_in
     }
 
     NODE_LOG(info, "jackaudio thread is running; nframes_in: ", nframes_in);
+
+    auto const buffer_size = get_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE)->get_size();
+
+    if( buffer_size != nframes_in) {
+        throw_runtime_error("jackaudio nframes read(", nframes_in, ") was not the same as the pcm buffer size: ", buffer_size);
+    }
 
     for (auto i : sources) {
         auto source = dynamic_pointer_cast<audio_source_t>(i);

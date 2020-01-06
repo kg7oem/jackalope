@@ -162,6 +162,20 @@ bool object_t::is_stopped()
     return stopped_flag;
 }
 
+string_t object_t::peek(const string_t& property_name_in)
+{
+    assert_lockable_owner();
+
+    return get_property(property_name_in)->get();
+}
+
+void object_t::poke(const string_t& property_name_in, const string_t& value_in)
+{
+    assert_lockable_owner();
+
+    get_property(property_name_in)->set(value_in);
+}
+
 shared_t<source_t> object_t::add_source(const string_t& source_name_in, const string_t& type_in)
 {
     assert_lockable_owner();

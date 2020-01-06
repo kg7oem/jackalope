@@ -124,6 +124,8 @@ public:
     virtual void message_link_ready(shared_t<link_t> link_in);
 
     virtual bool is_stopped();
+    virtual string_t peek(const string_t& property_name_in);
+    virtual void poke(const string_t& property_name_in, const string_t& value_in);
     virtual shared_t<source_t> add_source(const string_t& source_name_in, const string_t& type_in);
     virtual shared_t<source_t> get_source(const string_t& source_name_in);
     virtual shared_t<source_t> get_source(const size_t source_num_in);

@@ -33,6 +33,22 @@ jackalope_object_t::jackalope_object_t(jackalope::shared_t<jackalope::object_t> 
     assert(wrapped_in != nullptr);
 }
 
+string_t jackalope_object_t::peek(const string_t& property_name_in)
+{
+    return wait_job<string_t>([&] {
+        auto lock = wrapped->get_object_lock();
+        return wrapped->peek(property_name_in);
+    });
+}
+
+void jackalope_object_t::poke(const string_t& property_name_in, const string_t& value_in)
+{
+    wait_job<void>([&] {
+        auto lock = wrapped->get_object_lock();
+        wrapped->poke(property_name_in, value_in);
+    });
+}
+
 void jackalope_object_t::activate()
 {
     wait_job<void>([&] {
@@ -125,9 +141,35 @@ jackalope_graph_t jackalope_graph_t::make(const jackalope::init_args_t& init_arg
     return jackalope_graph_t(new_graph);
 }
 
+jackalope_graph_t jackalope_graph_t::make(const jackalope::graph_t::prop_args_t& prop_args_in)
+{
+    auto new_graph = jackalope::graph_t::make(prop_args_in);
+    return jackalope_graph_t(new_graph);
+}
+
 jackalope_graph_t::jackalope_graph_t(shared_t<graph_t> wrapped_in)
 : jackalope_object_t(wrapped_in)
 { }
+
+void jackalope_graph_t::add_property(const string_t& name_in, property_t::type_t type_in)
+{
+    wait_job<void>([&] {
+        auto lock = wrapped->get_object_lock();
+        auto graph = wrapped->shared_obj<jackalope::graph_t>();
+
+        graph->add_property(name_in, type_in);
+    });
+}
+
+void jackalope_graph_t::add_property(const string_t& name_in, property_t::type_t type_in, const init_args_t& init_args_in)
+{
+    wait_job<void>([&] {
+        auto lock = wrapped->get_object_lock();
+        auto graph = wrapped->shared_obj<jackalope::graph_t>();
+
+        graph->add_property(name_in, type_in, init_args_in);
+    });
+}
 
 jackalope_node_t jackalope_graph_t::add_node(const init_args_t& init_args_in)
 {

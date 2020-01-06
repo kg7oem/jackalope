@@ -35,13 +35,16 @@ void node_t::set_undef_property(const string_t& name_in)
     }
 
     auto graph = get_graph();
-    auto graph_init_args = graph->init_args;
 
-    if (! init_args_has(name_in.c_str(), graph_init_args)) {
-        throw_runtime_error("could not find default for undefined node property: ", name_in);
+    if (! graph->has_property(name_in)) {
+        return;
     }
 
-    property->set(init_args_get(name_in.c_str(), graph_init_args));
+    auto graph_property = graph->get_property(name_in);
+
+    if (graph_property->is_defined()) {
+        property->set(graph_property->get());
+    }
 }
 
 shared_t<graph_t> node_t::get_graph()

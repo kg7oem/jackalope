@@ -23,13 +23,21 @@ namespace jackalope {
 
 class graph_t : public object_t {
 
+public:
+    using prop_args_t = pool_vector_t<std::pair<const string_t, property_t::type_t>>;
+
 protected:
     pool_list_t<shared_t<node_t>> nodes;
 
 public:
-    static shared_t<graph_t> make(const init_args_t& init_args_in);
+    static shared_t<graph_t> make(const init_args_t& init_args_in = {});
+    static shared_t<graph_t> make(const prop_args_t& prop_args_in);
     graph_t(const init_args_t& init_args_in);
+    graph_t(const prop_args_t& prop_args_in);
+    virtual shared_t<property_t> add_property(const string_t& name_in, property_t::type_t type_in) override;
+    virtual shared_t<property_t> add_property(const string_t& name_in, property_t::type_t type_in, const init_args_t& init_args_in) override;
     shared_t<node_t> add_node(const init_args_t& init_args_in);
+    virtual void init() override;
     virtual void start() override;
     virtual void stop() override;
 };

@@ -76,7 +76,8 @@ void sndfile_node_t::activate()
 
     if (! read_size_prop->is_defined()) {
         auto buffer_size = buffer_size_prop->get_size();
-        read_size_prop->set_size(JACKALOPE_AUDIO_SNDFILE_DEFAULT_READ_SIZE / buffer_size * buffer_size + buffer_size);
+        auto read_size = JACKALOPE_AUDIO_SNDFILE_DEFAULT_READ_SIZE / buffer_size * buffer_size + buffer_size;
+        read_size_prop->set_size(read_size);
     }
 
     if (! read_ahead_prop->is_defined()) {
