@@ -50,7 +50,6 @@ add_library(
 
     jackalope/async.cxx
     jackalope/audio.cxx
-    jackalope/audio/sndfile.cxx
     jackalope/channel.cxx
     jackalope/foreign.cxx
     jackalope/graph.cxx
