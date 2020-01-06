@@ -24,50 +24,76 @@ use v5.10;
 
 use Jackalope;
 
+use constant SAMPLE_RATE => 48000;
+use constant BUFFER_SIZE => 512;
 use constant LADSPA_ZAMTUBE_ID => 1515476290;
 
-unless (defined $ARGV[0]) {
-    die "must specify a file to play";
+END {
+    Jackalope::shutdown();
 }
 
-Jackalope::init;
+main();
 
-my $graph = Jackalope::Graph->new(
-    "pcm.sample_rate" => 48000,
-    "pcm.buffer_size" => 512,
-);
+sub main {
+    my @files = @ARGV;
+    die "must specify one or more files to play" unless @files;
 
-my $input_file = $graph->add_node(
-    "object.type" => "audio::sndfile",
-    "node.name" => "input file",
-    "config.path", $ARGV[0],
-);
+    Jackalope::init;
 
-my $system_audio = $graph->add_node(
-    "object.type" => "audio::portaudio",
-    "node.name" => "system audio",
-    "sink.left" => "audio",
-    "sink.right" => "audio",
-);
+    foreach my $file (@files) {
+        play_file($file);
+    }
+}
 
-my $left_tube = $graph->add_node(
-    "object.type" => "audio::ladspa",
-    "node.name" => "left tube",
-    "plugin.id" => LADSPA_ZAMTUBE_ID,
-);
+sub play_file {
+    my ($filename) = @_;
 
-my $right_tube = $graph->add_node(
-    "object.type" => "audio::ladspa",
-    "node.name" => "right tube",
-    "plugin.id" => LADSPA_ZAMTUBE_ID,
-);
+    die "not a file: $filename" unless -f $filename;
 
-$input_file->connect("object.stopped", $graph, "object.stop");
-$input_file->link("Output 1", $left_tube, "Audio Input 1");
-$input_file->link("Output 1", $right_tube, "Audio Input 1");
-$left_tube->link("Audio Output 1", $system_audio, "left");
-$right_tube->link("Audio Output 1", $system_audio, "right");
+    my $graph = Jackalope::Graph->new(
+        "pcm.sample_rate" => SAMPLE_RATE,
+        "pcm.buffer_size" => BUFFER_SIZE,
+    );
 
-$graph->run;
+    my $input_file = $graph->add_node(
+        "object.type" => "audio::sndfile",
+        "node.name" => "input file",
+        "config.path", $filename,
+    );
 
-Jackalope::shutdown();
+    my $system_audio = $graph->add_node(
+        "object.type" => "audio::portaudio",
+        "node.name" => "system audio",
+        "sink.left" => "audio",
+        "sink.right" => "audio",
+    );
+
+    my $left_tube = $graph->add_node(
+        "object.type" => "audio::ladspa",
+        "node.name" => "left tube",
+        "plugin.id" => LADSPA_ZAMTUBE_ID,
+    );
+
+    my $right_tube = $graph->add_node(
+        "object.type" => "audio::ladspa",
+        "node.name" => "right tube",
+        "plugin.id" => LADSPA_ZAMTUBE_ID,
+    );
+
+    $input_file->connect("object.stopped", $graph, "object.stop");
+
+    if ($input_file->get_num_sources == 1) {
+        $input_file->link("Output 1", $left_tube, "Audio Input 1");
+        $input_file->link("Output 1", $right_tube, "Audio Input 1");
+    } else {
+        $input_file->link("Output 1", $left_tube, "Audio Input 1");
+        $input_file->link("Output 2", $right_tube, "Audio Input 1");
+    }
+
+    $left_tube->link("Audio Output 1", $system_audio, "left");
+    $right_tube->link("Audio Output 1", $system_audio, "right");
+
+    $graph->run;
+
+    return;
+}
