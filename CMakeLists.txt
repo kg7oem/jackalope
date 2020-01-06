@@ -1,12 +1,18 @@
 cmake_minimum_required(VERSION 3.8.2)
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake" ${CMAKE_MODULE_PATH})
 include(ExternalProject)
 
-if (${CMAKE_BUILD_TYPE} STREQUAL "")
+if ("${CMAKE_BUILD_TYPE}" STREQUAL "")
 set(CMAKE_BUILD_TYPE Debug)
-endif (${CMAKE_BUILD_TYPE} STREQUAL "")
+endif ("${CMAKE_BUILD_TYPE}" STREQUAL "")
 
 option(VERBOSE "Verbose builds" OFF)
+option(FULL_BUILD "Enable testing for optional components by default" ON)
+option(ENABLE_PERL "Enable Perl language support" ${FULL_BUILD})
+option(ENABLE_JACKAUDIO "Enable JackAudio system support" ${FULL_BUILD})
+option(ENABLE_LADSPA "Enable LADSPA audio plugin support" ${FULL_BUILD})
+option(ENABLE_PORTAUDIO "Enable Portaudio support" ${FULL_BUILD})
+option(ENABLE_SNDFILE "Enable libsndfile support" ${FULL_BUILD})
 
 if (VERBOSE)
     set(CMAKE_VERBOSE_MAKEFILE ON)
@@ -34,22 +40,16 @@ include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 project(jackalope)
 
 find_package(Threads REQUIRED)
+find_package(PkgConfig REQUIRED)
 
 # . gives us jackalope/ with out it being a system directory
 include_directories(.)
-
-# FIXME why doesn't this work?
-# pkg_check_modules(LIBSNDFILE REQUIRED libsndfile-1)
-# pkg_check_modules(PORTAUDIO REQUIRED libportaudio)
 
 add_library(
     jackalope SHARED
 
     jackalope/async.cxx
     jackalope/audio.cxx
-    jackalope/audio/jackaudio.cxx
-    jackalope/audio/ladspa.cxx
-    jackalope/audio/portaudio.cxx
     jackalope/audio/sndfile.cxx
     jackalope/channel.cxx
     jackalope/foreign.cxx
@@ -76,26 +76,76 @@ add_subdirectory(tests/stage-1)
 add_executable(jackalope-bin jackalope/jackalope-bin.cxx)
 target_link_libraries(jackalope-bin jackalope)
 
-include(FindPerlLibs)
+if (ENABLE_PERL)
+    message("Checking for Perl libraries")
+    include(FindPerlLibs)
 
-if (PERLLIBS_FOUND)
+    if (PERLLIBS_FOUND)
+        message("  Perl support is enabled")
+        set(PERL_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/jackalope-perl)
 
-set(PERL_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/jackalope-perl)
+        add_custom_target(
+            jackalope-perl ALL
+            DEPENDS ${PERL_BUILD_DIR}/blib/arch/auto/Jackalope/Glue/Glue.so
+            DEPENDS jackalope
+        )
 
-add_custom_target(
-    jackalope-perl ALL
-    DEPENDS ${PERL_BUILD_DIR}/blib/arch/auto/Jackalope/Glue/Glue.so
-    DEPENDS jackalope
-)
+        add_custom_command(
+            OUTPUT ${PERL_BUILD_DIR}/blib/arch/auto/Jackalope/Glue/Glue.so
+            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/lang/perl/Makefile.PL
+            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/lang/perl/lib/Jackalope/Glue.xs
+            COMMAND mkdir -p ${PERL_BUILD_DIR}
+            COMMAND cp -pr ${CMAKE_CURRENT_SOURCE_DIR}/lang/perl/* ${PERL_BUILD_DIR}
+            COMMAND cd ${PERL_BUILD_DIR} && JACKALOPE_PERL_LD_FLAGS='-L${CMAKE_CURRENT_BINARY_DIR} -ljackalope' ${PERL_EXECUTABLE} Makefile.PL INC=-I${CMAKE_CURRENT_SOURCE_DIR}
+            COMMAND cd ${PERL_BUILD_DIR} && make
+        )
 
-add_custom_command(
-    OUTPUT ${PERL_BUILD_DIR}/blib/arch/auto/Jackalope/Glue/Glue.so
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/lang/perl/Makefile.PL
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/lang/perl/lib/Jackalope/Glue.xs
-    COMMAND mkdir -p ${PERL_BUILD_DIR}
-    COMMAND cp -pr ${CMAKE_CURRENT_SOURCE_DIR}/lang/perl/* ${PERL_BUILD_DIR}
-    COMMAND cd ${PERL_BUILD_DIR} && JACKALOPE_PERL_LD_FLAGS='-L${CMAKE_CURRENT_BINARY_DIR} -ljackalope' ${PERL_EXECUTABLE} Makefile.PL INC=-I${CMAKE_CURRENT_SOURCE_DIR}
-    COMMAND cd ${PERL_BUILD_DIR} && make
-)
+    endif (PERLLIBS_FOUND)
+endif (ENABLE_PERL)
 
-endif (PERLLIBS_FOUND)
+if (ENABLE_JACKAUDIO)
+    message("Checking for JACK audio")
+    find_package(JACK)
+
+    if (JACK_FOUND)
+        message("  JACK audio support is enabled")
+        add_definitions(-DCONFIG_ENABLE_JACKAUDIO)
+        include_directories(SYSTEM ${JACK_INCLUDE_DIR})
+        target_sources(jackalope PRIVATE jackalope/audio/jackaudio.cxx)
+        target_link_libraries(jackalope ${JACK_LIBRARY})
+    endif (JACK_FOUND)
+endif (ENABLE_JACKAUDIO)
+
+if (ENABLE_LADSPA)
+    # there is no system libraries required for LADSPA
+    message("LADSPA support is enabled")
+    add_definitions(-DCONFIG_ENABLE_LADSPA)
+    target_sources(jackalope PRIVATE jackalope/audio/ladspa.cxx)
+endif (ENABLE_LADSPA)
+
+if (ENABLE_PORTAUDIO)
+    message("Checking for Portaudio")
+    find_package(Portaudio)
+
+    if (PORTAUDIO_FOUND)
+        message("  Portaudio support is enabled")
+        add_definitions(-DCONFIG_ENABLE_PORTAUDIO)
+        include_directories(SYSTEM ${PORTAUDIO_INCLUDE_DIR})
+        target_sources(jackalope PRIVATE jackalope/audio/portaudio.cxx)
+        target_link_libraries(jackalope ${PORTAUDIO_LIBRARY})
+    endif (PORTAUDIO_FOUND)
+endif (ENABLE_PORTAUDIO)
+
+if (ENABLE_SNDFILE)
+    message("Checking for libsndfile")
+    find_package(Sndfile)
+
+    if (Sndfile_FOUND)
+        message("  libsndfile support is enabled")
+        add_definitions(-DCONFIG_ENABLE_SNDFILE)
+        include_directories(SYSTEM ${Sndfile_INCLUDE_DIR})
+        target_sources(jackalope PRIVATE jackalope/audio/sndfile.cxx)
+        target_link_libraries(jackalope ${Sndfile_LIBRARY})
+    endif (Sndfile_FOUND)
+
+endif (ENABLE_SNDFILE)

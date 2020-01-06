@@ -37,9 +37,18 @@ void audio_init()
     add_source_constructor(JACKALOPE_TYPE_AUDIO, audio_source_constructor);
     add_sink_constructor(JACKALOPE_TYPE_AUDIO, audio_sink_constructor);
 
+#ifdef CONFIG_ENABLE_JACKAUDIO
     audio::jackaudio_init();
+#endif
+
+#ifdef CONFIG_ENABLE_LADSPA
     audio::ladspa_init();
+#endif
+
+#ifdef CONFIG_ENABLE_PORTAUDIO
     audio::portaudio_init();
+#endif
+
     audio::sndfile_init();
 }
 

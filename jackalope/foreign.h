@@ -87,7 +87,7 @@ struct jackalope_object_t : public jackalope_wrapper_t<jackalope::object_t> {
 struct jackalope_graph_t : public jackalope_object_t {
 
     static jackalope_graph_t make(const jackalope::init_args_t& init_args_in);
-    static jackalope_graph_t make(const jackalope::prop_args_t& prop_args_in);
+    static jackalope_graph_t make(const jackalope::graph_t::prop_args_t& prop_args_in);
     jackalope_graph_t(jackalope::shared_t<jackalope::graph_t> wrapped_in);
     virtual void add_property(const jackalope::string_t& name_in, jackalope::property_t::type_t type_in);
     virtual void add_property(const jackalope::string_t& name_in, jackalope::property_t::type_t type_in, const jackalope::init_args_t& init_args_in);
