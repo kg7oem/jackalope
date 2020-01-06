@@ -49,7 +49,9 @@ void audio_init()
     audio::portaudio_init();
 #endif
 
+#ifdef CONFIG_ENABLE_SNDFILE
     audio::sndfile_init();
+#endif
 }
 
 audio_buffer_t::audio_buffer_t(const size_t num_samples_in)
