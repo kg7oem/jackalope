@@ -16,38 +16,26 @@
 
 namespace jackalope {
 
-DBus::Dispatcher::pointer dispatcher = nullptr;
-DBus::Connection::pointer connection = nullptr;
+static thread_t * dispatcher_thread = nullptr;
+static DBus::BusDispatcher * global_dispatcher = nullptr;
 
 void dbus_init() {
-    assert(dispatcher == nullptr);
-    assert(connection == nullptr);
+    assert(global_dispatcher == nullptr);
 
-    DBus::init();
-    dispatcher = DBus::Dispatcher::create();
-    connection = dispatcher->create_connection(DBus::BUS_SESSION);
+    global_dispatcher = new DBus::BusDispatcher();
+    DBus::default_dispatcher = global_dispatcher;
 
-    auto ret = connection->request_name(JACKALOPE_DBUS_NAME, DBUS_NAME_FLAG_REPLACE_EXISTING);
+    auto connection = dbus_get_connection();
 
-    if (DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER != ret) {
-        throw_runtime_error("duplicate DBus session name: ", JACKALOPE_DBUS_NAME);
-    }
+    connection.request_name(JACKALOPE_DBUS_NAME_DEFAULT);
+
+    dispatcher_thread = new thread_t([] { global_dispatcher->enter(); });
 }
 
-void dbus_register_object(DBus::Object::pointer object_in)
+DBus::Connection& dbus_get_connection()
 {
-    assert(connection != nullptr);
-    assert(dispatcher != nullptr);
-
-    connection->register_object(object_in);
-}
-
-void dbus_unregister_object(DBus::Object::pointer object_in)
-{
-    assert(connection != nullptr);
-    assert(dispatcher != nullptr);
-
-    connection->register_object(object_in);
+    static auto connection = DBus::Connection::SessionBus();
+    return connection;
 }
 
 } //namespace jackalope

@@ -1,11 +1,11 @@
 <?xml version="1.0" ?>
 
-<node gen-namespace="jackalope::dbus" orig-namespace="jackalope" cppname="dbus_object" cppinclude="jackalope/dbusAdapter.h" dest="x-kg7oem.jackalope.server" path="/object" >
-    <interface name="object">
+<node>
+    <interface name="jackalope.object">
         <!-- <method name="property_names">
             <arg name="names" type="as" direction="out"/>
-        </method> -->
-        <!-- <method name="properties">
+        </method>
+        <method name="properties">
             <arg name="properties" type="a{ss}" direction="out"/>
         </method> -->
         <method name="peek">

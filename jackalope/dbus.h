@@ -13,18 +13,18 @@
 
 #pragma once
 
-#include <dbus-cxx.h>
+#include <dbus-c++/dbus.h>
 
-#include <jackalope/dbus_objectAdaptee.h>
-#include <jackalope/dbus_objectAdapter.h>
+#include <jackalope/dbus.adaptor.h>
+#include <jackalope/thread.h>
 #include <jackalope/types.h>
 
-#define JACKALOPE_DBUS_NAME "x-kg7oem.jackalope.server"
+#define JACKALOPE_DBUS_NAME_PREFIX    "x-kg7oem.jackalope.server"
+#define JACKALOPE_DBUS_NAME_DEFAULT    "x-kg7oem.jackalope.server.default"
 
 namespace jackalope {
 
 void dbus_init();
-void dbus_register_object(DBus::Object::pointer object_in);
-void dbus_unregister_object(DBus::Object::pointer object_in);
+DBus::Connection& dbus_get_connection();
 
 } //namespace jackalope

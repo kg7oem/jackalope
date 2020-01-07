@@ -290,7 +290,7 @@ void object_t::init()
 
     init_flag = true;
 
-    dbus_object = new object_dbus_t(*this);
+    dbus_object = new object_dbus_t(*this, to_string("/Object/", id).c_str());
 
     add_message_handler<link_ready_message_t>([this] (shared_t<link_t> link_in) { this->message_link_ready(link_in); });
     add_message_handler<link_available_message_t>([this] (shared_t<link_t> link_in) { this->message_link_available(link_in); });
@@ -343,22 +343,23 @@ void object_t::stop()
     get_signal(JACKALOPE_SIGNAL_OBJECT_STOPPED)->send();
 }
 
-object_dbus_t::object_dbus_t(object_t& object_in)
-: object(object_in)
-{
-    adapter = dbus_objectAdapter::create(this);
-    jackalope::dbus_register_object(adapter);
-}
+object_dbus_t::object_dbus_t(object_t& object_in, const char * path_in)
+: DBus::ObjectAdaptor(dbus_get_connection(), path_in), object(object_in)
+{ }
 
-std::string object_dbus_t::peek(std::string property_name_in)
+std::string object_dbus_t::peek(const std::string& property_name_in)
 {
     string_t arg(property_name_in.c_str());
-    string_t property_name = object.peek(arg);
 
-    return std::string(property_name.c_str());
+    auto result = wait_job<string_t>([&] {
+        auto lock = object.get_object_lock();
+        return object.get_property(arg)->get_string();
+    });
+
+    return std::string(result.c_str());
 }
 
-void object_dbus_t::poke(std::string , std::string )
+void object_dbus_t::poke(const std::string& , const std::string& )
 {
 
 }

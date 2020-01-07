@@ -81,30 +81,24 @@ add_executable(jackalope-example-c++ examples/play_file.cxx)
 target_link_libraries(jackalope-example-c++ jackalope)
 
 if(ENABLE_DBUS)
-    include(LocalDbus-cxx)
+    message("Checking for dbus-c++")
+    pkg_check_modules(DBUSLIB dbus-c++-1)
 
-    # FIXME this always runs but I can't get it to work with add_custom_command
-    add_custom_target(
-        jackalope-dbus-cxx-files
-        DEPENDS jackalope-dbus-cxx ${DBUS_CXX_TOOLS}/dbus-cxx-xml2cpp ${CMAKE_CURRENT_SOURCE_DIR}/jackalope/dbus.xml
-        BYPRODUCTS ${CMAKE_CURRENT_SOURCE_DIR}/jackalope/dbus_objectAdaptee.h ${CMAKE_CURRENT_SOURCE_DIR}/jackalope/dbus_objectAdapter.cpp ${CMAKE_CURRENT_SOURCE_DIR}/jackalope/dbus_objectAdaptee.h
-        COMMAND ${DBUS_CXX_TOOLS}/dbus-cxx-xml2cpp --xml=${CMAKE_CURRENT_SOURCE_DIR}/jackalope/dbus.xml --file --adapter --output_dir=${CMAKE_CURRENT_SOURCE_DIR}/jackalope
-        COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/fix_dbus_adapter ${CMAKE_CURRENT_SOURCE_DIR}/jackalope/dbus_objectAdapter.cpp
-    )
+    if (DBUSLIB_FOUND)
+        message("  DBUS support is enabled")
+        add_custom_command(
+            OUTPUT jackalope/dbus.adaptor.h
+            COMMAND dbusxx-xml2cpp jackalope/dbus.adaptor.xml --adaptor=jackalope/dbus.adaptor.h
+            DEPENDS jackalope/dbus.adaptor.xml
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        )
 
-#    add_custom_command(
-#        OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/jackalope/dbusAdaptee.h ${CMAKE_CURRENT_SOURCE_DIR}/jackalope/dbusAdapter.cpp ${CMAKE_CURRENT_SOURCE_DIR}/jackalope/dbusAdaptee.h
-#        DEPENDS jackalope-dbus-cxx ${DBUS_CXX_TOOLS}/dbus-cxx-xml2cpp ${CMAKE_CURRENT_SOURCE_DIR}/jackalope/dbus.xml
-#        COMMAND ${DBUS_CXX_TOOLS}/dbus-cxx-xml2cpp --xml=${CMAKE_CURRENT_SOURCE_DIR}/jackalope/dbus.xml --file --adapter --output_dir=${CMAKE_CURRENT_SOURCE_DIR}/jackalope
-#        COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/fix_dbus_adapter ${CMAKE_CURRENT_SOURCE_DIR}/jackalope/dbus_objectAdapter.cpp
-#    )
-
-    add_definitions(-DCONFIG_ENABLE_DBUS)
-    add_dependencies(jackalope jackalope-dbus-cxx-files)
-    include_directories(SYSTEM ${DBUS_CXX_INCLUDE_DIRS})
-    target_link_libraries(jackalope ${DBUS_CXX_LIBRARIES})
-    target_sources(jackalope PRIVATE jackalope/dbus.cxx jackalope/dbus_objectAdapter.cpp)
-    target_link_libraries(jackalope ${DBUS_CXX_LIBRARIES})
+        add_definitions(-DCONFIG_ENABLE_DBUS)
+        target_compile_options(jackalope PUBLIC ${DBUSLIB_CFLAGS_OTHER})
+        include_directories(SYSTEM ${DBUSLIB_INCLUDE_DIRS})
+        target_sources(jackalope PRIVATE jackalope/dbus.cxx jackalope/dbus.adaptor.h )
+        target_link_libraries(jackalope ${DBUSLIB_LIBRARIES})
+    endif (DBUSLIB_FOUND)
 endif(ENABLE_DBUS)
 
 if (ENABLE_PERL)

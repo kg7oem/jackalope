@@ -48,13 +48,12 @@ struct link_ready_message_t : public message_t<shared_t<link_t>> {
     link_ready_message_t(shared_t<link_t> link_in);
 };
 
-struct object_dbus_t : public dbus_objectAdaptee {
+struct object_dbus_t : public object_adaptor, public DBus::IntrospectableAdaptor, public DBus::ObjectAdaptor {
     object_t& object;
-    dbus_objectAdapter::pointer adapter = nullptr;
 
-    object_dbus_t(object_t& object_in);
-    std::string peek(std::string property_name_in);
-    void poke(std::string property_name_in, std::string value_in);
+    object_dbus_t(object_t& object_in, const char * path_in);
+    virtual std::string peek(const std::string& name) override;
+    virtual void poke(const std::string& name, const std::string& value) override;
 };
 
 class object_t : public prop_obj_t, public signal_obj_t, public shared_obj_t<object_t>, public lockable_t, public base_t {
