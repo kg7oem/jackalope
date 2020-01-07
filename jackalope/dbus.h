@@ -11,23 +11,12 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
-#include <jackalope/async.h>
-#include <jackalope/audio.h>
-#include <jackalope/dbus.h>
-#include <jackalope/jackalope.h>
+#pragma once
+
+#include <jackalope/types.h>
 
 namespace jackalope {
 
-void init()
-{
-    jackalope::async_init();
-    jackalope::dbus_init();
-    jackalope::audio_init();
-}
+void dbus_init();
 
-void shutdown()
-{
-    jackalope::async_shutdown();
-}
-
-} // namespace jackalope
+} //namespace jackalope

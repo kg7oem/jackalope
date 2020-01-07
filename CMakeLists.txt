@@ -8,6 +8,7 @@ endif ("${CMAKE_BUILD_TYPE}" STREQUAL "")
 
 option(VERBOSE "Verbose builds" OFF)
 option(FULL_BUILD "Enable testing for optional components by default" ON)
+option(ENABLE_DBUS "Enable DBUS IPC" ${FULL_BUILD})
 option(ENABLE_PERL "Enable Perl language support" ${FULL_BUILD})
 option(ENABLE_JACKAUDIO "Enable JackAudio system support" ${FULL_BUILD})
 option(ENABLE_LADSPA "Enable LADSPA audio plugin support" ${FULL_BUILD})
@@ -41,9 +42,6 @@ project(jackalope)
 
 find_package(Threads REQUIRED)
 find_package(PkgConfig REQUIRED)
-
-# . gives us jackalope/ with out it being a system directory
-include_directories(.)
 
 add_library(
     jackalope SHARED
@@ -80,6 +78,31 @@ target_link_libraries(jackalope-example-c jackalope)
 
 add_executable(jackalope-example-c++ examples/play_file.cxx)
 target_link_libraries(jackalope-example-c++ jackalope)
+
+if(ENABLE_DBUS)
+    include(LocalDbus-cxx)
+
+    # FIXME this always runs but I can't get it to work with add_custom_command
+    add_custom_target(
+        jackalope-dbus-cxx-files
+        DEPENDS jackalope-dbus-cxx ${DBUS_CXX_TOOLS}/dbus-cxx-xml2cpp ${CMAKE_CURRENT_SOURCE_DIR}/jackalope/dbus.xml
+        BYPRODUCTS ${CMAKE_CURRENT_SOURCE_DIR}/jackalope/dbus_objectAdaptee.h ${CMAKE_CURRENT_SOURCE_DIR}/jackalope/dbus_objectAdapter.cpp ${CMAKE_CURRENT_SOURCE_DIR}/jackalope/dbus_objectAdaptee.h
+        COMMAND ${DBUS_CXX_TOOLS}/dbus-cxx-xml2cpp --xml=${CMAKE_CURRENT_SOURCE_DIR}/jackalope/dbus.xml --file --adapter --output_dir=${CMAKE_CURRENT_SOURCE_DIR}/jackalope
+        COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/fix_dbus_adapter ${CMAKE_CURRENT_SOURCE_DIR}/jackalope/dbus_objectAdapter.cpp
+    )
+
+#    add_custom_command(
+#        OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/jackalope/dbusAdaptee.h ${CMAKE_CURRENT_SOURCE_DIR}/jackalope/dbusAdapter.cpp ${CMAKE_CURRENT_SOURCE_DIR}/jackalope/dbusAdaptee.h
+#        DEPENDS jackalope-dbus-cxx ${DBUS_CXX_TOOLS}/dbus-cxx-xml2cpp ${CMAKE_CURRENT_SOURCE_DIR}/jackalope/dbus.xml
+#        COMMAND ${DBUS_CXX_TOOLS}/dbus-cxx-xml2cpp --xml=${CMAKE_CURRENT_SOURCE_DIR}/jackalope/dbus.xml --file --adapter --output_dir=${CMAKE_CURRENT_SOURCE_DIR}/jackalope
+#    )
+
+    add_dependencies(jackalope jackalope-dbus-cxx-files)
+    include_directories(SYSTEM ${DBUS_CXX_INCLUDE_DIRS})
+    target_link_libraries(jackalope ${DBUS_CXX_LIBRARIES})
+    target_sources(jackalope PRIVATE jackalope/dbus.cxx jackalope/dbus_objectAdapter.cpp)
+    target_link_libraries(jackalope ${DBUS_CXX_LIBRARIES})
+endif(ENABLE_DBUS)
 
 if (ENABLE_PERL)
     message("Checking for Perl libraries")

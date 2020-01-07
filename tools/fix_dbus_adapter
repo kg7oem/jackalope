@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+set -e
+set -x
+
+sed -i -e 's/, std::string path = "\/object"/, std::string path/g' "$1"
