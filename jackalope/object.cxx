@@ -290,6 +290,8 @@ void object_t::init()
 
     init_flag = true;
 
+    dbus_object = new object_dbus_t(*this);
+
     add_message_handler<link_ready_message_t>([this] (shared_t<link_t> link_in) { this->message_link_ready(link_in); });
     add_message_handler<link_available_message_t>([this] (shared_t<link_t> link_in) { this->message_link_available(link_in); });
 
@@ -339,6 +341,26 @@ void object_t::stop()
     stopped_flag = true;
 
     get_signal(JACKALOPE_SIGNAL_OBJECT_STOPPED)->send();
+}
+
+object_dbus_t::object_dbus_t(object_t& object_in)
+: object(object_in)
+{
+    adapter = dbus_objectAdapter::create(this);
+    jackalope::dbus_register_object(adapter);
+}
+
+std::string object_dbus_t::peek(std::string property_name_in)
+{
+    string_t arg(property_name_in.c_str());
+    string_t property_name = object.peek(arg);
+
+    return std::string(property_name.c_str());
+}
+
+void object_dbus_t::poke(std::string , std::string )
+{
+
 }
 
 } //namespace jackalope

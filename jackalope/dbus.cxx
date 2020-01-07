@@ -11,14 +11,43 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
-#include <dbus-cxx.h>
-
+#include <jackalope/exception.h>
 #include <jackalope/dbus.h>
 
 namespace jackalope {
 
+DBus::Dispatcher::pointer dispatcher = nullptr;
+DBus::Connection::pointer connection = nullptr;
+
 void dbus_init() {
+    assert(dispatcher == nullptr);
+    assert(connection == nullptr);
+
     DBus::init();
+    dispatcher = DBus::Dispatcher::create();
+    connection = dispatcher->create_connection(DBus::BUS_SESSION);
+
+    auto ret = connection->request_name(JACKALOPE_DBUS_NAME, DBUS_NAME_FLAG_REPLACE_EXISTING);
+
+    if (DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER != ret) {
+        throw_runtime_error("duplicate DBus session name: ", JACKALOPE_DBUS_NAME);
+    }
+}
+
+void dbus_register_object(DBus::Object::pointer object_in)
+{
+    assert(connection != nullptr);
+    assert(dispatcher != nullptr);
+
+    connection->register_object(object_in);
+}
+
+void dbus_unregister_object(DBus::Object::pointer object_in)
+{
+    assert(connection != nullptr);
+    assert(dispatcher != nullptr);
+
+    connection->register_object(object_in);
 }
 
 } //namespace jackalope

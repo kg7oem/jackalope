@@ -15,6 +15,7 @@
 
 #include <jackalope/async.h>
 #include <jackalope/channel.h>
+#include <jackalope/dbus.h>
 #include <jackalope/foreign.forward.h>
 #include <jackalope/logging.h>
 #include <jackalope/message.h>
@@ -47,11 +48,22 @@ struct link_ready_message_t : public message_t<shared_t<link_t>> {
     link_ready_message_t(shared_t<link_t> link_in);
 };
 
+struct object_dbus_t : public dbus_objectAdaptee {
+    object_t& object;
+    dbus_objectAdapter::pointer adapter = nullptr;
+
+    object_dbus_t(object_t& object_in);
+    std::string peek(std::string property_name_in);
+    void poke(std::string property_name_in, std::string value_in);
+};
+
 class object_t : public prop_obj_t, public signal_obj_t, public shared_obj_t<object_t>, public lockable_t, public base_t {
 
     friend jackalope_node_t;
 
 protected:
+    object_dbus_t * dbus_object = nullptr;
+
     bool init_flag = false;
     bool activated_flag = false;
     bool started_flag = false;

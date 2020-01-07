@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 
-<node gen-namespace="jackalope::dbus" orig-namespace="jackalope" cppname="dbus_object" cppinclude="jackalope/dbusAdapter.h" dest="x-kg7oem.jackalope" path="/object" >
+<node gen-namespace="jackalope::dbus" orig-namespace="jackalope" cppname="dbus_object" cppinclude="jackalope/dbusAdapter.h" dest="x-kg7oem.jackalope.server" path="/object" >
     <interface name="object">
         <!-- <method name="property_names">
             <arg name="names" type="as" direction="out"/>

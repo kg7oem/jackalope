@@ -16,6 +16,7 @@
 #include <jackalope/foreign.forward.h>
 
 #ifdef __cplusplus
+
 #include <jackalope/graph.h>
 #include <jackalope/node.h>
 #include <jackalope/property.h>
@@ -23,6 +24,8 @@
 
 extern "C" {
 #endif // __cplusplus
+
+struct dbus_objectAdaptee;
 
 void jackalope_init();
 void jackalope_shutdown();

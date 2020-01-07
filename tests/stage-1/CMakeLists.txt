@@ -1,3 +1,5 @@
+include_directories(SYSTEM ${DBUS_CXX_INCLUDE_DIRS})
+
 add_executable(jackalope-test-1-thread thread.cxx)
 target_link_libraries(jackalope-test-1-thread jackalope)
 add_test(stage-1-thread jackalope-test-1-thread)
