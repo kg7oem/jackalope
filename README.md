@@ -4,8 +4,8 @@ Jackalope is a work in progress replacement for the Pulsar Audio Engine proof
 of concept. The core dataflow engine is similiar in spirit and is inspired by
 GNU Radio. The initial use case for the engine is to create a live broadcast
 audio control system for the Internet and radio transmission. It is expected
-that the engine will also work well with MIDI and video data as well as other
-types of signals and data processing.
+that the engine will also work well with MIDI, image, and video data as well
+as other types of signals and data transformation tasks.
 
 Objects
 
@@ -44,9 +44,24 @@ Some examples of objects are:
     playback is started, stopped, and paused, and state properties indicating
     the current playback position.
 
-Objects are owned by a graph container and are shared with the application
-developers. Graphs also hold default values for properties that can be
-used by objects during initialization.
+Sources and Sinks
+
+The sources and sinks for an object share seperate namespaces and their order
+is significant. Ordering and data types will be used when automatically forming
+associations between objects. Sources and sinks are each types of channels and
+a link encapsulates a connection from a source to a sink.
+
+Nodes and Graphs
+
+Nodes are the most common objects that users will encounter. A node is a type
+of object that is owned by a graph which is also a type of object. All nodes
+must have a parent graph and nodes must only form associations with objects
+in the same graph.
+
+Graphs can have their own sources and sinks which are associated with the
+sources and sinks of objects the graph owns. This concept is extended to
+properties of the graph which allows a graph to be a collection of objects
+with a public interface.
 
 Audio Processing Systems
 
@@ -277,10 +292,3 @@ standalone program handles updating the cough button mute status.
       // refresh around 50hz
       sleep(1 / 50);
     }
-
-Sources and Sinks
-
-The sources and sinks for an object share seperate namespaces and their order
-is significant. Ordering and data types will be used when automatically forming
-associations between objects. Sources and sinks are each types of channels and
-a link encapsulates a connection from a source to a sink.
