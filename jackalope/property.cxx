@@ -257,4 +257,10 @@ shared_t<property_t> prop_obj_t::get_property(const string_t& name_in)
     return found->second;
 }
 
+const pool_map_t<string_t, shared_t<property_t>>& prop_obj_t::get_properties()
+{
+    auto lock = get_property_lock();
+    return properties;
+}
+
 } // namespace jackalope

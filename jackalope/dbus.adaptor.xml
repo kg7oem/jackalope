@@ -2,12 +2,9 @@
 
 <node>
     <interface name="jackalope.object">
-        <!-- <method name="property_names">
-            <arg name="names" type="as" direction="out"/>
-        </method>
-        <method name="properties">
+        <method name="get_properties">
             <arg name="properties" type="a{ss}" direction="out"/>
-        </method> -->
+        </method>
         <method name="peek">
             <arg name="value" type="s" direction="out"/>
             <arg name="name" type="s" direction="in"/>

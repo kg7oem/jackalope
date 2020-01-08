@@ -91,6 +91,15 @@ void graph_t::init()
     object_t::init();
 }
 
+void graph_t::activate()
+{
+    assert_lockable_owner();
+
+    object_t::activate();
+
+    get_property(JACKALOPE_PROPERTY_OBJECT_TYPE)->set(JACKALOPE_TYPE_GRAPH);
+}
+
 void graph_t::start()
 {
     assert_lockable_owner();

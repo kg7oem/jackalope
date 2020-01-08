@@ -52,8 +52,9 @@ struct object_dbus_t : public object_adaptor, public DBus::IntrospectableAdaptor
     object_t& object;
 
     object_dbus_t(object_t& object_in, const char * path_in);
-    virtual std::string peek(const std::string& name) override;
-    virtual void poke(const std::string& name, const std::string& value) override;
+    virtual std::map<std::string, std::string> get_properties() override;
+    virtual std::string peek(const std::string& property_name_in) override;
+    virtual void poke(const std::string& property_name_in, const std::string& value_in) override;
 };
 
 class object_t : public prop_obj_t, public signal_obj_t, public shared_obj_t<object_t>, public lockable_t, public base_t {

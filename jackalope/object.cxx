@@ -290,7 +290,7 @@ void object_t::init()
 
     init_flag = true;
 
-    dbus_object = new object_dbus_t(*this, to_string("/Object/", id).c_str());
+    add_property(JACKALOPE_PROPERTY_OBJECT_TYPE, property_t::type_t::string, init_args);
 
     add_message_handler<link_ready_message_t>([this] (shared_t<link_t> link_in) { this->message_link_ready(link_in); });
     add_message_handler<link_available_message_t>([this] (shared_t<link_t> link_in) { this->message_link_available(link_in); });
@@ -301,6 +301,8 @@ void object_t::init()
     });
 
     add_signal(JACKALOPE_SIGNAL_OBJECT_STOPPED);
+
+    dbus_object = new object_dbus_t(*this, to_string("/Object/", id).c_str());
 }
 
 void object_t::activate()
@@ -347,21 +349,38 @@ object_dbus_t::object_dbus_t(object_t& object_in, const char * path_in)
 : DBus::ObjectAdaptor(dbus_get_connection(), path_in), object(object_in)
 { }
 
+std::map<std::string, std::string> object_dbus_t::get_properties()
+{
+    std::map<std::string, std::string> retval;
+
+    auto properties = wait_job<const pool_map_t<string_t, shared_t<property_t>>>([&] {
+        auto lock = object.get_object_lock();
+        return object.get_properties();
+    });
+
+    for(auto i : properties) {
+        retval.emplace(i.first.c_str(), i.second->get().c_str());
+    }
+
+    return retval;
+}
+
 std::string object_dbus_t::peek(const std::string& property_name_in)
 {
-    string_t arg(property_name_in.c_str());
-
     auto result = wait_job<string_t>([&] {
         auto lock = object.get_object_lock();
-        return object.get_property(arg)->get_string();
+        return object.get_property(property_name_in.c_str())->get_string();
     });
 
     return std::string(result.c_str());
 }
 
-void object_dbus_t::poke(const std::string& , const std::string& )
+void object_dbus_t::poke(const std::string& property_name_in, const std::string& value_in)
 {
-
+    wait_job<void>([&] {
+        auto lock = object.get_object_lock();
+        object.get_property(property_name_in.c_str())->set(value_in.c_str());
+    });
 }
 
 } //namespace jackalope

@@ -75,6 +75,8 @@ void node_t::activate()
         throw_runtime_error("node graph weak pointer was expired when activating node");
     }
 
+    add_property(JACKALOPE_PROPERTY_NODE_NAME, property_t::type_t::string, init_args);
+
     object_t::activate();
 }
 

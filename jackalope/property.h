@@ -78,6 +78,7 @@ protected:
 public:
     virtual bool has_property(const string_t& name_in);
     virtual shared_t<property_t> get_property(const string_t& name_in);
+    virtual const pool_map_t<string_t, shared_t<property_t>>& get_properties();
 };
 
 } // namespace jackalope
