@@ -13,12 +13,26 @@
 
 #include <cassert>
 
-#include <jackalope/audio/jackaudio.h>
-#include <jackalope/audio/ladspa.h>
-#include <jackalope/audio/portaudio.h>
-#include <jackalope/audio/sndfile.h>
 #include <jackalope/async.h>
 #include <jackalope/audio.h>
+#include <jackalope/object.h>
+#include <jackalope/pcm.h>
+
+#ifdef CONFIG_ENABLE_JACKAUDIO
+#include <jackalope/audio/jackaudio.h>
+#endif
+
+#ifdef CONFIG_ENABLE_LADSPA
+#include <jackalope/audio/ladspa.h>
+#endif
+
+#ifdef CONFIG_ENABLE_PORTAUDIO
+#include <jackalope/audio/portaudio.h>
+#endif
+
+#ifdef CONFIG_ENABLE_SNDFILE
+#include <jackalope/audio/sndfile.h>
+#endif
 
 namespace jackalope {
 
