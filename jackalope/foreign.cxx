@@ -86,7 +86,7 @@ jackalope_source_t jackalope_object_t::add_source(const string_t& name_in, const
 
 jackalope::size_t jackalope_object_t::get_num_sources()
 {
-    return wait_job<size_t>([&] {
+    return wait_job<jackalope::size_t>([&] {
         auto lock = wrapped->get_object_lock();
         return wrapped->get_num_sources();
     });
@@ -104,7 +104,7 @@ jackalope_sink_t jackalope_object_t::add_sink(const string_t& name_in, const str
 
 jackalope::size_t jackalope_object_t::get_num_sinks()
 {
-    return wait_job<size_t>([&] {
+    return wait_job<jackalope::size_t>([&] {
         auto lock = wrapped->get_object_lock();
         return wrapped->get_num_sources();
     });
