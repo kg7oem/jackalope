@@ -107,7 +107,7 @@ protected:
     shared_t<abstract_message_handler_t> get_message_handler(const string_t& name_in);
     virtual void deliver_messages();
     virtual void deliver_one_message(shared_t<abstract_message_t> message_in);
-    virtual void check_execute();
+    virtual void execute_if_needed();
 
 public:
     const init_args_t init_args;
@@ -120,22 +120,28 @@ public:
         return dynamic_pointer_cast<T>(_make(init_args_in));
     }
 
-    // this method is called by other threads and should not
-    // lock the object mutex to avoid race conditions
     template <typename T, typename... Args>
     void send_message(Args... args)
     {
+        // this method is called by other threads and should not
+        // lock the object mutex to avoid race conditions
         assert(! thread_owns_mutex());
-        lock_t message_lock(message_mutex);
 
         auto shared_this = shared_obj();
         auto message = jackalope::make_shared<T>(args...);
-        message_queue.push_back(message);
 
+        {
+            lock_t message_lock(message_mutex);
+            message_queue.push_back(message);
+        }
+
+        // objects should not get locks from other objects
+        // so checking the queue is scheduled in the future
+        // from the thread queue
         submit_job([shared_this] {
             // no problem with a lock from inside the thread queue
             auto lock = shared_this->get_object_lock();
-            shared_this->check_execute();
+            shared_this->execute_if_needed();
         });
     }
 

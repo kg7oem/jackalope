@@ -87,8 +87,24 @@ shared_t<abstract_message_handler_t> object_t::get_message_handler(const string_
     return found->second;
 }
 
+void object_t::execute_if_needed()
+{
+    assert_lockable_owner();
+
+    if (executing_flag) {
+        return;
+    }
+
+    executing_flag = true;
+
+    deliver_messages();
+}
+
 void object_t::deliver_messages()
 {
+    assert_lockable_owner();
+    assert(executing_flag == true);
+
     while(1) {
         shared_t<abstract_message_t> message;
 
@@ -104,11 +120,7 @@ void object_t::deliver_messages()
             message_queue.pop_front();
         }
 
-        {
-            auto lock = get_object_lock();
-            assert(executing_flag == true);
-            deliver_one_message(message);
-        }
+        deliver_one_message(message);
     }
 }
 
@@ -119,19 +131,6 @@ void object_t::deliver_one_message(shared_t<abstract_message_t> message_in)
     auto message_name = message_in->name;
     auto message_handler = get_message_handler(message_name);
     message_handler->invoke(message_in);
-}
-
-void object_t::check_execute()
-{
-    assert_lockable_owner();
-
-    if (executing_flag) {
-        return;
-    }
-
-    executing_flag = true;
-
-    submit_job(std::bind(&object_t::deliver_messages, this));
 }
 
 void object_t::message_link_available(shared_t<link_t> link_in) {
