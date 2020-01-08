@@ -63,6 +63,7 @@ add_library(
     jackalope/thread.cxx
     jackalope/types.cxx
 )
+
 add_dependencies(jackalope jackalope-boost)
 target_link_libraries(jackalope ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} -ldl)
 target_link_libraries(jackalope -lsndfile -lportaudio)
@@ -88,15 +89,15 @@ if(ENABLE_DBUS)
         message("  DBUS support is enabled")
         add_custom_command(
             OUTPUT jackalope/dbus.adaptor.h
-            COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/make_dbus_adaptor ${CMAKE_CURRENT_BINARY_DIR} dbus.adaptor.xml dbus.adaptor.h
+            COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/make_dbus_adaptor ${CMAKE_CURRENT_BINARY_DIR} dbus.adaptor.xml ${CMAKE_CURRENT_BINARY_DIR}/jackalope/dbus.adaptor.h
             DEPENDS jackalope/dbus.adaptor.xml
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/jackalope
         )
 
         add_definitions(-DCONFIG_ENABLE_DBUS)
         target_compile_options(jackalope PUBLIC ${DBUSLIB_CFLAGS_OTHER})
-        include_directories(SYSTEM ${DBUSLIB_INCLUDE_DIRS})
-        target_sources(jackalope PRIVATE jackalope/dbus.cxx jackalope/dbus.adaptor.h )
+        include_directories(SYSTEM ${DBUSLIB_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
+        target_sources(jackalope PRIVATE jackalope/dbus.cxx jackalope/dbus.adaptor.h)
         target_link_libraries(jackalope ${DBUSLIB_LIBRARIES})
     endif (DBUSLIB_FOUND)
 endif(ENABLE_DBUS)
