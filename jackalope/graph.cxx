@@ -76,10 +76,14 @@ shared_t<node_t> graph_t::add_node(const init_args_t& init_args_in)
     auto new_node = object_t::make<node_t>(init_args_in);
     auto new_node_lock = new_node->get_object_lock();
 
+    if (nodes.find(new_node->name) != nodes.end()) {
+        throw_runtime_error("Can not add node with duplicate name to graph: ", new_node->name);
+    }
+
     new_node->set_graph(shared_obj<graph_t>());
     new_node->activate();
 
-    nodes.push_back(new_node);
+    nodes[new_node->name] = new_node;
 
     return new_node;
 }
@@ -107,8 +111,9 @@ void graph_t::start()
     assert(! started_flag);
 
     for(auto i : nodes) {
-        auto lock = i->get_object_lock();
-        i->start();
+        auto node = i.second;
+        auto lock = node->get_object_lock();
+        node->start();
     }
 
     object_t::start();
@@ -124,11 +129,12 @@ void graph_t::stop()
     log_info("graph is stopping");
 
     for(auto i : nodes) {
-        auto lock = i->get_object_lock();
+        auto node = i.second;
+        auto lock = node->get_object_lock();
 
-        if (! i->is_stopped()) {
-            log_info("stopping node: ", i->name);
-            i->stop();
+        if (! node->is_stopped()) {
+            log_info("stopping node: ", node->name);
+            node->stop();
         }
     }
 

@@ -27,7 +27,7 @@ public:
     using prop_args_t = pool_vector_t<std::pair<const string_t, property_t::type_t>>;
 
 protected:
-    pool_list_t<shared_t<node_t>> nodes;
+    pool_map_t<string_t, shared_t<node_t>> nodes;
 
 public:
     static shared_t<graph_t> make(const init_args_t& init_args_in = {});
