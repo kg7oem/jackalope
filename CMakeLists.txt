@@ -69,7 +69,7 @@ target_link_libraries(jackalope ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} -ld
 target_link_libraries(jackalope -lsndfile -lportaudio)
 
 enable_testing()
-# add_subdirectory(tests/stage-1)
+add_subdirectory(tests/stage-1)
 
 add_executable(jackalope-bin jackalope/jackalope-bin.cxx)
 target_link_libraries(jackalope-bin jackalope)
