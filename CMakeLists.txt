@@ -88,9 +88,9 @@ if(ENABLE_DBUS)
         message("  DBUS support is enabled")
         add_custom_command(
             OUTPUT jackalope/dbus.adaptor.h
-            COMMAND dbusxx-xml2cpp jackalope/dbus.adaptor.xml --adaptor=jackalope/dbus.adaptor.h
+            COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/make_dbus_adaptor ${CMAKE_CURRENT_BINARY_DIR} dbus.adaptor.xml dbus.adaptor.h
             DEPENDS jackalope/dbus.adaptor.xml
-            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/jackalope
         )
 
         add_definitions(-DCONFIG_ENABLE_DBUS)
