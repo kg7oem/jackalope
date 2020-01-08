@@ -1,3 +1,11 @@
+set(PROJECT jackalope)
+project(${PROJECT})
+
+set(JACKALOPE_BIN_TARGET ${PROJECT}-bin)
+set(JACKALOPE_LIB_TARGET ${PROJECT}-lib)
+set(JACKALOPE_SO_FILE ${PROJECT}.so)
+set(JACKALOPE_LIBS -l${PROJECT})
+
 cmake_minimum_required(VERSION 3.8.2)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake" ${CMAKE_MODULE_PATH})
 include(ExternalProject)
@@ -38,13 +46,11 @@ message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 include_directories(.)
 include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 
-project(jackalope)
-
 find_package(Threads REQUIRED)
 find_package(PkgConfig REQUIRED)
 
 add_library(
-    jackalope SHARED
+    ${JACKALOPE_LIB_TARGET} SHARED
 
     jackalope/async.cxx
     jackalope/audio.cxx
@@ -64,20 +70,22 @@ add_library(
     jackalope/types.cxx
 )
 
-add_dependencies(jackalope jackalope-boost)
-target_link_libraries(jackalope ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} -ldl)
+add_dependencies(${JACKALOPE_LIB_TARGET} jackalope-boost)
+target_link_libraries(${JACKALOPE_LIB_TARGET} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} -ldl)
+set_target_properties(${JACKALOPE_LIB_TARGET} PROPERTIES OUTPUT_NAME ${PROJECT})
 
 enable_testing()
 add_subdirectory(tests/stage-1)
 
 add_executable(jackalope-bin jackalope/jackalope-bin.cxx)
-target_link_libraries(jackalope-bin jackalope)
+target_link_libraries(jackalope-bin ${JACKALOPE_LIB_TARGET})
+set_target_properties(jackalope-bin PROPERTIES OUTPUT_NAME "jackalope")
 
 add_executable(jackalope-example-c examples/play_file.c)
-target_link_libraries(jackalope-example-c jackalope)
+target_link_libraries(jackalope-example-c ${JACKALOPE_LIB_TARGET})
 
 add_executable(jackalope-example-c++ examples/play_file.cxx)
-target_link_libraries(jackalope-example-c++ jackalope)
+target_link_libraries(jackalope-example-c++ ${JACKALOPE_LIB_TARGET})
 
 if(ENABLE_DBUS)
     message("Checking for dbus-c++")
@@ -86,17 +94,17 @@ if(ENABLE_DBUS)
     if (DBUSLIB_FOUND)
         message("  DBUS support is enabled")
         add_custom_command(
-            OUTPUT jackalope/dbus.adaptor.h
-            COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/make_dbus_adaptor ${CMAKE_CURRENT_BINARY_DIR} dbus.adaptor.xml ${CMAKE_CURRENT_BINARY_DIR}/jackalope/dbus.adaptor.h
+            OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/headers/dbus.adaptor.h
+            COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/make_dbus_adaptor ${CMAKE_CURRENT_BINARY_DIR} jackalope/dbus.adaptor.xml ${CMAKE_CURRENT_BINARY_DIR}/headers/dbus.adaptor.h
             DEPENDS jackalope/dbus.adaptor.xml
-            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/jackalope
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         )
 
         add_definitions(-DCONFIG_ENABLE_DBUS)
-        target_compile_options(jackalope PUBLIC ${DBUSLIB_CFLAGS_OTHER})
-        include_directories(SYSTEM ${DBUSLIB_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
-        target_sources(jackalope PRIVATE jackalope/dbus.cxx jackalope/dbus.adaptor.h)
-        target_link_libraries(jackalope ${DBUSLIB_LIBRARIES})
+        target_compile_options(${JACKALOPE_LIB_TARGET} PUBLIC ${DBUSLIB_CFLAGS_OTHER})
+        include_directories(SYSTEM ${DBUSLIB_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR}/headers)
+        target_sources(${JACKALOPE_LIB_TARGET} PRIVATE jackalope/dbus.cxx ${CMAKE_CURRENT_BINARY_DIR}/headers/dbus.adaptor.h)
+        target_link_libraries(${JACKALOPE_LIB_TARGET} ${DBUSLIB_LIBRARIES})
     endif (DBUSLIB_FOUND)
 endif(ENABLE_DBUS)
 
@@ -112,14 +120,14 @@ if (ENABLE_PERL)
         add_custom_target(
             jackalope-perl ALL
             DEPENDS ${PERL_BUILD_DIR}/blib/arch/auto/Jackalope/Glue/Glue.so
-            DEPENDS jackalope
+            DEPENDS ${JACKALOPE_LIB_TARGET}
         )
 
         add_custom_command(
             OUTPUT ${PERL_BUILD_DIR}/blib/arch/auto/Jackalope/Glue/Glue.so
             DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/lang/perl/Makefile.PL
             DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/lang/perl/lib/Jackalope/Glue.xs
-            COMMAND cd ${PERL_BUILD_DIR} && JACKALOPE_PERL_LD_FLAGS='-L${CMAKE_CURRENT_BINARY_DIR} -ljackalope' ${PERL_EXECUTABLE} Makefile.PL INC=-I${CMAKE_CURRENT_SOURCE_DIR}
+            COMMAND cd ${PERL_BUILD_DIR} && JACKALOPE_PERL_LD_FLAGS='-L${CMAKE_CURRENT_BINARY_DIR} ${JACKALOPE_LIBS}' ${PERL_EXECUTABLE} Makefile.PL INC=-I${CMAKE_CURRENT_SOURCE_DIR}
             COMMAND cd ${PERL_BUILD_DIR} && make
         )
 
@@ -136,8 +144,8 @@ if (ENABLE_JACKAUDIO)
         message("  JACK audio support is enabled")
         add_definitions(-DCONFIG_ENABLE_JACKAUDIO)
         include_directories(SYSTEM ${JACK_INCLUDE_DIR})
-        target_sources(jackalope PRIVATE jackalope/audio/jackaudio.cxx)
-        target_link_libraries(jackalope ${JACK_LIBRARY})
+        target_sources(${JACKALOPE_LIB_TARGET} PRIVATE jackalope/audio/jackaudio.cxx)
+        target_link_libraries(${JACKALOPE_LIB_TARGET} ${JACK_LIBRARY})
     endif (JACK_FOUND)
 endif (ENABLE_JACKAUDIO)
 
@@ -145,7 +153,7 @@ if (ENABLE_LADSPA)
     # there is no system libraries required for LADSPA
     message("LADSPA support is enabled")
     add_definitions(-DCONFIG_ENABLE_LADSPA)
-    target_sources(jackalope PRIVATE jackalope/audio/ladspa.cxx)
+    target_sources(${JACKALOPE_LIB_TARGET} PRIVATE jackalope/audio/ladspa.cxx)
 endif (ENABLE_LADSPA)
 
 if (ENABLE_PORTAUDIO)
@@ -156,8 +164,8 @@ if (ENABLE_PORTAUDIO)
         message("  Portaudio support is enabled")
         add_definitions(-DCONFIG_ENABLE_PORTAUDIO)
         include_directories(SYSTEM ${PORTAUDIO_INCLUDE_DIR})
-        target_sources(jackalope PRIVATE jackalope/audio/portaudio.cxx)
-        target_link_libraries(jackalope ${PORTAUDIO_LIBRARY})
+        target_sources(${JACKALOPE_LIB_TARGET} PRIVATE jackalope/audio/portaudio.cxx)
+        target_link_libraries(${JACKALOPE_LIB_TARGET} ${PORTAUDIO_LIBRARY})
     endif (PORTAUDIO_FOUND)
 endif (ENABLE_PORTAUDIO)
 
@@ -169,8 +177,8 @@ if (ENABLE_SNDFILE)
         message("  libsndfile support is enabled")
         add_definitions(-DCONFIG_ENABLE_SNDFILE)
         include_directories(SYSTEM ${Sndfile_INCLUDE_DIR})
-        target_sources(jackalope PRIVATE jackalope/audio/sndfile.cxx)
-        target_link_libraries(jackalope ${Sndfile_LIBRARY})
+        target_sources(${JACKALOPE_LIB_TARGET} PRIVATE jackalope/audio/sndfile.cxx)
+        target_link_libraries(${JACKALOPE_LIB_TARGET} ${Sndfile_LIBRARY})
     endif (Sndfile_FOUND)
 
 endif (ENABLE_SNDFILE)

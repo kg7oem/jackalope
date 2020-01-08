@@ -15,11 +15,11 @@
 
 #include <dbus-c++/dbus.h>
 
-#include <jackalope/dbus.adaptor.h>
+#include <dbus.adaptor.h>
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
 
-#define JACKALOPE_DBUS_NAME_PREFIX    "x-kg7oem.jackalope.server"
+#define JACKALOPE_DBUS_NAME_PREFIX     "x-kg7oem.jackalope.server"
 #define JACKALOPE_DBUS_NAME_DEFAULT    "x-kg7oem.jackalope.server.default"
 
 namespace jackalope {
