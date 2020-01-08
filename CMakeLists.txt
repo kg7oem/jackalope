@@ -123,6 +123,8 @@ if (ENABLE_PERL)
             COMMAND cd ${PERL_BUILD_DIR} && make
         )
 
+    set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${PERL_BUILD_DIR}/blib)
+
     endif (PERLLIBS_FOUND)
 endif (ENABLE_PERL)
 
