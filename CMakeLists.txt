@@ -66,7 +66,6 @@ add_library(
 
 add_dependencies(jackalope jackalope-boost)
 target_link_libraries(jackalope ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} -ldl)
-target_link_libraries(jackalope -lsndfile -lportaudio)
 
 enable_testing()
 add_subdirectory(tests/stage-1)
