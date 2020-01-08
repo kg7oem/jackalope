@@ -54,17 +54,17 @@ protected:
     condition_t available_cond;
     thread_t::id owner = std::thread::id();
     waiters_t waiters;
-    bool is_available__e();
-    void take__e();
-    void release__e();
-    void wait__e(lock_t& lock_in);
+    bool is_available__e() noexcept;
+    void take__e() noexcept;
+    void release__e() noexcept;
+    void wait__e(lock_t& lock_in) noexcept;
 
 public:
-    void lock();
-    bool try_lock();
-    void unlock();
-    bool is_available();
-    thread_t::id get_owner_id();
+    void lock() noexcept;
+    bool try_lock() noexcept;
+    void unlock() noexcept;
+    bool is_available() noexcept;
+    thread_t::id get_owner_id() noexcept;
 };
 
 using mutex_t = debug_mutex_t;
@@ -76,8 +76,8 @@ protected:
     mutex_t object_mutex;
 
 public:
-    bool thread_owns_mutex();
-    lock_t get_object_lock();
+    bool thread_owns_mutex() noexcept;
+    lock_t get_object_lock() noexcept;
 };
 
 } // namespace jackalope
