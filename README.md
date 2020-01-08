@@ -7,6 +7,12 @@ audio control system for the Internet and radio transmission. It is expected
 that the engine will also work well with MIDI, image, and video data as well
 as other types of signals and data transformation tasks.
 
+Project Status
+
+This is currently bleeding edge and highly volitile source code. Things can
+and will change. Stuff may not work. It might crash. In no way should this
+project be considered production quality.
+
 Objects
 
 Jackalope objects encapualate components that accept input, generate output,
