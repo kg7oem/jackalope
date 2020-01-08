@@ -12,7 +12,7 @@ if [ "$BUILD_ROOT" == "" ]; then
 fi
 
 if [ "$VALIDATE_ROOT" == "" ]; then
-    VALIDATE_ROOT="$BUILD_ROOT"
+    VALIDATE_ROOT="$BUILD_ROOT/validate"
 fi
 
 main() {
@@ -20,6 +20,8 @@ main() {
     cd "$VALIDATE_ROOT"
 
     run_fresh_cmake "$SOURCE_ROOT"
+    # boost handles compilers on their own and caching the compiled
+    # files speeds validation up a lot
     make jackalope-boost
 
     validate_compiler "GNU" gcc g++
@@ -38,8 +40,11 @@ validate_compiler() (
 
     echo "Running validation with compiler family: $name"
 
-    run_validation -DFULL_BUILD=OFF
-    run_validation -DFULL_BUILD=ON
+    for build_type in Debug Release; do
+        for full_build in ON OFF; do
+            run_validation -DVERBOSE=ON -DFULL_BUILD="$full_build" -DCMAKE_BUILD_TYPE="$build_type"
+        done
+    done
 )
 
 run_fresh_cmake() {
@@ -50,8 +55,27 @@ run_fresh_cmake() {
 run_validation() {
     run_fresh_cmake "$@" "$SOURCE_ROOT"
 
+    # I couldn't find another way to keep cmake from deleting
+    # the boost directory during make clean
+    mv jackalope-boost-prefix .hide.jackalope-boost-prefix
+    make clean
+    mv .hide.jackalope-boost-prefix jackalope-boost-prefix
+
     make
     make test
+}
+
+hide() {
+    local hide_path=".hide.$1"
+    if [ -e "$hide_path" ]; then
+        rm -f "$hide_path"
+    fi
+
+    mv "$1" "$hide_path"
+}
+
+unhide() {
+    mv ".hide.$1" "$1"
 }
 
 main "$@"
