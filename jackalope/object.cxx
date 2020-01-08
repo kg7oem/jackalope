@@ -308,7 +308,9 @@ void object_t::init()
 
     add_signal(JACKALOPE_SIGNAL_OBJECT_STOPPED);
 
+#ifdef CONFIG_HAVE_DBUS
     dbus_object = new object_dbus_t(*this, to_string("/Object/", id).c_str());
+#endif
 }
 
 void object_t::activate()
@@ -351,6 +353,7 @@ void object_t::stop()
     get_signal(JACKALOPE_SIGNAL_OBJECT_STOPPED)->send();
 }
 
+#ifdef CONFIG_HAVE_DBUS
 object_dbus_t::object_dbus_t(object_t& object_in, const char * path_in)
 : DBus::ObjectAdaptor(dbus_get_connection(), path_in), object(object_in)
 { }
@@ -388,5 +391,6 @@ void object_dbus_t::poke(const std::string& property_name_in, const std::string&
         object.get_property(property_name_in.c_str())->set(value_in.c_str());
     });
 }
+#endif
 
 } //namespace jackalope

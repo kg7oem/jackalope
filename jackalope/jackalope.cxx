@@ -13,15 +13,22 @@
 
 #include <jackalope/async.h>
 #include <jackalope/audio.h>
-#include <jackalope/dbus.h>
 #include <jackalope/jackalope.h>
+
+#ifdef CONFIG_HAVE_DBUS
+#include <jackalope/dbus.h>
+#endif
 
 namespace jackalope {
 
 void init()
 {
     jackalope::async_init();
+
+#ifdef CONFIG_HAVE_DBUS
     jackalope::dbus_init();
+#endif
+
     jackalope::audio_init();
 }
 

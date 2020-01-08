@@ -15,7 +15,6 @@
 
 #include <jackalope/async.h>
 #include <jackalope/channel.h>
-#include <jackalope/dbus.h>
 #include <jackalope/foreign.forward.h>
 #include <jackalope/logging.h>
 #include <jackalope/message.h>
@@ -24,6 +23,10 @@
 #include <jackalope/string.h>
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
+
+#ifdef CONFIG_HAVE_DBUS
+#include <jackalope/dbus.h>
+#endif
 
 namespace jackalope {
 
@@ -48,6 +51,7 @@ struct link_ready_message_t : public message_t<shared_t<link_t>> {
     link_ready_message_t(shared_t<link_t> link_in);
 };
 
+#ifdef CONFIG_HAVE_DBUS
 struct object_dbus_t : public object_adaptor, public DBus::IntrospectableAdaptor, public DBus::ObjectAdaptor {
     object_t& object;
 
@@ -56,13 +60,16 @@ struct object_dbus_t : public object_adaptor, public DBus::IntrospectableAdaptor
     virtual std::string peek(const std::string& property_name_in) override;
     virtual void poke(const std::string& property_name_in, const std::string& value_in) override;
 };
+#endif
 
 class object_t : public prop_obj_t, public signal_obj_t, public shared_obj_t<object_t>, public lockable_t, public base_t {
 
     friend jackalope_node_t;
 
 protected:
+#ifdef CONFIG_HAVE_DBUS
     object_dbus_t * dbus_object = nullptr;
+#endif
 
     bool init_flag = false;
     bool activated_flag = false;
