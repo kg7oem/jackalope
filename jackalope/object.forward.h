@@ -16,5 +16,6 @@
 namespace jackalope {
 
 class object_t;
+struct message_obj_t;
 
 } // namespace jackalope

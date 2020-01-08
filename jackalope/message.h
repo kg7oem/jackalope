@@ -13,6 +13,7 @@
 
 #pragma once
 
+#include <jackalope/object.forward.h>
 #include <jackalope/string.h>
 #include <jackalope/types.h>
 

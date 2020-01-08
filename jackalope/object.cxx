@@ -90,19 +90,25 @@ shared_t<abstract_message_handler_t> object_t::get_message_handler(const string_
 void object_t::deliver_messages()
 {
     while(1) {
-        auto lock = get_object_lock();
+        shared_t<abstract_message_t> message;
 
-        assert(executing_flag == true);
+        {
+            lock_t message_lock_t(message_mutex);
 
-        if (message_queue.empty()) {
-            executing_flag = false;
-            return;
+            if (message_queue.empty()) {
+                executing_flag = false;
+                return;
+            }
+
+            message = message_queue.front();
+            message_queue.pop_front();
         }
 
-        auto message = message_queue.front();
-        message_queue.pop_front();
-
-        deliver_one_message(message);
+        {
+            auto lock = get_object_lock();
+            assert(executing_flag == true);
+            deliver_one_message(message);
+        }
     }
 }
 

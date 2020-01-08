@@ -70,6 +70,7 @@ protected:
     bool executing_flag = false;
     bool stopped_flag = false;
     pool_map_t<string_t, shared_t<abstract_message_handler_t>> message_handlers;
+    mutex_t message_mutex;
     pool_list_t<shared_t<abstract_message_t>> message_queue;
     pool_vector_t<shared_t<source_t>> sources;
     pool_map_t<string_t, shared_t<source_t>> sources_by_name;
@@ -112,22 +113,21 @@ public:
         return dynamic_pointer_cast<T>(_make(init_args_in));
     }
 
+    // this method is called by other threads and should not
+    // lock the object mutex to avoid race conditions
     template <typename T, typename... Args>
     void send_message(Args... args)
     {
+        assert(! thread_owns_mutex());
+        lock_t message_lock(message_mutex);
+
         auto shared_this = shared_obj();
+        auto message = jackalope::make_shared<T>(args...);
+        message_queue.push_back(message);
 
-        // FIXME until the message queue is lockfree
-        // getting the message delivery running from
-        // the thread queue prevents deadlocks
-        submit_job([shared_this, args...] {
-            log_info("getting object lock");
+        submit_job([shared_this] {
+            // no problem with a lock from inside the thread queue
             auto lock = shared_this->get_object_lock();
-            log_info("done getting object lock");
-
-            auto message = jackalope::make_shared<T>(args...);
-            shared_this->message_queue.push_back(message);
-
             shared_this->check_execute();
         });
     }
