@@ -217,6 +217,25 @@ void jackalope_node_t::run()
     });
 }
 
+jackalope_daemon_t jackalope_daemon_t::make(const string_t& type_in, const init_args_t& init_args_in)
+{
+    auto new_daemon = daemon_t::make(type_in, init_args_in);
+    return jackalope_daemon_t(new_daemon);
+}
+
+jackalope_daemon_t::jackalope_daemon_t(shared_t<jackalope::daemon_t> wrapped_in)
+: jackalope_wrapper_t(wrapped_in)
+{
+    assert(wrapped_in != nullptr);
+}
+
+void jackalope_daemon_t::start()
+{
+    wait_job<void>([&] {
+        wrapped->start();
+    });
+}
+
 extern "C" {
 
 void jackalope_init()
@@ -350,6 +369,27 @@ void jackalope_node_run(struct jackalope_object_t * object_in)
 
     auto node = dynamic_pointer_cast<jackalope_node_t>(object_in->wrapped);
     node->run();
+}
+
+struct jackalope_daemon_t * jackalope_daemon_make(const char * type_in, const char * init_args_in[])
+{
+    auto init_args = init_args_from_strings(init_args_in);
+    auto daemon = daemon_t::make(type_in, init_args);
+    return new jackalope_daemon_t(daemon);
+}
+
+void jackalope_daemon_delete(struct jackalope_daemon_t * daemon_in)
+{
+    assert(daemon_in != nullptr);
+
+    return delete daemon_in;
+}
+
+void jackalope_daemon_start(struct jackalope_daemon_t * daemon_in)
+{
+    assert(daemon_in != nullptr);
+
+    daemon_in->start();
 }
 
 } // extern "C"

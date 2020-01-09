@@ -55,6 +55,7 @@ add_library(
     jackalope/async.cxx
     jackalope/audio.cxx
     jackalope/channel.cxx
+    jackalope/daemon.cxx
     jackalope/foreign.cxx
     jackalope/graph.cxx
     jackalope/jackalope.cxx

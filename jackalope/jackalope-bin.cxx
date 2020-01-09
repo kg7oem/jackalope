@@ -37,18 +37,26 @@ int main(int argc_in, char ** argv_in)
 
     jackalope_init();
 
+    auto connection_manager = jackalope_daemon_t::make("audio::jackaudio::connections", {
+        { "jackalope:left", "system:playback_1" },
+        { "jackalope:right", "system:playback_2" },
+    });
+
+    connection_manager.start();
+
     auto graph = jackalope_graph_t::make({
         { "pcm.buffer_size", jackalope::property_t::type_t::size },
         { "pcm.sample_rate", jackalope::property_t::type_t::size },
     });
 
     auto system_audio = graph.add_node({
-        { "object.type", "audio::portaudio" },
+        { "object.type", "audio::jackaudio" },
         { "node.name", "system audio" },
         { "pcm.buffer_size", jackalope::to_string(BUFFER_SIZE) },
         { "pcm.sample_rate", jackalope::to_string(SAMPLE_RATE) },
         { "sink.left", "audio" },
         { "sink.right", "audio" },
+        { "config.client_name", "jackalope" },
     });
 
     graph.poke("pcm.sample_rate", system_audio.peek("pcm.sample_rate"));
