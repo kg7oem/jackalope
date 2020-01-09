@@ -16,19 +16,19 @@ endif (APPLE)
 
 set(Boost_MIN_VERSION ${Boost_MIN_MAJOR}.${Boost_MIN_MINOR}.${Boost_MIN_PATCH})
 
-if (NOT ${LOCAL_BOOST})
+if (NOT LOCAL_BOOST)
     message("Minimum Boost version is ${Boost_MIN_VERSION}")
     find_package(Boost ${Boost_MIN_VERSION} COMPONENTS date_time filesystem regex serialization system thread)
 
     if ("${Boost_LIBRARIES}" STREQUAL "")
-        if (${DOWNLOAD_BOOST_OK})
+        if (DOWNLOAD_BOOST_OK)
             set(LOCAL_BOOST ON)
         else ()
             message(SEND_ERROR "Could not find required Boost libraries; try setting DOWNLOAD_BOOST_OK=ON to download and compile one")
             set(Boost_INCLUDE_DIR "")
-        endif (${DOWNLOAD_BOOST_OK})
+        endif (DOWNLOAD_BOOST_OK)
     endif ("${Boost_LIBRARIES}" STREQUAL "")
-endif (NOT ${LOCAL_BOOST})
+endif (NOT LOCAL_BOOST)
 
 if (${LOCAL_BOOST})
     message("  Will download and compile Boost")
