@@ -22,9 +22,6 @@ main() {
     cd "$VALIDATE_ROOT"
 
     run_fresh_cmake "$SOURCE_ROOT"
-    # boost handles compilers on their own and caching the compiled
-    # files speeds validation up a lot
-    make jackalope-boost
 
     validate_compiler "GNU" gcc g++
     validate_compiler "clang" clang clang++
@@ -59,9 +56,11 @@ run_validation() {
 
     # I couldn't find another way to keep cmake from deleting
     # the boost directory during make clean
-    mv jackalope-boost-prefix .hide.jackalope-boost-prefix
-    make clean
-    mv .hide.jackalope-boost-prefix jackalope-boost-prefix
+    if [ -e jackalope-boost-prefix ]; then
+        mv jackalope-boost-prefix .hide.jackalope-boost-prefix
+        make clean
+        mv .hide.jackalope-boost-prefix jackalope-boost-prefix
+    fi
 
     make
     make test

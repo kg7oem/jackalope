@@ -74,7 +74,7 @@ add_library(
 )
 
 if (LOCAL_BOOST)
-add_dependencies(${JACKALOPE_LIB_TARGET} jackalope-boost)
+    add_dependencies(${JACKALOPE_LIB_TARGET} jackalope-boost)
 endif (LOCAL_BOOST)
 
 target_link_libraries(${JACKALOPE_LIB_TARGET} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} -ldl)
