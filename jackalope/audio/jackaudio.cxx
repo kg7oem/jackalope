@@ -42,7 +42,12 @@ jackaudio_node_t::jackaudio_node_t(const init_args_t init_args_in)
 { }
 
 jackaudio_node_t::~jackaudio_node_t()
-{ }
+{
+    if (jack_client != nullptr) {
+        jack_client_close(jack_client);
+        jack_client = nullptr;
+    }
+}
 
 shared_t<source_t> jackaudio_node_t::add_source(const string_t& source_name_in, const string_t& type_in)
 {
@@ -124,7 +129,8 @@ void jackaudio_node_t::activate()
 
     auto helper = [] (const jackaudio_nframes_t num_frames_in, void * user_data) -> int_t {
         auto us = static_cast<jackaudio_node_t *>(user_data);
-        return us->handle_jack_process(num_frames_in);
+        auto shared_this = us->shared_obj<jackaudio_node_t>();
+        return shared_this->handle_jack_process(num_frames_in);
     };
 
     if (jack_set_process_callback(jack_client, helper, static_cast<void *>(this))) {
@@ -179,11 +185,15 @@ int_t jackaudio_node_t::handle_jack_process(const jackaudio_nframes_t nframes_in
     auto lock = get_object_lock();
 
     if (! started_flag) {
+        thread_run_flag = false;
+        thread_cond.notify_all();
         return false;
     }
 
     if (stopped_flag) {
         NODE_LOG(info, "jackaudio thread is returning because the node is stopped");
+        thread_run_flag = false;
+        thread_cond.notify_all();
         return true;
     }
 
@@ -209,6 +219,7 @@ int_t jackaudio_node_t::handle_jack_process(const jackaudio_nframes_t nframes_in
     NODE_LOG(info, "jackaudio thread woke up");
 
     thread_run_flag = false;
+    thread_cond.notify_all();
 
     for(auto i : sinks) {
         auto sink = dynamic_pointer_cast<audio_sink_t>(i);
@@ -231,6 +242,7 @@ void jackaudio_node_t::stop()
     node_t::stop();
 
     thread_cond.notify_all();
+    thread_cond.wait(object_mutex, [&] { return thread_run_flag == false; });
 }
 
 void jackaudio_node_t::open_client()

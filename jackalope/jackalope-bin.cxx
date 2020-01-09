@@ -37,12 +37,12 @@ int main(int argc_in, char ** argv_in)
 
     jackalope_init();
 
-    auto connection_manager = jackalope_daemon_t::make("audio::jackaudio::connections", {
-        { "jackalope:left", "system:playback_1" },
-        { "jackalope:right", "system:playback_2" },
-    });
+    // auto connection_manager = jackalope_daemon_t::make("audio::jackaudio::connections", {
+    //     { "jackalope:left", "system:playback_1" },
+    //     { "jackalope:right", "system:playback_2" },
+    // });
 
-    connection_manager.start();
+    // connection_manager.start();
 
     auto graph = jackalope_graph_t::make({
         { "pcm.buffer_size", jackalope::property_t::type_t::size },
