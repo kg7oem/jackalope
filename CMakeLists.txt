@@ -15,6 +15,8 @@ set(CMAKE_BUILD_TYPE Debug)
 endif ("${CMAKE_BUILD_TYPE}" STREQUAL "")
 
 option(VERBOSE "Verbose builds" OFF)
+option(DOWNLOAD_OK "Enable downloading of missing dependencies" OFF)
+option(DOWNLOAD_BOOST_OK "Enable downloading of missing Boost" ${DOWNLOAD_OK})
 option(FULL_BUILD "Enable testing for optional components by default" ON)
 option(ENABLE_DBUS "Enable DBUS IPC" ${FULL_BUILD})
 option(ENABLE_PERL "Enable Perl language support" ${FULL_BUILD})
@@ -22,6 +24,7 @@ option(ENABLE_JACKAUDIO "Enable JackAudio system support" ${FULL_BUILD})
 option(ENABLE_LADSPA "Enable LADSPA audio plugin support" ${FULL_BUILD})
 option(ENABLE_PORTAUDIO "Enable Portaudio support" ${FULL_BUILD})
 option(ENABLE_SNDFILE "Enable libsndfile support" ${FULL_BUILD})
+option(LOCAL_BOOST "Download and build a copy of Boost local to this project" OFF)
 
 if (VERBOSE)
     set(CMAKE_VERBOSE_MAKEFILE ON)
@@ -70,7 +73,10 @@ add_library(
     jackalope/types.cxx
 )
 
+if (${LOCAL_BOOST})
 add_dependencies(${JACKALOPE_LIB_TARGET} jackalope-boost)
+endif (${LOCAL_BOOST})
+
 target_link_libraries(${JACKALOPE_LIB_TARGET} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} -ldl)
 set_target_properties(${JACKALOPE_LIB_TARGET} PROPERTIES OUTPUT_NAME ${PROJECT})
 
