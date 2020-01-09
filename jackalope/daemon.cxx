@@ -37,10 +37,41 @@ daemon_t::daemon_t(const string_t& type_in, const init_args_t& init_args_in)
 : type(type_in), init_args(init_args_in)
 { }
 
+daemon_t::~daemon_t()
+{
+    assert(stopped_flag);
+}
+
 void daemon_t::init()
-{ }
+{
+    assert_lockable_owner();
+
+    assert(! initialized_flag);
+
+    initialized_flag = true;
+}
 
 void daemon_t::start()
-{ }
+{
+    assert_lockable_owner();
+
+    assert(! started_flag);
+    assert(initialized_flag);
+
+    started_flag = true;
+}
+
+void daemon_t::stop()
+{
+    assert_lockable_owner();
+
+    assert(! stopped_flag);
+
+    if (! started_flag) {
+        return;
+    }
+
+    stopped_flag = true;
+}
 
 } //namespace jackalope

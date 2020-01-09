@@ -232,7 +232,16 @@ jackalope_daemon_t::jackalope_daemon_t(shared_t<jackalope::daemon_t> wrapped_in)
 void jackalope_daemon_t::start()
 {
     wait_job<void>([&] {
+        auto lock = wrapped->get_object_lock();
         wrapped->start();
+    });
+}
+
+void jackalope_daemon_t::stop()
+{
+    wait_job<void>([&] {
+        auto lock = wrapped->get_object_lock();
+        wrapped->stop();
     });
 }
 
@@ -390,6 +399,13 @@ void jackalope_daemon_start(struct jackalope_daemon_t * daemon_in)
     assert(daemon_in != nullptr);
 
     daemon_in->start();
+}
+
+void jackalope_daemon_stop(struct jackalope_daemon_t * daemon_in)
+{
+    assert(daemon_in != nullptr);
+
+    daemon_in->stop();
 }
 
 } // extern "C"

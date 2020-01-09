@@ -78,7 +78,9 @@ protected:
 public:
     jackaudio_connection_daemon_t(const string_t& type_in, const init_args_t& init_args_in);
     virtual ~jackaudio_connection_daemon_t();
+    virtual void init() override;
     virtual void start() override;
+    virtual void stop() override;
     virtual void port_registration_callback(const uint32_t port_id_in, const int register_in);
     virtual void maintain_connections();
 };

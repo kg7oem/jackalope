@@ -27,6 +27,10 @@ void add_daemon_constructor(const string_t& class_name_in, daemon_library_t::con
 struct daemon_t : public shared_obj_t<daemon_t>, public lockable_t {
 
 protected:
+    bool initialized_flag = false;
+    bool started_flag = false;
+    bool stopped_flag = false;
+
     daemon_t(const string_t& type_in, const init_args_t& init_args_in);
 
 public:
@@ -34,9 +38,10 @@ public:
     const init_args_t init_args;
 
     static shared_t<daemon_t> make(const string_t& type_in, const init_args_t& init_args_in);
-    virtual ~daemon_t() = default;
+    virtual ~daemon_t();
     virtual void init();
     virtual void start();
+    virtual void stop();
 };
 
 } //namespace jackalope

@@ -44,7 +44,9 @@ jackaudio_node_t::jackaudio_node_t(const init_args_t init_args_in)
 jackaudio_node_t::~jackaudio_node_t()
 {
     if (jack_client != nullptr) {
+        jack_deactivate(jack_client);
         jack_client_close(jack_client);
+
         jack_client = nullptr;
     }
 }
@@ -241,6 +243,7 @@ void jackaudio_node_t::stop()
 
     node_t::stop();
 
+    log_info("waiting for jackaudio thread");
     thread_cond.notify_all();
     thread_cond.wait(object_mutex, [&] { return thread_run_flag == false; });
 }
@@ -321,9 +324,11 @@ jackaudio_connection_daemon_t::~jackaudio_connection_daemon_t()
     }
 }
 
-void jackaudio_connection_daemon_t::start()
+void jackaudio_connection_daemon_t::init()
 {
-    auto lock = get_object_lock();
+    assert_lockable_owner();
+
+    daemon_t::init();
 
     assert(jack_client == nullptr);
     jack_client = jack_client_open("Jackalope connection daemon", jackaudio::JackNoStartServer, 0);
@@ -331,6 +336,15 @@ void jackaudio_connection_daemon_t::start()
     if (jack_client == nullptr) {
         throw_runtime_error("could not open connection to jack server");
     }
+}
+
+void jackaudio_connection_daemon_t::start()
+{
+    assert_lockable_owner();
+
+    assert(jack_client != nullptr);
+
+    daemon_t::start();
 
     if(jack_set_port_registration_callback(jack_client,[] (const uint32_t port_id_in, const int register_in, void * userdata_in) -> void {
         auto daemon = static_cast<jackaudio_connection_daemon_t *>(userdata_in);
@@ -383,6 +397,17 @@ void jackaudio_connection_daemon_t::maintain_connections()
         log_info("connecting jackaudio ports: ", from, " -> ", to);
         jackaudio::jack_connect(jack_client, from.c_str(), to.c_str());
     }
+}
+
+void jackaudio_connection_daemon_t::stop()
+{
+    assert_lockable_owner();
+
+    if (jack_client != nullptr) {
+        jack_deactivate(jack_client);
+    }
+
+    daemon_t::stop();
 }
 
 } // namespace audio
