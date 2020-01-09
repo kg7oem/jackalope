@@ -16,6 +16,8 @@ if [ "$VALIDATE_ROOT" == "" ]; then
 fi
 
 main() {
+    EXTRA_CMAKE_ARGS="$@"
+
     mkdir -p "$VALIDATE_ROOT"
     cd "$VALIDATE_ROOT"
 
@@ -49,7 +51,7 @@ validate_compiler() (
 
 run_fresh_cmake() {
     rm -f CMakeCache.txt
-    cmake "$@"
+    cmake $EXTRA_CMAKE_ARGS "$@"
 }
 
 run_validation() {
