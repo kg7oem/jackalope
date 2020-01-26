@@ -24,6 +24,5 @@
 namespace jackalope {
 
 void init();
-void shutdown();
 
 } // namespace jackalope

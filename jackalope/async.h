@@ -13,42 +13,41 @@
 
 #pragma once
 
+#include <boost/asio.hpp>
+
+#include <jackalope/property.h>
+#include <jackalope/string.h>
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
+
+#define JACKALOPE_ASYNC_PROPERTY_NAME "name"
+#define JACKALOPE_ASYNC_PROPERTY_THREADS "threads"
 
 namespace jackalope {
 
 template <typename T>
 using async_job_t = function_t<T ()>;
 
-void async_init();
-void async_shutdown();
-void submit_job(async_job_t<void> job_in);
+class async_engine_t : public base_t, public shared_obj_t<async_engine_t>, public prop_obj_t {
 
-template <typename T>
-T wait_job(async_job_t<T> job_in)
-{
-    promise_t<T> promise;
+protected:
+    boost::asio::io_context asio_io;
+    boost::asio::io_service::work * asio_work = nullptr;
+    pool_list_t<thread_t> asio_threads;
+    size_t num_threads = 0;
 
-    submit_job([&] {
-        auto result = job_in();
-        promise.set_value(result);
-    });
+    virtual void init_threads();
+    virtual void asio_thread();
 
-    return promise.get_future().get();
-}
+public:
+    static size_t detect_num_threads();
+    static shared_t<async_engine_t> make(const init_args_t& init_args_in);
+    async_engine_t(const init_args_t& init_args_in);
+    virtual ~async_engine_t();
+    void submit_job(async_job_t<void> job_in);
+};
 
-template <>
-inline void wait_job(async_job_t<void> job_in)
-{
-    promise_t<void> promise;
-
-    submit_job([&] {
-        job_in();
-        promise.set_value();
-    });
-
-    promise.get_future().get();
-}
+void set_async_config(const string_t& value_in);
+shared_t<async_engine_t> get_async_engine();
 
 } // namespace jackalope

@@ -29,12 +29,22 @@ pool_vector_t<string_t> split_string(const string_t& string_in, const char delim
     return parts;
 }
 
-init_args_t init_args_from_list(const init_list_t& init_list_in)
+init_args_t make_init_args(const init_list_t& init_list_in)
 {
     init_args_t init_args;
 
     for(auto&& i : init_list_in) {
         init_args.emplace_back(i);
+    }
+
+    return init_args;
+}
+
+init_args_t make_init_args(const pool_map_t<string_t, string_t>& map_in) {
+    init_args_t init_args;
+
+    for(auto i : map_in) {
+        init_args.push_back({ i.first, i.second });
     }
 
     return init_args;

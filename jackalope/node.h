@@ -35,6 +35,7 @@ protected:
 public:
     const string_t name;
 
+    virtual ~node_t();
     shared_t<graph_t> get_graph();
     void set_graph(shared_t<graph_t> graph_in);
     virtual void set_undef_property(const string_t& name_in);
@@ -45,10 +46,6 @@ public:
     virtual void deliver_one_message(shared_t<abstract_message_t> message_in) override;
     virtual void run_if_needed();
     virtual bool should_run() = 0;
-    // virtual void schedule_run();
-    // virtual void handle_run();
-//     virtual void source_available(shared_t<source_t> source_in) override;
-//     virtual void sink_ready(shared_t<sink_t> sink_in) override;
 };
 
 } //namespace jackalope

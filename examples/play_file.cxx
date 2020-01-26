@@ -76,9 +76,5 @@ int main(int argc_in, char ** argv_in)
 
     graph.run();
 
-    log_info("shutting down");
-    jackalope_shutdown();
-    log_info("done shutting down");
-
     return(0);
 }

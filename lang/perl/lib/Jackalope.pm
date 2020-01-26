@@ -30,4 +30,3 @@ use Jackalope::Object;
 our $VERSION = 0.0.1;
 
 *init = *Jackalope::Glue::jackalope_init;
-*shutdown = *Jackalope::Glue::jackalope_shutdown;

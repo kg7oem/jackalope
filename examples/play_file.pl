@@ -28,10 +28,6 @@ use constant SAMPLE_RATE => 48000;
 use constant BUFFER_SIZE => 512;
 use constant LADSPA_ZAMTUBE_ID => 1515476290;
 
-END {
-    Jackalope::shutdown();
-}
-
 main();
 
 sub main {

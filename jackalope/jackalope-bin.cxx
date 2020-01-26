@@ -37,13 +37,6 @@ int main(int argc_in, char ** argv_in)
 
     jackalope_init();
 
-    auto connection_manager = jackalope_daemon_t::make("audio::jackaudio::connections", {
-        { "jackalope:left", "system:playback_1" },
-        { "jackalope:right", "system:playback_2" },
-    });
-
-    connection_manager.start();
-
     auto graph = jackalope_graph_t::make({
         { "pcm.buffer_size", jackalope::property_t::type_t::size },
         { "pcm.sample_rate", jackalope::property_t::type_t::size },
@@ -88,12 +81,6 @@ int main(int argc_in, char ** argv_in)
     right_tube.link("Audio Output 1", system_audio, "right");
 
     graph.run();
-
-    connection_manager.stop();
-
-    log_info("shutting down");
-    jackalope_shutdown();
-    log_info("done shutting down");
 
     return(0);
 }

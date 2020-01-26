@@ -13,6 +13,7 @@
 
 #include <jackalope/async.h>
 #include <jackalope/exception.h>
+#include <jackalope/jackalope.h>
 #include <jackalope/logging.h>
 #include <jackalope/object.h>
 
@@ -72,6 +73,14 @@ object_t::object_t(const string_t& type_in, const init_args_t init_args_in)
 : init_args(init_args_in), type(type_in)
 {
     assert(type != "");
+}
+
+object_t::~object_t()
+{
+    if (! stopped_flag) {
+        auto lock = get_object_lock();
+        stop();
+    }
 }
 
 shared_t<abstract_message_handler_t> object_t::get_message_handler(const string_t& name_in)
@@ -285,6 +294,26 @@ void object_t::link(const string_t& source_name_in, shared_t<object_t> target_ob
     auto source = get_source(source_name_in);
 
     source->link(target_sink);
+}
+
+void object_t::connect(const string_t& signal_name_in, shared_t<object_t> target_object_in, const string_t& target_slot_name_in)
+{
+    assert_lockable_owner();
+    assert_object_owner(target_object_in);
+
+    auto signal = get_signal(signal_name_in);
+    auto slot = target_object_in->get_slot(target_slot_name_in);
+    weak_t<object_t> weak_this = shared_obj();
+
+    signal->subscribe([weak_this, slot] {
+        try {
+            weak_this.lock()->async_engine->submit_job([slot] {
+                slot->handler();
+            });
+        } catch (std::bad_weak_ptr e) {
+
+        }
+    });
 }
 
 void object_t::init()

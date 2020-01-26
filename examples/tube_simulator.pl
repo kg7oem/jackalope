@@ -63,5 +63,3 @@ $left_tube->link("Audio Output 1", $system_audio, "left input");
 $right_tube->link("Audio Output 1", $system_audio, "right input");
 
 $graph->run;
-
-Jackalope::shutdown();

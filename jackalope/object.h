@@ -33,6 +33,7 @@ namespace jackalope {
 #define JACKALOPE_MESSAGE_OBJECT_LINK_AVAILABLE    "object.link_available"
 #define JACKALOPE_MESSAGE_OBJECT_LINK_READY        "object.link_ready"
 #define JACKALOPE_PROPERTY_OBJECT_TYPE             "object.type"
+#define JACKALOPE_PROPERTY_OBJECT_async_engine     "object.async_engine"
 #define JACKALOPE_SLOT_OBJECT_STOP                 "object.stop"
 #define JACKALOPE_SIGNAL_OBJECT_STOPPED            "object.stopped"
 
@@ -65,6 +66,7 @@ struct object_dbus_t : public object_adaptor, public DBus::IntrospectableAdaptor
 class object_t : public prop_obj_t, public signal_obj_t, public shared_obj_t<object_t>, public lockable_t, public base_t {
 
     friend jackalope_node_t;
+    friend jackalope_object_t;
 
 protected:
 #ifdef CONFIG_HAVE_DBUS
@@ -76,6 +78,7 @@ protected:
     bool started_flag = false;
     bool executing_flag = false;
     bool stopped_flag = false;
+    const shared_t<async_engine_t> async_engine = get_async_engine();
     pool_map_t<string_t, shared_t<abstract_message_handler_t>> message_handlers;
     mutex_t message_mutex;
     pool_list_t<shared_t<abstract_message_t>> message_queue;
@@ -86,6 +89,7 @@ protected:
 
     object_t(const init_args_t init_args_in);
     object_t(const string_t& type_in, const init_args_t init_args_in);
+    virtual ~object_t();
 
     static shared_t<object_t> _make(const init_args_t init_args_in);
 
@@ -138,7 +142,7 @@ public:
         // objects should not get locks from other objects
         // so checking the queue is scheduled in the future
         // from the thread queue
-        submit_job([shared_this] {
+        async_engine->submit_job([shared_this] {
             // no problem with a lock from inside the thread queue
             auto lock = shared_this->get_object_lock();
             shared_this->execute_if_needed();
@@ -160,6 +164,7 @@ public:
     virtual shared_t<sink_t> get_sink(const size_t sink_num_in);
     virtual size_t get_num_sinks();
     virtual void link(const string_t& source_name_in, shared_t<object_t> target_object_in, const string_t& target_sink_name_in);
+    virtual void connect(const string_t& signal_name_in, shared_t<object_t> target_object_in, const string_t& target_slot_name_in);
     virtual void init();
     virtual void activate();
     virtual void start();

@@ -17,7 +17,6 @@
 
 #ifdef __cplusplus
 
-#include <jackalope/daemon.h>
 #include <jackalope/graph.h>
 #include <jackalope/node.h>
 #include <jackalope/property.h>
@@ -29,7 +28,6 @@ extern "C" {
 struct dbus_objectAdaptee;
 
 void jackalope_init();
-void jackalope_shutdown();
 
 void jackalope_object_delete(struct jackalope_object_t * object_in);
 struct jackalope_source_t * jackalope_object_add_source(struct jackalope_object_t * object_in, const char * type_in, const char * name_in);
@@ -48,11 +46,6 @@ void jackalope_graph_run(struct jackalope_object_t * graph_in);
 
 struct jackalope_object_t * jackalope_node_make(const char ** init_args_in);
 void jackalope_node_run(struct jackalope_object_t * node_in);
-
-struct jackalope_daemon_t * jackalope_daemon_make(const char * type_in, const char * init_args_in[]);
-void jackalope_daemon_delete(struct jackalope_daemon_t * daemon_in);
-void jackalope_daemon_start(struct jackalope_daemon_t * daemon_in);
-void jackalope_daemon_stop(struct jackalope_daemon_t * daemon_in);
 
 #ifdef __cplusplus
 }
@@ -91,6 +84,31 @@ struct jackalope_object_t : public jackalope_wrapper_t<jackalope::object_t> {
     virtual void activate();
     virtual void start();
     virtual void stop();
+
+    template <typename T>
+    T wait_job(jackalope::async_job_t<T> job_in)
+    {
+        jackalope::promise_t<T> promise;
+
+        wrapped->async_engine->submit_job([&] {
+            auto result = job_in();
+            promise.set_value(result);
+        });
+
+        return promise.get_future().get();
+    }
+
+    inline void wait_job(jackalope::async_job_t<void> job_in)
+    {
+        jackalope::promise_t<void> promise;
+
+        wrapped->async_engine->submit_job([&] {
+            job_in();
+            promise.set_value();
+        });
+
+        promise.get_future().get();
+    }
 };
 
 struct jackalope_graph_t : public jackalope_object_t {
@@ -109,14 +127,6 @@ struct jackalope_node_t : public jackalope_object_t {
     static jackalope_node_t make(const jackalope::init_args_t& init_args_in);
     jackalope_node_t(jackalope::shared_t<jackalope::node_t> wrapped_in);
     virtual void run();
-};
-
-struct jackalope_daemon_t : public jackalope_wrapper_t<jackalope::daemon_t> {
-    virtual ~jackalope_daemon_t() = default;
-    static jackalope_daemon_t make(const jackalope::string_t& type_in, const jackalope::init_args_t& init_args_in);
-    jackalope_daemon_t(jackalope::shared_t<jackalope::daemon_t> wrapped_in);
-    virtual void start();
-    virtual void stop();
 };
 
 #endif // __cplusplus

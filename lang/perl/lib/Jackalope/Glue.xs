@@ -11,9 +11,6 @@ PROTOTYPES: ENABLE
 void
 jackalope_init()
 
-void
-jackalope_shutdown()
-
 unsigned int
 jackalope_object_get_num_sources(struct jackalope_object_t * object_in)
 

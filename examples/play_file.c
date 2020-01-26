@@ -85,7 +85,5 @@ int main(const int argc_in, const char ** argv_in)
     jackalope_object_delete(input_file);
     jackalope_object_delete(graph);
 
-    jackalope_shutdown();
-
     return 0;
 }

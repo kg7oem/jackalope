@@ -45,7 +45,7 @@ void signal_t::send()
     waiters.empty();
 
     for (auto i : connections) {
-        submit_job([i] { i(); });
+        i();
     }
 }
 

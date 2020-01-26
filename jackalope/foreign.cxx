@@ -44,7 +44,7 @@ string_t jackalope_object_t::peek(const string_t& property_name_in)
 
 void jackalope_object_t::poke(const string_t& property_name_in, const string_t& value_in)
 {
-    wait_job<void>([&] {
+    wait_job([&] {
         auto lock = wrapped->get_object_lock();
         wrapped->poke(property_name_in, value_in);
     });
@@ -52,7 +52,7 @@ void jackalope_object_t::poke(const string_t& property_name_in, const string_t& 
 
 void jackalope_object_t::activate()
 {
-    wait_job<void>([&] {
+    wait_job([&] {
         auto lock = wrapped->get_object_lock();
         wrapped->activate();
     });
@@ -60,7 +60,7 @@ void jackalope_object_t::activate()
 
 void jackalope_object_t::start()
 {
-    wait_job<void>([&] {
+    wait_job([&] {
         auto lock = wrapped->get_object_lock();
         wrapped->start();
     });
@@ -68,7 +68,7 @@ void jackalope_object_t::start()
 
 void jackalope_object_t::stop()
 {
-    wait_job<void>([&] {
+    wait_job([&] {
         auto lock = wrapped->get_object_lock();
         wrapped->stop();
     });
@@ -112,7 +112,7 @@ jackalope::size_t jackalope_object_t::get_num_sinks()
 
 void jackalope_object_t::link(const jackalope::string_t& source_name_in, jackalope_object_t& target_object_in, const jackalope::string_t& target_sink_name_in)
 {
-    wait_job<void>([this, source_name_in, &target_object_in, target_sink_name_in] {
+    wait_job([this, source_name_in, &target_object_in, target_sink_name_in] {
         auto source_lock = wrapped->get_object_lock();
         auto source = wrapped->get_source(source_name_in);
         auto target = target_object_in.wrapped;
@@ -125,14 +125,10 @@ void jackalope_object_t::link(const jackalope::string_t& source_name_in, jackalo
 
 void jackalope_object_t::connect(const string_t& signal_name_in, jackalope_object_t& target_object_in, const string_t& slot_name_in)
 {
-    wait_job<void>([&] {
+    wait_job([&] {
         auto from_lock = wrapped->get_object_lock();
         auto to_lock = target_object_in.wrapped->get_object_lock();
-
-        auto signal = wrapped->get_signal(signal_name_in);
-        auto slot = target_object_in.wrapped->get_slot(slot_name_in);
-
-        signal->subscribe(slot);
+        wrapped->connect(signal_name_in, target_object_in.wrapped, slot_name_in);
     });
 }
 
@@ -154,7 +150,7 @@ jackalope_graph_t::jackalope_graph_t(shared_t<graph_t> wrapped_in)
 
 void jackalope_graph_t::add_property(const string_t& name_in, property_t::type_t type_in)
 {
-    wait_job<void>([&] {
+    wait_job([&] {
         auto lock = wrapped->get_object_lock();
         auto graph = wrapped->shared_obj<jackalope::graph_t>();
 
@@ -164,7 +160,7 @@ void jackalope_graph_t::add_property(const string_t& name_in, property_t::type_t
 
 void jackalope_graph_t::add_property(const string_t& name_in, property_t::type_t type_in, const init_args_t& init_args_in)
 {
-    wait_job<void>([&] {
+    wait_job([&] {
         auto lock = wrapped->get_object_lock();
         auto graph = wrapped->shared_obj<jackalope::graph_t>();
 
@@ -211,37 +207,9 @@ void jackalope_node_t::run()
 {
     auto node = dynamic_pointer_cast<jackalope::node_t>(wrapped);
 
-    wait_job<void>([&] {
+    wait_job([&] {
         auto lock = node->get_object_lock();
         node->run();
-    });
-}
-
-jackalope_daemon_t jackalope_daemon_t::make(const string_t& type_in, const init_args_t& init_args_in)
-{
-    auto new_daemon = daemon_t::make(type_in, init_args_in);
-    return jackalope_daemon_t(new_daemon);
-}
-
-jackalope_daemon_t::jackalope_daemon_t(shared_t<jackalope::daemon_t> wrapped_in)
-: jackalope_wrapper_t(wrapped_in)
-{
-    assert(wrapped_in != nullptr);
-}
-
-void jackalope_daemon_t::start()
-{
-    wait_job<void>([&] {
-        auto lock = wrapped->get_object_lock();
-        wrapped->start();
-    });
-}
-
-void jackalope_daemon_t::stop()
-{
-    wait_job<void>([&] {
-        auto lock = wrapped->get_object_lock();
-        wrapped->stop();
     });
 }
 
@@ -250,11 +218,6 @@ extern "C" {
 void jackalope_init()
 {
     jackalope::init();
-}
-
-void jackalope_shutdown()
-{
-    jackalope::shutdown();
 }
 
 static init_args_t init_args_from_strings(const char ** strings_in)
@@ -378,34 +341,6 @@ void jackalope_node_run(struct jackalope_object_t * object_in)
 
     auto node = dynamic_pointer_cast<jackalope_node_t>(object_in->wrapped);
     node->run();
-}
-
-struct jackalope_daemon_t * jackalope_daemon_make(const char * type_in, const char * init_args_in[])
-{
-    auto init_args = init_args_from_strings(init_args_in);
-    auto daemon = daemon_t::make(type_in, init_args);
-    return new jackalope_daemon_t(daemon);
-}
-
-void jackalope_daemon_delete(struct jackalope_daemon_t * daemon_in)
-{
-    assert(daemon_in != nullptr);
-
-    return delete daemon_in;
-}
-
-void jackalope_daemon_start(struct jackalope_daemon_t * daemon_in)
-{
-    assert(daemon_in != nullptr);
-
-    daemon_in->start();
-}
-
-void jackalope_daemon_stop(struct jackalope_daemon_t * daemon_in)
-{
-    assert(daemon_in != nullptr);
-
-    daemon_in->stop();
 }
 
 } // extern "C"

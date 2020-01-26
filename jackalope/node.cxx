@@ -24,6 +24,11 @@ node_t::node_t(const init_args_t init_args_in)
     assert(name != "");
 }
 
+node_t::~node_t()
+{
+    log_info("Destroying node: ", name);
+}
+
 void node_t::set_undef_property(const string_t& name_in)
 {
     assert_lockable_owner();
