@@ -130,7 +130,7 @@ shared_t<async_engine_t> get_async_engine()
             }
 
             break;
-        } catch (std::bad_weak_ptr e) {
+        } catch (const std::bad_weak_ptr& e) {
             continue;
         }
     }

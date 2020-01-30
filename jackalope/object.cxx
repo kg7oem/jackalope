@@ -310,8 +310,10 @@ void object_t::connect(const string_t& signal_name_in, shared_t<object_t> target
             weak_this.lock()->async_engine->submit_job([slot] {
                 slot->handler();
             });
-        } catch (std::bad_weak_ptr e) {
-
+        } catch (const std::bad_weak_ptr& e) {
+            // FIXME this should clean up or something but
+            // there is no way to do that yet so it doesn't
+            // do anything which is safe but wasteful
         }
     });
 }
