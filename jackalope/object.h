@@ -64,7 +64,6 @@ protected:
 #endif
 
     bool init_flag = false;
-    bool activated_flag = false;
     bool started_flag = false;
     bool executing_flag = false;
     bool stopped_flag = false;
@@ -97,8 +96,7 @@ protected:
     shared_t<abstract_message_handler_t> get_message_handler(const string_t& name_in);
     virtual void deliver_messages();
     virtual void deliver_one_message(shared_t<abstract_message_t> message_in);
-    // CHANGE rename to deliver_if_needed()
-    virtual void execute_if_needed();
+    virtual void deliver_if_needed();
 
 public:
     const init_args_t init_args;
@@ -132,7 +130,7 @@ public:
         async_engine->submit_job([shared_this] {
             // no problem with a lock from inside the thread queue
             auto lock = shared_this->get_object_lock();
-            shared_this->execute_if_needed();
+            shared_this->deliver_if_needed();
         });
     }
 
@@ -141,9 +139,6 @@ public:
     virtual void poke(const string_t& property_name_in, const string_t& value_in);
     virtual void connect(const string_t& signal_name_in, shared_t<object_t> target_object_in, const string_t& target_slot_name_in);
     virtual void init();
-    // CHANGE move to plugin_t
-    virtual void activate();
-    // CHANGE end move
     virtual void start();
     virtual void stop();
 };

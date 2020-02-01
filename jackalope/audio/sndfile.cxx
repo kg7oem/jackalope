@@ -31,7 +31,7 @@ void sndfile_init()
 }
 
 sndfile_node_t::sndfile_node_t(const init_args_t init_args_in)
-: node_t(init_args_in)
+: plugin_t(init_args_in)
 {
     assert(type == JACKALOPE_AUDIO_SNDFILE_OBJECT_TYPE);
 }
@@ -53,7 +53,7 @@ void sndfile_node_t::init()
 {
     assert_lockable_owner();
 
-    node_t::init();
+    plugin_t::init();
 
     add_property(JACKALOPE_PROPERTY_PCM_SAMPLE_RATE, property_t::type_t::size, init_args);
     auto buffer_size_prop = add_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE, property_t::type_t::size, init_args);
@@ -93,7 +93,7 @@ void sndfile_node_t::activate()
         throw_runtime_error("readahead must be an even multiple of read size");
     }
 
-    node_t::activate();
+    plugin_t::activate();
 
     if (sinks.size() > 0) {
         throw_runtime_error("sndfile does not support having sinks");
@@ -147,10 +147,10 @@ void sndfile_node_t::start()
 
     assert(io_thread != nullptr);
 
-    node_t::start();
+    plugin_t::start();
 }
 
-bool sndfile_node_t::should_run()
+bool sndfile_node_t::should_execute()
 {
     assert_lockable_owner();
 
@@ -163,7 +163,7 @@ bool sndfile_node_t::should_run()
     return true;
 }
 
-void sndfile_node_t::run()
+void sndfile_node_t::execute()
 {
     assert_lockable_owner();
 
@@ -198,7 +198,7 @@ void sndfile_node_t::stop()
 {
     assert_lockable_owner();
 
-    node_t::stop();
+    plugin_t::stop();
 
     thread_work_cond.notify_all();
 }

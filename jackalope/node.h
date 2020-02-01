@@ -38,6 +38,7 @@ struct link_ready_message_t : public message_t<shared_t<link_t>> {
 class node_t : public object_t {
 
 protected:
+    bool activated_flag = false;
     weak_t<graph_t> graph;
     pool_vector_t<shared_t<source_t>> sources;
     pool_map_t<string_t, shared_t<source_t>> sources_by_name;
@@ -65,13 +66,9 @@ public:
     virtual size_t get_num_sinks();
     virtual void link(const string_t& source_name_in, shared_t<node_t> target_node_in, const string_t& target_sink_name_in);
     virtual void init() override;
-    virtual void activate() override;
+    virtual void activate();
     virtual void start() override;
-    virtual void run() = 0;
     virtual void stop() override;
-    virtual void deliver_one_message(shared_t<abstract_message_t> message_in) override;
-    virtual void run_if_needed();
-    virtual bool should_run() = 0;
 };
 
 } //namespace jackalope

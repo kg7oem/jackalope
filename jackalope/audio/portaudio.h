@@ -18,7 +18,8 @@ extern "C" {
 }
 
 #include <jackalope/audio.h>
-#include <jackalope/node.h>
+#include <jackalope/plugin.h>
+#include <jackalope/types.h>
 
 #define JACKALOPE_AUDIO_PORTAUDIO_OBJECT_TYPE "audio::portaudio"
 
@@ -32,7 +33,7 @@ using portaudio_stream_cb_flags = PaStreamCallbackFlags;
 
 void portaudio_init();
 
-class portaudio_node_t : public node_t {
+class portaudio_node_t : public plugin_t {
 
 protected:
     portaudio_stream_t * stream = nullptr;
@@ -42,8 +43,8 @@ protected:
     virtual void init() override;
     virtual void activate() override;
     virtual void start() override;
-    virtual bool should_run() override;
-    virtual void run() override;
+    virtual bool should_execute() override;
+    virtual void execute() override;
     virtual void stop() override;
 
 public:

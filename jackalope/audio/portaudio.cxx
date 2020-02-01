@@ -46,7 +46,7 @@ void portaudio_init()
 }
 
 portaudio_node_t::portaudio_node_t(const init_args_t init_args_in)
-: node_t(init_args_in)
+: plugin_t(init_args_in)
 { }
 
 portaudio_node_t::~portaudio_node_t()
@@ -69,7 +69,7 @@ void portaudio_node_t::init()
     add_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE, property_t::type_t::size, init_args);
     add_property(JACKALOPE_PROPERTY_PCM_SAMPLE_RATE, property_t::type_t::size, init_args);
 
-    node_t::init();
+    plugin_t::init();
 }
 
 int process_cb(const void * input_buffer_in, void * output_buffer_in, size_t frames_per_buffer_in, const portaudio_stream_cb_time_info_t * time_info_in, portaudio_stream_cb_flags status_flags_in, void *userdata_in)
@@ -103,7 +103,7 @@ void portaudio_node_t::activate()
 
     auto userdata = static_cast<void *>(this);
 
-    node_t::activate();
+    plugin_t::activate();
 
     auto lock = get_portaudio_lock();
     auto err = Pa_OpenDefaultStream(&stream, sources.size(), sinks.size(), paFloat32, sample_rate, buffer_size, process_cb, userdata);
@@ -124,10 +124,10 @@ void portaudio_node_t::start()
 {
     auto lock = get_portaudio_lock();
 
-    node_t::start();
+    plugin_t::start();
 }
 
-bool portaudio_node_t::should_run()
+bool portaudio_node_t::should_execute()
 {
     assert_lockable_owner();
 
@@ -144,7 +144,7 @@ bool portaudio_node_t::should_run()
     return true;
 }
 
-void portaudio_node_t::run()
+void portaudio_node_t::execute()
 {
     assert_lockable_owner();
 
@@ -164,7 +164,7 @@ void portaudio_node_t::stop()
 {
     assert_lockable_owner();
 
-    node_t::stop();
+    plugin_t::stop();
 
     assert(stopped_flag);
     thread_run_cond.notify_all();

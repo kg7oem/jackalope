@@ -50,14 +50,6 @@ void jackalope_object_t::poke(const string_t& property_name_in, const string_t& 
     });
 }
 
-void jackalope_object_t::activate()
-{
-    wait_job([&] {
-        auto lock = wrapped->get_object_lock();
-        wrapped->activate();
-    });
-}
-
 void jackalope_object_t::start()
 {
     wait_job([&] {
@@ -203,16 +195,6 @@ void jackalope_node_t::link(const jackalope::string_t& source_name_in, jackalope
     });
 }
 
-void jackalope_node_t::run()
-{
-    auto node = dynamic_pointer_cast<jackalope::node_t>(wrapped);
-
-    wait_job([&] {
-        auto lock = node->get_object_lock();
-        node->run();
-    });
-}
-
 extern "C" {
 
 void jackalope_init()
@@ -333,14 +315,6 @@ void jackalope_node_link(jackalope_object_t * object_in, const char * source_in,
     assert(object_in != nullptr);
 
     static_cast<jackalope_node_t *>(object_in)->link(source_in, *target_object_in, sink_in);
-}
-
-void jackalope_node_run(struct jackalope_object_t * object_in)
-{
-    assert(object_in != nullptr);
-
-    auto node = object_in->wrapped->shared_obj<jackalope::node_t>();
-    node->run();
 }
 
 } // extern "C"

@@ -22,7 +22,6 @@ shared_t<graph_t> graph_t::make(const init_args_t& init_args_in)
     auto lock = graph->get_object_lock();
 
     graph->init();
-    graph->activate();
 
     return graph;
 }
@@ -33,7 +32,6 @@ shared_t<graph_t> graph_t::make(const prop_args_t& prop_args_in)
     auto lock = graph->get_object_lock();
 
     graph->init();
-    graph->activate();
 
     return graph;
 }
@@ -93,13 +91,6 @@ void graph_t::init()
     assert_lockable_owner();
 
     object_t::init();
-}
-
-void graph_t::activate()
-{
-    assert_lockable_owner();
-
-    object_t::activate();
 
     get_property(JACKALOPE_PROPERTY_OBJECT_TYPE)->set(JACKALOPE_TYPE_GRAPH);
 }

@@ -80,7 +80,7 @@ shared_t<abstract_message_handler_t> object_t::get_message_handler(const string_
     return found->second;
 }
 
-void object_t::execute_if_needed()
+void object_t::deliver_if_needed()
 {
     assert_lockable_owner();
 
@@ -191,21 +191,10 @@ void object_t::init()
 #endif
 }
 
-void object_t::activate()
-{
-    assert_lockable_owner();
-
-    assert(init_flag);
-    assert(! activated_flag);
-
-    activated_flag = true;
-}
-
 void object_t::start()
 {
     assert_lockable_owner();
 
-    assert(activated_flag);
     assert(started_flag == false);
 
     started_flag = true;

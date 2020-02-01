@@ -32,7 +32,6 @@ void jackalope_init();
 void jackalope_object_delete(struct jackalope_object_t * object_in);
 void jackalope_object_connect(struct jackalope_object_t * object_in, const char * signal_in, struct jackalope_object_t * target_object_in, const char * slot_in);
 void jackalope_object_start(struct jackalope_object_t * object_in);
-void jackalope_object_run(struct jackalope_object_t * object_in);
 void jackalope_object_stop(struct jackalope_object_t * object_in);
 
 struct jackalope_object_t * jackalope_graph_make(const char * init_args_in[]);
@@ -45,7 +44,6 @@ unsigned int jackalope_node_get_num_sources(struct jackalope_object_t * object_i
 struct jackalope_sink_t * jackalope_node_add_sink(struct jackalope_object_t * object_in, const char * type_in, const char * name_in);
 unsigned int jackalope_node_get_num_sinks(struct jackalope_object_t * object_in);
 void jackalope_node_link(struct jackalope_object_t * object_in, const char * source_in, struct jackalope_object_t * target_object_in, const char * sink_in);
-void jackalope_node_run(struct jackalope_object_t * node_in);
 
 #ifdef __cplusplus
 }
@@ -76,7 +74,6 @@ struct jackalope_object_t : public jackalope_wrapper_t<jackalope::object_t> {
     jackalope::string_t peek(const jackalope::string_t& property_name_in);
     void poke(const jackalope::string_t& property_name_in, const jackalope::string_t& value_in);
     virtual void connect(const jackalope::string_t& signal_name_in, jackalope_object_t& target_object_in, const jackalope::string_t& slot_name_in);
-    virtual void activate();
     virtual void start();
     virtual void stop();
 
@@ -126,7 +123,6 @@ struct jackalope_node_t : public jackalope_object_t {
     virtual jackalope_sink_t add_sink(const jackalope::string_t& name_in, const jackalope::string_t& type_in);
     virtual jackalope::size_t get_num_sinks();
     virtual void link(const jackalope::string_t& source_name_in, jackalope_object_t& target_object_in, const jackalope::string_t& target_sink_name_in);
-    virtual void run();
 };
 
 #endif // __cplusplus

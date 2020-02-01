@@ -38,7 +38,6 @@ public:
     virtual shared_t<property_t> add_property(const string_t& name_in, property_t::type_t type_in, const init_args_t& init_args_in) override;
     shared_t<node_t> add_node(const init_args_t& init_args_in);
     virtual void init() override;
-    virtual void activate() override;
     virtual void start() override;
     virtual void stop() override;
 };

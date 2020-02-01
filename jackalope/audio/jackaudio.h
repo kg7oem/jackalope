@@ -14,7 +14,7 @@
 #pragma once
 
 #include <jackalope/audio.h>
-#include <jackalope/node.h>
+#include <jackalope/plugin.h>
 #include <jackalope/types.h>
 
 #define JACKALOPE_AUDIO_JACKAUDIO_DAEMON_TYPE "audio::jackaudio::connections"
@@ -41,7 +41,7 @@ using jackaudio_port_t = jackaudio::jack_port_t;
 
 void jackaudio_init();
 
-class jackaudio_node_t : public node_t {
+class jackaudio_node_t : public plugin_t {
 
 protected:
     jackaudio_client_t * jack_client = nullptr;
@@ -63,8 +63,8 @@ public:
     virtual void init() override;
     virtual void activate() override;
     virtual void start() override;
-    virtual bool should_run() override;
-    virtual void run() override;
+    virtual bool should_execute() override;
+    virtual void execute() override;
     virtual void stop() override;
 };
 

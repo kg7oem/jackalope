@@ -329,13 +329,16 @@ Class jackalope::object_t
 
   * signal methods: connect()
 
+
 Class jackalope::node_t
 
   * lifecycle methods: activate()
 
+
 Class jackalope::filter_plugin_t
 
   * plugin methods: execute()
+
 
 Class jackalope::petri_plugin_t
 

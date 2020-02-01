@@ -208,13 +208,16 @@ void node_t::activate()
 {
     assert_lockable_owner();
 
+    assert(init_flag);
+    assert(! activated_flag);
+
     if (graph.expired()) {
         throw_runtime_error("node graph weak pointer was expired when activating node");
     }
 
-    add_property(JACKALOPE_PROPERTY_NODE_NAME, property_t::type_t::string, init_args);
+    activated_flag = true;
 
-    object_t::activate();
+    add_property(JACKALOPE_PROPERTY_NODE_NAME, property_t::type_t::string, init_args);
 }
 
 void node_t::start()
@@ -234,8 +237,6 @@ void node_t::start()
     }
 
     NODE_LOG(info, "Done starting node");
-
-    run_if_needed();
 }
 
 void node_t::stop()
@@ -243,34 +244,6 @@ void node_t::stop()
     assert_lockable_owner();
 
     object_t::stop();
-}
-
-void node_t::deliver_one_message(shared_t<abstract_message_t> message_in)
-{
-    assert_lockable_owner();
-
-    assert(activated_flag);
-
-    object_t::deliver_one_message(message_in);
-
-    if (started_flag) {
-        run_if_needed();
-    }
-}
-
-void node_t::run_if_needed()
-{
-    assert_lockable_owner();
-
-    assert(started_flag);
-
-    while(1) {
-        if (stopped_flag || ! should_run()) {
-            break;
-        }
-
-        run();
-    }
 }
 
 void node_t::message_link_available(shared_t<link_t> link_in) {

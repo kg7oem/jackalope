@@ -52,7 +52,7 @@ void ladspa_init()
 }
 
 ladspa_node_t::ladspa_node_t(const init_args_t init_args_in)
-: node_t(init_args_in)
+: filter_plugin_t(init_args_in)
 { }
 
 ladspa_node_t::~ladspa_node_t()
@@ -93,7 +93,7 @@ void ladspa_node_t::init()
 {
     assert_lockable_owner();
 
-    node_t::init();
+    filter_plugin_t::init();
 
     add_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE, property_t::type_t::size, init_args);
     add_property(JACKALOPE_PROPERTY_PCM_SAMPLE_RATE, property_t::type_t::size, init_args);
@@ -169,7 +169,7 @@ void ladspa_node_t::activate()
         set_undef_property(i);
     }
 
-    node_t::activate();
+    filter_plugin_t::activate();
 
     auto sample_rate_prop = get_property(JACKALOPE_PROPERTY_PCM_SAMPLE_RATE);
     auto sample_rate = sample_rate_prop->get_size();
@@ -202,30 +202,7 @@ void ladspa_node_t::activate()
     }
 }
 
-bool ladspa_node_t::should_run()
-{
-    assert_lockable_owner();
-
-    if (sources.size() == 0 && sinks.size() == 0) {
-        throw_runtime_error("LADSPA plugin had no sinks and no sources");
-    }
-
-    for (auto i : sources) {
-        if (! i->is_available()) {
-            return false;
-        }
-    }
-
-    for (auto i : sinks) {
-        if (! i->is_ready()) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-void ladspa_node_t::run()
+void ladspa_node_t::execute()
 {
     assert_lockable_owner();
 
@@ -274,36 +251,6 @@ void ladspa_node_t::run()
         }
     }
 }
-
-// void ladspa_node_t::pcm_ready()
-// {
-//     pcm_node_t::pcm_ready();
-
-//     for(size_t port_num = 0; port_num < instance->get_num_ports(); port_num++) {
-//         auto descriptor = instance->get_port_descriptor(port_num);
-
-//         if(LADSPA_IS_PORT_AUDIO(descriptor) && LADSPA_IS_PORT_INPUT(descriptor)) {
-//             auto input = get_input<pcm_real_input_t>(instance->get_port_name(port_num));
-//             instance->connect_port(port_num, input->get_buffer_pointer());
-//         }
-//     }
-
-//     instance->run(get_property(JACKALOPE_PCM_PROPERTY_BUFFER_SIZE).get_size());
-
-//     for(size_t port_num = 0; port_num < instance->get_num_ports(); port_num++) {
-//         auto descriptor = instance->get_port_descriptor(port_num);
-
-//         if(LADSPA_IS_PORT_AUDIO(descriptor) && LADSPA_IS_PORT_INPUT(descriptor)) {
-//             instance->connect_port(port_num, nullptr);
-//         }
-//     }
-
-//     for(auto i : outputs) {
-//         i->set_dirty();
-//     }
-
-//     notify();
-// }
 
 ladspa_file_t::ladspa_file_t(const string_t& path_in)
 : path(path_in)

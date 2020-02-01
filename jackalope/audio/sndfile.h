@@ -14,7 +14,7 @@
 #pragma once
 
 #include <jackalope/audio.h>
-#include <jackalope/node.h>
+#include <jackalope/plugin.h>
 #include <jackalope/pcm.h>
 
 #define JACKALOPE_AUDIO_SNDFILE_DEFAULT_READ_AHEAD 262144
@@ -41,7 +41,7 @@ using sndfile_info_t = sndfile::SF_INFO;
 
 void sndfile_init();
 
-struct sndfile_node_t : public node_t {
+struct sndfile_node_t : public plugin_t {
     sndfile_handle_t * source_file = nullptr;
     sndfile_info_t source_info;
     thread_t * io_thread = nullptr;
@@ -55,8 +55,8 @@ struct sndfile_node_t : public node_t {
     virtual void init() override;
     virtual void activate() override;
     virtual void start() override;
-    virtual bool should_run() override;
-    virtual void run() override;
+    virtual bool should_execute() override;
+    virtual void execute() override;
     virtual void stop() override;
     virtual void close_file();
 };

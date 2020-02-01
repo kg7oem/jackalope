@@ -66,6 +66,7 @@ add_library(
     jackalope/message.cxx
     jackalope/node.cxx
     jackalope/object.cxx
+    jackalope/plugin.cxx
     jackalope/property.cxx
     jackalope/signal.cxx
     jackalope/string.cxx
