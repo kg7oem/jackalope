@@ -314,6 +314,8 @@ C++ Class Hierarchy
 
       * jackalope::plugin_t (execution)
 
+        * jackalope::filter_plugin_t (execute when all sources are ready)
+
         * jackalope::petri_plugin_t (execution conditions)
 
 
@@ -327,14 +329,14 @@ Class jackalope::object_t
 
   * signal methods: connect()
 
-
-Class jackalope::plugin_t
+Class jackalope::node_t
 
   * lifecycle methods: activate()
 
-  * plugin methods: execute_if_needed()
+Class jackalope::filter_plugin_t
 
+  * plugin methods: execute()
 
 Class jackalope::petri_plugin_t
 
-  * execute methods: add_marking()
+  * plugin methods: add_marking()
