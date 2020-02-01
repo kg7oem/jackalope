@@ -42,16 +42,6 @@ using object_library_t = library_t<object_t, const init_args_t>;
 void add_object_constructor(const string_t& class_name_in, object_library_t::constructor_t constructor_in);
 size_t _get_object_id();
 
-struct link_available_message_t : public message_t<shared_t<link_t>> {
-    static const string_t message_name;
-    link_available_message_t(shared_t<link_t> link_in);
-};
-
-struct link_ready_message_t : public message_t<shared_t<link_t>> {
-    static const string_t message_name;
-    link_ready_message_t(shared_t<link_t> link_in);
-};
-
 #ifdef CONFIG_HAVE_DBUS
 struct object_dbus_t : public object_adaptor, public DBus::IntrospectableAdaptor, public DBus::ObjectAdaptor {
     object_t& object;
@@ -82,10 +72,6 @@ protected:
     pool_map_t<string_t, shared_t<abstract_message_handler_t>> message_handlers;
     mutex_t message_mutex;
     pool_list_t<shared_t<abstract_message_t>> message_queue;
-    pool_vector_t<shared_t<source_t>> sources;
-    pool_map_t<string_t, shared_t<source_t>> sources_by_name;
-    pool_vector_t<shared_t<sink_t>> sinks;
-    pool_map_t<string_t, shared_t<sink_t>> sinks_by_name;
 
     object_t(const init_args_t init_args_in);
     object_t(const string_t& type_in, const init_args_t init_args_in);
@@ -111,6 +97,7 @@ protected:
     shared_t<abstract_message_handler_t> get_message_handler(const string_t& name_in);
     virtual void deliver_messages();
     virtual void deliver_one_message(shared_t<abstract_message_t> message_in);
+    // CHANGE rename to deliver_if_needed()
     virtual void execute_if_needed();
 
 public:
@@ -149,24 +136,14 @@ public:
         });
     }
 
-    virtual void message_link_available(shared_t<link_t> link_in);
-    virtual void message_link_ready(shared_t<link_t> link_in);
-
     virtual bool is_stopped();
     virtual string_t peek(const string_t& property_name_in);
     virtual void poke(const string_t& property_name_in, const string_t& value_in);
-    virtual shared_t<source_t> add_source(const string_t& source_name_in, const string_t& type_in);
-    virtual shared_t<source_t> get_source(const string_t& source_name_in);
-    virtual shared_t<source_t> get_source(const size_t source_num_in);
-    virtual size_t get_num_sources();
-    virtual shared_t<sink_t> add_sink(const string_t& sink_name_in, const string_t& type_in);
-    virtual shared_t<sink_t> get_sink(const string_t& sink_name_in);
-    virtual shared_t<sink_t> get_sink(const size_t sink_num_in);
-    virtual size_t get_num_sinks();
-    virtual void link(const string_t& source_name_in, shared_t<object_t> target_object_in, const string_t& target_sink_name_in);
     virtual void connect(const string_t& signal_name_in, shared_t<object_t> target_object_in, const string_t& target_slot_name_in);
     virtual void init();
+    // CHANGE move to plugin_t
     virtual void activate();
+    // CHANGE end move
     virtual void start();
     virtual void stop();
 };

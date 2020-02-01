@@ -25,10 +25,7 @@ use v5.10;
 use Jackalope::Glue;
 
 *DESTROY = *Jackalope::Glue::jackalope_object_delete;
-*get_num_sources = *Jackalope::Glue::jackalope_object_get_num_sources;
-*get_num_sinks = *Jackalope::Glue::jackalope_object_get_num_sinks;
 *connect = *Jackalope::Glue::jackalope_object_connect;
-*link = *Jackalope::Glue::jackalope_object_link;
 *start = *Jackalope::Glue::jackalope_object_start;
 *stop = *Jackalope::Glue::jackalope_object_stop;
 

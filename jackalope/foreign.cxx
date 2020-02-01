@@ -74,55 +74,6 @@ void jackalope_object_t::stop()
     });
 }
 
-jackalope_source_t jackalope_object_t::add_source(const string_t& name_in, const string_t& type_in)
-{
-    auto new_source = wait_job<shared_t<jackalope::source_t>>([&] {
-        auto lock = wrapped->get_object_lock();
-        return wrapped->add_source(name_in, type_in);
-    });
-
-    return jackalope_source_t(new_source);
-}
-
-jackalope::size_t jackalope_object_t::get_num_sources()
-{
-    return wait_job<jackalope::size_t>([&] {
-        auto lock = wrapped->get_object_lock();
-        return wrapped->get_num_sources();
-    });
-}
-
-jackalope_sink_t jackalope_object_t::add_sink(const string_t& name_in, const string_t& type_in)
-{
-    auto new_sink = wait_job<shared_t<jackalope::sink_t>>([&] {
-        auto lock = wrapped->get_object_lock();
-        return wrapped->add_sink(name_in, type_in);
-    });
-
-    return jackalope_sink_t(new_sink);
-}
-
-jackalope::size_t jackalope_object_t::get_num_sinks()
-{
-    return wait_job<jackalope::size_t>([&] {
-        auto lock = wrapped->get_object_lock();
-        return wrapped->get_num_sources();
-    });
-}
-
-void jackalope_object_t::link(const jackalope::string_t& source_name_in, jackalope_object_t& target_object_in, const jackalope::string_t& target_sink_name_in)
-{
-    wait_job([this, source_name_in, &target_object_in, target_sink_name_in] {
-        auto source_lock = wrapped->get_object_lock();
-        auto source = wrapped->get_source(source_name_in);
-        auto target = target_object_in.wrapped;
-        auto target_lock = target->get_object_lock();
-        auto target_sink = target->get_sink(target_sink_name_in);
-
-        source->link(target_sink);
-    });
-}
-
 void jackalope_object_t::connect(const string_t& signal_name_in, jackalope_object_t& target_object_in, const string_t& slot_name_in)
 {
     wait_job([&] {
@@ -203,6 +154,55 @@ jackalope_node_t::jackalope_node_t(shared_t<jackalope::node_t> wrapped_in)
 : jackalope_object_t(wrapped_in)
 { }
 
+jackalope_source_t jackalope_node_t::add_source(const string_t& name_in, const string_t& type_in)
+{
+    auto new_source = wait_job<shared_t<jackalope::source_t>>([&] {
+        auto lock = wrapped->get_object_lock();
+        return wrapped->shared_obj<jackalope::node_t>()->add_source(name_in, type_in);
+    });
+
+    return jackalope_source_t(new_source);
+}
+
+jackalope::size_t jackalope_node_t::get_num_sources()
+{
+    return wait_job<jackalope::size_t>([&] {
+        auto lock = wrapped->get_object_lock();
+        return wrapped->shared_obj<jackalope::node_t>()->get_num_sources();
+    });
+}
+
+jackalope_sink_t jackalope_node_t::add_sink(const string_t& name_in, const string_t& type_in)
+{
+    auto new_sink = wait_job<shared_t<jackalope::sink_t>>([&] {
+        auto lock = wrapped->get_object_lock();
+        return wrapped->shared_obj<jackalope::node_t>()->add_sink(name_in, type_in);
+    });
+
+    return jackalope_sink_t(new_sink);
+}
+
+jackalope::size_t jackalope_node_t::get_num_sinks()
+{
+    return wait_job<jackalope::size_t>([&] {
+        auto lock = wrapped->get_object_lock();
+        return wrapped->shared_obj<jackalope::node_t>()->get_num_sources();
+    });
+}
+
+void jackalope_node_t::link(const jackalope::string_t& source_name_in, jackalope_object_t& target_object_in, const jackalope::string_t& target_sink_name_in)
+{
+    wait_job([this, source_name_in, &target_object_in, target_sink_name_in] {
+        auto source_lock = wrapped->get_object_lock();
+        auto source = wrapped->shared_obj<jackalope::node_t>()->get_source(source_name_in);
+        auto target = target_object_in.wrapped->shared_obj<jackalope::node_t>();
+        auto target_lock = target->get_object_lock();
+        auto target_sink = target->get_sink(target_sink_name_in);
+
+        source->link(target_sink);
+    });
+}
+
 void jackalope_node_t::run()
 {
     auto node = dynamic_pointer_cast<jackalope::node_t>(wrapped);
@@ -244,48 +244,11 @@ void jackalope_object_delete(jackalope_object_t * object_in)
     delete object_in;
 }
 
-struct jackalope_source_t * jackalope_object_add_source(jackalope_object_t * object_in, const char * type_in, const char * name_in)
-{
-    assert(object_in != nullptr);
-
-    auto new_source = object_in->add_source(type_in, name_in);
-    auto wrapped_source = new_source.wrapped;
-    return new jackalope_source_t(wrapped_source);
-}
-
-unsigned int jackalope_object_get_num_sources(jackalope_object_t * object_in)
-{
-    assert(object_in != nullptr);
-    return object_in->get_num_sources();
-}
-
-struct jackalope_sink_t * jackalope_object_add_sink(jackalope_object_t * object_in, const char * type_in, const char * name_in)
-{
-    assert(object_in != nullptr);
-
-    auto new_sink = object_in->add_sink(type_in, name_in);
-    auto wrapped_sink = new_sink.wrapped;
-    return new jackalope_sink_t(wrapped_sink);
-}
-
-unsigned int jackalope_object_get_num_sinks(jackalope_object_t * object_in)
-{
-    assert(object_in != nullptr);
-    return object_in->get_num_sinks();
-}
-
 void jackalope_object_connect(jackalope_object_t * object_in, const char * signal_in, jackalope_object_t * target_object_in, const char * slot_in)
 {
     assert(object_in != nullptr);
 
     object_in->connect(signal_in, *target_object_in, slot_in);
-}
-
-void jackalope_object_link(jackalope_object_t * object_in, const char * source_in, jackalope_object_t * target_object_in, const char * sink_in)
-{
-    assert(object_in != nullptr);
-
-    object_in->link(source_in, *target_object_in, sink_in);
 }
 
 void jackalope_object_start(jackalope_object_t * object_in)
@@ -335,11 +298,48 @@ struct jackalope_object_t * jackalope_node_make(const char ** init_args_in)
     return new jackalope_node_t(new_node);
 }
 
+struct jackalope_source_t * jackalope_node_add_source(jackalope_object_t * object_in, const char * type_in, const char * name_in)
+{
+    assert(object_in != nullptr);
+
+    auto new_source = static_cast<jackalope_node_t *>(object_in)->add_source(type_in, name_in);
+    auto wrapped_source = new_source.wrapped;
+    return new jackalope_source_t(wrapped_source);
+}
+
+unsigned int jackalope_node_get_num_sources(jackalope_object_t * object_in)
+{
+    assert(object_in != nullptr);
+    return static_cast<jackalope_node_t *>(object_in)->get_num_sources();
+}
+
+struct jackalope_sink_t * jackalope_node_add_sink(jackalope_object_t * object_in, const char * type_in, const char * name_in)
+{
+    assert(object_in != nullptr);
+
+    auto new_sink = static_cast<jackalope_node_t *>(object_in)->add_sink(type_in, name_in);
+    auto wrapped_sink = new_sink.wrapped;
+    return new jackalope_sink_t(wrapped_sink);
+}
+
+unsigned int jackalope_node_get_num_sinks(jackalope_object_t * object_in)
+{
+    assert(object_in != nullptr);
+    return static_cast<jackalope_node_t *>(object_in)->get_num_sinks();
+}
+
+void jackalope_node_link(jackalope_object_t * object_in, const char * source_in, jackalope_object_t * target_object_in, const char * sink_in)
+{
+    assert(object_in != nullptr);
+
+    static_cast<jackalope_node_t *>(object_in)->link(source_in, *target_object_in, sink_in);
+}
+
 void jackalope_node_run(struct jackalope_object_t * object_in)
 {
     assert(object_in != nullptr);
 
-    auto node = dynamic_pointer_cast<jackalope_node_t>(object_in->wrapped);
+    auto node = object_in->wrapped->shared_obj<jackalope::node_t>();
     node->run();
 }
 

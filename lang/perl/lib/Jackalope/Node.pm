@@ -26,4 +26,8 @@ use Jackalope::Glue;
 
 use base qw(Jackalope::Object);
 
+*get_num_sources = *Jackalope::Glue::jackalope_node_get_num_sources;
+*get_num_sinks = *Jackalope::Glue::jackalope_node_get_num_sinks;
+*link = *Jackalope::Glue::jackalope_node_link;
+
 1;

@@ -72,10 +72,10 @@ int main(const int argc_in, const char ** argv_in)
     struct jackalope_object_t * right_tube = jackalope_graph_add_node(graph, right_tube_args);
 
     jackalope_object_connect(input_file, "object.stopped", graph, "object.stop");
-    jackalope_object_link(input_file, "Output 1", left_tube, "Audio Input 1");
-    jackalope_object_link(input_file, "Output 1", right_tube, "Audio Input 1");
-    jackalope_object_link(left_tube, "Audio Output 1", system_audio, "left");
-    jackalope_object_link(right_tube, "Audio Output 1", system_audio, "right");
+    jackalope_node_link(input_file, "Output 1", left_tube, "Audio Input 1");
+    jackalope_node_link(input_file, "Output 1", right_tube, "Audio Input 1");
+    jackalope_node_link(left_tube, "Audio Output 1", system_audio, "left");
+    jackalope_node_link(right_tube, "Audio Output 1", system_audio, "right");
 
     jackalope_graph_run(graph);
 

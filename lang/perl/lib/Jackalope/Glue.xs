@@ -11,17 +11,8 @@ PROTOTYPES: ENABLE
 void
 jackalope_init()
 
-unsigned int
-jackalope_object_get_num_sources(struct jackalope_object_t * object_in)
-
-unsigned int
-jackalope_object_get_num_sinks(struct jackalope_object_t * object_in)
-
 void
 jackalope_object_connect(struct jackalope_object_t * object_in, const char * signal_in, struct jackalope_object_t * target_in, const char * slot_in)
-
-void
-jackalope_object_link(struct jackalope_object_t * object_in, const char * source_in, struct jackalope_object_t * target_in, const char * sink_in)
 
 void
 jackalope_object_start(struct jackalope_object_t * object_in)
@@ -45,3 +36,12 @@ OUTPUT:
 
 void
 jackalope_graph_run(struct jackalope_object_t * graph_in)
+
+unsigned int
+jackalope_node_get_num_sources(struct jackalope_object_t * object_in)
+
+unsigned int
+jackalope_node_get_num_sinks(struct jackalope_object_t * object_in)
+
+void
+jackalope_node_link(struct jackalope_object_t * object_in, const char * source_in, struct jackalope_object_t * target_in, const char * sink_in)
