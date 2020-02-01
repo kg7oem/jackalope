@@ -298,3 +298,43 @@ standalone program handles updating the cough button mute status.
       // refresh around 50hz
       sleep(1 / 50);
     }
+
+
+C++ Class Hierarchy
+
+  * jackalope::object_t (commands, messages, properties, signals, slots)
+
+    * jackalope::graph_t (node container)
+
+    * jackalope::node_t (sources, sinks)
+
+      * jackalope::network_t (reusable component)
+
+        * jackalope::linear_network_t
+
+      * jackalope::plugin_t (execution)
+
+        * jackalope::petri_plugin_t (execution conditions)
+
+
+Class jackalope::object_t
+
+  * lifecycle methods: init(), start(), stop()
+
+  * property methods: peek(), poke()
+
+  * message methods: add_message_handler(), send_message(), deliver_messages(), deliver_one_message(), deliver_if_needed()
+
+  * signal methods: connect()
+
+
+Class jackalope::plugin_t
+
+  * lifecycle methods: activate()
+
+  * plugin methods: execute_if_needed()
+
+
+Class jackalope::petri_plugin_t
+
+  * execute methods: add_marking()
