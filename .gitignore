@@ -1,2 +1,4 @@
 author/
 build/*
+
+.vscode/
