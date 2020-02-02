@@ -81,6 +81,7 @@ protected:
     virtual ~object_t();
 
     static shared_t<object_t> _make(const init_args_t init_args_in);
+
     virtual void message_invoke_slot(const string_t slot_name_in);
 
 public:
@@ -95,6 +96,7 @@ public:
     }
 
     virtual void _send_message(shared_t<abstract_message_t> message_in);
+    virtual void deliver_one_message(shared_t<abstract_message_t> message_in) override;
 
     template <typename T, typename... Args>
     void send_message(Args... args)

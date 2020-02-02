@@ -31,11 +31,9 @@ void plugin_t::start()
 
 void plugin_t::deliver_one_message(shared_t<abstract_message_t> message_in)
 {
-    assert_lockable_owner();
-
-    assert(activated_flag);
-
     object_t::deliver_one_message(message_in);
+
+    auto lock = get_object_lock();
 
     if (started_flag) {
         execute_if_needed();

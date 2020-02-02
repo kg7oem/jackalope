@@ -71,11 +71,13 @@ protected:
     pool_map_t<string_t, shared_t<abstract_message_handler_t>> message_handlers;
     mutex_t message_mutex;
     pool_list_t<shared_t<abstract_message_t>> message_queue;
-    bool delivering_messages_flag = false;
+    bool message_delivering_flag = false;
 
     template <typename T>
     void add_message_handler(typename T::handler_t handler_in)
     {
+        lock_t message_lock(message_mutex);
+
         auto found = message_handlers.find(T::message_name);
 
         if (found != message_handlers.end()) {

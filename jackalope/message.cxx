@@ -24,6 +24,8 @@ abstract_message_t::abstract_message_t(const string_t& name_in)
 
 shared_t<abstract_message_handler_t> message_obj_t::get_message_handler(const string_t& name_in)
 {
+    lock_t message_lock(message_mutex);
+
     auto found = message_handlers.find(name_in);
 
     if (found == message_handlers.end()) {
@@ -35,11 +37,15 @@ shared_t<abstract_message_handler_t> message_obj_t::get_message_handler(const st
 
 void message_obj_t::deliver_if_needed()
 {
-    if (delivering_messages_flag) {
-        return;
-    }
+    {
+        lock_t message_lock(message_mutex);
 
-    delivering_messages_flag = true;
+        if (message_delivering_flag) {
+            return;
+        }
+
+        message_delivering_flag = true;
+    }
 
     deliver_messages();
 }
@@ -50,10 +56,12 @@ void message_obj_t::deliver_messages()
         shared_t<abstract_message_t> message;
 
         {
-            lock_t message_lock_t(message_mutex);
+            lock_t message_lock(message_mutex);
+
+            assert(message_delivering_flag == true);
 
             if (message_queue.empty()) {
-                delivering_messages_flag = false;
+                message_delivering_flag = false;
                 return;
             }
 
@@ -69,6 +77,7 @@ void message_obj_t::deliver_one_message(shared_t<abstract_message_t> message_in)
 {
     auto message_name = message_in->name;
     auto message_handler = get_message_handler(message_name);
+
     message_handler->invoke(message_in);
 }
 

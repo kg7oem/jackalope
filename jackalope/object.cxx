@@ -92,14 +92,17 @@ void object_t::_send_message(shared_t<abstract_message_t> message_in)
         message_queue.push_back(message_in);
     }
 
-    // objects should not get locks from other objects
-    // so checking the queue is scheduled in the future
-    // from the thread queue
+    // FIXME this is rather wasteful because jobs go into
+    // the thread queue and that could have been prevented
     async_engine->submit_job([shared_this] {
-        // no problem with a lock from inside the thread queue
-        auto lock = shared_this->get_object_lock();
         shared_this->deliver_if_needed();
     });
+}
+
+void object_t::deliver_one_message(shared_t<abstract_message_t> message_in)
+{
+    auto lock = get_object_lock();
+    message_obj_t::deliver_one_message(message_in);
 }
 
 string_t object_t::peek(const string_t& property_name_in)
