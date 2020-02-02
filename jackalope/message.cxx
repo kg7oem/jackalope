@@ -11,6 +11,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
+#include <jackalope/exception.h>
 #include <jackalope/message.h>
 
 namespace jackalope {
@@ -19,6 +20,56 @@ abstract_message_t::abstract_message_t(const string_t& name_in)
 : name(name_in)
 {
     assert(name != "");
+}
+
+shared_t<abstract_message_handler_t> message_obj_t::get_message_handler(const string_t& name_in)
+{
+    auto found = message_handlers.find(name_in);
+
+    if (found == message_handlers.end()) {
+        throw_runtime_error("could not find message handler: ", name_in);
+    }
+
+    return found->second;
+}
+
+void message_obj_t::deliver_if_needed()
+{
+    if (delivering_messages_flag) {
+        return;
+    }
+
+    delivering_messages_flag = true;
+
+    deliver_messages();
+}
+
+void message_obj_t::deliver_messages()
+{
+    while(1) {
+        shared_t<abstract_message_t> message;
+
+        {
+            lock_t message_lock_t(message_mutex);
+
+            if (message_queue.empty()) {
+                delivering_messages_flag = false;
+                return;
+            }
+
+            message = message_queue.front();
+            message_queue.pop_front();
+        }
+
+        deliver_one_message(message);
+    }
+}
+
+void message_obj_t::deliver_one_message(shared_t<abstract_message_t> message_in)
+{
+    auto message_name = message_in->name;
+    auto message_handler = get_message_handler(message_name);
+    message_handler->invoke(message_in);
 }
 
 } //namespace jackalope

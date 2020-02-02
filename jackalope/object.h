@@ -53,7 +53,9 @@ struct object_dbus_t : public object_adaptor, public DBus::IntrospectableAdaptor
 };
 #endif
 
-class object_t : public prop_obj_t, public signal_obj_t, public shared_obj_t<object_t>, public lockable_t, public base_t {
+class object_t :
+    public prop_obj_t, public signal_obj_t, public message_obj_t,
+    public shared_obj_t<object_t>, public lockable_t, public base_t {
 
     friend jackalope_node_t;
     friend jackalope_object_t;
@@ -65,38 +67,14 @@ protected:
 
     bool init_flag = false;
     bool started_flag = false;
-    bool executing_flag = false;
     bool stopped_flag = false;
     const shared_t<async_engine_t> async_engine = get_async_engine();
-    pool_map_t<string_t, shared_t<abstract_message_handler_t>> message_handlers;
-    mutex_t message_mutex;
-    pool_list_t<shared_t<abstract_message_t>> message_queue;
 
     object_t(const init_args_t init_args_in);
     object_t(const string_t& type_in, const init_args_t init_args_in);
     virtual ~object_t();
 
     static shared_t<object_t> _make(const init_args_t init_args_in);
-
-    template <typename T>
-    void add_message_handler(typename T::handler_t handler_in)
-    {
-        assert_lockable_owner();
-
-        auto found = message_handlers.find(T::message_name);
-
-        if (found != message_handlers.end()) {
-            throw_runtime_error("Attempt to add duplicate message handler: ", T::message_name);
-        }
-
-        auto message_handler = jackalope::make_shared<typename T::message_handler_t>(handler_in);
-        message_handlers[T::message_name] = message_handler;
-    }
-
-    shared_t<abstract_message_handler_t> get_message_handler(const string_t& name_in);
-    virtual void deliver_messages();
-    virtual void deliver_one_message(shared_t<abstract_message_t> message_in);
-    virtual void deliver_if_needed();
 
 public:
     const init_args_t init_args;
@@ -109,29 +87,14 @@ public:
         return dynamic_pointer_cast<T>(_make(init_args_in));
     }
 
+public:
+    void _send_message(shared_t<abstract_message_t> message_in);
+
     template <typename T, typename... Args>
     void send_message(Args... args)
     {
-        // this method is called by other threads and should not
-        // lock the object mutex to avoid race conditions
-        assert(! thread_owns_mutex());
-
-        auto shared_this = shared_obj();
         auto message = jackalope::make_shared<T>(args...);
-
-        {
-            lock_t message_lock(message_mutex);
-            message_queue.push_back(message);
-        }
-
-        // objects should not get locks from other objects
-        // so checking the queue is scheduled in the future
-        // from the thread queue
-        async_engine->submit_job([shared_this] {
-            // no problem with a lock from inside the thread queue
-            auto lock = shared_this->get_object_lock();
-            shared_this->deliver_if_needed();
-        });
+        _send_message(message);
     }
 
     virtual bool is_stopped();

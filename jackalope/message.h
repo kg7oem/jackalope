@@ -15,6 +15,7 @@
 
 #include <jackalope/object.forward.h>
 #include <jackalope/string.h>
+#include <jackalope/thread.h>
 #include <jackalope/types.h>
 
 namespace jackalope {
@@ -62,6 +63,34 @@ protected:
     message_t(const string_t& name_in, T... args)
     : abstract_message_t(name_in), args(args_t(args...))
     { }
+};
+
+class message_obj_t {
+
+protected:
+    pool_map_t<string_t, shared_t<abstract_message_handler_t>> message_handlers;
+    mutex_t message_mutex;
+    pool_list_t<shared_t<abstract_message_t>> message_queue;
+    bool delivering_messages_flag = false;
+
+
+    template <typename T>
+    void add_message_handler(typename T::handler_t handler_in)
+    {
+        auto found = message_handlers.find(T::message_name);
+
+        if (found != message_handlers.end()) {
+            throw_runtime_error("Attempt to add duplicate message handler: ", T::message_name);
+        }
+
+        auto message_handler = jackalope::make_shared<typename T::message_handler_t>(handler_in);
+        message_handlers[T::message_name] = message_handler;
+    }
+
+    shared_t<abstract_message_handler_t> get_message_handler(const string_t& name_in);
+    virtual void deliver_messages();
+    virtual void deliver_one_message(shared_t<abstract_message_t> message_in);
+    virtual void deliver_if_needed();
 };
 
 } //namespace jackalope

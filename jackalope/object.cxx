@@ -67,70 +67,30 @@ object_t::~object_t()
     }
 }
 
-shared_t<abstract_message_handler_t> object_t::get_message_handler(const string_t& name_in)
-{
-    assert_lockable_owner();
-
-    auto found = message_handlers.find(name_in);
-
-    if (found == message_handlers.end()) {
-        throw_runtime_error("could not find message handler: ", name_in);
-    }
-
-    return found->second;
-}
-
-void object_t::deliver_if_needed()
-{
-    assert_lockable_owner();
-
-    if (executing_flag) {
-        return;
-    }
-
-    executing_flag = true;
-
-    deliver_messages();
-}
-
-void object_t::deliver_messages()
-{
-    assert_lockable_owner();
-    assert(executing_flag == true);
-
-    while(1) {
-        shared_t<abstract_message_t> message;
-
-        {
-            lock_t message_lock_t(message_mutex);
-
-            if (message_queue.empty()) {
-                executing_flag = false;
-                return;
-            }
-
-            message = message_queue.front();
-            message_queue.pop_front();
-        }
-
-        deliver_one_message(message);
-    }
-}
-
-void object_t::deliver_one_message(shared_t<abstract_message_t> message_in)
-{
-    assert_lockable_owner();
-
-    auto message_name = message_in->name;
-    auto message_handler = get_message_handler(message_name);
-    message_handler->invoke(message_in);
-}
-
 bool object_t::is_stopped()
 {
     assert_lockable_owner();
 
     return stopped_flag;
+}
+
+void object_t::_send_message(shared_t<abstract_message_t> message_in)
+{
+    auto shared_this = shared_obj();
+
+    {
+        lock_t message_lock(message_mutex);
+        message_queue.push_back(message_in);
+    }
+
+    // objects should not get locks from other objects
+    // so checking the queue is scheduled in the future
+    // from the thread queue
+    async_engine->submit_job([shared_this] {
+        // no problem with a lock from inside the thread queue
+        auto lock = shared_this->get_object_lock();
+        shared_this->deliver_if_needed();
+    });
 }
 
 string_t object_t::peek(const string_t& property_name_in)
