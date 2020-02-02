@@ -314,9 +314,9 @@ C++ Class Hierarchy
 
       * jackalope::plugin_t (execution)
 
-        * jackalope::filter_plugin_t (execute when all sources are ready)
+        * jackalope::filter_plugin_t (execute when all sources are ready and sinks are available)
 
-        * jackalope::petri_plugin_t (execution conditions)
+        * jackalope::petri_plugin_t (execute different methods depending on rules)
 
 
 Class jackalope::object_t
