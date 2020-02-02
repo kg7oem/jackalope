@@ -33,19 +33,13 @@ using portaudio_stream_cb_flags = PaStreamCallbackFlags;
 
 void portaudio_init();
 
-class portaudio_node_t : public plugin_t {
+class portaudio_node_t : public threaded_driver_plugin_t {
 
 protected:
     portaudio_stream_t * stream = nullptr;
-    bool thread_run = false;
-    condition_t thread_run_cond;
 
     virtual void init() override;
     virtual void activate() override;
-    virtual void start() override;
-    virtual bool should_execute() override;
-    virtual void execute() override;
-    virtual void stop() override;
 
 public:
     portaudio_node_t(const init_args_t init_args_in);

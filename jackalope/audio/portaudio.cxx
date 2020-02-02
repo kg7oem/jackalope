@@ -46,7 +46,7 @@ void portaudio_init()
 }
 
 portaudio_node_t::portaudio_node_t(const init_args_t init_args_in)
-: plugin_t(init_args_in)
+: threaded_driver_plugin_t(init_args_in)
 { }
 
 portaudio_node_t::~portaudio_node_t()
@@ -69,7 +69,7 @@ void portaudio_node_t::init()
     add_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE, property_t::type_t::size, init_args);
     add_property(JACKALOPE_PROPERTY_PCM_SAMPLE_RATE, property_t::type_t::size, init_args);
 
-    plugin_t::init();
+    threaded_driver_plugin_t::init();
 }
 
 int process_cb(const void * input_buffer_in, void * output_buffer_in, size_t frames_per_buffer_in, const portaudio_stream_cb_time_info_t * time_info_in, portaudio_stream_cb_flags status_flags_in, void *userdata_in)
@@ -103,10 +103,10 @@ void portaudio_node_t::activate()
 
     auto userdata = static_cast<void *>(this);
 
-    plugin_t::activate();
+    threaded_driver_plugin_t::activate();
 
     auto lock = get_portaudio_lock();
-    auto err = Pa_OpenDefaultStream(&stream, sources.size(), sinks.size(), paFloat32, sample_rate, buffer_size, process_cb, userdata);
+    auto err = Pa_OpenDefaultStream(&stream, get_num_sources(), get_num_sinks(), paFloat32, sample_rate, buffer_size, process_cb, userdata);
 
     if (err != paNoError) {
         throw_runtime_error("Could not open portaudio default stream: ", Pa_GetErrorText(err));
@@ -120,89 +120,39 @@ void portaudio_node_t::activate()
     }
 }
 
-void portaudio_node_t::start()
-{
-    auto lock = get_portaudio_lock();
-
-    plugin_t::start();
-}
-
-bool portaudio_node_t::should_execute()
-{
-    assert_lockable_owner();
-
-    if (thread_run) {
-        return false;
-    }
-
-    for(auto i : sinks) {
-        if (! i->is_ready()) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-void portaudio_node_t::execute()
-{
-    assert_lockable_owner();
-
-    assert(started_flag);
-
-    NODE_LOG(info, "portaudio node running");
-
-    assert(thread_run == false);
-
-    thread_run = true;
-    thread_run_cond.notify_all();
-
-    NODE_LOG(info, "told portaudio thread to start");
-}
-
-void portaudio_node_t::stop()
-{
-    assert_lockable_owner();
-
-    plugin_t::stop();
-
-    assert(stopped_flag);
-    thread_run_cond.notify_all();
-    // FIXME this seems awful
-    thread_run_cond.wait(object_mutex, [&] { return thread_run == false; });
-    assert_lockable_owner();
-}
-
-int portaudio_node_t::process(const void *, void * sink_buffer_in, size_t frames_per_buffer_in, const portaudio_stream_cb_time_info_t *, portaudio_stream_cb_flags status_flags_in)
+int portaudio_node_t::process(const void * input_buffer_in, void * output_buffer_in, size_t frames_per_buffer_in, const portaudio_stream_cb_time_info_t *, portaudio_stream_cb_flags status_flags_in)
 {
     NODE_LOG(info, "portaudio process() invoked");
     auto lock = get_object_lock();
     NODE_LOG(info, "portaudio process() got object lock");
 
-    auto sink_buffer = static_cast<real_t *>(sink_buffer_in);
-    auto num_sinks = sinks.size();
+    auto output_buffer = static_cast<real_t *>(output_buffer_in);
+    auto input_buffer = static_cast<const real_t *>(input_buffer_in);
+    auto num_sinks = get_num_sinks();
+    auto num_sources = get_num_sources();
 
-    pcm_zero(sink_buffer, frames_per_buffer_in * num_sinks);
+    pcm_zero(output_buffer, frames_per_buffer_in * num_sinks);
 
     if (! started_flag) {
+        driver_thread_run_flag = false;
+        driver_thread_cond.notify_all();
+
         return paContinue;
     }
 
-    NODE_LOG(info, "PortAudio thread is waiting to run");
-    thread_run_cond.wait(lock, [this] { return stopped_flag || thread_run; });
-    NODE_LOG(info, "PortAudio is done waiting to run");
-
-    thread_run = false;
-    thread_run_cond.notify_all();
-
     if (stopped_flag) {
-        NODE_LOG(info, "portaudio thread is returning because the node is stopped");
+        driver_thread_run_flag = false;
+        driver_thread_cond.notify_all();
+
         return paAbort;
     }
 
     if (status_flags_in) {
         if (status_flags_in & paPrimingOutput) {
             // discard anything that is going to be used for priming
+            driver_thread_run_flag = false;
+            driver_thread_cond.notify_all();
+
             return paContinue;
         }
 
@@ -231,13 +181,33 @@ int portaudio_node_t::process(const void *, void * sink_buffer_in, size_t frames
         }
     }
 
+    for(size_t i = 0; i < num_sources; i++) {
+        auto source = get_source(i)->shared_obj<audio_source_t>();
+        auto buffer = jackalope::make_shared<audio_buffer_t>(frames_per_buffer_in);
+
+        pcm_extract_interleave(input_buffer, buffer->get_pointer(), i, num_sources, frames_per_buffer_in);
+        source->notify_buffer(buffer);
+    }
+
+    NODE_LOG(info, "PortAudio thread is waiting to run");
+    driver_thread_cond.wait(lock, [this] { return stopped_flag || driver_thread_run_flag; });
+    NODE_LOG(info, "PortAudio is done waiting to run");
+
+    driver_thread_run_flag = false;
+    driver_thread_cond.notify_all();
+
+    if (stopped_flag) {
+        NODE_LOG(info, "portaudio thread is returning because the node is stopped");
+        return paAbort;
+    }
+
     for(size_t i = 0; i < num_sinks; i++) {
         auto sink = get_sink(i)->shared_obj<audio_sink_t>();
 
         auto buffer = sink->get_buffer();
         sink->reset();
 
-        pcm_insert_interleave(buffer->get_pointer(), sink_buffer, i, num_sinks, frames_per_buffer_in);
+        pcm_insert_interleave(buffer->get_pointer(), output_buffer, i, num_sinks, frames_per_buffer_in);
     }
 
     NODE_LOG(info, "portaudio thread is done");
