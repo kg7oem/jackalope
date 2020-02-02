@@ -32,6 +32,7 @@ namespace jackalope {
 
 #define JACKALOPE_MESSAGE_OBJECT_LINK_AVAILABLE    "object.link_available"
 #define JACKALOPE_MESSAGE_OBJECT_LINK_READY        "object.link_ready"
+#define JACKALOPE_MESSAGE_OBJECT_INVOKE_SLOT       "object.invoke_slot"
 #define JACKALOPE_PROPERTY_OBJECT_TYPE             "object.type"
 #define JACKALOPE_PROPERTY_OBJECT_async_engine     "object.async_engine"
 #define JACKALOPE_SLOT_OBJECT_STOP                 "object.stop"
@@ -41,6 +42,11 @@ using object_library_t = library_t<object_t, const init_args_t>;
 
 void add_object_constructor(const string_t& class_name_in, object_library_t::constructor_t constructor_in);
 size_t _get_object_id();
+
+struct invoke_slot_message_t : public message_t<const string_t> {
+    static const string_t message_name;
+    invoke_slot_message_t(const string_t& slot_name_in);
+};
 
 #ifdef CONFIG_HAVE_DBUS
 struct object_dbus_t : public object_adaptor, public DBus::IntrospectableAdaptor, public DBus::ObjectAdaptor {
@@ -75,6 +81,7 @@ protected:
     virtual ~object_t();
 
     static shared_t<object_t> _make(const init_args_t init_args_in);
+    virtual void message_invoke_slot(const string_t slot_name_in);
 
 public:
     const init_args_t init_args;
@@ -87,8 +94,7 @@ public:
         return dynamic_pointer_cast<T>(_make(init_args_in));
     }
 
-public:
-    void _send_message(shared_t<abstract_message_t> message_in);
+    virtual void _send_message(shared_t<abstract_message_t> message_in);
 
     template <typename T, typename... Args>
     void send_message(Args... args)
@@ -97,10 +103,11 @@ public:
         _send_message(message);
     }
 
+    virtual void connect(const string_t& signal_name_in, shared_t<object_t> target_object_in, const string_t& target_slot_name_in);
+
     virtual bool is_stopped();
     virtual string_t peek(const string_t& property_name_in);
     virtual void poke(const string_t& property_name_in, const string_t& value_in);
-    virtual void connect(const string_t& signal_name_in, shared_t<object_t> target_object_in, const string_t& target_slot_name_in);
     virtual void init();
     virtual void start();
     virtual void stop();

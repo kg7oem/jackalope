@@ -14,6 +14,7 @@
 #pragma once
 
 #include <jackalope/message.h>
+#include <jackalope/object.forward.h>
 #include <jackalope/string.h>
 #include <jackalope/types.h>
 
@@ -28,13 +29,24 @@ using slot_function_t = function_t<void ()>;
 
 // Thread safe with out user requirements
 struct signal_t : public base_t, public shared_obj_t<signal_t>, lockable_t {
-    const string_t name;
-    pool_list_t<slot_function_t> connections;
+
+public:
+    struct subscription_t {
+        const weak_t<object_t> weak_subscriber;
+        const string_t slot_name;
+
+        subscription_t(shared_t<object_t> subscriber_in, const string_t& slot_name_in);
+    };
+
+protected:
+    pool_list_t<subscription_t> subscriptions;
     pool_list_t<promise_t<void>> waiters;
 
+public:
+    const string_t name;
+
     signal_t(const string_t& name_in);
-    void subscribe(slot_function_t handler_in);
-    void subscribe(shared_t<slot_t> handler_in);
+    void subscribe(shared_t<object_t> object_in, const string_t& name_in);
     void send();
     void wait();
 };
@@ -44,8 +56,8 @@ struct slot_t : public base_t, public shared_obj_t<slot_t> {
     const string_t name;
     const slot_function_t handler;
 
-    slot_t(const string_t& name_in, slot_function_t handler_in);
-    void invoke();
+    slot_t(const string_t& name_in, const slot_function_t handler_in);
+    virtual void invoke();
 };
 
 class signal_obj_t {
@@ -54,10 +66,12 @@ protected:
     pool_map_t<string_t, shared_t<signal_t>> signals;
     pool_map_t<string_t, shared_t<slot_t>> slots;
 
-public:
     virtual shared_t<signal_t> add_signal(const string_t& name_in);
-    virtual shared_t<signal_t> get_signal(const string_t& name_in);
+    virtual shared_t<slot_t> add_slot(shared_t<slot_t> slot_in);
     virtual shared_t<slot_t> add_slot(const string_t& name_in, slot_function_t handler_in);
+
+public:
+    virtual shared_t<signal_t> get_signal(const string_t& name_in);
     virtual shared_t<slot_t> get_slot(const string_t& name_in);
 };
 

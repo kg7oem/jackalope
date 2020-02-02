@@ -33,6 +33,14 @@ size_t _get_object_id()
     return current_id++;
 }
 
+const string_t invoke_slot_message_t::message_name = JACKALOPE_MESSAGE_OBJECT_INVOKE_SLOT;
+
+invoke_slot_message_t::invoke_slot_message_t(const string_t& slot_name_in)
+: message_t(JACKALOPE_MESSAGE_OBJECT_INVOKE_SLOT, slot_name_in)
+{
+    assert(slot_name_in != "");
+}
+
 shared_t<object_t> object_t::_make(const init_args_t init_args_in)
 {
     if (! init_args_has(JACKALOPE_PROPERTY_OBJECT_TYPE, init_args_in)) {
@@ -74,6 +82,7 @@ bool object_t::is_stopped()
     return stopped_flag;
 }
 
+// this method has special locking requirements
 void object_t::_send_message(shared_t<abstract_message_t> message_in)
 {
     auto shared_this = shared_obj();
@@ -113,20 +122,15 @@ void object_t::connect(const string_t& signal_name_in, shared_t<object_t> target
     assert_object_owner(target_object_in);
 
     auto signal = get_signal(signal_name_in);
-    auto slot = target_object_in->get_slot(target_slot_name_in);
-    weak_t<object_t> weak_this = shared_obj();
+    signal->subscribe(target_object_in, target_slot_name_in);
+}
 
-    signal->subscribe([weak_this, slot] {
-        try {
-            weak_this.lock()->async_engine->submit_job([slot] {
-                slot->handler();
-            });
-        } catch (const std::bad_weak_ptr& e) {
-            // FIXME this should clean up or something but
-            // there is no way to do that yet so it doesn't
-            // do anything which is safe but wasteful
-        }
-    });
+void object_t::message_invoke_slot(const string_t slot_name_in)
+{
+    assert_lockable_owner();
+
+    auto slot = get_slot(slot_name_in);
+    slot->invoke();
 }
 
 void object_t::init()
@@ -139,10 +143,9 @@ void object_t::init()
 
     add_property(JACKALOPE_PROPERTY_OBJECT_TYPE, property_t::type_t::string, init_args);
 
-    add_slot(JACKALOPE_SLOT_OBJECT_STOP, [this] () {
-        auto lock = get_object_lock();
-        this->stop();
-    });
+    add_message_handler<invoke_slot_message_t>([this] (const string_t& slot_name_in) { this->message_invoke_slot(slot_name_in); });
+
+    add_slot(JACKALOPE_SLOT_OBJECT_STOP, std::bind(&object_t::stop, this));
 
     add_signal(JACKALOPE_SIGNAL_OBJECT_STOPPED);
 

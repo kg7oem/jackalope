@@ -37,9 +37,16 @@ public:
 template <typename... T>
 class message_t : public abstract_message_t {
 
+protected:
+    message_t(const string_t& name_in, T... args)
+    : abstract_message_t(name_in), args(args_t(args...))
+    { }
+
 public:
     using args_t = tuple_t<T...>;
     using handler_t = function_t<void (T...)>;
+
+    const args_t args;
 
     class message_handler_t : public abstract_message_handler_t {
 
@@ -56,13 +63,6 @@ public:
             std::apply(handler, typed_message->args);
         }
     };
-
-    const args_t args;
-
-protected:
-    message_t(const string_t& name_in, T... args)
-    : abstract_message_t(name_in), args(args_t(args...))
-    { }
 };
 
 class message_obj_t {
@@ -72,7 +72,6 @@ protected:
     mutex_t message_mutex;
     pool_list_t<shared_t<abstract_message_t>> message_queue;
     bool delivering_messages_flag = false;
-
 
     template <typename T>
     void add_message_handler(typename T::handler_t handler_in)

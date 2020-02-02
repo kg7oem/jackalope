@@ -14,24 +14,27 @@
 #include <jackalope/async.h>
 #include <jackalope/exception.h>
 #include <jackalope/logging.h>
+#include <jackalope/object.h>
 #include <jackalope/signal.h>
 
 namespace jackalope {
+
+signal_t::subscription_t::subscription_t(shared_t<object_t> subscriber_in, const string_t& slot_name_in)
+: weak_subscriber(subscriber_in), slot_name(slot_name_in)
+{
+    assert(subscriber_in != nullptr);
+    assert(! weak_subscriber.expired());
+    assert(slot_name_in != "");
+}
 
 signal_t::signal_t(const string_t& name_in)
 : name(name_in)
 { }
 
-void signal_t::subscribe(slot_function_t handler_in)
+void signal_t::subscribe(shared_t<object_t> object_in, const string_t& name_in)
 {
     auto lock = get_object_lock();
-    connections.push_back(handler_in);
-}
-
-void signal_t::subscribe(shared_t<slot_t> handler_in)
-{
-    auto lock = get_object_lock();
-    connections.push_back([handler_in] { handler_in->invoke(); });
+    subscriptions.emplace(subscriptions.end(), object_in, name_in);
 }
 
 void signal_t::send()
@@ -44,8 +47,14 @@ void signal_t::send()
 
     waiters.empty();
 
-    for (auto i : connections) {
-        i();
+    for (auto i = subscriptions.begin(); i != subscriptions.end(); i++) {
+        try {
+            auto subscriber = i->weak_subscriber.lock();
+            subscriber->send_message<invoke_slot_message_t>(i->slot_name);
+        } catch (const std::bad_weak_ptr&) {
+            subscriptions.erase(i);
+            continue;
+        }
     }
 }
 
@@ -62,9 +71,11 @@ void signal_t::wait()
    wakeup_future.get();
 }
 
-slot_t::slot_t(const string_t& name_in, slot_function_t handler_in)
+slot_t::slot_t(const string_t& name_in, const slot_function_t handler_in)
 : name(name_in), handler(handler_in)
-{ }
+{
+    assert(name != "");
+}
 
 void slot_t::invoke()
 {
@@ -94,16 +105,23 @@ shared_t<signal_t> signal_obj_t::get_signal(const string_t& name_in)
     return found->second;
 }
 
-shared_t<slot_t> signal_obj_t::add_slot(const string_t& name_in, slot_function_t handler_in)
+shared_t<slot_t> signal_obj_t::add_slot(shared_t<slot_t> slot_in)
 {
-    if (slots.find(name_in) != slots.end()) {
-        throw_runtime_error("Duplicate slot name: ", name_in);
+    auto name = slot_in->name;
+
+    if (slots.find(name) != slots.end()) {
+        throw_runtime_error("Duplicate slot name: ", name);
     }
 
-    auto new_slot = jackalope::make_shared<slot_t>(name_in, handler_in);
-    slots.insert({ name_in, new_slot });
+    slots.insert({ name, slot_in });
+    return slot_in;
+}
 
-    return new_slot;
+shared_t<slot_t> signal_obj_t::add_slot(const string_t& name_in, slot_function_t handler_in)
+{
+    auto new_slot = jackalope::make_shared<slot_t>(name_in, handler_in);
+
+    return add_slot(new_slot);
 }
 
 shared_t<slot_t> signal_obj_t::get_slot(const string_t& name_in)
