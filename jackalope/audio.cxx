@@ -30,6 +30,10 @@
 #include <jackalope/audio/portaudio.h>
 #endif
 
+#ifdef CONFIG_ENABLE_RTAUDIO
+#include <jackalope/audio/rtaudio.h>
+#endif
+
 #ifdef CONFIG_ENABLE_SNDFILE
 #include <jackalope/audio/sndfile.h>
 #endif
@@ -61,6 +65,10 @@ void audio_init()
 
 #ifdef CONFIG_ENABLE_PORTAUDIO
     audio::portaudio_init();
+#endif
+
+#ifdef CONFIG_ENABLE_RTAUDIO
+    audio::rtaudio_init();
 #endif
 
 #ifdef CONFIG_ENABLE_SNDFILE

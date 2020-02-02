@@ -17,7 +17,6 @@
 #include <jackalope/plugin.h>
 #include <jackalope/types.h>
 
-#define JACKALOPE_AUDIO_JACKAUDIO_DAEMON_TYPE "audio::jackaudio::connections"
 #define JACKALOPE_AUDIO_JACKAUDIO_OBJECT_TYPE "audio::jackaudio"
 #define JACKALOPE_AUDIO_JACKAUDIO_PROPERTY_CONFIG_CLIENT_NAME "config.client_name"
 
