@@ -15,7 +15,7 @@
 
 #include <jackalope/async.h>
 #include <jackalope/audio.h>
-#include <jackalope/object.h>
+#include <jackalope/node.h>
 #include <jackalope/pcm.h>
 
 #ifdef CONFIG_ENABLE_JACKAUDIO
