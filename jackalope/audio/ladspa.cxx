@@ -219,7 +219,7 @@ void ladspa_node_t::execute()
             auto port_name = instance->get_port_name(port_num);
 
             if(LADSPA_IS_PORT_INPUT(descriptor)) {
-                auto sink = get_sink(port_name)->shared_obj<audio_sink_t>();
+                auto sink = get_sink<audio_sink_t>(port_name);
                 auto buffer = sink->get_buffer();
                 instance->connect_port(port_num, buffer->get_pointer());
             } else if (LADSPA_IS_PORT_OUTPUT(descriptor)) {
@@ -241,11 +241,11 @@ void ladspa_node_t::execute()
             instance->connect_port(port_num, nullptr);
 
             if (LADSPA_IS_PORT_INPUT(descriptor)) {
-                auto sink = get_sink(port_name)->shared_obj<audio_sink_t>();
+                auto sink = get_sink<audio_sink_t>(port_name);
                 sink->reset();
             } else if (LADSPA_IS_PORT_OUTPUT(descriptor)) {
                 auto buffer = source_buffers[port_name];
-                auto source = get_source(port_name)->shared_obj<audio_source_t>();
+                auto source = get_source<audio_source_t>(port_name);
                 source->notify_buffer(buffer);
             }
         }

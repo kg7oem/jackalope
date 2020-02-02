@@ -182,7 +182,7 @@ int portaudio_node_t::process(const void * input_buffer_in, void * output_buffer
     }
 
     for(size_t i = 0; i < num_sources; i++) {
-        auto source = get_source(i)->shared_obj<audio_source_t>();
+        auto source = get_source<audio_source_t>(i);
         auto buffer = jackalope::make_shared<audio_buffer_t>(frames_per_buffer_in);
 
         pcm_extract_interleave(input_buffer, buffer->get_pointer(), i, num_sources, frames_per_buffer_in);
@@ -202,7 +202,7 @@ int portaudio_node_t::process(const void * input_buffer_in, void * output_buffer
     }
 
     for(size_t i = 0; i < num_sinks; i++) {
-        auto sink = get_sink(i)->shared_obj<audio_sink_t>();
+        auto sink = get_sink<audio_sink_t>(i);
 
         auto buffer = sink->get_buffer();
         sink->reset();

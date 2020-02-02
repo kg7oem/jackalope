@@ -159,7 +159,7 @@ int rtaudio_node_t::handle_rtaudio_process(void * output_buffer_in, void * input
     }
 
     for (size_t i = 0; i < num_sources; i++) {
-        auto source = dynamic_pointer_cast<audio_source_t>(get_source(i));
+        auto source = get_source<audio_source_t>(i);
         auto buffer = jackalope::make_shared<audio_buffer_t>(buffer_size);
 
         pcm_extract_interleave(input_buffer, buffer->get_pointer(), i, num_sources, num_frames_in);
@@ -167,7 +167,7 @@ int rtaudio_node_t::handle_rtaudio_process(void * output_buffer_in, void * input
     }
 
     for(size_t i = 0; i < num_sinks; i++) {
-        auto sink = dynamic_pointer_cast<audio_sink_t>(get_sink(i));
+        auto sink = get_sink<audio_sink_t>(i);
         auto sink_buffer = sink->get_buffer();
 
         sink->reset();

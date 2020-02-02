@@ -105,7 +105,7 @@ shared_t<source_t> node_t::add_source(const string_t& source_name_in, const stri
     return new_source;
 }
 
-shared_t<source_t> node_t::get_source(const string_t& source_name_in)
+shared_t<source_t> node_t::_get_source(const string_t& source_name_in)
 {
     assert_lockable_owner();
 
@@ -118,7 +118,7 @@ shared_t<source_t> node_t::get_source(const string_t& source_name_in)
     return found->second;
 }
 
-shared_t<source_t> node_t::get_source(const size_t source_num_in)
+shared_t<source_t> node_t::_get_source(const size_t source_num_in)
 {
     assert_lockable_owner();
 
@@ -153,7 +153,7 @@ shared_t<sink_t> node_t::add_sink(const string_t& sink_name_in, const string_t& 
     return new_source;
 }
 
-shared_t<sink_t> node_t::get_sink(const string_t& sink_name_in)
+shared_t<sink_t> node_t::_get_sink(const string_t& sink_name_in)
 {
     assert_lockable_owner();
 
@@ -166,7 +166,7 @@ shared_t<sink_t> node_t::get_sink(const string_t& sink_name_in)
     return found->second;
 }
 
-shared_t<sink_t> node_t::get_sink(const size_t sink_num_in)
+shared_t<sink_t> node_t::_get_sink(const size_t sink_num_in)
 {
     assert_lockable_owner();
 

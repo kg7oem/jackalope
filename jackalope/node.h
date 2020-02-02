@@ -56,14 +56,29 @@ public:
     shared_t<graph_t> get_graph();
     void set_graph(shared_t<graph_t> graph_in);
     virtual void set_undef_property(const string_t& name_in);
-    virtual shared_t<source_t> add_source(const string_t& source_name_in, const string_t& type_in);
-    virtual shared_t<source_t> get_source(const string_t& source_name_in);
-    virtual shared_t<source_t> get_source(const size_t source_num_in);
+
     virtual size_t get_num_sources();
-    virtual shared_t<sink_t> add_sink(const string_t& sink_name_in, const string_t& type_in);
-    virtual shared_t<sink_t> get_sink(const string_t& sink_name_in);
-    virtual shared_t<sink_t> get_sink(const size_t sink_num_in);
+    virtual shared_t<source_t> add_source(const string_t& source_name_in, const string_t& type_in);
+    virtual shared_t<source_t> _get_source(const string_t& source_name_in);
+    virtual shared_t<source_t> _get_source(const size_t source_num_in);
+
+    template <class T = source_t, typename... Args>
+    shared_t<T> get_source(Args... args)
+    {
+        return dynamic_pointer_cast<T>(_get_source(args...));
+    }
+
     virtual size_t get_num_sinks();
+    virtual shared_t<sink_t> add_sink(const string_t& sink_name_in, const string_t& type_in);
+    virtual shared_t<sink_t> _get_sink(const string_t& sink_name_in);
+    virtual shared_t<sink_t> _get_sink(const size_t sink_num_in);
+
+    template <class T = sink_t, typename... Args>
+    shared_t<T> get_sink(Args... args)
+    {
+        return dynamic_pointer_cast<T>(_get_sink(args...));
+    }
+
     virtual void link(const string_t& source_name_in, shared_t<node_t> target_node_in, const string_t& target_sink_name_in);
     virtual void init() override;
     virtual void activate();
