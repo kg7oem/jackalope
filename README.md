@@ -325,7 +325,7 @@ Class jackalope::object_t
 
   * property methods: peek(), poke()
 
-  * message methods: add_message_handler(), send_message(), deliver_messages(), deliver_one_message(), deliver_if_needed()
+  * message methods: add_message_handler(), send_message(), deliver_messages(), deliver_one_message()
 
   * signal methods: connect()
 
