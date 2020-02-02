@@ -54,6 +54,58 @@ void plugin_t::execute_if_needed()
     }
 }
 
+driver_plugin_t::driver_plugin_t(const init_args_t init_args_in)
+: plugin_t(init_args_in)
+{ }
+
+bool driver_plugin_t::should_execute()
+{
+    assert_lockable_owner();
+
+    for (auto i : sinks) {
+        if (! i->is_ready()) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+threaded_driver_plugin_t::threaded_driver_plugin_t(const init_args_t init_args_in)
+: driver_plugin_t(init_args_in)
+{ }
+
+bool threaded_driver_plugin_t::should_execute()
+{
+    assert_lockable_owner();
+
+    if (driver_thread_run_flag) {
+        return false;
+    }
+
+    return driver_plugin_t::should_execute();
+}
+
+void threaded_driver_plugin_t::execute() {
+    assert_lockable_owner();
+
+    assert(started_flag);
+    assert(! driver_thread_run_flag);
+
+    driver_thread_run_flag = true;
+    driver_thread_cond.notify_all();
+}
+
+void threaded_driver_plugin_t::stop()
+{
+    assert_lockable_owner();
+
+    driver_plugin_t::stop();
+
+    driver_thread_cond.notify_all();
+    driver_thread_cond.wait(object_mutex, [&] { return driver_thread_run_flag == false; });
+}
+
 filter_plugin_t::filter_plugin_t(const init_args_t init_args_in)
 : plugin_t(init_args_in)
 { }

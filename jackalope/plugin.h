@@ -22,13 +22,32 @@ class plugin_t : public node_t {
 
 protected:
     plugin_t(const init_args_t init_args_in);
-    virtual void execute_if_needed();
     virtual bool should_execute() = 0;
+    virtual void execute_if_needed();
     virtual void execute() = 0;
+    virtual void deliver_one_message(shared_t<abstract_message_t> message_in) override;
 
 public:
     virtual void start() override;
-    virtual void deliver_one_message(shared_t<abstract_message_t> message_in) override;
+};
+
+class driver_plugin_t : public plugin_t {
+
+protected:
+    driver_plugin_t(const init_args_t init_args_in);
+    bool should_execute() override;
+};
+
+class threaded_driver_plugin_t : public driver_plugin_t {
+
+protected:
+    condition_t driver_thread_cond;
+    bool driver_thread_run_flag = false;
+
+    threaded_driver_plugin_t(const init_args_t init_args_in);
+    bool should_execute() override;
+    void execute() override;
+    void stop() override;
 };
 
 class filter_plugin_t : public plugin_t {

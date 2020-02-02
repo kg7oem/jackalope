@@ -28,15 +28,13 @@ namespace audio {
 
 void rtaudio_init();
 
-class rtaudio_node_t : public plugin_t {
+class rtaudio_node_t : public threaded_driver_plugin_t {
 
 protected:
     RtAudio adac;
     RtAudio::StreamParameters * out_params = nullptr;
     RtAudio::StreamParameters * in_params = nullptr;
     unsigned int buffer_size = 0;
-    condition_t rtaudio_cond;
-    bool rtaudio_run_flag = false;
 
     static int rtaudio_callback(void * output_buffer_in, void * input_buffer_in, unsigned int num_frames_in, double stream_time_in, RtAudioStreamStatus status_in, void * user_data_in);
     virtual int handle_rtaudio_process(void * output_buffer_in, void * input_buffer_in, unsigned int num_frames_in, RtAudioStreamStatus status_in);
@@ -47,10 +45,6 @@ public:
 
     virtual void init() override;
     virtual void activate() override;
-    virtual void start() override;
-    virtual bool should_execute() override;
-    virtual void execute() override;
-    virtual void stop() override;
 };
 
 } // namespace audio

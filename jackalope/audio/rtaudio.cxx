@@ -36,7 +36,7 @@ int rtaudio_node_t::rtaudio_callback(void * output_buffer_in, void * input_buffe
 }
 
 rtaudio_node_t::rtaudio_node_t(const init_args_t init_args_in)
-: plugin_t(init_args_in)
+: threaded_driver_plugin_t(init_args_in)
 { }
 
 rtaudio_node_t::~rtaudio_node_t()
@@ -61,7 +61,7 @@ void rtaudio_node_t::init() {
 
     adac.showWarnings(false);
 
-    plugin_t::init();
+    threaded_driver_plugin_t::init();
 }
 
 void rtaudio_node_t::activate() {
@@ -119,39 +119,7 @@ void rtaudio_node_t::activate() {
         jackalope_panic(e.getMessage());
     }
 
-    plugin_t::activate();
-}
-
-void rtaudio_node_t::start() {
-    assert_lockable_owner();
-
-    plugin_t::start();
-}
-
-bool rtaudio_node_t::should_execute() {
-    assert_lockable_owner();
-
-    if (rtaudio_run_flag) {
-        return false;
-    }
-
-    for (auto i : sinks) {
-        if (! i->is_ready()) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-void rtaudio_node_t::execute() {
-    assert_lockable_owner();
-
-    assert(started_flag);
-    assert(! rtaudio_run_flag);
-
-    rtaudio_run_flag = true;
-    rtaudio_cond.notify_all();
+    threaded_driver_plugin_t::activate();
 }
 
 int rtaudio_node_t::handle_rtaudio_process(void * output_buffer_in, void * input_buffer_in, unsigned int num_frames_in, RtAudioStreamStatus)
@@ -164,8 +132,8 @@ int rtaudio_node_t::handle_rtaudio_process(void * output_buffer_in, void * input
     const auto num_sources = get_num_sources();
 
     if (! started_flag) {
-        rtaudio_run_flag = false;
-        rtaudio_cond.notify_all();
+        driver_thread_run_flag = false;
+        driver_thread_cond.notify_all();
 
         pcm_zero(output_buffer, num_frames_in);
 
@@ -173,18 +141,18 @@ int rtaudio_node_t::handle_rtaudio_process(void * output_buffer_in, void * input
     }
 
     if (stopped_flag) {
-        rtaudio_run_flag = false;
-        rtaudio_cond.notify_all();
+        driver_thread_run_flag = false;
+        driver_thread_cond.notify_all();
 
         pcm_zero(output_buffer, num_frames_in);
 
         return 1;
     }
 
-    rtaudio_cond.wait(lock, [&] { return stopped_flag || rtaudio_run_flag; });
+    driver_thread_cond.wait(lock, [&] { return stopped_flag || driver_thread_run_flag; });
 
-    rtaudio_run_flag = false;
-    rtaudio_cond.notify_all();
+    driver_thread_run_flag = false;
+    driver_thread_cond.notify_all();
 
     if (stopped_flag) {
         return 1;
@@ -208,16 +176,6 @@ int rtaudio_node_t::handle_rtaudio_process(void * output_buffer_in, void * input
     }
 
     return 0;
-}
-
-void rtaudio_node_t::stop()
-{
-    assert_lockable_owner();
-
-    plugin_t::stop();
-
-    rtaudio_cond.notify_all();
-    rtaudio_cond.wait(object_mutex, [&] { return rtaudio_run_flag == false; });
 }
 
 } // namespace audio
