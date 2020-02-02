@@ -39,12 +39,27 @@ rtaudio_node_t::rtaudio_node_t(const init_args_t init_args_in)
 : plugin_t(init_args_in)
 { }
 
+rtaudio_node_t::~rtaudio_node_t()
+{
+    if (in_params != nullptr) {
+        delete in_params;
+        in_params = nullptr;
+    }
+
+    if (out_params != nullptr) {
+        delete out_params;
+        out_params = nullptr;
+    }
+}
+
 void rtaudio_node_t::init() {
     assert_lockable_owner();
 
     add_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE, property_t::type_t::size, init_args);
     add_property(JACKALOPE_PROPERTY_PCM_SAMPLE_RATE, property_t::type_t::size, init_args);
     add_property(JACKALOPE_AUDIO_RTAUDIO_PROPERTY_CONFIG_DEVICE_ID, property_t::type_t::size, init_args);
+
+    adac.showWarnings(false);
 
     plugin_t::init();
 }
@@ -66,17 +81,39 @@ void rtaudio_node_t::activate() {
         device_id_property->set(adac.getDefaultOutputDevice());
     }
 
+    for (auto& i : init_args_find("source", init_args)) {
+        auto source_name = split_string(i.first, '.').at(1);
+        auto source_type = i.second;
+        add_source(source_name, source_type);
+    }
+
     for (auto& i : init_args_find("sink", init_args)) {
         auto sink_name = split_string(i.first, '.').at(1);
         auto sink_type = i.second;
         add_sink(sink_name, sink_type);
     }
 
-    out_params.deviceId = device_id_property->get_size();
-    out_params.nChannels = get_num_sinks();
+    auto num_sinks = get_num_sinks();
+    auto num_sources = get_num_sources();
+
+    if (num_sinks == 0 && num_sources == 0) {
+        jackalope_panic("RtAudio node has no sources and no sinks");
+    }
+
+    if (num_sinks > 0) {
+        out_params = new RtAudio::StreamParameters();
+        out_params->deviceId = device_id_property->get_size();
+        out_params->nChannels = num_sinks;
+    }
+
+    if (num_sources > 0) {
+        in_params = new RtAudio::StreamParameters();
+        in_params->deviceId = device_id_property->get_size();
+        in_params->nChannels = num_sources;
+    }
 
     try {
-        adac.openStream(&out_params, nullptr, RTAUDIO_FLOAT32, sample_rate_property->get_size(), &buffer_size, &rtaudio_callback, (void *) this);
+        adac.openStream(out_params, in_params, RTAUDIO_FLOAT32, sample_rate_property->get_size(), &buffer_size, &rtaudio_callback, (void *) this);
         adac.startStream();
     } catch (const RtAudioError& e) {
         jackalope_panic(e.getMessage());
@@ -117,12 +154,14 @@ void rtaudio_node_t::execute() {
     rtaudio_cond.notify_all();
 }
 
-int rtaudio_node_t::handle_rtaudio_process(void * output_buffer_in, void *, unsigned int num_frames_in, RtAudioStreamStatus)
+int rtaudio_node_t::handle_rtaudio_process(void * output_buffer_in, void * input_buffer_in, unsigned int num_frames_in, RtAudioStreamStatus)
 {
     auto lock = get_object_lock();
 
     auto output_buffer = static_cast<real_t *>(output_buffer_in);
+    auto input_buffer = static_cast<real_t *>(input_buffer_in);
     const auto num_sinks = get_num_sinks();
+    const auto num_sources = get_num_sources();
 
     if (! started_flag) {
         rtaudio_run_flag = false;
@@ -149,6 +188,14 @@ int rtaudio_node_t::handle_rtaudio_process(void * output_buffer_in, void *, unsi
 
     if (stopped_flag) {
         return 1;
+    }
+
+    for (size_t i = 0; i < num_sources; i++) {
+        auto source = dynamic_pointer_cast<audio_source_t>(get_source(i));
+        auto buffer = jackalope::make_shared<audio_buffer_t>(buffer_size);
+
+        pcm_extract_interleave(input_buffer, buffer->get_pointer(), i, num_sources, num_frames_in);
+        source->notify_buffer(buffer);
     }
 
     for(size_t i = 0; i < num_sinks; i++) {

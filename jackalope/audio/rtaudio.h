@@ -21,6 +21,7 @@
 
 #define JACKALOPE_AUDIO_RTAUDIO_OBJECT_TYPE "audio::rtaudio"
 #define JACKALOPE_AUDIO_RTAUDIO_PROPERTY_CONFIG_DEVICE_ID "config.device_id"
+
 namespace jackalope {
 
 namespace audio {
@@ -31,7 +32,8 @@ class rtaudio_node_t : public plugin_t {
 
 protected:
     RtAudio adac;
-    RtAudio::StreamParameters out_params;
+    RtAudio::StreamParameters * out_params = nullptr;
+    RtAudio::StreamParameters * in_params = nullptr;
     unsigned int buffer_size = 0;
     condition_t rtaudio_cond;
     bool rtaudio_run_flag = false;
@@ -41,6 +43,7 @@ protected:
 
 public:
     rtaudio_node_t(const init_args_t init_args_in);
+    ~rtaudio_node_t();
 
     virtual void init() override;
     virtual void activate() override;
