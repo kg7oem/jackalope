@@ -40,7 +40,7 @@ using jackaudio_port_t = jackaudio::jack_port_t;
 
 void jackaudio_init();
 
-class jackaudio_node_t : public threaded_driver_plugin_t {
+class jackaudio_node_t : public threaded_driver_t {
 
 protected:
     jackaudio_client_t * jack_client = nullptr;

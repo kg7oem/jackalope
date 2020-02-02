@@ -33,7 +33,7 @@ using portaudio_stream_cb_flags = PaStreamCallbackFlags;
 
 void portaudio_init();
 
-class portaudio_node_t : public threaded_driver_plugin_t {
+class portaudio_node_t : public threaded_driver_t {
 
 protected:
     portaudio_stream_t * stream = nullptr;

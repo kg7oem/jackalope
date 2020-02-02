@@ -28,7 +28,7 @@ namespace audio {
 
 void rtaudio_init();
 
-class rtaudio_node_t : public threaded_driver_plugin_t {
+class rtaudio_node_t : public threaded_driver_t {
 
 protected:
     RtAudio adac;

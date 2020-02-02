@@ -31,20 +31,20 @@ public:
     virtual void start() override;
 };
 
-class driver_plugin_t : public plugin_t {
+class driver_t : public plugin_t {
 
 protected:
-    driver_plugin_t(const init_args_t init_args_in);
+    driver_t(const init_args_t init_args_in);
     bool should_execute() override;
 };
 
-class threaded_driver_plugin_t : public driver_plugin_t {
+class threaded_driver_t : public driver_t {
 
 protected:
     condition_t driver_thread_cond;
     bool driver_thread_run_flag = false;
 
-    threaded_driver_plugin_t(const init_args_t init_args_in);
+    threaded_driver_t(const init_args_t init_args_in);
     bool should_execute() override;
     void execute() override;
     void stop() override;

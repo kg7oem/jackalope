@@ -36,7 +36,7 @@ int rtaudio_node_t::rtaudio_callback(void * output_buffer_in, void * input_buffe
 }
 
 rtaudio_node_t::rtaudio_node_t(const init_args_t init_args_in)
-: threaded_driver_plugin_t(init_args_in)
+: threaded_driver_t(init_args_in)
 { }
 
 rtaudio_node_t::~rtaudio_node_t()
@@ -61,7 +61,7 @@ void rtaudio_node_t::init() {
 
     adac.showWarnings(false);
 
-    threaded_driver_plugin_t::init();
+    threaded_driver_t::init();
 }
 
 void rtaudio_node_t::activate() {
@@ -119,7 +119,7 @@ void rtaudio_node_t::activate() {
         jackalope_panic(e.getMessage());
     }
 
-    threaded_driver_plugin_t::activate();
+    threaded_driver_t::activate();
 }
 
 int rtaudio_node_t::handle_rtaudio_process(void * output_buffer_in, void * input_buffer_in, unsigned int num_frames_in, RtAudioStreamStatus)

@@ -46,7 +46,7 @@ void portaudio_init()
 }
 
 portaudio_node_t::portaudio_node_t(const init_args_t init_args_in)
-: threaded_driver_plugin_t(init_args_in)
+: threaded_driver_t(init_args_in)
 { }
 
 portaudio_node_t::~portaudio_node_t()
@@ -69,7 +69,7 @@ void portaudio_node_t::init()
     add_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE, property_t::type_t::size, init_args);
     add_property(JACKALOPE_PROPERTY_PCM_SAMPLE_RATE, property_t::type_t::size, init_args);
 
-    threaded_driver_plugin_t::init();
+    threaded_driver_t::init();
 }
 
 int process_cb(const void * input_buffer_in, void * output_buffer_in, size_t frames_per_buffer_in, const portaudio_stream_cb_time_info_t * time_info_in, portaudio_stream_cb_flags status_flags_in, void *userdata_in)
@@ -103,7 +103,7 @@ void portaudio_node_t::activate()
 
     auto userdata = static_cast<void *>(this);
 
-    threaded_driver_plugin_t::activate();
+    threaded_driver_t::activate();
 
     auto lock = get_portaudio_lock();
     auto err = Pa_OpenDefaultStream(&stream, get_num_sources(), get_num_sinks(), paFloat32, sample_rate, buffer_size, process_cb, userdata);

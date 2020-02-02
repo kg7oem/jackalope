@@ -54,11 +54,11 @@ void plugin_t::execute_if_needed()
     }
 }
 
-driver_plugin_t::driver_plugin_t(const init_args_t init_args_in)
+driver_t::driver_t(const init_args_t init_args_in)
 : plugin_t(init_args_in)
 { }
 
-bool driver_plugin_t::should_execute()
+bool driver_t::should_execute()
 {
     assert_lockable_owner();
 
@@ -71,11 +71,11 @@ bool driver_plugin_t::should_execute()
     return true;
 }
 
-threaded_driver_plugin_t::threaded_driver_plugin_t(const init_args_t init_args_in)
-: driver_plugin_t(init_args_in)
+threaded_driver_t::threaded_driver_t(const init_args_t init_args_in)
+: driver_t(init_args_in)
 { }
 
-bool threaded_driver_plugin_t::should_execute()
+bool threaded_driver_t::should_execute()
 {
     assert_lockable_owner();
 
@@ -83,10 +83,10 @@ bool threaded_driver_plugin_t::should_execute()
         return false;
     }
 
-    return driver_plugin_t::should_execute();
+    return driver_t::should_execute();
 }
 
-void threaded_driver_plugin_t::execute() {
+void threaded_driver_t::execute() {
     assert_lockable_owner();
 
     assert(started_flag);
@@ -96,11 +96,11 @@ void threaded_driver_plugin_t::execute() {
     driver_thread_cond.notify_all();
 }
 
-void threaded_driver_plugin_t::stop()
+void threaded_driver_t::stop()
 {
     assert_lockable_owner();
 
-    driver_plugin_t::stop();
+    driver_t::stop();
 
     driver_thread_cond.notify_all();
     driver_thread_cond.wait(object_mutex, [&] { return driver_thread_run_flag == false; });

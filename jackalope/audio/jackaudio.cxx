@@ -32,7 +32,7 @@ void jackaudio_init()
 }
 
 jackaudio_node_t::jackaudio_node_t(const init_args_t init_args_in)
-: threaded_driver_plugin_t(init_args_in)
+: threaded_driver_t(init_args_in)
 { }
 
 jackaudio_node_t::~jackaudio_node_t()
@@ -53,7 +53,7 @@ shared_t<source_t> jackaudio_node_t::add_source(const string_t& source_name_in, 
         throw_runtime_error("jackaudio sources can not have same name as sinks: ", source_name_in);
     }
 
-    return threaded_driver_plugin_t::add_source(source_name_in, type_in);
+    return threaded_driver_t::add_source(source_name_in, type_in);
 }
 
 shared_t<sink_t> jackaudio_node_t::add_sink(const string_t& sink_name_in, const string_t& type_in)
@@ -64,7 +64,7 @@ shared_t<sink_t> jackaudio_node_t::add_sink(const string_t& sink_name_in, const 
         throw_runtime_error("jackaudio sinks can not have same name as sources: ", sink_name_in);
     }
 
-    return threaded_driver_plugin_t::add_sink(sink_name_in, type_in);
+    return threaded_driver_t::add_sink(sink_name_in, type_in);
 }
 
 void jackaudio_node_t::init()
@@ -75,7 +75,7 @@ void jackaudio_node_t::init()
     add_property(JACKALOPE_PROPERTY_PCM_SAMPLE_RATE, property_t::type_t::size, init_args);
     add_property(JACKALOPE_AUDIO_JACKAUDIO_PROPERTY_CONFIG_CLIENT_NAME, property_t::type_t::string, init_args);
 
-    return threaded_driver_plugin_t::init();
+    return threaded_driver_t::init();
 }
 
 void jackaudio_node_t::activate()
@@ -98,7 +98,7 @@ void jackaudio_node_t::activate()
         add_sink(sink_name, sink_type);
     }
 
-    threaded_driver_plugin_t::activate();
+    threaded_driver_t::activate();
 
     open_client();
 
