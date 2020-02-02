@@ -91,7 +91,6 @@ protected:
     shared_t<abstract_message_handler_t> get_message_handler(const string_t& name_in);
     virtual void deliver_messages();
     virtual void deliver_one_message(shared_t<abstract_message_t> message_in);
-    virtual void deliver_if_needed();
 };
 
 } //namespace jackalope

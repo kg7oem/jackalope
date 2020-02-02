@@ -35,21 +35,6 @@ shared_t<abstract_message_handler_t> message_obj_t::get_message_handler(const st
     return found->second;
 }
 
-void message_obj_t::deliver_if_needed()
-{
-    {
-        lock_t message_lock(message_mutex);
-
-        if (message_delivering_flag) {
-            return;
-        }
-
-        message_delivering_flag = true;
-    }
-
-    deliver_messages();
-}
-
 void message_obj_t::deliver_messages()
 {
     while(1) {

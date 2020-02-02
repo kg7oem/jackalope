@@ -106,18 +106,19 @@ bool object_t::is_stopped()
 // this method has special locking requirements
 void object_t::_send_message(shared_t<abstract_message_t> message_in)
 {
-    auto shared_this = shared_obj();
+    lock_t message_lock(message_mutex);
 
-    {
-        lock_t message_lock(message_mutex);
-        message_queue.push_back(message_in);
+    message_queue.push_back(message_in);
+
+    if (! message_delivering_flag) {
+        auto shared_this = shared_obj();
+
+        message_delivering_flag = true;
+
+        async_engine->submit_job([shared_this] {
+            shared_this->deliver_messages();
+        });
     }
-
-    // FIXME this is rather wasteful because jobs go into
-    // the thread queue and that could have been prevented
-    async_engine->submit_job([shared_this] {
-        shared_this->deliver_if_needed();
-    });
 }
 
 void object_t::deliver_one_message(shared_t<abstract_message_t> message_in)
@@ -181,6 +182,8 @@ void object_t::stop()
     }
 
     stopped_flag = true;
+
+    message_queue.empty();
 
     get_signal(JACKALOPE_SIGNAL_OBJECT_STOPPED)->send();
 }
