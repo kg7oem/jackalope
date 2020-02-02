@@ -40,14 +40,12 @@ using jackaudio_port_t = jackaudio::jack_port_t;
 
 void jackaudio_init();
 
-class jackaudio_node_t : public plugin_t {
+class jackaudio_node_t : public threaded_driver_plugin_t {
 
 protected:
     jackaudio_client_t * jack_client = nullptr;
     const jackaudio_options_t jack_options = jackaudio::JackNoStartServer;
     pool_map_t<string_t, jackaudio_port_t *> jack_ports;
-    condition_t thread_cond;
-    bool thread_run_flag = false;
 
     virtual void open_client();
     virtual int_t handle_jack_process(const jackaudio_nframes_t num_frames_in);
@@ -61,10 +59,6 @@ public:
     virtual real_t * get_port_buffer(const string_t& port_name_in);
     virtual void init() override;
     virtual void activate() override;
-    virtual void start() override;
-    virtual bool should_execute() override;
-    virtual void execute() override;
-    virtual void stop() override;
 };
 
 } // namespace audio

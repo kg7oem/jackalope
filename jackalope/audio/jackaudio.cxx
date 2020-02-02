@@ -32,7 +32,7 @@ void jackaudio_init()
 }
 
 jackaudio_node_t::jackaudio_node_t(const init_args_t init_args_in)
-: plugin_t(init_args_in)
+: threaded_driver_plugin_t(init_args_in)
 { }
 
 jackaudio_node_t::~jackaudio_node_t()
@@ -53,7 +53,7 @@ shared_t<source_t> jackaudio_node_t::add_source(const string_t& source_name_in, 
         throw_runtime_error("jackaudio sources can not have same name as sinks: ", source_name_in);
     }
 
-    return plugin_t::add_source(source_name_in, type_in);
+    return threaded_driver_plugin_t::add_source(source_name_in, type_in);
 }
 
 shared_t<sink_t> jackaudio_node_t::add_sink(const string_t& sink_name_in, const string_t& type_in)
@@ -64,7 +64,7 @@ shared_t<sink_t> jackaudio_node_t::add_sink(const string_t& sink_name_in, const 
         throw_runtime_error("jackaudio sinks can not have same name as sources: ", sink_name_in);
     }
 
-    return plugin_t::add_sink(sink_name_in, type_in);
+    return threaded_driver_plugin_t::add_sink(sink_name_in, type_in);
 }
 
 void jackaudio_node_t::init()
@@ -75,7 +75,7 @@ void jackaudio_node_t::init()
     add_property(JACKALOPE_PROPERTY_PCM_SAMPLE_RATE, property_t::type_t::size, init_args);
     add_property(JACKALOPE_AUDIO_JACKAUDIO_PROPERTY_CONFIG_CLIENT_NAME, property_t::type_t::string, init_args);
 
-    return plugin_t::init();
+    return threaded_driver_plugin_t::init();
 }
 
 void jackaudio_node_t::activate()
@@ -98,7 +98,7 @@ void jackaudio_node_t::activate()
         add_sink(sink_name, sink_type);
     }
 
-    plugin_t::activate();
+    threaded_driver_plugin_t::activate();
 
     open_client();
 
@@ -138,42 +138,6 @@ void jackaudio_node_t::activate()
     }
 }
 
-void jackaudio_node_t::start()
-{
-    assert_lockable_owner();
-
-    plugin_t::start();
-}
-
-bool jackaudio_node_t::should_execute()
-{
-    assert_lockable_owner();
-
-    if (thread_run_flag) {
-        return false;
-    }
-
-    for (auto i : sinks) {
-        if (! i->is_ready()) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-void jackaudio_node_t::execute()
-{
-    assert_lockable_owner();
-
-    assert(started_flag);
-    assert(! thread_run_flag);
-
-    thread_run_flag = true;
-    NODE_LOG(info, "telling jackaudio thread to continue");
-    thread_cond.notify_all();
-}
-
 // runs in a thread managed by jack audio
 int_t jackaudio_node_t::handle_jack_process(const jackaudio_nframes_t nframes_in)
 {
@@ -181,15 +145,15 @@ int_t jackaudio_node_t::handle_jack_process(const jackaudio_nframes_t nframes_in
     auto lock = get_object_lock();
 
     if (! started_flag) {
-        thread_run_flag = false;
-        thread_cond.notify_all();
+        driver_thread_run_flag = false;
+        driver_thread_cond.notify_all();
         return false;
     }
 
     if (stopped_flag) {
         NODE_LOG(info, "jackaudio thread is returning because the node is stopped");
-        thread_run_flag = false;
-        thread_cond.notify_all();
+        driver_thread_run_flag = false;
+        driver_thread_cond.notify_all();
         return true;
     }
 
@@ -211,11 +175,11 @@ int_t jackaudio_node_t::handle_jack_process(const jackaudio_nframes_t nframes_in
     }
 
     NODE_LOG(info, "jackaudio thread is waiting for sinks to become ready");
-    thread_cond.wait(lock, [&] { return stopped_flag || thread_run_flag; });
+    driver_thread_cond.wait(lock, [&] { return stopped_flag || driver_thread_run_flag; });
     NODE_LOG(info, "jackaudio thread woke up");
 
-    thread_run_flag = false;
-    thread_cond.notify_all();
+    driver_thread_run_flag = false;
+    driver_thread_cond.notify_all();
 
     for(auto i : sinks) {
         auto sink = dynamic_pointer_cast<audio_sink_t>(i);
@@ -229,17 +193,6 @@ int_t jackaudio_node_t::handle_jack_process(const jackaudio_nframes_t nframes_in
     NODE_LOG(info, "jackaudio thread is done running");
 
     return false;
-}
-
-void jackaudio_node_t::stop()
-{
-    assert_lockable_owner();
-
-    plugin_t::stop();
-
-    log_info("waiting for jackaudio thread");
-    thread_cond.notify_all();
-    thread_cond.wait(object_mutex, [&] { return thread_run_flag == false; });
 }
 
 void jackaudio_node_t::open_client()
