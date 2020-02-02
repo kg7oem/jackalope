@@ -99,15 +99,13 @@ void graph_t::start()
 {
     assert_lockable_owner();
 
-    assert(! started_flag);
+    object_t::start();
 
     for(auto i : nodes) {
         auto node = i.second;
         auto lock = node->get_object_lock();
         node->start();
     }
-
-    object_t::start();
 }
 
 void graph_t::stop()

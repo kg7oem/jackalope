@@ -23,7 +23,6 @@ void plugin_t::start()
 {
     assert_lockable_owner();
 
-    assert(activated_flag == true);
     node_t::start();
 
     execute_if_needed();

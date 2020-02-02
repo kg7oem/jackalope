@@ -68,7 +68,6 @@ public:
     virtual void init() override;
     virtual void activate();
     virtual void start() override;
-    virtual void stop() override;
 };
 
 } //namespace jackalope

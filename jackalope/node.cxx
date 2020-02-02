@@ -208,8 +208,13 @@ void node_t::activate()
 {
     assert_lockable_owner();
 
-    assert(init_flag);
-    assert(! activated_flag);
+    if (! init_flag) {
+        throw_runtime_error("attempt to activate a node that was not initialized");
+    }
+
+    if (activated_flag) {
+        throw_runtime_error("attempt to activate a node that was already activated");
+    }
 
     if (graph.expired()) {
         throw_runtime_error("node graph weak pointer was expired when activating node");
@@ -226,6 +231,10 @@ void node_t::start()
 
     NODE_LOG(info, "Starting node");
 
+    if (! activated_flag) {
+        throw_runtime_error("attempt to start a node that was not activated");
+    }
+
     object_t::start();
 
     for(auto i : sources) {
@@ -237,13 +246,6 @@ void node_t::start()
     }
 
     NODE_LOG(info, "Done starting node");
-}
-
-void node_t::stop()
-{
-    assert_lockable_owner();
-
-    object_t::stop();
 }
 
 void node_t::message_link_available(shared_t<link_t> link_in) {

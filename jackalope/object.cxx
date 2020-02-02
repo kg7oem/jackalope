@@ -67,6 +67,27 @@ object_t::object_t(const string_t& type_in, const init_args_t init_args_in)
     assert(type != "");
 }
 
+void object_t::init()
+{
+    assert_lockable_owner();
+
+    assert(init_flag == false);
+
+    init_flag = true;
+
+    add_property(JACKALOPE_PROPERTY_OBJECT_TYPE, property_t::type_t::string, init_args);
+
+    add_message_handler<invoke_slot_message_t>([this] (const string_t& slot_name_in) { this->message_invoke_slot(slot_name_in); });
+
+    add_slot(JACKALOPE_SLOT_OBJECT_STOP, std::bind(&object_t::stop, this));
+
+    add_signal(JACKALOPE_SIGNAL_OBJECT_STOPPED);
+
+#ifdef CONFIG_HAVE_DBUS
+    dbus_object = new object_dbus_t(*this, to_string("/Object/", id).c_str());
+#endif
+}
+
 object_t::~object_t()
 {
     if (! stopped_flag) {
@@ -136,32 +157,17 @@ void object_t::message_invoke_slot(const string_t slot_name_in)
     slot->invoke();
 }
 
-void object_t::init()
-{
-    assert_lockable_owner();
-
-    assert(init_flag == false);
-
-    init_flag = true;
-
-    add_property(JACKALOPE_PROPERTY_OBJECT_TYPE, property_t::type_t::string, init_args);
-
-    add_message_handler<invoke_slot_message_t>([this] (const string_t& slot_name_in) { this->message_invoke_slot(slot_name_in); });
-
-    add_slot(JACKALOPE_SLOT_OBJECT_STOP, std::bind(&object_t::stop, this));
-
-    add_signal(JACKALOPE_SIGNAL_OBJECT_STOPPED);
-
-#ifdef CONFIG_HAVE_DBUS
-    dbus_object = new object_dbus_t(*this, to_string("/Object/", id).c_str());
-#endif
-}
-
 void object_t::start()
 {
     assert_lockable_owner();
 
-    assert(started_flag == false);
+    if (! init_flag) {
+        throw_runtime_error("attempt to start an object that was not initialized");
+    }
+
+    if (started_flag) {
+        throw_runtime_error("attempt to start an object that has already been started");
+    }
 
     started_flag = true;
 }
@@ -170,8 +176,9 @@ void object_t::stop()
 {
     assert_lockable_owner();
 
-    assert(started_flag);
-    assert(stopped_flag == false);
+    if (stopped_flag) {
+        throw_runtime_error("attempt to stop an object that was already stopped");
+    }
 
     stopped_flag = true;
 
