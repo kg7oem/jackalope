@@ -26,7 +26,7 @@
 
 using namespace jackalope::log;
 
-jackalope::network_t make_tube_simulator(jackalope::graph_t& graph_in);
+jackalope_network_t make_tube_simulator(jackalope_graph_t& graph_in);
 
 int main(int argc_in, char ** argv_in)
 {
@@ -58,24 +58,30 @@ int main(int argc_in, char ** argv_in)
         { "sink.right", "audio" },
     });
 
+    auto tube_simulator = make_tube_simulator(graph);
+
     input_file.connect(JACKALOPE_SIGNAL_OBJECT_STOPPED, graph, JACKALOPE_SLOT_OBJECT_STOP);
 
-    input_file.link("Output 1", left_tube, "Audio Input 1");
-    input_file.link("Output 1", right_tube, "Audio Input 1");
-    left_tube.link("Audio Output 1", system_audio, "left");
-    right_tube.link("Audio Output 1", system_audio, "right");
+    input_file.link("Output 1", tube_simulator, "left");
+    input_file.link("Output 1", tube_simulator, "right");
+
+    tube_simulator.link("left", system_audio, "left");
+    tube_simulator.link("right", system_audio, "right");
 
     graph.run();
 
     return(0);
 }
 
-jackalope::network_t make_tube_simulator(jackalope::graph_t& graph_in)
+jackalope_network_t make_tube_simulator(jackalope_graph_t& graph_in)
 {
-    auto tube_simulator = graph_in.add_network({ });
+    auto tube_simulator = graph_in.add_network({
+        { "object.type", "jackalope::network" },
+        { "node.name", "tube simulator" },
+    });
 
     for(auto i : { "left", "right" }) {
-        auto new_node = tube_simulator.make_node({
+        auto new_node = graph_in.make_node({
             { "object.type", "audio::ladspa" },
             { "node.name", i },
             { "plugin.id", jackalope::to_string(LADSPA_ZAMTUBE_ID) },
@@ -84,10 +90,10 @@ jackalope::network_t make_tube_simulator(jackalope::graph_t& graph_in)
         tube_simulator.add_source(i, "audio");
         tube_simulator.add_sink(i, "audio");
 
-        new_node.alias_property("config.Tube Drive", tube_simulator, "config.drive");
-        new_node.alias_property("config.Bass", tube_simulator, "config.lows");
-        new_node.alias_property("config.Mids", tube_simulator, "config.mids");
-        new_node.alias_property("config.Treble", tube_simulator, "config.highs");
+        // new_node.alias_property("config.Tube Drive", tube_simulator, "config.drive");
+        // new_node.alias_property("config.Bass", tube_simulator, "config.lows");
+        // new_node.alias_property("config.Mids", tube_simulator, "config.mids");
+        // new_node.alias_property("config.Treble", tube_simulator, "config.highs");
 
         new_node.activate();
 

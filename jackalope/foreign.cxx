@@ -111,6 +111,18 @@ void jackalope_graph_t::add_property(const string_t& name_in, property_t::type_t
     });
 }
 
+jackalope_node_t jackalope_graph_t::make_node(const init_args_t& init_args_in)
+{
+    auto graph = dynamic_pointer_cast<jackalope::graph_t>(wrapped);
+
+    auto new_node = wait_job<shared_t<jackalope::node_t>>([&] {
+        auto lock = graph->get_object_lock();
+        return graph->make_node(init_args_in);
+    });
+
+    return jackalope_node_t(new_node);
+}
+
 jackalope_node_t jackalope_graph_t::add_node(const init_args_t& init_args_in)
 {
     auto graph = dynamic_pointer_cast<jackalope::graph_t>(wrapped);
@@ -121,6 +133,23 @@ jackalope_node_t jackalope_graph_t::add_node(const init_args_t& init_args_in)
     });
 
     return jackalope_node_t(new_node);
+}
+
+jackalope_network_t jackalope_graph_t::make_network(const jackalope::init_args_t& )
+{
+    jackalope_panic("make_network method not implemented");
+}
+
+jackalope_network_t jackalope_graph_t::add_network(const jackalope::init_args_t& init_args_in)
+{
+    auto graph = dynamic_pointer_cast<jackalope::graph_t>(wrapped);
+
+    auto new_network = wait_job<shared_t<jackalope::network_t>>([&] {
+        auto lock = graph->get_object_lock();
+        return graph->add_network(init_args_in);
+    });
+
+    return jackalope_network_t(new_network);
 }
 
 void jackalope_graph_t::run()
@@ -184,16 +213,45 @@ jackalope::size_t jackalope_node_t::get_num_sinks()
 
 void jackalope_node_t::link(const jackalope::string_t& source_name_in, jackalope_object_t& target_object_in, const jackalope::string_t& target_sink_name_in)
 {
-    wait_job([this, source_name_in, &target_object_in, target_sink_name_in] {
-        auto source_lock = wrapped->get_object_lock();
-        auto source = wrapped->shared_obj<jackalope::node_t>()->get_source(source_name_in);
-        auto target = target_object_in.wrapped->shared_obj<jackalope::node_t>();
-        auto target_lock = target->get_object_lock();
-        auto target_sink = target->get_sink(target_sink_name_in);
+    wait_job([&] {
+        auto from_lock = wrapped->get_object_lock();
+        auto from = wrapped->shared_obj<jackalope::node_t>();
+        auto to = target_object_in.wrapped->shared_obj<jackalope::node_t>();
+        auto to_lock = to->get_object_lock();
 
-        source->link(target_sink);
+        from->link(source_name_in, to, target_sink_name_in);
     });
 }
+
+void jackalope_node_t::forward(const jackalope::string_t& source_name_in, jackalope_object_t& target_object_in, const jackalope::string_t& target_name_in)
+{
+    wait_job([&] {
+        auto from_lock = wrapped->get_object_lock();
+        auto from = wrapped->shared_obj<jackalope::node_t>();
+        auto to = target_object_in.wrapped->shared_obj<jackalope::node_t>();
+        auto to_lock = to->get_object_lock();
+
+        from->forward(source_name_in, to, target_name_in);
+    });
+}
+
+void jackalope_node_t::activate()
+{
+    wait_job([&] {
+        auto lock = wrapped->get_object_lock();
+        wrapped->shared_obj<jackalope::node_t>()->activate();
+    });
+}
+
+jackalope_network_t jackalope_network_t::make(const jackalope::init_args_t& init_args_in)
+{
+    auto network = jackalope::network_t::make(init_args_in);
+    return jackalope_network_t(network);
+}
+
+jackalope_network_t::jackalope_network_t(jackalope::shared_t<jackalope::network_t> wrapped_in)
+: jackalope_node_t(wrapped_in)
+{ }
 
 extern "C" {
 

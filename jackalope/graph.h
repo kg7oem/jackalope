@@ -13,7 +13,7 @@
 #pragma once
 
 #include <jackalope/object.forward.h>
-#include <jackalope/node.h>
+#include <jackalope/network.h>
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
 
@@ -36,7 +36,10 @@ public:
     graph_t(const prop_args_t& prop_args_in);
     virtual shared_t<property_t> add_property(const string_t& name_in, property_t::type_t type_in) override;
     virtual shared_t<property_t> add_property(const string_t& name_in, property_t::type_t type_in, const init_args_t& init_args_in) override;
+    shared_t<node_t> add_node(shared_t<node_t> node_in);
     shared_t<node_t> add_node(const init_args_t& init_args_in);
+    shared_t<node_t> make_node(const init_args_t& init_args_in);
+    shared_t<network_t> add_network(const init_args_t& init_args_in);
     virtual void init() override;
     virtual void start() override;
     virtual void stop() override;

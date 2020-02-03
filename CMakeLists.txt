@@ -79,6 +79,7 @@ add_library(
     jackalope/log/dest.cxx
     jackalope/log/engine.cxx
     jackalope/message.cxx
+    jackalope/network.cxx
     jackalope/node.cxx
     jackalope/object.cxx
     jackalope/plugin.cxx

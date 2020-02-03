@@ -15,7 +15,17 @@
 
 namespace jackalope {
 
-network_t::network_t(const init_args_t init_args_in)
+shared_t<network_t> network_t::make(const init_args_t& init_args_in)
+{
+    auto new_network = jackalope::make_shared<network_t>(init_args_in);
+    auto lock = new_network->get_object_lock();
+
+    new_network->init();
+
+    return new_network;
+}
+
+network_t::network_t(const init_args_t& init_args_in)
 : node_t(init_args_in)
 { }
 

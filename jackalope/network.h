@@ -16,6 +16,8 @@
 #include <jackalope/node.h>
 #include <jackalope/types.h>
 
+#define JACKALOPE_TYPE_NETWORK "jackalope::network"
+
 namespace jackalope {
 
 class network_t : public node_t {
@@ -25,9 +27,10 @@ protected:
     pool_map_t<string_t, shared_t<source_t>> sink_forward_sources;
 
 public:
-    network_t(const init_args_t init_args_in);
+    static shared_t<network_t> make(const init_args_t& init_args_in);
+    network_t(const init_args_t& init_args_in);
     virtual shared_t<source_t> add_source(const string_t& source_name_in, const string_t& type_in) override;
-    virtual shared_t<source_t> add_sink(const string_t& sink_name_in, const string_t& type_in) override;
+    virtual shared_t<sink_t> add_sink(const string_t& sink_name_in, const string_t& type_in) override;
 };
 
 } //namespace jackalope

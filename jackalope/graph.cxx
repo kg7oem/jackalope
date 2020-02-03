@@ -65,25 +65,60 @@ shared_t<property_t> graph_t::add_property(const string_t& name_in, property_t::
     return object_t::add_property(name_in, type_in, init_args_in);
 }
 
+shared_t<node_t> graph_t::add_node(shared_t<node_t> node_in)
+{
+    assert_lockable_owner();
+    assert(init_flag);
+
+    if (nodes.find(node_in->name) != nodes.end()) {
+        throw_runtime_error("Can not add node with duplicate name to graph: ", node_in->name);
+    }
+
+    nodes[node_in->name] = node_in;
+
+    return node_in;
+}
+
 shared_t<node_t> graph_t::add_node(const init_args_t& init_args_in)
 {
     assert_lockable_owner();
+    assert(init_flag);
 
+    auto new_node = make_node(init_args_in);
+    auto lock = new_node->get_object_lock();
+    new_node->activate();
+
+    return add_node(new_node);
+}
+
+shared_t<node_t> graph_t::make_node(const init_args_t& init_args_in)
+{
+    assert_lockable_owner();
     assert(init_flag);
 
     auto new_node = object_t::make<node_t>(init_args_in);
     auto new_node_lock = new_node->get_object_lock();
 
-    if (nodes.find(new_node->name) != nodes.end()) {
-        throw_runtime_error("Can not add node with duplicate name to graph: ", new_node->name);
-    }
-
     new_node->set_graph(shared_obj<graph_t>());
-    new_node->activate();
-
-    nodes[new_node->name] = new_node;
 
     return new_node;
+}
+
+shared_t<network_t> graph_t::add_network(const init_args_t& init_args_in)
+{
+    assert_lockable_owner();
+
+    assert(init_flag);
+
+    auto new_network = network_t::make(init_args_in);
+    auto new_network_lock = new_network->get_object_lock();
+
+    new_network->set_graph(shared_obj<graph_t>());
+    new_network->activate();
+
+    add_node(new_network);
+
+    return new_network;
 }
 
 void graph_t::init()

@@ -13,6 +13,7 @@
 
 #include <jackalope/async.h>
 #include <jackalope/graph.h>
+#include <jackalope/jackalope.h>
 #include <jackalope/logging.h>
 #include <jackalope/node.h>
 
@@ -192,6 +193,13 @@ void node_t::link(const string_t& source_name_in, shared_t<node_t> target_node_i
     auto source = get_source(source_name_in);
 
     source->link(target_sink);
+}
+
+void node_t::forward(UNUSED const string_t& source_name_in, UNUSED shared_t<node_t> target_node_in, UNUSED const string_t& target_name_in)
+{
+    assert_lockable_owner();
+
+    jackalope_panic("forward method not implemented");
 }
 
 void node_t::init()
