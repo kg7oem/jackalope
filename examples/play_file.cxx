@@ -26,6 +26,8 @@
 
 using namespace jackalope::log;
 
+jackalope::network_t make_tube_simulator(jackalope::graph_t& graph_in);
+
 int main(int argc_in, char ** argv_in)
 {
     if (argc_in != 2) {
@@ -56,18 +58,6 @@ int main(int argc_in, char ** argv_in)
         { "sink.right", "audio" },
     });
 
-    auto left_tube = graph.add_node({
-        { "object.type", "audio::ladspa" },
-        { "node.name", "left tube" },
-        { "plugin.id", jackalope::to_string(LADSPA_ZAMTUBE_ID) },
-    });
-
-    auto right_tube = graph.add_node({
-        { "object.type", "audio::ladspa" },
-        { "node.name", "right tube" },
-        { "plugin.id", jackalope::to_string(LADSPA_ZAMTUBE_ID) },
-    });
-
     input_file.connect(JACKALOPE_SIGNAL_OBJECT_STOPPED, graph, JACKALOPE_SLOT_OBJECT_STOP);
 
     input_file.link("Output 1", left_tube, "Audio Input 1");
@@ -78,4 +68,32 @@ int main(int argc_in, char ** argv_in)
     graph.run();
 
     return(0);
+}
+
+jackalope::network_t make_tube_simulator(jackalope::graph_t& graph_in)
+{
+    auto tube_simulator = graph_in.add_network({ });
+
+    for(auto i : { "left", "right" }) {
+        auto new_node = tube_simulator.make_node({
+            { "object.type", "audio::ladspa" },
+            { "node.name", i },
+            { "plugin.id", jackalope::to_string(LADSPA_ZAMTUBE_ID) },
+        });
+
+        tube_simulator.add_source(i, "audio");
+        tube_simulator.add_sink(i, "audio");
+
+        new_node.alias_property("config.Tube Drive", tube_simulator, "config.drive");
+        new_node.alias_property("config.Bass", tube_simulator, "config.lows");
+        new_node.alias_property("config.Mids", tube_simulator, "config.mids");
+        new_node.alias_property("config.Treble", tube_simulator, "config.highs");
+
+        new_node.activate();
+
+        tube_simulator.forward(i, new_node, "Audio Input 1");
+        new_node.forward("Audio Output 1", tube_simulator, i);
+    }
+
+    return tube_simulator;
 }
