@@ -9,34 +9,29 @@ as other types of signals and data transformation tasks.
 
 Project Status
 
-This is currently bleeding edge and highly volitile source code. Things can
-and will change. Stuff may not work. It might crash. In no way should this
-project be considered production quality.
+Right now a prototype engine is under construction. Things can and do change
+rapidly, stuff is broken, and the software might crash. In no way should
+this program be considered ready for normal use.
 
-Compiling
+My plan at a high level is to:
 
-Jackalope uses Boost internally and has a minimum version requirement of
-1.66 unless otherwise specified. If a suitable system wide version of
-Boost is not found then Boost can be downloaded and built automatically
-with -DDOWNLOAD_OK=ON specified as an argument to cmake. If possible
-it is recommended to use a system wide Boost library.
+  * Add enough features to demonstrate core concepts and be useful for at
+    least live audio broadcast applications
 
-Debian
+  * Finish development of the prototype engine
 
-On a Debian based system you'll need the following packages:
+  * Finish development of the public APIs and put tests on them
 
-  build-essential cmake libboost-date-time-dev libboost-filesystem-dev
-  libboost-regex-dev libboost-serialization-dev libboost-system-dev
-  libboost-thread-dev
+  * When the public API supports at least live audio broadcast applications
+    then call that version 0.1
 
-The following packages enable optional support in Jackalope:
+  * Add more channel types such as MIDI, images, and video
 
-  DBus: libdbus-1-dev libdbus-c++-dev
-  Jack Audio: libjack-jackd2-dev or libjack-dev
-  Perl: libperl-dev
-  Portaudio: portaudio19-dev
-  RtAudio: librtaudio-dev
-  Sndfile: libsndfile1-dev
+  * Develop the prototype engine into a finished engine if needed
+
+  * Create examples for integrating Jackalope into projects
+
+  * Release version 1.0
 
 Objects
 
