@@ -57,28 +57,35 @@ run_validation() {
     # I couldn't find another way to keep cmake from deleting
     # the boost directory during make clean
     if [ -e jackalope-boost-prefix ]; then
-        mv jackalope-boost-prefix .hide.jackalope-boost-prefix
+        hide jackalope-boost-prefix
+
         make clean
-        mv .hide.jackalope-boost-prefix jackalope-boost-prefix
+
+        unhide jackalope-boost-prefix
     fi
 
-    cmake --build .
-    cmake --build . --target test
-
-    for type in ARCHIVE DEB; do
-        package $type
+    for target in all test; do
+        cmake --build . --target "$target"
     done
+
+    # first packaging makes a tarball
+    package
+    package DEB
 }
 
 package() {
     local generator_name="$1"
 
-    cmake -DCPACK_GENERATOR="$generator_name" "$SOURCE_ROOT"
+    if [ "$generator_name" != "" ]; then
+        cmake -DCPACK_GENERATOR="$generator_name" "$SOURCE_ROOT"
+    fi
+
     cmake --build . --target package
 }
 
 hide() {
     local hide_path=".hide.$1"
+
     if [ -e "$hide_path" ]; then
         rm -f "$hide_path"
     fi
