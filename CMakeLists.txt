@@ -50,6 +50,8 @@ message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 include_directories(.)
 include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 
+list(APPEND DEBIAN_PACKAGES build-essential cmake)
+
 find_package(Threads REQUIRED)
 find_package(PkgConfig REQUIRED)
 
@@ -77,6 +79,9 @@ add_library(
 
 if (LOCAL_BOOST)
     add_dependencies(${JACKALOPE_LIB_TARGET} jackalope-boost)
+else()
+    list(APPEND DEBIAN_PACKAGES libboost-date-time-dev libboost-filesystem-dev libboost-regex-dev)
+    list(APPEND DEBIAN_PACKAGES libboost-serialization-dev libboost-system-dev libboost-thread-dev)
 endif (LOCAL_BOOST)
 
 target_link_libraries(${JACKALOPE_LIB_TARGET} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} -ldl)
@@ -99,8 +104,11 @@ if(ENABLE_DBUS)
     message("Checking for dbus-c++")
     pkg_check_modules(DBUSLIB dbus-c++-1)
 
+    list(APPEND DEBIAN_PACKAGES libdbus-1-dev libdbus-c++-dev)
+
     if (DBUSLIB_FOUND)
         message("  DBUS support is enabled")
+
         add_custom_command(
             OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/headers/dbus.adaptor.h
             COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/make_dbus_adaptor ${CMAKE_CURRENT_BINARY_DIR} jackalope/dbus.adaptor.xml ${CMAKE_CURRENT_BINARY_DIR}/headers/dbus.adaptor.h
@@ -119,6 +127,8 @@ endif(ENABLE_DBUS)
 if (ENABLE_PERL)
     message("Checking for Perl libraries")
     include(FindPerlLibs)
+
+    list(APPEND DEBIAN_PACKAGES libperl-dev)
 
     if (PERLLIBS_FOUND)
         message("  Perl support is enabled")
@@ -148,6 +158,8 @@ if (ENABLE_JACKAUDIO)
     message("Checking for JACK audio")
     find_package(JACK)
 
+    list(APPEND DEBIAN_PACKAGES libjack-jackd2-dev)
+
     if (JACK_FOUND)
         message("  JACK audio support is enabled")
         add_definitions(-DCONFIG_ENABLE_JACKAUDIO)
@@ -168,6 +180,8 @@ if (ENABLE_PORTAUDIO)
     message("Checking for Portaudio")
     find_package(Portaudio)
 
+    list(APPEND DEBIAN_PACKAGES portaudio19-dev)
+
     if (PORTAUDIO_FOUND)
         message("  Portaudio support is enabled")
         add_definitions(-DCONFIG_ENABLE_PORTAUDIO)
@@ -180,6 +194,8 @@ endif (ENABLE_PORTAUDIO)
 if (ENABLE_RTAUDIO)
     message("Checking for RtAudio")
     find_package(RtAudio)
+
+    list(APPEND DEBIAN_PACKAGES librtaudio-dev)
 
     if (RTAUDIO_FOUND)
         message("  librtaudio support is enabled")
@@ -194,6 +210,8 @@ if (ENABLE_SNDFILE)
     message("Checking for libsndfile")
     find_package(Sndfile)
 
+    list(APPEND DEBIAN_PACKAGES libsndfile1-dev)
+
     if (Sndfile_FOUND)
         message("  libsndfile support is enabled")
         add_definitions(-DCONFIG_ENABLE_SNDFILE)
@@ -203,3 +221,5 @@ if (ENABLE_SNDFILE)
     endif (Sndfile_FOUND)
 
 endif (ENABLE_SNDFILE)
+
+add_custom_target(install-debian-packages apt install ${DEBIAN_PACKAGES})
