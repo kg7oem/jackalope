@@ -13,6 +13,31 @@ This is currently bleeding edge and highly volitile source code. Things can
 and will change. Stuff may not work. It might crash. In no way should this
 project be considered production quality.
 
+Compiling
+
+Jackalope uses Boost internally and has a minimum version requirement of
+1.66 unless otherwise specified. If a suitable system wide version of
+Boost is not found then Boost can be downloaded and built automatically
+with -DDOWNLOAD_OK=ON specified as an argument to cmake. If possible
+it is recommended to use a system wide Boost library.
+
+Debian
+
+On a Debian based system you'll need the following packages:
+
+  build-essential cmake libboost-date-time-dev libboost-filesystem-dev
+  libboost-regex-dev libboost-serialization-dev libboost-system-dev
+  libboost-thread-dev
+
+The following packages enable optional support in Jackalope:
+
+  DBus: libdbus-1-dev libdbus-c++-dev
+  Jack Audio: libjack-jackd2-dev or libjack-dev
+  Perl: libperl-dev
+  Portaudio: portaudio19-dev
+  RtAudio: librtaudio-dev
+  Sndfile: libsndfile1-dev
+
 Objects
 
 Jackalope objects encapualate components that accept input, generate output,
