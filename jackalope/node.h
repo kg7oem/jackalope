@@ -45,7 +45,8 @@ protected:
     pool_vector_t<shared_t<sink_t>> sinks;
     pool_map_t<string_t, shared_t<sink_t>> sinks_by_name;
 
-    node_t(const init_args_t init_args_in);
+    node_t(const string_t& type_in, const init_args_t& init_args_in);
+    node_t(const init_args_t& init_args_in);
     virtual void message_link_available(shared_t<link_t> link_in);
     virtual void message_link_ready(shared_t<link_t> link_in);
 

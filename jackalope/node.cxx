@@ -35,8 +35,14 @@ link_ready_message_t::link_ready_message_t(shared_t<link_t> link_in)
     assert(link_in != nullptr);
 }
 
-node_t::node_t(const init_args_t init_args_in)
-: object_t(init_args_in), name(init_args_get(JACKALOPE_PROPERTY_NODE_NAME, init_args))
+node_t::node_t(const init_args_t& init_args_in)
+: object_t(init_args_get(JACKALOPE_PROPERTY_OBJECT_TYPE, &init_args_in), init_args_in), name(init_args_get(JACKALOPE_PROPERTY_NODE_NAME, init_args))
+{
+    assert(name != "");
+}
+
+node_t::node_t(const string_t& type_in, const init_args_t& init_args_in)
+: object_t(type_in, init_args_in), name(init_args_get(JACKALOPE_PROPERTY_NODE_NAME, init_args))
 {
     assert(name != "");
 }

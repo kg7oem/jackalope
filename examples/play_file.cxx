@@ -53,7 +53,6 @@ int main(int argc_in, char ** argv_in)
     auto system_audio = graph.add_node({
         { "object.type", "audio::rtaudio" },
         { "node.name", "system audio" },
-        { "config.device_id", "5" },
         { "sink.left", "audio" },
         { "sink.right", "audio" },
     });
@@ -62,11 +61,11 @@ int main(int argc_in, char ** argv_in)
 
     input_file.connect(JACKALOPE_SIGNAL_OBJECT_STOPPED, graph, JACKALOPE_SLOT_OBJECT_STOP);
 
-    input_file.link("Output 1", tube_simulator, "left");
-    input_file.link("Output 1", tube_simulator, "right");
+    // input_file.link("Output 1", tube_simulator, "left");
+    // input_file.link("Output 1", tube_simulator, "right");
 
-    tube_simulator.link("left", system_audio, "left");
-    tube_simulator.link("right", system_audio, "right");
+    // tube_simulator.link("left", system_audio, "left");
+    // tube_simulator.link("right", system_audio, "right");
 
     graph.run();
 
@@ -76,12 +75,11 @@ int main(int argc_in, char ** argv_in)
 jackalope_network_t make_tube_simulator(jackalope_graph_t& graph_in)
 {
     auto tube_simulator = graph_in.add_network({
-        { "object.type", "jackalope::network" },
         { "node.name", "tube simulator" },
     });
 
     for(auto i : { "left", "right" }) {
-        auto new_node = graph_in.make_node({
+        auto new_node = tube_simulator.make_node({
             { "object.type", "audio::ladspa" },
             { "node.name", i },
             { "plugin.id", jackalope::to_string(LADSPA_ZAMTUBE_ID) },

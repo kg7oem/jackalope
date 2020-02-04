@@ -203,7 +203,7 @@ lock_t prop_obj_t::get_property_lock()
     return lock_t(property_mutex);
 }
 
-shared_t<property_t> prop_obj_t::add_property(const string_t& name_in, property_t::type_t type_in, const init_args_t& init_args_in)
+shared_t<property_t> prop_obj_t::add_property(const string_t& name_in, property_t::type_t type_in, const init_args_t * init_args_in)
 {
     auto lock = get_property_lock();
 

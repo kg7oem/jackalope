@@ -1,4 +1,3 @@
-// Jackalope Audio Engine
 // Copyright 2019 Tyler Riddle <kg7oem@gmail.com>
 
 // This program is free software: you can redistribute it and/or modify
@@ -11,25 +10,10 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
-#include <jackalope/audio.h>
-#include <jackalope/network.h>
-#include <jackalope/jackalope.h>
-
-#ifdef CONFIG_HAVE_DBUS
-#include <jackalope/dbus.h>
-#endif
+#pragma once
 
 namespace jackalope {
 
-void init()
-{
-#ifdef CONFIG_HAVE_DBUS
-    jackalope::dbus_init();
-#endif
+class network_t;
 
-    jackalope::network_init();
-
-    jackalope::audio_init();
-}
-
-} // namespace jackalope
+} // namespace

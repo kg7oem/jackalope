@@ -13,22 +13,29 @@
 
 #pragma once
 
+#include <jackalope/graph.h>
 #include <jackalope/node.h>
 #include <jackalope/types.h>
 
-#define JACKALOPE_TYPE_NETWORK "jackalope::network"
+#define JACKALOPE_OBJECT_TYPE_NETWORK "jackalope::network"
 
 namespace jackalope {
+
+void network_init();
 
 class network_t : public node_t {
 
 protected:
+    shared_t<graph_t> network_graph = nullptr;
     pool_map_t<string_t, shared_t<sink_t>> source_forward_sinks;
     pool_map_t<string_t, shared_t<source_t>> sink_forward_sources;
 
 public:
     static shared_t<network_t> make(const init_args_t& init_args_in);
-    network_t(const init_args_t& init_args_in);
+    network_t(const string_t& type_in, const init_args_t& init_args_in);
+    virtual void activate() override;
+    virtual void start() override;
+    virtual shared_t<node_t> make_node(const init_args_t& init_args_in);
     virtual shared_t<source_t> add_source(const string_t& source_name_in, const string_t& type_in) override;
     virtual shared_t<sink_t> add_sink(const string_t& sink_name_in, const string_t& type_in) override;
 };

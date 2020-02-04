@@ -20,8 +20,10 @@ namespace jackalope {
 
 namespace audio {
 
-static shared_t<sndfile_node_t> sndfile_object_constructor(const init_args_t init_args_in)
+static shared_t<sndfile_node_t> sndfile_object_constructor(const string_t& type_in, const init_args_t init_args_in)
 {
+    assert(type_in == JACKALOPE_AUDIO_SNDFILE_OBJECT_TYPE);
+
     return jackalope::make_shared<sndfile_node_t>(init_args_in);
 }
 

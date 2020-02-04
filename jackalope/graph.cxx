@@ -26,6 +26,11 @@ shared_t<graph_t> graph_t::make(const init_args_t& init_args_in)
     return graph;
 }
 
+shared_t<graph_t> graph_t::make(const init_args_t* init_args_in)
+{
+    return make(*init_args_in);
+}
+
 shared_t<graph_t> graph_t::make(const prop_args_t& prop_args_in)
 {
     auto graph = jackalope::make_shared<graph_t>(prop_args_in);
@@ -45,24 +50,21 @@ graph_t::graph_t(const init_args_t& init_args_in)
     }
 }
 
+graph_t::graph_t(const init_args_t * init_args_in)
+: object_t(JACKALOPE_TYPE_GRAPH, init_args_in)
+{
+    for(auto i : *init_args) {
+        auto property = add_property(i.first, property_t::type_t::string);
+        property->set_string(i.second);
+    }
+}
+
 graph_t::graph_t(const prop_args_t& prop_args_in)
 : object_t(JACKALOPE_TYPE_GRAPH, { })
 {
     for(auto i : prop_args_in) {
         add_property(i.first, i.second);
     }
-}
-
-// THREAD safe because it only calls safe methods
-shared_t<property_t> graph_t::add_property(const string_t& name_in, property_t::type_t type_in)
-{
-    return object_t::add_property(name_in, type_in);
-}
-
-// THREAD safe because it only calls safe methods
-shared_t<property_t> graph_t::add_property(const string_t& name_in, property_t::type_t type_in, const init_args_t& init_args_in)
-{
-    return object_t::add_property(name_in, type_in, init_args_in);
 }
 
 shared_t<node_t> graph_t::add_node(shared_t<node_t> node_in)

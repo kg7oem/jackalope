@@ -73,7 +73,7 @@ class prop_obj_t {
 protected:
 
     virtual shared_t<property_t> add_property(const string_t& name_in, property_t::type_t type_in);
-    virtual shared_t<property_t> add_property(const string_t& name_in, property_t::type_t type_in, const init_args_t& init_args_in);
+    virtual shared_t<property_t> add_property(const string_t& name_in, property_t::type_t type_in, const init_args_t * init_args_in);
 
 public:
     virtual bool has_property(const string_t& name_in);

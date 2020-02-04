@@ -28,8 +28,10 @@ static lock_t get_portaudio_lock()
     return lock_t(portaudio_mutex);
 }
 
-static shared_t<portaudio_node_t> portaudio_driver_constructor(const init_args_t init_args_in)
+static shared_t<portaudio_node_t> portaudio_driver_constructor(const string_t& type_in, const init_args_t init_args_in)
 {
+    assert(type_in == JACKALOPE_AUDIO_PORTAUDIO_OBJECT_TYPE);
+
     return jackalope::make_shared<portaudio_node_t>(init_args_in);
 }
 

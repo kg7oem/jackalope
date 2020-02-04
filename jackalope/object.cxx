@@ -41,30 +41,58 @@ invoke_slot_message_t::invoke_slot_message_t(const string_t& slot_name_in)
     assert(slot_name_in != "");
 }
 
-shared_t<object_t> object_t::_make(const init_args_t init_args_in)
+shared_t<object_t> object_t::_make(const string_t& type_in, const init_args_t& init_args_in)
 {
-    if (! init_args_has(JACKALOPE_PROPERTY_OBJECT_TYPE, init_args_in)) {
-        throw_runtime_error("missing object type");
-    }
-
-    auto object_type = init_args_get(JACKALOPE_PROPERTY_OBJECT_TYPE, init_args_in);
-    auto constructor = object_library->get_constructor(object_type);
-    auto new_object = constructor(init_args_in);
+    auto constructor = object_library->get_constructor(type_in);
+    auto new_object = constructor(type_in, init_args_in);
     auto lock = new_object->get_object_lock();
     new_object->init();
     return new_object;
 }
 
-object_t::object_t(const init_args_t init_args_in)
-: init_args(init_args_in), type(init_args_get(JACKALOPE_PROPERTY_OBJECT_TYPE, init_args))
+shared_t<object_t> object_t::_make(const init_args_t& init_args_in)
 {
-    assert(type != "");
+    if (! init_args_has(JACKALOPE_PROPERTY_OBJECT_TYPE, &init_args_in)) {
+        throw_runtime_error("missing object type");
+    }
+
+    auto object_type = init_args_get(JACKALOPE_PROPERTY_OBJECT_TYPE, &init_args_in);
+    return _make(object_type, init_args_in);
 }
 
-object_t::object_t(const string_t& type_in, const init_args_t init_args_in)
+object_t::object_t(const string_t& type_in, const init_args_t& init_args_in)
+: init_args(new init_args_t(init_args_in)), type(type_in)
+{
+    assert(type != "");
+
+    if (init_args_has(JACKALOPE_PROPERTY_OBJECT_TYPE, init_args)) {
+        if (type_in != init_args_get(JACKALOPE_PROPERTY_OBJECT_TYPE, init_args)) {
+            throw_runtime_error(JACKALOPE_PROPERTY_OBJECT_TYPE, " in init_args did not match type argument during construction");
+        }
+    }
+}
+
+object_t::object_t(const string_t& type_in, const init_args_t * init_args_in)
 : init_args(init_args_in), type(type_in)
 {
     assert(type != "");
+    assert(init_args != nullptr);
+
+    if (init_args_has(JACKALOPE_PROPERTY_OBJECT_TYPE, init_args)) {
+        if (type_in != init_args_get(JACKALOPE_PROPERTY_OBJECT_TYPE, init_args)) {
+            throw_runtime_error("object type in init_args did not match object type during construction");
+        }
+    }
+}
+
+object_t::~object_t()
+{
+    if (! stopped_flag) {
+        auto lock = get_object_lock();
+        stop();
+    }
+
+    delete init_args;
 }
 
 void object_t::init()
@@ -86,14 +114,6 @@ void object_t::init()
 #ifdef CONFIG_HAVE_DBUS
     dbus_object = new object_dbus_t(*this, to_string("/Object/", id).c_str());
 #endif
-}
-
-object_t::~object_t()
-{
-    if (! stopped_flag) {
-        auto lock = get_object_lock();
-        stop();
-    }
 }
 
 bool object_t::is_stopped()

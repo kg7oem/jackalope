@@ -38,7 +38,7 @@ namespace jackalope {
 #define JACKALOPE_SLOT_OBJECT_STOP                 "object.stop"
 #define JACKALOPE_SIGNAL_OBJECT_STOPPED            "object.stopped"
 
-using object_library_t = library_t<object_t, const init_args_t>;
+using object_library_t = library_t<object_t, const string_t&, const init_args_t&>;
 
 void add_object_constructor(const string_t& class_name_in, object_library_t::constructor_t constructor_in);
 size_t _get_object_id();
@@ -76,23 +76,24 @@ protected:
     bool stopped_flag = false;
     const shared_t<async_engine_t> async_engine = get_async_engine();
 
-    object_t(const init_args_t init_args_in);
-    object_t(const string_t& type_in, const init_args_t init_args_in);
+    object_t(const string_t& type_in, const init_args_t& init_args_in);
+    object_t(const string_t& type_in, const init_args_t * init_args_in);
     virtual ~object_t();
 
-    static shared_t<object_t> _make(const init_args_t init_args_in);
+    static shared_t<object_t> _make(const string_t& type_in, const init_args_t& init_args_in);
+    static shared_t<object_t> _make(const init_args_t& init_args_in);
 
     virtual void message_invoke_slot(const string_t slot_name_in);
 
 public:
-    const init_args_t init_args;
+    const init_args_t * init_args = nullptr;
     const string_t type;
     const size_t id = _get_object_id();
 
-    template <class T = object_t>
-    static shared_t<T> make(const init_args_t init_args_in)
+    template <class T = object_t, typename... Args>
+    static shared_t<T> make(Args... args_in)
     {
-        return dynamic_pointer_cast<T>(_make(init_args_in));
+        return dynamic_pointer_cast<T>(_make(args_in...));
     }
 
     virtual void _send_message(shared_t<abstract_message_t> message_in);

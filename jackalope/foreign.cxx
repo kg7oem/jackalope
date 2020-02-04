@@ -101,7 +101,7 @@ void jackalope_graph_t::add_property(const string_t& name_in, property_t::type_t
     });
 }
 
-void jackalope_graph_t::add_property(const string_t& name_in, property_t::type_t type_in, const init_args_t& init_args_in)
+void jackalope_graph_t::add_property(const string_t& name_in, property_t::type_t type_in, const init_args_t * init_args_in)
 {
     wait_job([&] {
         auto lock = wrapped->get_object_lock();
@@ -252,6 +252,18 @@ jackalope_network_t jackalope_network_t::make(const jackalope::init_args_t& init
 jackalope_network_t::jackalope_network_t(jackalope::shared_t<jackalope::network_t> wrapped_in)
 : jackalope_node_t(wrapped_in)
 { }
+
+jackalope_node_t jackalope_network_t::make_node(const init_args_t& init_args_in)
+{
+    auto graph = dynamic_pointer_cast<jackalope::network_t>(wrapped);
+
+    auto new_node = wait_job<shared_t<jackalope::node_t>>([&] {
+        auto lock = graph->get_object_lock();
+        return graph->make_node(init_args_in);
+    });
+
+    return jackalope_node_t(new_node);
+}
 
 extern "C" {
 

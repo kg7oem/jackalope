@@ -109,7 +109,7 @@ struct jackalope_graph_t : public jackalope_object_t {
     static jackalope_graph_t make(const jackalope::graph_t::prop_args_t& prop_args_in);
     jackalope_graph_t(jackalope::shared_t<jackalope::graph_t> wrapped_in);
     virtual void add_property(const jackalope::string_t& name_in, jackalope::property_t::type_t type_in);
-    virtual void add_property(const jackalope::string_t& name_in, jackalope::property_t::type_t type_in, const jackalope::init_args_t& init_args_in);
+    virtual void add_property(const jackalope::string_t& name_in, jackalope::property_t::type_t type_in, const jackalope::init_args_t * init_args_in);
     virtual jackalope_node_t make_node(const jackalope::init_args_t& init_args_in);
     virtual jackalope_node_t add_node(const jackalope::init_args_t& init_args_in);
     virtual jackalope_network_t make_network(const jackalope::init_args_t& init_args_in);
@@ -133,6 +133,7 @@ struct jackalope_node_t : public jackalope_object_t {
 struct jackalope_network_t : public jackalope_node_t {
     static jackalope_network_t make(const jackalope::init_args_t& init_args_in);
     jackalope_network_t(jackalope::shared_t<jackalope::network_t> wrapped_in);
+    virtual jackalope_node_t make_node(const jackalope::init_args_t& init_args_in);
 };
 
 #endif // __cplusplus
