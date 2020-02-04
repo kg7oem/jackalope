@@ -62,8 +62,19 @@ run_validation() {
         mv .hide.jackalope-boost-prefix jackalope-boost-prefix
     fi
 
-    make
-    make test
+    cmake --build .
+    cmake --build . --target test
+
+    for type in ARCHIVE DEB; do
+        package $type
+    done
+}
+
+package() {
+    local generator_name="$1"
+
+    cmake -DCPACK_GENERATOR="$generator_name" "$SOURCE_ROOT"
+    cmake --build . --target package
 }
 
 hide() {

@@ -1,17 +1,32 @@
+# begin configuration
+
+set(JACKALOPE_VERSION_MAJOR 0)
+set(JACKALOPE_VERSION_MINOR 0)
+set(JACKALOPE_VERSION_PATCH 1)
+
+# end of configuration
+
+cmake_minimum_required(VERSION 3.8.2)
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake" ${CMAKE_MODULE_PATH})
+
 set(PROJECT jackalope)
 project(${PROJECT})
+
+set(JACKALOPE_VERSION ${JACKALOPE_VERSION_MAJOR}.${JACKALOPE_VERSION_MINOR}.${JACKALOPE_VERSION_PATCH})
+add_definitions(-DJACKALOPE_VERSION=${JACKALOPE_VERSION})
 
 set(JACKALOPE_BIN_TARGET ${PROJECT}-bin)
 set(JACKALOPE_LIB_TARGET ${PROJECT}-lib)
 set(JACKALOPE_SO_FILE ${PROJECT}.so)
 set(JACKALOPE_LIBS -l${PROJECT})
 
-cmake_minimum_required(VERSION 3.8.2)
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake" ${CMAKE_MODULE_PATH})
 include(ExternalProject)
+include(CMake/LocalBoost.cmake)
+include(InstallRequiredSystemLibraries)
+include(CPackComponent)
 
 if ("${CMAKE_BUILD_TYPE}" STREQUAL "")
-set(CMAKE_BUILD_TYPE Debug)
+    set(CMAKE_BUILD_TYPE Debug)
 endif ("${CMAKE_BUILD_TYPE}" STREQUAL "")
 
 option(VERBOSE "Verbose builds" OFF)
@@ -31,17 +46,14 @@ if (VERBOSE)
     set(CMAKE_VERBOSE_MAKEFILE ON)
 endif (VERBOSE)
 
-# don't change anything below this line
 set(CMAKE_CXX_STANDARD 17)
-
-include(CMake/LocalBoost.cmake)
 
 add_definitions(-fPIC)
 add_definitions(-Wfatal-errors -Werror)
 add_definitions(-Wall -Wextra)
 
 if (${CMAKE_BUILD_TYPE} STREQUAL Debug)
-add_definitions(-Og)
+    add_definitions(-Og)
 endif (${CMAKE_BUILD_TYPE} STREQUAL Debug)
 
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
@@ -50,7 +62,7 @@ message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 include_directories(.)
 include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 
-list(APPEND DEBIAN_PACKAGES build-essential cmake)
+list(APPEND DEBIAN_DEV_PACKAGES build-essential cmake)
 
 find_package(Threads REQUIRED)
 find_package(PkgConfig REQUIRED)
@@ -80,8 +92,8 @@ add_library(
 if (LOCAL_BOOST)
     add_dependencies(${JACKALOPE_LIB_TARGET} jackalope-boost)
 else()
-    list(APPEND DEBIAN_PACKAGES libboost-date-time-dev libboost-filesystem-dev libboost-regex-dev)
-    list(APPEND DEBIAN_PACKAGES libboost-serialization-dev libboost-system-dev libboost-thread-dev)
+    list(APPEND DEBIAN_DEV_PACKAGES libboost-date-time1.67-dev libboost-filesystem1.67-dev libboost-regex1.67-dev libboost-serialization1.67-dev libboost-system1.67-dev libboost-thread1.67-dev)
+    list(APPEND DEBIAN_LIB_PACKAGES libboost-date-time1.67.0 libboost-filesystem1.67.0 libboost-regex1.67.0 libboost-serialization1.67.0 libboost-system1.67.0 libboost-thread1.67.0)
 endif (LOCAL_BOOST)
 
 target_link_libraries(${JACKALOPE_LIB_TARGET} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} -ldl)
@@ -104,7 +116,8 @@ if(ENABLE_DBUS)
     message("Checking for dbus-c++")
     pkg_check_modules(DBUSLIB dbus-c++-1)
 
-    list(APPEND DEBIAN_PACKAGES libdbus-1-dev libdbus-c++-dev)
+    list(APPEND DEBIAN_DEV_PACKAGES libdbus-1-dev libdbus-c++-dev)
+    list(APPEND DEBIAN_LIB_PACKAGES libdbus-1-3 libdbus-c++-1-0v5)
 
     if (DBUSLIB_FOUND)
         message("  DBUS support is enabled")
@@ -128,7 +141,8 @@ if (ENABLE_PERL)
     message("Checking for Perl libraries")
     include(FindPerlLibs)
 
-    list(APPEND DEBIAN_PACKAGES libperl-dev)
+    list(APPEND DEBIAN_DEV_PACKAGES libperl-dev)
+    list(APPEND DEBIAN_LIB_PACKAGES perl)
 
     if (PERLLIBS_FOUND)
         message("  Perl support is enabled")
@@ -158,7 +172,8 @@ if (ENABLE_JACKAUDIO)
     message("Checking for JACK audio")
     find_package(JACK)
 
-    list(APPEND DEBIAN_PACKAGES libjack-jackd2-dev)
+    list(APPEND DEBIAN_DEV_PACKAGES libjack-jackd2-dev)
+    list(APPEND DEBIAN_LIB_PACKAGES libjack-jackd2-0)
 
     if (JACK_FOUND)
         message("  JACK audio support is enabled")
@@ -180,7 +195,8 @@ if (ENABLE_PORTAUDIO)
     message("Checking for Portaudio")
     find_package(Portaudio)
 
-    list(APPEND DEBIAN_PACKAGES portaudio19-dev)
+    list(APPEND DEBIAN_DEV_PACKAGES portaudio19-dev)
+    list(APPEND DEBIAN_LIB_PACKAGES libportaudio2)
 
     if (PORTAUDIO_FOUND)
         message("  Portaudio support is enabled")
@@ -195,7 +211,8 @@ if (ENABLE_RTAUDIO)
     message("Checking for RtAudio")
     find_package(RtAudio)
 
-    list(APPEND DEBIAN_PACKAGES librtaudio-dev)
+    list(APPEND DEBIAN_DEV_PACKAGES librtaudio-dev)
+    list(APPEND DEBIAN_DEV_PACKAGES librtaudio6)
 
     if (RTAUDIO_FOUND)
         message("  librtaudio support is enabled")
@@ -210,7 +227,8 @@ if (ENABLE_SNDFILE)
     message("Checking for libsndfile")
     find_package(Sndfile)
 
-    list(APPEND DEBIAN_PACKAGES libsndfile1-dev)
+    list(APPEND DEBIAN_DEV_PACKAGES libsndfile1-dev)
+    list(APPEND DEBIAN_DEV_PACKAGES libsndfile1)
 
     if (Sndfile_FOUND)
         message("  libsndfile support is enabled")
@@ -222,4 +240,32 @@ if (ENABLE_SNDFILE)
 
 endif (ENABLE_SNDFILE)
 
-add_custom_target(install-debian-packages apt install ${DEBIAN_PACKAGES})
+add_custom_target(install-debian-packages apt install ${DEBIAN_DEV_PACKAGES} ${DEBIAN_LIB_PACKAGES})
+
+install(
+    TARGETS ${JACKALOPE_LIB_TARGET} ${JACKALOPE_BIN_TARGET}
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+)
+
+install(
+    DIRECTORY jackalope/
+    DESTINATION include/jackalope/
+    FILES_MATCHING PATTERN "*.h"
+)
+
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Jackalope Dataflow Engine")
+set(CPACK_PACKAGE_VENDOR "Tyler Riddle KG7OEM")
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/doc/license-LGPL3.txt")
+set(CPACK_PACKAGE_VERSION_MAJOR ${JACKALOPE_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${JACKALOPE_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${JACKALOPE_VERSION_PATCH})
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "CMake ${CMake_VERSION_MAJOR}.${CMake_VERSION_MINOR}")
+
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER ${CPACK_PACKAGE_VENDOR})
+set(CPACK_DEBIAN_PACKAGE_DEPENDS ${DEBIAN_DEV_PACKAGES} ${DEBIAN_LIB_PACKAGES})
+
+# must come after all the cpack configuration
+INCLUDE(CPack)
