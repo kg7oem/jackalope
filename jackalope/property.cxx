@@ -203,43 +203,89 @@ lock_t prop_obj_t::get_property_lock()
     return lock_t(property_mutex);
 }
 
+shared_t<property_t> prop_obj_t::_add_property(const string_t& name_in, shared_t<property_t> property_in)
+{
+    assert_mutex_owner(property_mutex);
+
+    if (_has_property(name_in)) {
+        throw_runtime_error("attempt to add duplicate property name: ", name_in);
+    }
+
+    return properties[name_in] = property_in;
+}
+
+shared_t<property_t> prop_obj_t::add_property(const string_t& name_in, shared_t<property_t> property_in)
+{
+    auto lock = get_property_lock();
+    return _add_property(name_in, property_in);
+}
+
 shared_t<property_t> prop_obj_t::add_property(const string_t& name_in, property_t::type_t type_in, const init_args_t * init_args_in)
 {
     auto lock = get_property_lock();
 
-    auto new_property = _add_property(name_in, type_in);
+    shared_t<property_t> property;
+    bool add_needed = false;
+
+    if (_has_property(name_in)) {
+        property = _get_property(name_in);
+
+        if (property->type != type_in) {
+            throw_runtime_error("can not add a property to a node with an existing property of the same name unless types match");
+        }
+    } else {
+        property = property_t::make(type_in);
+        add_needed = true;
+    }
+
     auto name_str = name_in.c_str();
 
     if (init_args_has(name_str, init_args_in)) {
-        new_property->set(init_args_get(name_str, init_args_in));
+        property->set(init_args_get(name_str, init_args_in));
     }
 
-    return new_property;
+    if (add_needed) {
+        return _add_property(name_in, property);
+    }
+
+    return property;
 }
 
 shared_t<property_t> prop_obj_t::add_property(const string_t& name_in, property_t::type_t type_in)
 {
     auto lock = get_property_lock();
-    return _add_property(name_in, type_in);
-}
 
-shared_t<property_t> prop_obj_t::_add_property(const string_t& name_in, property_t::type_t type_in)
-{
-    assert_mutex_owner(property_mutex);
+    shared_t<property_t> property;
+    bool add_needed = false;
 
-    auto property = property_t::make(type_in);
-    auto result = properties.emplace(std::make_pair(name_in, property));
+    if (_has_property(name_in)) {
+        property = _get_property(name_in);
 
-    if (! result.second) {
-        throw_runtime_error("Attempt to add duplicate property name: ", name_in);
+        if (property->type != type_in) {
+            throw_runtime_error("can not add a property to a node with an existing property of the same name unless types match");
+        }
+    } else {
+        property = property_t::make(type_in);
+        add_needed = true;
     }
 
-    return result.first->second;
+    if (add_needed) {
+        return _add_property(name_in, property);
+    }
+
+    return property;
 }
 
 bool prop_obj_t::has_property(const string_t& name_in)
 {
     auto lock = get_property_lock();
+
+    return _has_property(name_in);
+}
+
+bool prop_obj_t::_has_property(const string_t& name_in)
+{
+    assert_mutex_owner(property_mutex);
 
     return properties.count(name_in) != 0;
 }
@@ -247,6 +293,12 @@ bool prop_obj_t::has_property(const string_t& name_in)
 shared_t<property_t> prop_obj_t::get_property(const string_t& name_in)
 {
     auto lock = get_property_lock();
+    return _get_property(name_in);
+}
+
+shared_t<property_t> prop_obj_t::_get_property(const string_t& name_in)
+{
+    assert_mutex_owner(property_mutex);
 
     auto found = properties.find(name_in);
 

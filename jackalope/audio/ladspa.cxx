@@ -191,7 +191,10 @@ void ladspa_node_t::activate()
                 auto property_name = to_string("config.", port_name);
                 auto property = get_property(property_name);
 
-                property->set(instance->get_port_default(port_num));
+                if (! property->is_defined()) {
+                    property->set(instance->get_port_default(port_num));
+                }
+
                 instance->connect_port(port_num, &property->get_real());
             } else if (LADSPA_IS_PORT_OUTPUT(descriptor)) {
                 auto property_name = to_string("state.", port_name);

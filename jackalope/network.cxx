@@ -93,6 +93,20 @@ void network_t::stop()
     node_t::stop();
 }
 
+shared_t<property_t> network_t::add_property(const string_t& name_in, property_t::type_t type_in)
+{
+    assert_lockable_owner();
+
+    return node_t::add_property(name_in, type_in);
+}
+
+shared_t<property_t> network_t::add_property(const string_t& name_in, property_t::type_t type_in, const init_args_t * init_args_in)
+{
+    assert_lockable_owner();
+
+    return node_t::add_property(name_in, type_in, init_args_in);
+}
+
 shared_t<node_t> network_t::make_node(const init_args_t& init_args_in)
 {
     assert_lockable_owner();

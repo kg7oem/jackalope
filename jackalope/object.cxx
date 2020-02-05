@@ -104,6 +104,20 @@ string_t object_t::description()
     return to_string(type, " #", id);
 }
 
+void object_t::alias_property(const string_t& property_name_in, shared_t<object_t> target_object_in, const string_t& target_property_name_in)
+{
+    assert_lockable_owner();
+
+    if (has_property(property_name_in)) {
+        throw_runtime_error("can not alias a property that already exists: ", property_name_in);
+    }
+
+    object_log_info("aliasing property: ", property_name_in);
+
+    auto target_property = target_object_in->get_property(target_property_name_in);
+    add_property(property_name_in, target_property);
+}
+
 void object_t::init()
 {
     assert_lockable_owner();
@@ -172,6 +186,13 @@ string_t object_t::peek(const string_t& property_name_in)
     assert_lockable_owner();
 
     return get_property(property_name_in)->get();
+}
+
+void object_t::poke(const string_t& property_name_in, const double value_in)
+{
+    assert_lockable_owner();
+
+    get_property(property_name_in)->set(value_in);
 }
 
 void object_t::poke(const string_t& property_name_in, const string_t& value_in)

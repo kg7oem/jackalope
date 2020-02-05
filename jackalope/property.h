@@ -68,10 +68,12 @@ class prop_obj_t {
     pool_map_t<string_t, shared_t<property_t>> properties;
     mutex_t property_mutex;
     virtual lock_t get_property_lock();
-    virtual shared_t<property_t> _add_property(const string_t& name_in, property_t::type_t type_in);
+    virtual shared_t<property_t> _add_property(const string_t& name_in, shared_t<property_t> property_in);
+    virtual shared_t<property_t> _get_property(const string_t& name_in);
+    virtual bool _has_property(const string_t& name_in);
 
 protected:
-
+    virtual shared_t<property_t> add_property(const string_t& name_in, shared_t<property_t> property_in);
     virtual shared_t<property_t> add_property(const string_t& name_in, property_t::type_t type_in);
     virtual shared_t<property_t> add_property(const string_t& name_in, property_t::type_t type_in, const init_args_t * init_args_in);
 

@@ -34,11 +34,28 @@ jackalope_object_t::jackalope_object_t(jackalope::shared_t<jackalope::object_t> 
     assert(wrapped_in != nullptr);
 }
 
+void jackalope_object_t::alias_property(const jackalope::string_t& property_name_in, jackalope_object_t& target_object_in, const jackalope::string_t& target_property_name_in)
+{
+    wait_job([&] {
+        auto lock = wrapped->get_object_lock();
+        auto target_lock = target_object_in.wrapped->get_object_lock();
+        wrapped->alias_property(property_name_in, target_object_in.wrapped, target_property_name_in);
+    });
+}
+
 string_t jackalope_object_t::peek(const string_t& property_name_in)
 {
     return wait_job<string_t>([&] {
         auto lock = wrapped->get_object_lock();
         return wrapped->peek(property_name_in);
+    });
+}
+
+void jackalope_object_t::poke(const string_t& property_name_in, const double value_in)
+{
+    wait_job([&] {
+        auto lock = wrapped->get_object_lock();
+        wrapped->poke(property_name_in, value_in);
     });
 }
 
@@ -258,6 +275,26 @@ jackalope_node_t jackalope_network_t::make_node(const init_args_t& init_args_in)
     });
 
     return jackalope_node_t(new_node);
+}
+
+void jackalope_network_t::add_property(const string_t& name_in, property_t::type_t type_in)
+{
+    wait_job([&] {
+        auto lock = wrapped->get_object_lock();
+        auto network = wrapped->shared_obj<jackalope::network_t>();
+
+        network->add_property(name_in, type_in);
+    });
+}
+
+void jackalope_network_t::add_property(const string_t& name_in, property_t::type_t type_in, const init_args_t * init_args_in)
+{
+    wait_job([&] {
+        auto lock = wrapped->get_object_lock();
+        auto network = wrapped->shared_obj<jackalope::network_t>();
+
+        network->add_property(name_in, type_in, init_args_in);
+    });
 }
 
 void jackalope_network_t::forward(const jackalope::string_t& source_name_in, jackalope_node_t& target_node_in, const jackalope::string_t& target_source_name_in)

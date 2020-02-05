@@ -101,6 +101,8 @@ public:
 
     virtual string_t description();
 
+    void alias_property(const string_t& property_name_in, shared_t<object_t> target_object_in, const string_t& target_property_name_in);
+
     virtual void _send_message(shared_t<abstract_message_t> message_in);
     virtual void deliver_one_message(shared_t<abstract_message_t> message_in) override;
 
@@ -115,6 +117,7 @@ public:
 
     virtual bool is_stopped();
     virtual string_t peek(const string_t& property_name_in);
+    virtual void poke(const string_t& property_name_in, const double value_in);
     virtual void poke(const string_t& property_name_in, const string_t& value_in);
     virtual void init();
     virtual void start();

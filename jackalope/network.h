@@ -37,6 +37,8 @@ public:
     virtual void activate() override;
     virtual void start() override;
     virtual void stop() override;
+    virtual shared_t<property_t> add_property(const string_t& name_in, property_t::type_t type_in) override;
+    virtual shared_t<property_t> add_property(const string_t& name_in, property_t::type_t type_in, const init_args_t * init_args_in)  override;
     virtual shared_t<node_t> make_node(const init_args_t& init_args_in);
     virtual shared_t<source_t> add_source(const string_t& source_name_in, const string_t& type_in) override;
     virtual shared_t<sink_t> add_sink(const string_t& sink_name_in, const string_t& type_in) override;

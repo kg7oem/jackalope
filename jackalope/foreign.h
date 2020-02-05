@@ -75,7 +75,9 @@ struct jackalope_sink_t : public jackalope_wrapper_t<jackalope::sink_t> {
 struct jackalope_object_t : public jackalope_wrapper_t<jackalope::object_t> {
     jackalope_object_t(jackalope::shared_t<jackalope::object_t> wrapped_in);
     virtual ~jackalope_object_t() = default;
+    virtual void alias_property(const jackalope::string_t& property_name_in, jackalope_object_t& target_object_in, const jackalope::string_t& target_property_name_in);
     jackalope::string_t peek(const jackalope::string_t& property_name_in);
+    void poke(const jackalope::string_t& property_name_in, const double value_in);
     void poke(const jackalope::string_t& property_name_in, const jackalope::string_t& value_in);
     virtual void subscribe(const jackalope::string_t& signal_name_in, jackalope_object_t& target_object_in, const jackalope::string_t& slot_name_in);
     virtual void start();
@@ -137,6 +139,8 @@ struct jackalope_network_t : public jackalope_node_t {
     static jackalope_network_t make(const jackalope::init_args_t& init_args_in);
     jackalope_network_t(jackalope::shared_t<jackalope::network_t> wrapped_in);
     virtual jackalope_node_t make_node(const jackalope::init_args_t& init_args_in);
+    virtual void add_property(const jackalope::string_t& name_in, jackalope::property_t::type_t type_in);
+    virtual void add_property(const jackalope::string_t& name_in, jackalope::property_t::type_t type_in, const jackalope::init_args_t * init_args_in);
     virtual void forward(const jackalope::string_t& source_name_in, jackalope_node_t& target_node_in, const jackalope::string_t& target_source_name_in);
 };
 

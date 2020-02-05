@@ -78,6 +78,9 @@ jackalope_network_t make_tube_simulator(jackalope_graph_t& graph_in)
         { "node.name", "tube simulator" },
     });
 
+    tube_simulator.add_property("config.drive", jackalope::property_t::type_t::real);
+    tube_simulator.poke("config.drive", 0);
+
     for(auto i : { "left", "right" }) {
         auto tube_name = jackalope::to_string(i, " tube");
         auto tube_node = tube_simulator.make_node({
@@ -90,10 +93,10 @@ jackalope_network_t make_tube_simulator(jackalope_graph_t& graph_in)
         tube_simulator.add_source(i, "audio");
         tube_simulator.add_sink(i, "audio");
 
-        // new_node.alias_property("config.Tube Drive", tube_simulator, "config.drive");
-        // new_node.alias_property("config.Bass", tube_simulator, "config.lows");
-        // new_node.alias_property("config.Mids", tube_simulator, "config.mids");
-        // new_node.alias_property("config.Treble", tube_simulator, "config.highs");
+        tube_node.alias_property("config.Tube Drive", tube_simulator, "config.drive");
+        // tube_node.alias_property("config.Bass", tube_simulator, "config.bass");
+        // tube_node.alias_property("config.Mids", tube_simulator, "config.mids");
+        // tube_node.alias_property("config.Treble", tube_simulator, "config.treble");
 
         tube_node.activate();
 
