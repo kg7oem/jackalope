@@ -47,8 +47,6 @@ protected:
 public:
     const string_t name;
 
-    virtual ~node_t();
-
     virtual string_t description() override;
 
     shared_t<graph_t> get_graph();

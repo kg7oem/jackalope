@@ -32,11 +32,6 @@ node_t::node_t(const string_t& type_in, const init_args_t& init_args_in)
     assert(name != "");
 }
 
-node_t::~node_t()
-{
-    log_info("Destroying node: ", name);
-}
-
 string_t node_t::description()
 {
     return to_string(object_t::description(), "; node name = ", name);
