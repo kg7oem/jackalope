@@ -218,7 +218,7 @@ void object_t::stop()
     assert_lockable_owner();
 
     if (stopped_flag) {
-        return;
+        throw_runtime_error("Can't stop a node that is already stopped");
     }
 
     stopped_flag = true;
