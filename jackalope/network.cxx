@@ -63,7 +63,7 @@ void network_t::activate()
     network_graph = graph_t::make(get_graph()->init_args);
     auto network_graph_lock = network_graph->get_object_lock();
 
-    network_graph->connect(JACKALOPE_SIGNAL_OBJECT_STOPPED, shared_obj(), JACKALOPE_SLOT_OBJECT_STOP);
+    network_graph->subscribe(JACKALOPE_SIGNAL_OBJECT_STOPPED, shared_obj(), JACKALOPE_SLOT_OBJECT_STOP);
 
     node_t::activate();
 }

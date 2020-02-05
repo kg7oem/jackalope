@@ -66,12 +66,12 @@ void jackalope_object_t::stop()
     });
 }
 
-void jackalope_object_t::connect(const string_t& signal_name_in, jackalope_object_t& target_object_in, const string_t& slot_name_in)
+void jackalope_object_t::subscribe(const string_t& signal_name_in, jackalope_object_t& target_object_in, const string_t& slot_name_in)
 {
     wait_job([&] {
         auto from_lock = wrapped->get_object_lock();
         auto to_lock = target_object_in.wrapped->get_object_lock();
-        wrapped->connect(signal_name_in, target_object_in.wrapped, slot_name_in);
+        wrapped->subscribe(signal_name_in, target_object_in.wrapped, slot_name_in);
     });
 }
 
@@ -308,11 +308,11 @@ void jackalope_object_delete(jackalope_object_t * object_in)
     delete object_in;
 }
 
-void jackalope_object_connect(jackalope_object_t * object_in, const char * signal_in, jackalope_object_t * target_object_in, const char * slot_in)
+void jackalope_object_subscribe(jackalope_object_t * object_in, const char * signal_in, jackalope_object_t * target_object_in, const char * slot_in)
 {
     assert(object_in != nullptr);
 
-    object_in->connect(signal_in, *target_object_in, slot_in);
+    object_in->subscribe(signal_in, *target_object_in, slot_in);
 }
 
 void jackalope_object_start(jackalope_object_t * object_in)

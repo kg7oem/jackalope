@@ -25,7 +25,7 @@ use v5.10;
 use Jackalope::Glue;
 
 *DESTROY = *Jackalope::Glue::jackalope_object_delete;
-*connect = *Jackalope::Glue::jackalope_object_connect;
+*subscribe = *Jackalope::Glue::jackalope_object_subscribe;
 *start = *Jackalope::Glue::jackalope_object_start;
 *stop = *Jackalope::Glue::jackalope_object_stop;
 

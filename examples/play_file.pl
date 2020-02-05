@@ -76,7 +76,7 @@ sub play_file {
         "plugin.id" => LADSPA_ZAMTUBE_ID,
     );
 
-    $input_file->connect("object.stopped", $graph, "object.stop");
+    $input_file->subscribe("object.stopped", $graph, "object.stop");
 
     if ($input_file->get_num_sources == 1) {
         $input_file->link("Output 1", $left_tube, "Audio Input 1");

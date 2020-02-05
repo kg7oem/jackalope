@@ -59,7 +59,7 @@ int main(int argc_in, char ** argv_in)
 
     auto tube_simulator = make_tube_simulator(graph);
 
-    input_file.connect(JACKALOPE_SIGNAL_OBJECT_STOPPED, graph, JACKALOPE_SLOT_OBJECT_STOP);
+    input_file.subscribe(JACKALOPE_SIGNAL_OBJECT_STOPPED, graph, JACKALOPE_SLOT_OBJECT_STOP);
 
     input_file.link("Output 1", tube_simulator, "left");
     input_file.link("Output 1", tube_simulator, "right");

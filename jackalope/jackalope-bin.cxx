@@ -73,7 +73,7 @@ int main(int argc_in, char ** argv_in)
         { "plugin.id", jackalope::to_string(LADSPA_ZAMTUBE_ID) },
     });
 
-    input_file.connect(JACKALOPE_SIGNAL_OBJECT_STOPPED, graph, JACKALOPE_SLOT_OBJECT_STOP);
+    input_file.subscribe(JACKALOPE_SIGNAL_OBJECT_STOPPED, graph, JACKALOPE_SLOT_OBJECT_STOP);
 
     input_file.link("Output 1", left_tube, "Audio Input 1");
     input_file.link("Output 1", right_tube, "Audio Input 1");

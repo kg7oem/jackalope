@@ -30,7 +30,7 @@ struct dbus_objectAdaptee;
 void jackalope_init();
 
 void jackalope_object_delete(struct jackalope_object_t * object_in);
-void jackalope_object_connect(struct jackalope_object_t * object_in, const char * signal_in, struct jackalope_object_t * target_object_in, const char * slot_in);
+void jackalope_object_subscribe(struct jackalope_object_t * object_in, const char * signal_in, struct jackalope_object_t * target_object_in, const char * slot_in);
 void jackalope_object_start(struct jackalope_object_t * object_in);
 void jackalope_object_stop(struct jackalope_object_t * object_in);
 
@@ -73,7 +73,7 @@ struct jackalope_object_t : public jackalope_wrapper_t<jackalope::object_t> {
     virtual ~jackalope_object_t() = default;
     jackalope::string_t peek(const jackalope::string_t& property_name_in);
     void poke(const jackalope::string_t& property_name_in, const jackalope::string_t& value_in);
-    virtual void connect(const jackalope::string_t& signal_name_in, jackalope_object_t& target_object_in, const jackalope::string_t& slot_name_in);
+    virtual void subscribe(const jackalope::string_t& signal_name_in, jackalope_object_t& target_object_in, const jackalope::string_t& slot_name_in);
     virtual void start();
     virtual void stop();
 

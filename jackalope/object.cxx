@@ -181,7 +181,7 @@ void object_t::poke(const string_t& property_name_in, const string_t& value_in)
     get_property(property_name_in)->set(value_in);
 }
 
-void object_t::connect(const string_t& signal_name_in, shared_t<object_t> target_object_in, const string_t& target_slot_name_in)
+void object_t::subscribe(const string_t& signal_name_in, shared_t<object_t> target_object_in, const string_t& target_slot_name_in)
 {
     assert_lockable_owner();
     assert_object_owner(target_object_in);

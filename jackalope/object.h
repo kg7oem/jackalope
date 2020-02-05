@@ -111,7 +111,7 @@ public:
         _send_message(message);
     }
 
-    virtual void connect(const string_t& signal_name_in, shared_t<object_t> target_object_in, const string_t& target_slot_name_in);
+    virtual void subscribe(const string_t& signal_name_in, shared_t<object_t> target_object_in, const string_t& target_slot_name_in);
 
     virtual bool is_stopped();
     virtual string_t peek(const string_t& property_name_in);
