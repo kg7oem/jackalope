@@ -28,22 +28,40 @@ void plugin_t::start()
     execute_if_needed();
 }
 
-void plugin_t::deliver_one_message(shared_t<abstract_message_t> message_in)
+void plugin_t::message_invoke_slot(const string_t slot_name_in)
 {
-    object_t::deliver_one_message(message_in);
+    assert_lockable_owner();
 
-    auto lock = get_object_lock();
+    node_t::message_invoke_slot(slot_name_in);
 
-    if (started_flag) {
-        execute_if_needed();
-    }
+    execute_if_needed();
+}
+
+void plugin_t::sink_ready(shared_t<sink_t> sink_in)
+{
+    assert_lockable_owner();
+
+    node_t::sink_ready(sink_in);
+
+    execute_if_needed();
+}
+
+void plugin_t::source_available(shared_t<source_t> source_in)
+{
+    assert_lockable_owner();
+
+    node_t::source_available(source_in);
+
+    execute_if_needed();
 }
 
 void plugin_t::execute_if_needed()
 {
     assert_lockable_owner();
 
-    assert(started_flag);
+    if (! started_flag) {
+        return;
+    }
 
     while(1) {
         if (stopped_flag || ! should_execute()) {

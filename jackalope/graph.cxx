@@ -90,7 +90,7 @@ shared_t<node_t> graph_t::add_node(const init_args_t& init_args_in)
     auto lock = new_node->get_object_lock();
     new_node->activate();
 
-    return add_node(new_node);
+    return new_node;
 }
 
 shared_t<node_t> graph_t::make_node(const init_args_t& init_args_in)
@@ -102,6 +102,8 @@ shared_t<node_t> graph_t::make_node(const init_args_t& init_args_in)
     auto new_node_lock = new_node->get_object_lock();
 
     new_node->set_graph(shared_obj<graph_t>());
+
+    add_node(new_node);
 
     return new_node;
 }

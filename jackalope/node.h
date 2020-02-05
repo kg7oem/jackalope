@@ -26,16 +26,6 @@
 
 namespace jackalope {
 
-struct link_available_message_t : public message_t<shared_t<link_t>> {
-    static const string_t message_name;
-    link_available_message_t(shared_t<link_t> link_in);
-};
-
-struct link_ready_message_t : public message_t<shared_t<link_t>> {
-    static const string_t message_name;
-    link_ready_message_t(shared_t<link_t> link_in);
-};
-
 class node_t : public object_t {
 
 protected:
@@ -50,6 +40,10 @@ protected:
     node_t(const init_args_t& init_args_in);
     virtual void message_link_available(shared_t<link_t> link_in);
     virtual void message_link_ready(shared_t<link_t> link_in);
+    virtual void message_sink_ready(shared_t<sink_t> sink_in);
+    virtual void sink_ready(shared_t<sink_t> sink_in);
+    virtual void message_source_available(shared_t<source_t> source_in);
+    virtual void source_available(shared_t<source_t> source_in);
 
 public:
     const string_t name;

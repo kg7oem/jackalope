@@ -255,11 +255,11 @@ jackalope_network_t::jackalope_network_t(jackalope::shared_t<jackalope::network_
 
 jackalope_node_t jackalope_network_t::make_node(const init_args_t& init_args_in)
 {
-    auto graph = dynamic_pointer_cast<jackalope::network_t>(wrapped);
+    auto network = dynamic_pointer_cast<jackalope::network_t>(wrapped);
 
     auto new_node = wait_job<shared_t<jackalope::node_t>>([&] {
-        auto lock = graph->get_object_lock();
-        return graph->make_node(init_args_in);
+        auto lock = network->get_object_lock();
+        return network->make_node(init_args_in);
     });
 
     return jackalope_node_t(new_node);

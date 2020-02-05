@@ -23,6 +23,38 @@ namespace jackalope {
 static source_library_t * source_library = new source_library_t();
 static sink_library_t * sink_library = new sink_library_t();
 
+const string_t link_available_message_t::message_name = JACKALOPE_MESSAGE_OBJECT_LINK_AVAILABLE;
+
+link_available_message_t::link_available_message_t(shared_t<link_t> link_in)
+: message_t(JACKALOPE_MESSAGE_OBJECT_LINK_AVAILABLE, link_in)
+{
+    assert(link_in != nullptr);
+}
+
+const string_t link_ready_message_t::message_name = JACKALOPE_MESSAGE_OBJECT_LINK_READY;
+
+link_ready_message_t::link_ready_message_t(shared_t<link_t> link_in)
+: message_t(JACKALOPE_MESSAGE_OBJECT_LINK_READY, link_in)
+{
+    assert(link_in != nullptr);
+}
+
+const string_t sink_ready_message_t::message_name = JACKALOPE_MESSAGE_OBJECT_SINK_READY;
+
+sink_ready_message_t::sink_ready_message_t(shared_t<sink_t> sink_in)
+: message_t(JACKALOPE_MESSAGE_OBJECT_SINK_READY, sink_in)
+{
+    assert(sink_in != nullptr);
+}
+
+const string_t source_available_message_t::message_name = JACKALOPE_MESSAGE_OBJECT_SOURCE_AVAILABLE;
+
+source_available_message_t::source_available_message_t(shared_t<source_t> source_in)
+: message_t(JACKALOPE_MESSAGE_OBJECT_SOURCE_AVAILABLE, source_in)
+{
+    assert(source_in != nullptr);
+}
+
 void add_source_constructor(const string_t& class_name_in, source_library_t::constructor_t constructor_in)
 {
     source_library->add_constructor(class_name_in, constructor_in);
@@ -111,10 +143,12 @@ void source_t::link_available(NDEBUG_UNUSED shared_t<link_t> link_in)
 {
     auto lock = get_object_lock();
 
-    assert(link_in->get_from() == shared_obj());
+    auto us = shared_obj();
+
+    assert(link_in->get_from() == us);
 
     if (_is_available()) {
-        log_info("source is available: ", name);
+        get_parent()->send_message<source_available_message_t>(us);
     }
 }
 
@@ -140,8 +174,6 @@ void sink_t::_start()
     assert_lockable_owner();
 
     channel_t::_start();
-
-    // _reset();
 }
 
 bool sink_t::is_available()
@@ -162,10 +194,12 @@ void sink_t::link_ready(NDEBUG_UNUSED shared_t<link_t> link_in)
 {
     auto lock = get_object_lock();
 
+    auto us = shared_obj();
+
     assert(link_in->get_to() == shared_obj());
 
     if (_is_ready()) {
-        log_info("sink is ready: ", name);
+        get_parent()->send_message<sink_ready_message_t>(us);
     }
 }
 

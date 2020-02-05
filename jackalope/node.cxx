@@ -20,22 +20,6 @@
 
 namespace jackalope {
 
-const string_t link_available_message_t::message_name = JACKALOPE_MESSAGE_OBJECT_LINK_AVAILABLE;
-
-link_available_message_t::link_available_message_t(shared_t<link_t> link_in)
-: message_t(JACKALOPE_MESSAGE_OBJECT_LINK_AVAILABLE, link_in)
-{
-    assert(link_in != nullptr);
-}
-
-const string_t link_ready_message_t::message_name = JACKALOPE_MESSAGE_OBJECT_LINK_READY;
-
-link_ready_message_t::link_ready_message_t(shared_t<link_t> link_in)
-: message_t(JACKALOPE_MESSAGE_OBJECT_LINK_READY, link_in)
-{
-    assert(link_in != nullptr);
-}
-
 node_t::node_t(const init_args_t& init_args_in)
 : object_t(init_args_get(JACKALOPE_PROPERTY_OBJECT_TYPE, &init_args_in), init_args_in), name(init_args_get(JACKALOPE_PROPERTY_NODE_NAME, init_args))
 {
@@ -220,6 +204,8 @@ void node_t::init()
 
     add_message_handler<link_ready_message_t>([this] (shared_t<link_t> link_in) { this->message_link_ready(link_in); });
     add_message_handler<link_available_message_t>([this] (shared_t<link_t> link_in) { this->message_link_available(link_in); });
+    add_message_handler<sink_ready_message_t>([this] (shared_t<sink_t> sink_in) { this->message_sink_ready(sink_in); });
+    add_message_handler<source_available_message_t>([this] (shared_t<source_t> source_in) { this->message_source_available(source_in); });
 }
 
 void node_t::activate()
@@ -291,6 +277,42 @@ void node_t::message_link_ready(shared_t<link_t> link_in)
     }
 
     sink->link_ready(link_in);
+}
+
+void node_t::message_sink_ready(shared_t<sink_t> sink_in)
+{
+    assert_lockable_owner();
+
+    if (! sink_in->is_ready()) {
+        return;
+    }
+
+    sink_ready(sink_in);
+}
+
+void node_t::sink_ready(shared_t<sink_t> sink_in)
+{
+    assert_lockable_owner();
+
+    NODE_LOG(info, "sink is ready: ", sink_in->name);
+}
+
+void node_t::message_source_available(shared_t<source_t> source_in)
+{
+    assert_lockable_owner();
+
+    if (! source_in->is_available()) {
+        return;
+    }
+
+    source_available(source_in);
+}
+
+void node_t::source_available(shared_t<source_t> source_in)
+{
+    assert_lockable_owner();
+
+    NODE_LOG(info, "source is available: ", source_in->name);
 }
 
 } //namespace jackalope

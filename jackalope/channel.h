@@ -21,10 +21,35 @@
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
 
+#define JACKALOPE_MESSAGE_OBJECT_LINK_AVAILABLE    "object.link_available"
+#define JACKALOPE_MESSAGE_OBJECT_LINK_READY        "object.link_ready"
+#define JACKALOPE_MESSAGE_OBJECT_SINK_READY        "object.sink_ready"
+#define JACKALOPE_MESSAGE_OBJECT_SOURCE_AVAILABLE  "object.source_available"
+
 namespace jackalope {
 
 using source_library_t = library_t<source_t, const string_t&, shared_t<object_t>>;
 using sink_library_t = library_t<sink_t, const string_t&, shared_t<object_t>>;
+
+struct link_available_message_t : public message_t<shared_t<link_t>> {
+    static const string_t message_name;
+    link_available_message_t(shared_t<link_t> link_in);
+};
+
+struct link_ready_message_t : public message_t<shared_t<link_t>> {
+    static const string_t message_name;
+    link_ready_message_t(shared_t<link_t> link_in);
+};
+
+struct sink_ready_message_t : public message_t<shared_t<sink_t>> {
+    static const string_t message_name;
+    sink_ready_message_t(shared_t<sink_t> sink_in);
+};
+
+struct source_available_message_t : public message_t<shared_t<source_t>> {
+    static const string_t message_name;
+    source_available_message_t(shared_t<source_t> source_in);
+};
 
 void add_source_constructor(const string_t& type_name_in, source_library_t::constructor_t constructor_in);
 void add_sink_constructor(const string_t& type_name_in, sink_library_t::constructor_t constructor_in);

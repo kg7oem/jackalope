@@ -25,7 +25,9 @@ protected:
     virtual bool should_execute() = 0;
     virtual void execute_if_needed();
     virtual void execute() = 0;
-    virtual void deliver_one_message(shared_t<abstract_message_t> message_in) override;
+    virtual void message_invoke_slot(const string_t slot_name_in) override;
+    virtual void sink_ready(shared_t<sink_t> sink_in) override;
+    virtual void source_available(shared_t<source_t> source_in) override;
 
 public:
     virtual void start() override;

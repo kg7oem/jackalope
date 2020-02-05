@@ -30,8 +30,6 @@
 
 namespace jackalope {
 
-#define JACKALOPE_MESSAGE_OBJECT_LINK_AVAILABLE    "object.link_available"
-#define JACKALOPE_MESSAGE_OBJECT_LINK_READY        "object.link_ready"
 #define JACKALOPE_MESSAGE_OBJECT_INVOKE_SLOT       "object.invoke_slot"
 #define JACKALOPE_PROPERTY_OBJECT_TYPE             "object.type"
 #define JACKALOPE_PROPERTY_OBJECT_async_engine     "object.async_engine"
