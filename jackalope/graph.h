@@ -39,10 +39,9 @@ public:
     graph_t(const init_args_t& init_args_in);
     graph_t(const init_args_t * init_args_in);
     graph_t(const prop_args_t& prop_args_in);
-    shared_t<node_t> add_node(shared_t<node_t> node_in);
-    shared_t<node_t> add_node(const init_args_t& init_args_in);
+    void add_node(shared_t<node_t> node_in);
     shared_t<node_t> make_node(const init_args_t& init_args_in);
-    shared_t<network_t> add_network(const init_args_t& init_args_in);
+    shared_t<network_t> make_network(const init_args_t& init_args_in);
     virtual void init() override;
     virtual void start() override;
     virtual void stop() override;

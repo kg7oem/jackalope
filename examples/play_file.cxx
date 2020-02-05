@@ -44,13 +44,13 @@ int main(int argc_in, char ** argv_in)
         { "pcm.buffer_size", jackalope::to_string(BUFFER_SIZE) },
     });
 
-    auto input_file = graph.add_node({
+    auto input_file = graph.make_node({
         { "object.type", "audio::sndfile" },
         { "node.name", "input file" },
         { "config.path", argv_in[1] },
     });
 
-    auto system_audio = graph.add_node({
+    auto system_audio = graph.make_node({
         { "object.type", "audio::portaudio" },
         { "node.name", "system audio" },
         { "sink.left", "audio" },
@@ -74,7 +74,7 @@ int main(int argc_in, char ** argv_in)
 
 jackalope_network_t make_tube_simulator(jackalope_graph_t& graph_in)
 {
-    auto tube_simulator = graph_in.add_network({
+    auto tube_simulator = graph_in.make_network({
         { "node.name", "tube simulator" },
     });
 
@@ -82,6 +82,7 @@ jackalope_network_t make_tube_simulator(jackalope_graph_t& graph_in)
         auto tube_name = jackalope::to_string(i, " tube");
         auto tube_node = tube_simulator.make_node({
             { "object.type", "audio::ladspa" },
+            { "node.activate", "false" },
             { "node.name", tube_name },
             { "plugin.id", jackalope::to_string(LADSPA_ZAMTUBE_ID) },
         });

@@ -53,6 +53,8 @@ public:
     void set_graph(shared_t<graph_t> graph_in);
     virtual void set_undef_property(const string_t& name_in);
 
+    virtual bool is_activated();
+
     virtual size_t get_num_sources();
     virtual shared_t<source_t> add_source(const string_t& source_name_in, const string_t& type_in);
     virtual shared_t<source_t> _get_source(const string_t& source_name_in);

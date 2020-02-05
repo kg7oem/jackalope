@@ -35,7 +35,7 @@ my $graph = Jackalope::Graph->new(
     "pcm.buffer_size" => 256,
 );
 
-my $system_audio = $graph->add_node(
+my $system_audio = $graph->make_node(
     "object.type" => "audio::jackaudio",
     "node.name" => "system audio",
     "config.client_name", basename($0),
@@ -45,13 +45,13 @@ my $system_audio = $graph->add_node(
     "sink.right input" => "audio",
 );
 
-my $left_tube = $graph->add_node(
+my $left_tube = $graph->make_node(
     "object.type" => "audio::ladspa",
     "node.name" => "left tube",
     "plugin.id" => LADSPA_ZAMTUBE_ID,
 );
 
-my $right_tube = $graph->add_node(
+my $right_tube = $graph->make_node(
     "object.type" => "audio::ladspa",
     "node.name" => "right tube",
     "plugin.id" => LADSPA_ZAMTUBE_ID,

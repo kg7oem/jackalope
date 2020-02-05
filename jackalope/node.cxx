@@ -60,6 +60,13 @@ void node_t::set_undef_property(const string_t& name_in)
     }
 }
 
+bool node_t::is_activated()
+{
+    assert_lockable_owner();
+
+    return activated_flag;
+}
+
 shared_t<graph_t> node_t::get_graph()
 {
     assert_lockable_owner();
@@ -149,6 +156,8 @@ shared_t<sink_t> node_t::_get_sink(const string_t& sink_name_in)
 {
     assert_lockable_owner();
 
+    assert(activated_flag);
+
     auto found = sinks_by_name.find(sink_name_in);
 
     if (found == sinks_by_name.end()) {
@@ -161,6 +170,8 @@ shared_t<sink_t> node_t::_get_sink(const string_t& sink_name_in)
 shared_t<sink_t> node_t::_get_sink(const size_t sink_num_in)
 {
     assert_lockable_owner();
+
+    assert(activated_flag);
 
     if (sink_num_in >= sinks.size()) {
         throw_runtime_error("Sink number is out of bounds: ", sink_num_in);
@@ -180,6 +191,10 @@ void node_t::link(const string_t& source_name_in, shared_t<node_t> target_node_i
 {
     assert_lockable_owner();
 
+    if (! activated_flag) {
+        throw_runtime_error("can't invoke link on a node that is not activated");
+    }
+
     auto target_sink = target_node_in->get_sink(target_sink_name_in);
     auto source = get_source(source_name_in);
 
@@ -189,6 +204,10 @@ void node_t::link(const string_t& source_name_in, shared_t<node_t> target_node_i
 void node_t::forward(const string_t& source_name_in, shared_t<network_t> target_node_in, const string_t& target_source_name_in)
 {
     assert_lockable_owner();
+
+    if (! activated_flag) {
+        throw_runtime_error("can't invoke forward on a node that is not activated");
+    }
 
     auto target_sink = target_node_in->get_forward_sink(target_source_name_in);
     auto source = get_source(source_name_in);

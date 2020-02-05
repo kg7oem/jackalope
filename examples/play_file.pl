@@ -51,26 +51,26 @@ sub play_file {
         "pcm.buffer_size" => BUFFER_SIZE,
     );
 
-    my $input_file = $graph->add_node(
+    my $input_file = $graph->make_node(
         "object.type" => "audio::sndfile",
         "node.name" => "input file",
         "config.path", $filename,
     );
 
-    my $system_audio = $graph->add_node(
+    my $system_audio = $graph->make_node(
         "object.type" => "audio::portaudio",
         "node.name" => "system audio",
         "sink.left" => "audio",
         "sink.right" => "audio",
     );
 
-    my $left_tube = $graph->add_node(
+    my $left_tube = $graph->make_node(
         "object.type" => "audio::ladspa",
         "node.name" => "left tube",
         "plugin.id" => LADSPA_ZAMTUBE_ID,
     );
 
-    my $right_tube = $graph->add_node(
+    my $right_tube = $graph->make_node(
         "object.type" => "audio::ladspa",
         "node.name" => "right tube",
         "plugin.id" => LADSPA_ZAMTUBE_ID,

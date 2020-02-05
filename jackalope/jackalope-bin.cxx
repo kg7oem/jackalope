@@ -42,7 +42,7 @@ int main(int argc_in, char ** argv_in)
         { "pcm.sample_rate", jackalope::property_t::type_t::size },
     });
 
-    auto system_audio = graph.add_node({
+    auto system_audio = graph.make_node({
         { "object.type", "audio::jackaudio" },
         { "node.name", "system audio" },
         { "pcm.buffer_size", jackalope::to_string(BUFFER_SIZE) },
@@ -55,19 +55,19 @@ int main(int argc_in, char ** argv_in)
     graph.poke("pcm.sample_rate", system_audio.peek("pcm.sample_rate"));
     graph.poke("pcm.buffer_size", system_audio.peek("pcm.buffer_size"));
 
-    auto input_file = graph.add_node({
+    auto input_file = graph.make_node({
         { "object.type", "audio::sndfile" },
         { "node.name", "input file" },
         { "config.path", argv_in[1] },
     });
 
-    auto left_tube = graph.add_node({
+    auto left_tube = graph.make_node({
         { "object.type", "audio::ladspa" },
         { "node.name", "left tube" },
         { "plugin.id", jackalope::to_string(LADSPA_ZAMTUBE_ID) },
     });
 
-    auto right_tube = graph.add_node({
+    auto right_tube = graph.make_node({
         { "object.type", "audio::ladspa" },
         { "node.name", "right tube" },
         { "plugin.id", jackalope::to_string(LADSPA_ZAMTUBE_ID) },

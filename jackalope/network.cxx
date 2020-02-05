@@ -179,6 +179,10 @@ void network_t::forward(const string_t& sink_name_in, shared_t<node_t> target_no
 {
     assert_lockable_owner();
 
+    if (! activated_flag) {
+        throw_runtime_error("can't invoke forward() unless the node is activated");
+    }
+
     auto forward_source = get_forward_source(sink_name_in);
     auto target_sink = target_node_in->get_sink(target_sink_name_in);
 

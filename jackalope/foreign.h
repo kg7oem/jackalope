@@ -35,7 +35,8 @@ void jackalope_object_start(struct jackalope_object_t * object_in);
 void jackalope_object_stop(struct jackalope_object_t * object_in);
 
 struct jackalope_object_t * jackalope_graph_make(const char * init_args_in[]);
-struct jackalope_object_t * jackalope_graph_add_node(struct jackalope_object_t * graph_in, const char * init_args_in[]);
+void jackalope_graph_add_node(struct jackalope_object_t * graph_in, struct jackalope_object_t * node_in);
+struct jackalope_object_t * jackalope_graph_make_node(struct jackalope_object_t * graph_in, const char * init_args_in[]);
 void jackalope_graph_run(struct jackalope_object_t * graph_in);
 
 struct jackalope_object_t * jackalope_node_make(const char ** init_args_in);
@@ -44,6 +45,9 @@ unsigned int jackalope_node_get_num_sources(struct jackalope_object_t * object_i
 struct jackalope_sink_t * jackalope_node_add_sink(struct jackalope_object_t * object_in, const char * type_in, const char * name_in);
 unsigned int jackalope_node_get_num_sinks(struct jackalope_object_t * object_in);
 void jackalope_node_link(struct jackalope_object_t * object_in, const char * source_in, struct jackalope_object_t * target_object_in, const char * sink_in);
+void jackalope_node_forward(struct jackalope_object_t * object_in, const char * from_name_in, struct jackalope_object_t * target_object_in, const char * to_name_in);
+
+struct jackalope_object_t jackalope_network_make_node(const char * init_args_in[]);
 
 #ifdef __cplusplus
 }
@@ -111,9 +115,8 @@ struct jackalope_graph_t : public jackalope_object_t {
     virtual void add_property(const jackalope::string_t& name_in, jackalope::property_t::type_t type_in);
     virtual void add_property(const jackalope::string_t& name_in, jackalope::property_t::type_t type_in, const jackalope::init_args_t * init_args_in);
     virtual jackalope_node_t make_node(const jackalope::init_args_t& init_args_in);
-    virtual jackalope_node_t add_node(const jackalope::init_args_t& init_args_in);
+    virtual void add_node(jackalope_node_t& node_in);
     virtual jackalope_network_t make_network(const jackalope::init_args_t& init_args_in);
-    virtual jackalope_network_t add_network(const jackalope::init_args_t& init_args_in);
     virtual void run();
 };
 

@@ -67,30 +67,40 @@ graph_t::graph_t(const prop_args_t& prop_args_in)
     }
 }
 
-shared_t<node_t> graph_t::add_node(shared_t<node_t> node_in)
+void graph_t::add_node(shared_t<node_t> node_in)
 {
     assert_lockable_owner();
+    assert_object_owner(node_in);
+
     assert(init_flag);
+
+    auto shared_this = shared_obj<graph_t>();
 
     if (nodes.find(node_in->name) != nodes.end()) {
         throw_runtime_error("Can not add node with duplicate name to graph: ", node_in->name);
     }
 
+    if (node_in->get_graph() != shared_this) {
+        throw_runtime_error("Can not add an activated node to a graph if the node's graph is not us");
+    }
+
+    if (! node_in->is_activated()) {
+        bool activate_flag = true;
+
+        if (init_args_has("node.activate", node_in->init_args)) {
+            string_t should_activate = init_args_get("node.activate", node_in->init_args);
+
+            if (should_activate != "true") {
+                activate_flag = false;
+            }
+        }
+
+        if (activate_flag) {
+            node_in->activate();
+        }
+    }
+
     nodes[node_in->name] = node_in;
-
-    return node_in;
-}
-
-shared_t<node_t> graph_t::add_node(const init_args_t& init_args_in)
-{
-    assert_lockable_owner();
-    assert(init_flag);
-
-    auto new_node = make_node(init_args_in);
-    auto lock = new_node->get_object_lock();
-    new_node->activate();
-
-    return new_node;
 }
 
 shared_t<node_t> graph_t::make_node(const init_args_t& init_args_in)
@@ -100,7 +110,6 @@ shared_t<node_t> graph_t::make_node(const init_args_t& init_args_in)
 
     auto new_node = object_t::make<node_t>(init_args_in);
     auto new_node_lock = new_node->get_object_lock();
-
     new_node->set_graph(shared_obj<graph_t>());
 
     add_node(new_node);
@@ -108,7 +117,7 @@ shared_t<node_t> graph_t::make_node(const init_args_t& init_args_in)
     return new_node;
 }
 
-shared_t<network_t> graph_t::add_network(const init_args_t& init_args_in)
+shared_t<network_t> graph_t::make_network(const init_args_t& init_args_in)
 {
     assert_lockable_owner();
 

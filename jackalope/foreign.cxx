@@ -123,30 +123,25 @@ jackalope_node_t jackalope_graph_t::make_node(const init_args_t& init_args_in)
     return jackalope_node_t(new_node);
 }
 
-jackalope_node_t jackalope_graph_t::add_node(const init_args_t& init_args_in)
+void jackalope_graph_t::add_node(jackalope_node_t& node_in)
 {
     auto graph = dynamic_pointer_cast<jackalope::graph_t>(wrapped);
+    auto node = node_in.wrapped->shared_obj<node_t>();
 
-    auto new_node = wait_job<shared_t<jackalope::node_t>>([&] {
-        auto lock = graph->get_object_lock();
-        return graph->add_node(init_args_in);
+    wait_job([&] {
+        auto graph_lock = graph->get_object_lock();
+        auto node_lock = node->get_object_lock();
+        graph->add_node(node);
     });
-
-    return jackalope_node_t(new_node);
 }
 
-jackalope_network_t jackalope_graph_t::make_network(const jackalope::init_args_t& )
-{
-    jackalope_panic("make_network method not implemented");
-}
-
-jackalope_network_t jackalope_graph_t::add_network(const jackalope::init_args_t& init_args_in)
+jackalope_network_t jackalope_graph_t::make_network(const jackalope::init_args_t& init_args_in)
 {
     auto graph = dynamic_pointer_cast<jackalope::graph_t>(wrapped);
 
     auto new_network = wait_job<shared_t<jackalope::network_t>>([&] {
         auto lock = graph->get_object_lock();
-        return graph->add_network(init_args_in);
+        return graph->make_network(init_args_in);
     });
 
     return jackalope_network_t(new_network);
@@ -336,15 +331,26 @@ struct jackalope_object_t * jackalope_graph_make(const char * init_args_in[])
     return new jackalope_graph_t(new_graph);
 }
 
-struct jackalope_object_t * jackalope_graph_add_node(jackalope_object_t * graph_in, const char * init_args_in[])
+struct jackalope_object_t * jackalope_graph_make_node(jackalope_object_t * graph_in, const char * init_args_in[])
 {
     assert(graph_in != nullptr);
 
     auto wrapped_graph = dynamic_pointer_cast<graph_t>(graph_in->wrapped);
     auto init_args = init_args_from_strings(init_args_in);
     auto graph_lock = wrapped_graph->get_object_lock();
-    auto new_node = wrapped_graph->add_node(init_args);
+    auto new_node = wrapped_graph->make_node(init_args);
     return new jackalope_node_t(new_node);
+}
+
+void jackalope_graph_add_node(jackalope_object_t * graph_in, jackalope_object_t * node_in)
+{
+    assert(graph_in != nullptr);
+
+    auto wrapped_graph = dynamic_pointer_cast<graph_t>(graph_in->wrapped);
+    auto wrapped_node = dynamic_pointer_cast<node_t>(node_in->wrapped);
+    auto graph_lock = wrapped_graph->get_object_lock();
+
+    wrapped_graph->add_node(wrapped_node);
 }
 
 void jackalope_graph_run(struct jackalope_object_t * graph_in)
