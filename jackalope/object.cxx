@@ -95,6 +95,11 @@ object_t::~object_t()
     delete init_args;
 }
 
+string_t object_t::description()
+{
+    return to_string(type, " #", id);
+}
+
 void object_t::init()
 {
     assert_lockable_owner();
@@ -126,6 +131,8 @@ bool object_t::is_stopped()
 // this method has special locking requirements
 void object_t::_send_message(shared_t<abstract_message_t> message_in)
 {
+    object_log_info("send message: ", message_in->name);
+
     lock_t message_lock(message_mutex);
 
     message_queue.push_back(message_in);
@@ -198,7 +205,7 @@ void object_t::stop()
     assert_lockable_owner();
 
     if (stopped_flag) {
-        throw_runtime_error("attempt to stop an object that was already stopped");
+        return;
     }
 
     stopped_flag = true;

@@ -37,6 +37,11 @@ node_t::~node_t()
     log_info("Destroying node: ", name);
 }
 
+string_t node_t::description()
+{
+    return to_string(object_t::description(), "; node name = ", name);
+}
+
 void node_t::set_undef_property(const string_t& name_in)
 {
     assert_lockable_owner();
@@ -233,7 +238,7 @@ void node_t::start()
 {
     assert_lockable_owner();
 
-    NODE_LOG(info, "Starting node");
+    object_log_info("Starting node");
 
     if (! activated_flag) {
         throw_runtime_error("attempt to start a node that was not activated");
@@ -249,7 +254,16 @@ void node_t::start()
         i->start();
     }
 
-    NODE_LOG(info, "Done starting node");
+    object_log_info("Done starting node");
+}
+
+void node_t::deliver_one_message(shared_t<abstract_message_t> message_in)
+{
+    auto message_name = message_in->name;
+
+    object_log_info("delivering message: ", message_name);
+
+    object_t::deliver_one_message(message_in);
 }
 
 void node_t::message_link_available(shared_t<link_t> link_in) {
@@ -273,8 +287,11 @@ void node_t::message_link_ready(shared_t<link_t> link_in)
     assert(sink->get_parent() == shared_obj());
 
     if (! link_in->is_ready()) {
+        object_log_info("ignoring link ready message because link is not ready");
         return;
     }
+
+    object_log_info("link is now ready for sink: ", sink->name);
 
     sink->link_ready(link_in);
 }
@@ -294,7 +311,7 @@ void node_t::sink_ready(shared_t<sink_t> sink_in)
 {
     assert_lockable_owner();
 
-    NODE_LOG(info, "sink is ready: ", sink_in->name);
+    object_log_info("sink is ready: ", sink_in->name);
 }
 
 void node_t::message_source_available(shared_t<source_t> source_in)
@@ -312,7 +329,7 @@ void node_t::source_available(shared_t<source_t> source_in)
 {
     assert_lockable_owner();
 
-    NODE_LOG(info, "source is available: ", source_in->name);
+    object_log_info("source is available: ", source_in->name);
 }
 
 } //namespace jackalope

@@ -36,6 +36,9 @@ namespace jackalope {
 #define JACKALOPE_SLOT_OBJECT_STOP                 "object.stop"
 #define JACKALOPE_SIGNAL_OBJECT_STOPPED            "object.stopped"
 
+#define JACKALOPE_OBJECT_LOG_VARGS(level, ...) JACKALOPE_LOG_VARGS(JACKALOPE_LOG_NAME, jackalope::log::level_t::level, "(", this->description(), ") ", __VA_ARGS__)
+#define object_log_info(...) JACKALOPE_OBJECT_LOG_VARGS(info, __VA_ARGS__)
+
 using object_library_t = library_t<object_t, const string_t&, const init_args_t&>;
 
 void add_object_constructor(const string_t& class_name_in, object_library_t::constructor_t constructor_in);
@@ -93,6 +96,8 @@ public:
     {
         return dynamic_pointer_cast<T>(_make(args_in...));
     }
+
+    virtual string_t description();
 
     virtual void _send_message(shared_t<abstract_message_t> message_in);
     virtual void deliver_one_message(shared_t<abstract_message_t> message_in) override;

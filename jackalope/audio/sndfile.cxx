@@ -87,7 +87,7 @@ void sndfile_node_t::activate()
         read_ahead_prop->set_size(JACKALOPE_AUDIO_SNDFILE_DEFAULT_READ_AHEAD / read_size  * read_size + read_size);
     }
 
-    NODE_LOG(info, "readahead: ", read_ahead_prop->get_size(), "; read size: ", read_size_prop->get_size());
+    object_log_info("readahead: ", read_ahead_prop->get_size(), "; read size: ", read_size_prop->get_size());
 
     if (read_ahead_prop->get_size() < read_size_prop->get_size()) {
         throw_runtime_error("readahead must be greater than or equal to read size", read_ahead_prop);
@@ -128,7 +128,7 @@ void sndfile_node_t::activate()
 
     io_thread = new thread_t(std::bind(&sndfile_node_t::be_io_thread, this));
     set_thread_priority(*io_thread, thread_priority_t::normal);
-    NODE_LOG(info, "waiting for IO thread to make buffers available");
+    object_log_info("waiting for IO thread to make buffers available");
     wait_work_available();
 }
 
@@ -180,7 +180,7 @@ void sndfile_node_t::execute()
     thread_work_cond.notify_all();
 
     if (buffer == nullptr) {
-        NODE_LOG(info, "got EOF from sndfile io thread");
+        object_log_info("got EOF from sndfile io thread");
         stop();
         return;
     }
@@ -192,7 +192,7 @@ void sndfile_node_t::execute()
         auto source = get_source(i)->shared_obj<audio_source_t>();
 
         pcm_extract_interleave(buffer->get_pointer(), source_buffer->get_pointer(), i, source_info.channels, buffer_size);
-        source->notify_buffer(source_buffer);
+        source->notify(source_buffer);
     }
 }
 
@@ -209,11 +209,11 @@ void sndfile_node_t::wait_work_available()
 {
     assert_lockable_owner();
 
-    NODE_LOG(info, "waiting for work from sndfile io thread");
+    object_log_info("waiting for work from sndfile io thread");
     // FIXME this seems awful
     thread_work_cond.wait(object_mutex, [this] { return stopped_flag || thread_work.size() > 0; });
     assert_lockable_owner();
-    NODE_LOG(info, "done waiting for sndfile io thread");
+    object_log_info("done waiting for sndfile io thread");
 }
 
 void sndfile_node_t::be_io_thread()
@@ -231,23 +231,23 @@ void sndfile_node_t::be_io_thread()
         size_t num_channels = source_info.channels;
         auto min_thread_work_size = read_ahead / buffer_size;
 
-        NODE_LOG(info, "read_ahead: ", read_ahead, "; read_size: ", read_size, "; min_thread_work_size: ", min_thread_work_size);
+        object_log_info("read_ahead: ", read_ahead, "; read_size: ", read_size, "; min_thread_work_size: ", min_thread_work_size);
 
         assert(read_size % buffer_size == 0);
 
-        NODE_LOG(info, "waiting for sndfile io thread to have work to do");
+        object_log_info("waiting for sndfile io thread to have work to do");
         thread_work_cond.wait(lock, [&] { return stopped_flag || thread_work.size() < min_thread_work_size; });
-        NODE_LOG(info, "sndfile io thread woke up");
+        object_log_info("sndfile io thread woke up");
 
         if (stopped_flag) {
-            NODE_LOG(info, "sndfile io node is exiting because the node is stopped");
+            object_log_info("sndfile io node is exiting because the node is stopped");
             return;
         }
 
         auto buffer = jackalope::make_shared<audio_buffer_t>(num_channels * read_size);
         assert(source_file != nullptr);
         size_t frames_read = sndfile::sf_readf_float(source_file, buffer->get_pointer(), read_size);
-        NODE_LOG(info, "sndfile io thread read: ", frames_read);
+        object_log_info("sndfile io thread read: ", frames_read);
 
         if (frames_read == 0) {
             close_file();

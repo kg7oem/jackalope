@@ -68,6 +68,7 @@ void plugin_t::execute_if_needed()
             break;
         }
 
+        object_log_info("plugin will now execute");
         execute();
     }
 }

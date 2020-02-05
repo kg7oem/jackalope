@@ -124,9 +124,9 @@ void portaudio_node_t::activate()
 
 int portaudio_node_t::process(const void * input_buffer_in, void * output_buffer_in, size_t frames_per_buffer_in, const portaudio_stream_cb_time_info_t *, portaudio_stream_cb_flags status_flags_in)
 {
-    NODE_LOG(info, "portaudio process() invoked");
+    object_log_info("portaudio process() invoked");
     auto lock = get_object_lock();
-    NODE_LOG(info, "portaudio process() got object lock");
+    object_log_info("portaudio process() got object lock");
 
     auto output_buffer = static_cast<real_t *>(output_buffer_in);
     auto input_buffer = static_cast<const real_t *>(input_buffer_in);
@@ -188,18 +188,18 @@ int portaudio_node_t::process(const void * input_buffer_in, void * output_buffer
         auto buffer = jackalope::make_shared<audio_buffer_t>(frames_per_buffer_in);
 
         pcm_extract_interleave(input_buffer, buffer->get_pointer(), i, num_sources, frames_per_buffer_in);
-        source->notify_buffer(buffer);
+        source->notify(buffer);
     }
 
-    NODE_LOG(info, "PortAudio thread is waiting to run");
+    object_log_info("PortAudio thread is waiting to run");
     driver_thread_cond.wait(lock, [this] { return stopped_flag || driver_thread_run_flag; });
-    NODE_LOG(info, "PortAudio is done waiting to run");
+    object_log_info("PortAudio is done waiting to run");
 
     driver_thread_run_flag = false;
     driver_thread_cond.notify_all();
 
     if (stopped_flag) {
-        NODE_LOG(info, "portaudio thread is returning because the node is stopped");
+        object_log_info("portaudio thread is returning because the node is stopped");
         return paAbort;
     }
 
@@ -212,7 +212,7 @@ int portaudio_node_t::process(const void * input_buffer_in, void * output_buffer
         pcm_insert_interleave(buffer->get_pointer(), output_buffer, i, num_sinks, frames_per_buffer_in);
     }
 
-    NODE_LOG(info, "portaudio thread is done");
+    object_log_info("portaudio thread is done");
 
     return paContinue;
 }

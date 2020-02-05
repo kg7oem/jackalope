@@ -165,7 +165,7 @@ int rtaudio_node_t::handle_rtaudio_process(void * output_buffer_in, void * input
         auto buffer = jackalope::make_shared<audio_buffer_t>(buffer_size);
 
         pcm_extract_interleave(input_buffer, buffer->get_pointer(), i, num_sources, num_frames_in);
-        source->notify_buffer(buffer);
+        source->notify(buffer);
     }
 
     for(size_t i = 0; i < num_sinks; i++) {

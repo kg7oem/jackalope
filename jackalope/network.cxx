@@ -12,6 +12,7 @@
 // GNU Lesser General Public License for more details.
 
 #include <jackalope/network.h>
+#include <jackalope/pcm.h>
 
 namespace jackalope {
 
@@ -41,14 +42,29 @@ network_t::network_t(const string_t& type_in, const init_args_t& init_args_in)
 : node_t(type_in, init_args_in)
 { }
 
+void network_t::init()
+{
+    assert_lockable_owner();
+
+    add_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE, property_t::type_t::size, init_args);
+    add_property(JACKALOPE_PROPERTY_PCM_SAMPLE_RATE, property_t::type_t::size, init_args);
+
+    node_t::init();
+}
+
 void network_t::activate()
 {
     assert_lockable_owner();
 
+    for (auto i : { JACKALOPE_PROPERTY_PCM_SAMPLE_RATE, JACKALOPE_PROPERTY_PCM_BUFFER_SIZE }) {
+        set_undef_property(i);
+    }
+
     network_graph = graph_t::make(get_graph()->init_args);
     auto network_graph_lock = network_graph->get_object_lock();
 
-    network_graph->connect(JACKALOPE_SIGNAL_OBJECT_STOPPED, shared_obj(), JACKALOPE_SLOT_OBJECT_STOP);
+    // FIXME causes a segfault
+    // network_graph->connect(JACKALOPE_SIGNAL_OBJECT_STOPPED, shared_obj(), JACKALOPE_SLOT_OBJECT_STOP);
 
     node_t::activate();
 }
@@ -59,11 +75,19 @@ void network_t::start()
 
     auto graph_lock = network_graph->get_object_lock();
     network_graph->start();
+
+    node_t::start();
 }
 
 void network_t::stop()
 {
     assert_lockable_owner();
+
+    if (stopped_flag) {
+        return;
+    }
+
+    node_t::stop();
 
     {
         auto network_graph_lock = network_graph->get_object_lock();
@@ -72,8 +96,6 @@ void network_t::stop()
             network_graph->stop();
         }
     }
-
-    node_t::stop();
 }
 
 shared_t<node_t> network_t::make_node(const init_args_t& init_args_in)
@@ -91,7 +113,6 @@ shared_t<source_t> network_t::add_source(const string_t& source_name_in, const s
     auto forward_sink = sink_t::make(source_name_in, type_in, shared_obj());
     auto new_source = node_t::add_source(source_name_in, type_in);
 
-    new_source->link(forward_sink);
     source_forward_sinks[source_name_in] = forward_sink;
 
     return new_source;
@@ -129,7 +150,6 @@ shared_t<sink_t> network_t::add_sink(const string_t& sink_name_in, const string_
     auto forward_source = source_t::make(sink_name_in, type_in, shared_obj());
     auto new_sink = node_t::add_sink(sink_name_in, type_in);
 
-    forward_source->link(new_sink);
     sink_forward_sources[sink_name_in] = forward_source;
 
     return new_sink;
@@ -168,6 +188,43 @@ void network_t::forward(const string_t& sink_name_in, shared_t<node_t> target_no
     auto target_sink = target_node_in->get_sink(target_sink_name_in);
 
     forward_source->link(target_sink);
+}
+
+void network_t::source_available(shared_t<source_t> source_in)
+{
+    assert_lockable_owner();
+
+    node_t::source_available(source_in);
+
+    shared_t<sink_t> sink;
+
+    if (is_forward_source(source_in)) {
+        object_log_info("forward source is available: ", source_in->name);
+        sink = get_sink(source_in->name);
+    } else {
+        object_log_info("regular source is available: ", source_in->name);
+        sink = get_forward_sink(source_in->name);
+    }
+
+    sink->reset();
+}
+
+void network_t::sink_ready(shared_t<sink_t> sink_in)
+{
+    assert_lockable_owner();
+
+    node_t::sink_ready(sink_in);
+
+    shared_t<source_t> source;
+
+    if (is_forward_sink(sink_in)) {
+        source = get_source(sink_in->name);
+    } else {
+        source = get_forward_source(sink_in->name);
+    }
+
+    object_log_info("forwarding sink: ", sink_in->name);
+    sink_in->forward(source);
 }
 
 } //namespace jackalope

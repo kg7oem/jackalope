@@ -248,7 +248,7 @@ void ladspa_node_t::execute()
             } else if (LADSPA_IS_PORT_OUTPUT(descriptor)) {
                 auto buffer = source_buffers[port_name];
                 auto source = get_source<audio_source_t>(port_name);
-                source->notify_buffer(buffer);
+                source->notify(buffer);
             }
         }
     }

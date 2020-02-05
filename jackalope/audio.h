@@ -35,18 +35,18 @@ public:
     real_t * get_pointer();
 };
 
-class audio_link_t : public link_t, public lockable_t {
+class audio_link_t : public link_t, lockable_t {
 
 protected:
     shared_t<audio_buffer_t> buffer = nullptr;
 
 public:
     audio_link_t(shared_t<source_t> from_in, shared_t<sink_t> to_in);
+    virtual void reset();
     virtual bool is_available() override;
     virtual bool is_ready() override;
     virtual shared_t<audio_buffer_t> get_buffer();
     virtual void set_buffer(shared_t<audio_buffer_t> buffer_in);
-    virtual void reset();
 };
 
 class audio_source_t : public source_t {
@@ -56,7 +56,8 @@ public:
     virtual bool _is_available() override;
     virtual shared_t<link_t> make_link(shared_t<source_t> from_in, shared_t<sink_t> to_in) override;
     virtual void link(shared_t<sink_t> sink_in) override;
-    virtual void notify_buffer(shared_t<audio_buffer_t> buffer_in);
+    virtual void notify(shared_t<audio_buffer_t> buffer_in);
+    virtual void _notify(shared_t<audio_buffer_t> buffer_in);
 };
 
 class audio_sink_t : public sink_t {
@@ -68,8 +69,8 @@ public:
     virtual bool _is_available() override;
     virtual bool _is_ready() override;
     virtual void _start() override;
-    virtual void reset();
-    virtual void _reset();
+    virtual void _reset() override;
+    virtual void _forward(shared_t<source_t> source_in) override;
 };
 
 } //namespace jackalope

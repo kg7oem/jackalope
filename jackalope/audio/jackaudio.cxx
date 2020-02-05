@@ -143,7 +143,7 @@ void jackaudio_node_t::activate()
 // runs in a thread managed by jack audio
 int_t jackaudio_node_t::handle_jack_process(const jackaudio_nframes_t nframes_in)
 {
-    NODE_LOG(info, "jackaudio thread gave us control");
+    object_log_info("jackaudio thread gave us control");
     auto lock = get_object_lock();
 
     if (! started_flag) {
@@ -153,13 +153,13 @@ int_t jackaudio_node_t::handle_jack_process(const jackaudio_nframes_t nframes_in
     }
 
     if (stopped_flag) {
-        NODE_LOG(info, "jackaudio thread is returning because the node is stopped");
+        object_log_info("jackaudio thread is returning because the node is stopped");
         driver_thread_run_flag = false;
         driver_thread_cond.notify_all();
         return true;
     }
 
-    NODE_LOG(info, "jackaudio thread is running; nframes_in: ", nframes_in);
+    object_log_info("jackaudio thread is running; nframes_in: ", nframes_in);
 
     auto const buffer_size = get_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE)->get_size();
 
@@ -173,12 +173,12 @@ int_t jackaudio_node_t::handle_jack_process(const jackaudio_nframes_t nframes_in
         auto buffer = jackalope::make_shared<audio_buffer_t>(buffer_size);
 
         pcm_copy(portbuffer, buffer->get_pointer(), buffer_size);
-        source->notify_buffer(buffer);
+        source->notify(buffer);
     }
 
-    NODE_LOG(info, "jackaudio thread is waiting for sinks to become ready");
+    object_log_info("jackaudio thread is waiting for sinks to become ready");
     driver_thread_cond.wait(lock, [&] { return stopped_flag || driver_thread_run_flag; });
-    NODE_LOG(info, "jackaudio thread woke up");
+    object_log_info("jackaudio thread woke up");
 
     driver_thread_run_flag = false;
     driver_thread_cond.notify_all();
@@ -192,7 +192,7 @@ int_t jackaudio_node_t::handle_jack_process(const jackaudio_nframes_t nframes_in
         pcm_copy(buffer->get_pointer(), portbuffer, buffer_size);
     }
 
-    NODE_LOG(info, "jackaudio thread is done running");
+    object_log_info("jackaudio thread is done running");
 
     return false;
 }

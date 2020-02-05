@@ -72,6 +72,14 @@ link_t::link_t(shared_t<source_t> from_in, shared_t<sink_t> to_in)
     assert(to_in != nullptr);
 }
 
+string_t link_t::description()
+{
+    auto source = get_from();
+    auto sink = get_to();
+
+    return to_string(source->get_parent()->id, ":", source->name, " -> ", sink->get_parent()->id, ":", sink->name);
+}
+
 channel_t::channel_t(const string_t name_in, const string_t& type_in, shared_t<object_t> parent_in)
 : parent(parent_in), name(name_in), type(type_in)
 {
@@ -152,6 +160,21 @@ void source_t::link_available(NDEBUG_UNUSED shared_t<link_t> link_in)
     }
 }
 
+void source_t::notify()
+{
+    auto lock = get_object_lock();
+    _notify();
+}
+
+void source_t::_notify()
+{
+    assert_lockable_owner();
+
+    for(auto i : links) {
+        i->get_to()->get_parent()->send_message<link_ready_message_t>(i);
+    }
+}
+
 shared_t<sink_t> sink_t::make(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)
 {
     auto constructor = sink_library->get_constructor(type_in);
@@ -174,6 +197,12 @@ void sink_t::_start()
     assert_lockable_owner();
 
     channel_t::_start();
+}
+
+void sink_t::reset()
+{
+    auto lock = get_object_lock();
+    return _reset();
 }
 
 bool sink_t::is_available()
@@ -201,6 +230,12 @@ void sink_t::link_ready(NDEBUG_UNUSED shared_t<link_t> link_in)
     if (_is_ready()) {
         get_parent()->send_message<sink_ready_message_t>(us);
     }
+}
+
+void sink_t::forward(shared_t<source_t> source_in)
+{
+    auto lock = get_object_lock();
+    _forward(source_in);
 }
 
 } //namespace jackalope

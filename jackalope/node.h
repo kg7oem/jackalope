@@ -22,8 +22,6 @@
 
 #define JACKALOPE_PROPERTY_NODE_NAME "node.name"
 
-#define NODE_LOG(level, ...) JACKALOPE_LOG_VARGS(JACKALOPE_LOG_NAME, jackalope::log::level_t::level,  "node(", this->name, "): ", __VA_ARGS__)
-
 namespace jackalope {
 
 class node_t : public object_t {
@@ -38,6 +36,7 @@ protected:
 
     node_t(const string_t& type_in, const init_args_t& init_args_in);
     node_t(const init_args_t& init_args_in);
+    virtual void deliver_one_message(shared_t<abstract_message_t> message_in) override;
     virtual void message_link_available(shared_t<link_t> link_in);
     virtual void message_link_ready(shared_t<link_t> link_in);
     virtual void message_sink_ready(shared_t<sink_t> sink_in);
@@ -49,6 +48,9 @@ public:
     const string_t name;
 
     virtual ~node_t();
+
+    virtual string_t description() override;
+
     shared_t<graph_t> get_graph();
     void set_graph(shared_t<graph_t> graph_in);
     virtual void set_undef_property(const string_t& name_in);

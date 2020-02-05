@@ -23,6 +23,7 @@
 
 #define JACKALOPE_MESSAGE_OBJECT_LINK_AVAILABLE    "object.link_available"
 #define JACKALOPE_MESSAGE_OBJECT_LINK_READY        "object.link_ready"
+#define JACKALOPE_MESSAGE_OBJECT_SINK_AVAILABLE    "object.sink_available"
 #define JACKALOPE_MESSAGE_OBJECT_SINK_READY        "object.sink_ready"
 #define JACKALOPE_MESSAGE_OBJECT_SOURCE_AVAILABLE  "object.source_available"
 
@@ -78,6 +79,7 @@ public:
 
     virtual bool is_available() = 0;
     virtual bool is_ready() = 0;
+    virtual string_t description();
 };
 
 struct channel_t : public base_t, protected lockable_t {
@@ -106,6 +108,7 @@ struct source_t : public channel_t, public shared_obj_t<source_t> {
 protected:
     bool known_available = false;
     source_t(const string_t name_in, const string_t& type_in, shared_t<object_t> parent_in);
+    virtual void _notify();
 
 public:
     static shared_t<source_t> make(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in);
@@ -116,6 +119,7 @@ public:
     virtual bool is_available();
     virtual bool _is_available() = 0;
     virtual void link_available(shared_t<link_t> link_in);
+    virtual void notify();
 };
 
 struct sink_t : public channel_t, public shared_obj_t<sink_t> {
@@ -124,17 +128,21 @@ protected:
     bool known_ready = false;
 
     sink_t(const string_t name_in, const string_t& type_in, shared_t<object_t> parent_in);
+    virtual void _reset() = 0;
 
 public:
     static shared_t<sink_t> make(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in);
     virtual ~sink_t() = default;
     virtual void add_link(shared_t<link_t> link_in);
     virtual void _start() override;
+    virtual void reset();
     virtual bool is_ready();
     virtual bool _is_ready() = 0;
     virtual bool is_available();
     virtual bool _is_available() = 0;
     virtual void link_ready(shared_t<link_t> link_in);
+    virtual void forward(shared_t<source_t> source_in);
+    virtual void _forward(shared_t<source_t> source_in) = 0;
 };
 
 } //namespace jackalope

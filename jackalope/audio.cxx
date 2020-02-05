@@ -105,20 +105,37 @@ bool audio_link_t::is_available()
     return buffer == nullptr;
 }
 
-void audio_link_t::reset()
-{
-    auto lock = get_object_lock();
-
-    buffer = nullptr;
-
-    get_from()->get_parent()->send_message<link_available_message_t>(shared_obj());
-}
-
 bool audio_link_t::is_ready()
 {
     auto lock = get_object_lock();
 
     return buffer != nullptr;
+}
+
+void audio_link_t::reset()
+{
+    shared_t<source_t> source;
+
+    {
+        auto lock = get_object_lock();
+
+        assert(buffer != nullptr);
+
+        buffer = nullptr;
+
+        source = get_from();
+    }
+
+    source->link_available(shared_obj());
+}
+
+void audio_link_t::set_buffer(shared_t<audio_buffer_t> buffer_in)
+{
+    auto lock = get_object_lock();
+
+    assert(buffer == nullptr);
+
+    buffer = buffer_in;
 }
 
 shared_t<audio_buffer_t> audio_link_t::get_buffer()
@@ -128,21 +145,6 @@ shared_t<audio_buffer_t> audio_link_t::get_buffer()
     assert(buffer != nullptr);
 
     return buffer;
-}
-
-void audio_link_t::set_buffer(shared_t<audio_buffer_t> buffer_in)
-{
-    log_info("waiting for audio link lock");
-    auto lock = get_object_lock();
-    log_info("done waiting for audio link lock");
-
-    assert(buffer == nullptr);
-
-    log_info("sending link ready message");
-    get_to()->get_parent()->send_message<link_ready_message_t>(shared_obj());
-    log_info("done sending link ready message");
-
-    buffer = buffer_in;
 }
 
 audio_source_t::audio_source_t(const string_t name_in, shared_t<object_t> parent_in)
@@ -180,16 +182,21 @@ void audio_source_t::link(shared_t<sink_t> sink_in)
     source_t::link(sink_in);
 }
 
-void audio_source_t::notify_buffer(shared_t<audio_buffer_t> buffer_in)
+void audio_source_t::notify(shared_t<audio_buffer_t> buffer_in)
 {
     auto lock = get_object_lock();
+    _notify(buffer_in);
+}
 
-    for (auto i : links) {
-        auto link = i->shared_obj<audio_link_t>();
+void audio_source_t::_notify(shared_t<audio_buffer_t> buffer_in)
+{
+    assert_lockable_owner();
 
-        assert(link->is_available());
-        link->set_buffer(buffer_in);
+    for(auto i : links) {
+        i->shared_obj<audio_link_t>()->set_buffer(buffer_in);
     }
+
+    source_t::_notify();
 }
 
 audio_sink_t::audio_sink_t(const string_t name_in, shared_t<object_t> parent_in)
@@ -250,18 +257,13 @@ bool audio_sink_t::_is_available()
     return true;
 }
 
-void audio_sink_t::reset()
-{
-    auto lock = get_object_lock();
-
-    _reset();
-}
-
 void audio_sink_t::_reset()
 {
     assert_lockable_owner();
 
-    log_info("reseting sink: ", name);
+    auto parent = get_parent();
+
+    log_info("(", parent->description(), ") reseting sink: ", name);
 
     for(auto i : links) {
         auto link = i->shared_obj<audio_link_t>();
@@ -277,6 +279,15 @@ void audio_sink_t::_start()
     assert_lockable_owner();
 
     sink_t::_start();
+}
+
+void audio_sink_t::_forward(shared_t<source_t> source_in)
+{
+    assert_lockable_owner();
+
+    auto buffer = _get_buffer();
+
+    source_in->shared_obj<audio_source_t>()->notify(buffer);
 }
 
 } //namespace jackalope

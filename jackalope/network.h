@@ -33,6 +33,7 @@ protected:
 public:
     static shared_t<network_t> make(const init_args_t& init_args_in);
     network_t(const string_t& type_in, const init_args_t& init_args_in);
+    virtual void init() override;
     virtual void activate() override;
     virtual void start() override;
     virtual void stop() override;
@@ -57,6 +58,9 @@ public:
     {
         return dynamic_pointer_cast<T>(_get_forward_source(args...));
     }
+
+    void source_available(shared_t<source_t> source_in) override;
+    void sink_ready(shared_t<sink_t> sink_in) override;
 };
 
 } //namespace jackalope
