@@ -15,6 +15,7 @@
 
 #include <jackalope/channel.h>
 #include <jackalope/graph.forward.h>
+#include <jackalope/network.forward.h>
 #include <jackalope/node.forward.h>
 #include <jackalope/object.h>
 #include <jackalope/types.h>
@@ -81,7 +82,7 @@ public:
     }
 
     virtual void link(const string_t& source_name_in, shared_t<node_t> target_node_in, const string_t& target_sink_name_in);
-    virtual void forward(const string_t& source_name_in, shared_t<node_t> target_node_in, const string_t& target_name_in);
+    virtual void forward(const string_t& source_name_in, shared_t<network_t> target_network_in, const string_t& target_source_name_in);
     virtual void init() override;
     virtual void activate();
     virtual void start() override;

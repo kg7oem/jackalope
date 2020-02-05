@@ -35,9 +35,28 @@ public:
     network_t(const string_t& type_in, const init_args_t& init_args_in);
     virtual void activate() override;
     virtual void start() override;
+    virtual void stop() override;
     virtual shared_t<node_t> make_node(const init_args_t& init_args_in);
     virtual shared_t<source_t> add_source(const string_t& source_name_in, const string_t& type_in) override;
     virtual shared_t<sink_t> add_sink(const string_t& sink_name_in, const string_t& type_in) override;
+
+    virtual void forward(const string_t& sink_name_in, shared_t<node_t> target_node_in, const string_t& target_sink_name_in);
+    virtual shared_t<sink_t> _get_forward_sink(const string_t& source_name_in);
+    virtual bool is_forward_sink(shared_t<sink_t> sink_in);
+    virtual shared_t<source_t> _get_forward_source(const string_t& sink_name_in);
+    virtual bool is_forward_source(shared_t<source_t> source_in);
+
+    template<class T = sink_t, typename... Args>
+    shared_t<T> get_forward_sink(Args... args)
+    {
+        return dynamic_pointer_cast<T>(_get_forward_sink(args...));
+    }
+
+    template<class T = source_t, typename... Args>
+    shared_t<T> get_forward_source(Args... args)
+    {
+        return dynamic_pointer_cast<T>(_get_forward_source(args...));
+    }
 };
 
 } //namespace jackalope

@@ -15,6 +15,7 @@
 #include <jackalope/graph.h>
 #include <jackalope/jackalope.h>
 #include <jackalope/logging.h>
+#include <jackalope/network.h>
 #include <jackalope/node.h>
 
 namespace jackalope {
@@ -201,11 +202,14 @@ void node_t::link(const string_t& source_name_in, shared_t<node_t> target_node_i
     source->link(target_sink);
 }
 
-void node_t::forward(UNUSED const string_t& source_name_in, UNUSED shared_t<node_t> target_node_in, UNUSED const string_t& target_name_in)
+void node_t::forward(const string_t& source_name_in, shared_t<network_t> target_node_in, const string_t& target_source_name_in)
 {
     assert_lockable_owner();
 
-    jackalope_panic("forward method not implemented");
+    auto target_sink = target_node_in->get_forward_sink(target_source_name_in);
+    auto source = get_source(source_name_in);
+
+    source->link(target_sink);
 }
 
 void node_t::init()

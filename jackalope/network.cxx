@@ -61,6 +61,21 @@ void network_t::start()
     network_graph->start();
 }
 
+void network_t::stop()
+{
+    assert_lockable_owner();
+
+    {
+        auto network_graph_lock = network_graph->get_object_lock();
+
+        if (! network_graph->is_stopped()) {
+            network_graph->stop();
+        }
+    }
+
+    node_t::stop();
+}
+
 shared_t<node_t> network_t::make_node(const init_args_t& init_args_in)
 {
     assert_lockable_owner();
@@ -82,6 +97,31 @@ shared_t<source_t> network_t::add_source(const string_t& source_name_in, const s
     return new_source;
 }
 
+shared_t<sink_t> network_t::_get_forward_sink(const string_t& source_name_in)
+{
+    assert_lockable_owner();
+
+    auto found = source_forward_sinks.find(source_name_in);
+
+    if (found == source_forward_sinks.end()) {
+        throw_runtime_error("Could not find forward sink for source: ", source_name_in);
+    }
+
+    return source_forward_sinks[source_name_in];
+}
+
+bool network_t::is_forward_sink(shared_t<sink_t> sink_in) {
+    assert_lockable_owner();
+
+    for(auto i : source_forward_sinks) {
+        if (i.second == sink_in) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 shared_t<sink_t> network_t::add_sink(const string_t& sink_name_in, const string_t& type_in)
 {
     assert_lockable_owner();
@@ -93,6 +133,41 @@ shared_t<sink_t> network_t::add_sink(const string_t& sink_name_in, const string_
     sink_forward_sources[sink_name_in] = forward_source;
 
     return new_sink;
+}
+
+shared_t<source_t> network_t::_get_forward_source(const string_t& sink_name_in)
+{
+    assert_lockable_owner();
+
+    auto found = sink_forward_sources.find(sink_name_in);
+
+    if (found == sink_forward_sources.end()) {
+        throw_runtime_error("Could not find forward source for sink:", sink_name_in);
+    }
+
+    return sink_forward_sources[sink_name_in];
+}
+
+bool network_t::is_forward_source(shared_t<source_t> source_in) {
+    assert_lockable_owner();
+
+    for(auto i : sink_forward_sources) {
+        if (i.second == source_in) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void network_t::forward(const string_t& sink_name_in, shared_t<node_t> target_node_in, const string_t& target_sink_name_in)
+{
+    assert_lockable_owner();
+
+    auto forward_source = get_forward_source(sink_name_in);
+    auto target_sink = target_node_in->get_sink(target_sink_name_in);
+
+    forward_source->link(target_sink);
 }
 
 } //namespace jackalope
