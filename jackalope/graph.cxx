@@ -154,14 +154,12 @@ void graph_t::stop()
     assert(started_flag);
     assert(! stopped_flag);
 
-    log_info("graph is stopping");
-
     for(auto i : nodes) {
         auto node = i.second;
         auto lock = node->get_object_lock();
 
         if (! node->is_stopped()) {
-            log_info("stopping node: ", node->name);
+            object_log_info("stopping node: ", node->name);
             node->stop();
         }
     }

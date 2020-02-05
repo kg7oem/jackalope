@@ -65,6 +65,8 @@ object_t::object_t(const string_t& type_in, const init_args_t& init_args_in)
 {
     assert(type != "");
 
+    own_init_args = true;
+
     if (init_args_has(JACKALOPE_PROPERTY_OBJECT_TYPE, init_args)) {
         if (type_in != init_args_get(JACKALOPE_PROPERTY_OBJECT_TYPE, init_args)) {
             throw_runtime_error(JACKALOPE_PROPERTY_OBJECT_TYPE, " in init_args did not match type argument during construction");
@@ -92,7 +94,9 @@ object_t::~object_t()
         stop();
     }
 
-    delete init_args;
+    if (own_init_args) {
+        delete init_args;
+    }
 }
 
 string_t object_t::description()
@@ -131,8 +135,6 @@ bool object_t::is_stopped()
 // this method has special locking requirements
 void object_t::_send_message(shared_t<abstract_message_t> message_in)
 {
-    object_log_info("send message: ", message_in->name);
-
     lock_t message_lock(message_mutex);
 
     message_queue.push_back(message_in);
@@ -146,6 +148,17 @@ void object_t::_send_message(shared_t<abstract_message_t> message_in)
             shared_this->deliver_messages();
         });
     }
+}
+
+bool object_t::should_deliver()
+{
+    auto lock = get_object_lock();
+
+    if (stopped_flag) {
+        return false;
+    }
+
+    return true;
 }
 
 void object_t::deliver_one_message(shared_t<abstract_message_t> message_in)

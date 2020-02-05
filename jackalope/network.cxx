@@ -63,8 +63,7 @@ void network_t::activate()
     network_graph = graph_t::make(get_graph()->init_args);
     auto network_graph_lock = network_graph->get_object_lock();
 
-    // FIXME causes a segfault
-    // network_graph->connect(JACKALOPE_SIGNAL_OBJECT_STOPPED, shared_obj(), JACKALOPE_SLOT_OBJECT_STOP);
+    network_graph->connect(JACKALOPE_SIGNAL_OBJECT_STOPPED, shared_obj(), JACKALOPE_SLOT_OBJECT_STOP);
 
     node_t::activate();
 }
@@ -83,12 +82,6 @@ void network_t::stop()
 {
     assert_lockable_owner();
 
-    if (stopped_flag) {
-        return;
-    }
-
-    node_t::stop();
-
     {
         auto network_graph_lock = network_graph->get_object_lock();
 
@@ -96,6 +89,8 @@ void network_t::stop()
             network_graph->stop();
         }
     }
+
+    node_t::stop();
 }
 
 shared_t<node_t> network_t::make_node(const init_args_t& init_args_in)

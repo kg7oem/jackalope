@@ -75,6 +75,7 @@ protected:
     bool init_flag = false;
     bool started_flag = false;
     bool stopped_flag = false;
+    bool own_init_args = false;
     const shared_t<async_engine_t> async_engine = get_async_engine();
 
     object_t(const string_t& type_in, const init_args_t& init_args_in);
@@ -84,6 +85,7 @@ protected:
     static shared_t<object_t> _make(const string_t& type_in, const init_args_t& init_args_in);
     static shared_t<object_t> _make(const init_args_t& init_args_in);
 
+    virtual bool should_deliver() override;
     virtual void message_invoke_slot(const string_t slot_name_in);
 
 public:

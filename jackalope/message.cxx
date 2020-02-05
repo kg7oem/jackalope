@@ -54,7 +54,9 @@ void message_obj_t::deliver_messages()
             message_queue.pop_front();
         }
 
-        deliver_one_message(message);
+        if (should_deliver()) {
+            deliver_one_message(message);
+        }
     }
 }
 

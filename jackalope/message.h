@@ -89,6 +89,7 @@ protected:
     }
 
     shared_t<abstract_message_handler_t> get_message_handler(const string_t& name_in);
+    virtual bool should_deliver() = 0;
     virtual void deliver_messages();
     virtual void deliver_one_message(shared_t<abstract_message_t> message_in);
 };
