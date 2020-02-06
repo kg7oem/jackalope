@@ -202,6 +202,14 @@ void sndfile_node_t::stop()
     thread_work_cond.notify_all();
 }
 
+void sndfile_node_t::add_work(shared_t<audio_buffer_t> work_in)
+{
+    assert_lockable_owner();
+
+    thread_work.push_back(work_in);
+    thread_work_cond.notify_all();
+}
+
 void sndfile_node_t::wait_work_available()
 {
     assert_lockable_owner();
@@ -218,10 +226,6 @@ void sndfile_node_t::be_io_thread()
     while(true) {
         auto lock = get_object_lock();
 
-        if (source_file == nullptr) {
-            return;
-        }
-
         auto read_ahead_bytes = get_property(JACKALOPE_AUDIO_SNDFILE_PROPERTY_READ_AHEAD)->get_size();
         auto read_size_bytes = get_property(JACKALOPE_AUDIO_SNDFILE_PROPERTY_READ_SIZE)->get_size();
         auto read_size_samples = read_size_bytes / sizeof(real_t);
@@ -229,7 +233,6 @@ void sndfile_node_t::be_io_thread()
         auto buffer_size_bytes = buffer_size_samples * sizeof(real_t);
         size_t num_channels = source_info.channels;
         auto min_thread_work_size_buffers = read_ahead_bytes / buffer_size_bytes;
-        auto read_buffer_size_samples = num_channels * buffer_size_samples;
 
         if(read_ahead_bytes % buffer_size_bytes) {
             throw_runtime_error("read_ahead_bytes(", read_ahead_bytes, ") must be evenly divisible by buffer_size_butes(", buffer_size_bytes, ")");
@@ -252,29 +255,36 @@ void sndfile_node_t::be_io_thread()
         object_log_info("sndfile io thread frames read: ", frames_read);
 
         if (frames_read == 0) {
+            object_log_info("sndfile got EOF");
+            add_work(nullptr);
             close_file();
-            thread_work.push_back(nullptr);
+
+            return;
         } else {
             auto samples_left = frames_read * num_channels;
             auto p = buffer->get_pointer();
 
             while(samples_left > 0) {
-                auto buffer = jackalope::make_shared<audio_buffer_t>(read_buffer_size_samples);
-                auto copy_num = read_buffer_size_samples;
+                auto normal_copy_size = buffer_size_samples * num_channels;
+                auto buffer = jackalope::make_shared<audio_buffer_t>(normal_copy_size);
+                auto copy_size = normal_copy_size;
 
-                if (samples_left < copy_num) {
-                    copy_num = samples_left;
+                if (samples_left < copy_size) {
+                    if (had_short_copy_flag) {
+                        throw_runtime_error("got a short copy twice");
+                    }
+
+                    had_short_copy_flag = true;
+                    copy_size = samples_left;
                 }
 
-                pcm_copy(p, buffer->get_pointer(), copy_num);
-                thread_work.push_back(buffer);
+                pcm_copy(p, buffer->get_pointer(), copy_size);
+                add_work(buffer);
 
-                samples_left -= copy_num;
-                p += copy_num;
+                samples_left -= copy_size;
+                p += copy_size;
             }
         }
-
-        thread_work_cond.notify_all();
     }
 }
 

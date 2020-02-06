@@ -41,24 +41,30 @@ using sndfile_info_t = sndfile::SF_INFO;
 
 void sndfile_init();
 
-struct sndfile_node_t : public plugin_t {
+class sndfile_node_t : public plugin_t {
+
+protected:
     sndfile_handle_t * source_file = nullptr;
     sndfile_info_t source_info;
     thread_t * io_thread = nullptr;
     pool_list_t<shared_t<audio_buffer_t>> thread_work;
     condition_t thread_work_cond;
+    bool had_short_copy_flag = false;
 
+    virtual void be_io_thread();
+    virtual void add_work(shared_t<audio_buffer_t>);
+    virtual void wait_work_available();
+    virtual bool should_execute() override;
+    virtual void execute() override;
+    virtual void close_file();
+
+public:
     sndfile_node_t(const init_args_t init_args_in);
     virtual ~sndfile_node_t();
-    virtual void be_io_thread();
-    virtual void wait_work_available();
     virtual void init() override;
     virtual void activate() override;
     virtual void start() override;
-    virtual bool should_execute() override;
-    virtual void execute() override;
     virtual void stop() override;
-    virtual void close_file();
 };
 
 } // namespace pcm
