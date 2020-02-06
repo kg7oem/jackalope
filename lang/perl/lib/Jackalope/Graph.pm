@@ -36,9 +36,9 @@ sub new {
     return $graph;
 }
 
-sub add_node {
+sub make_node {
     my ($self, @strings) = @_;
-    my $node = Jackalope::Glue::jackalope_graph_add_node($self, @strings);
+    my $node = Jackalope::Glue::jackalope_graph_make_node($self, @strings);
 
     bless($node, 'Jackalope::Node');
 

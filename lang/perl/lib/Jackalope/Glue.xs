@@ -28,9 +28,9 @@ OUTPUT:
     RETVAL
 
 struct jackalope_object_t *
-_jackalope_graph_add_node(struct jackalope_object_t * object_in, char * strings_in)
+_jackalope_graph_make_node(struct jackalope_object_t * object_in, char * strings_in)
 CODE:
-    RETVAL = jackalope_graph_add_node(object_in, (const char **) strings_in);
+    RETVAL = jackalope_graph_make_node(object_in, (const char **) strings_in);
 OUTPUT:
     RETVAL
 

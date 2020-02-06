@@ -39,11 +39,11 @@ sub jackalope_graph_make {
     return _jackalope_graph_make($packed);
 }
 
-sub jackalope_graph_add_node {
+sub jackalope_graph_make_node {
     my ($graph, @strings) = @_;
     my $packed = pack_strings(@strings);
 
-    return _jackalope_graph_add_node($graph, $packed);
+    return _jackalope_graph_make_node($graph, $packed);
 }
 
 1;
