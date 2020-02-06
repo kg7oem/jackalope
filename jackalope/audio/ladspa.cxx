@@ -426,7 +426,9 @@ void ladspa_instance_t::activate()
 {
     assert(handle != nullptr);
 
-    descriptor->activate(handle);
+    if (descriptor->activate != nullptr) {
+        descriptor->activate(handle);
+    }
 }
 
 void ladspa_instance_t::run(const size_t num_samples_in)
