@@ -17,12 +17,12 @@
 #include <jackalope/plugin.h>
 #include <jackalope/pcm.h>
 
-#define JACKALOPE_AUDIO_SNDFILE_DEFAULT_READ_AHEAD 262144
-#define JACKALOPE_AUDIO_SNDFILE_DEFAULT_READ_SIZE 16384
-#define JACKALOPE_AUDIO_SNDFILE_OBJECT_TYPE "audio::sndfile"
-#define JACKALOPE_AUDIO_SNDFILE_PROPERTY_CONFIG_PATH "config.path"
-#define JACKALOPE_AUDIO_SNDFILE_PROPERTY_READ_AHEAD "config.read_ahead"
-#define JACKALOPE_AUDIO_SNDFILE_PROPERTY_READ_SIZE "config.read_size"
+#define JACKALOPE_AUDIO_SNDFILE_DEFAULT_READ_AHEAD          262144 // bytes
+#define JACKALOPE_AUDIO_SNDFILE_DEFAULT_READ_SIZE           16384 // bytes
+#define JACKALOPE_AUDIO_SNDFILE_OBJECT_TYPE                 "audio::sndfile"
+#define JACKALOPE_AUDIO_SNDFILE_PROPERTY_CONFIG_PATH        "config.path"
+#define JACKALOPE_AUDIO_SNDFILE_PROPERTY_READ_AHEAD         "config.read_ahead"
+#define JACKALOPE_AUDIO_SNDFILE_PROPERTY_READ_SIZE          "config.read_size"
 
 namespace jackalope {
 

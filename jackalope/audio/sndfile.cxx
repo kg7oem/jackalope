@@ -77,14 +77,11 @@ void sndfile_node_t::activate()
     }
 
     if (! read_size_prop->is_defined()) {
-        auto buffer_size = buffer_size_prop->get_size();
-        auto read_size = JACKALOPE_AUDIO_SNDFILE_DEFAULT_READ_SIZE / buffer_size * buffer_size + buffer_size;
-        read_size_prop->set_size(read_size);
+        read_size_prop->set_size(JACKALOPE_AUDIO_SNDFILE_DEFAULT_READ_SIZE);
     }
 
     if (! read_ahead_prop->is_defined()) {
-        auto read_size = read_size_prop->get_size();
-        read_ahead_prop->set_size(JACKALOPE_AUDIO_SNDFILE_DEFAULT_READ_AHEAD / read_size  * read_size + read_size);
+        read_ahead_prop->set_size(JACKALOPE_AUDIO_SNDFILE_DEFAULT_READ_AHEAD);
     }
 
     object_log_info("readahead: ", read_ahead_prop->get_size(), "; read size: ", read_size_prop->get_size());
@@ -225,18 +222,21 @@ void sndfile_node_t::be_io_thread()
             return;
         }
 
-        auto read_ahead = get_property(JACKALOPE_AUDIO_SNDFILE_PROPERTY_READ_AHEAD)->get_size();
-        auto read_size = get_property(JACKALOPE_AUDIO_SNDFILE_PROPERTY_READ_SIZE)->get_size();
-        auto buffer_size = get_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE)->get_size();
+        auto read_ahead_bytes = get_property(JACKALOPE_AUDIO_SNDFILE_PROPERTY_READ_AHEAD)->get_size();
+        auto read_size_bytes = get_property(JACKALOPE_AUDIO_SNDFILE_PROPERTY_READ_SIZE)->get_size();
+        auto read_size_samples = read_size_bytes / sizeof(real_t);
+        auto buffer_size_samples = get_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE)->get_size();
+        auto buffer_size_bytes = buffer_size_samples * sizeof(real_t);
         size_t num_channels = source_info.channels;
-        auto min_thread_work_size = read_ahead / buffer_size;
+        auto min_thread_work_size_buffers = read_ahead_bytes / buffer_size_bytes;
+        auto read_buffer_size_samples = num_channels * buffer_size_samples;
 
-        object_log_info("read_ahead: ", read_ahead, "; read_size: ", read_size, "; min_thread_work_size: ", min_thread_work_size);
-
-        assert(read_size % buffer_size == 0);
+        if(read_ahead_bytes % buffer_size_bytes) {
+            throw_runtime_error("read_ahead_bytes(", read_ahead_bytes, ") must be evenly divisible by buffer_size_butes(", buffer_size_bytes, ")");
+        }
 
         object_log_info("waiting for sndfile io thread to have work to do");
-        thread_work_cond.wait(lock, [&] { return stopped_flag || thread_work.size() < min_thread_work_size; });
+        thread_work_cond.wait(lock, [&] { return stopped_flag || thread_work.size() < min_thread_work_size_buffers; });
         object_log_info("sndfile io thread woke up");
 
         if (stopped_flag) {
@@ -244,10 +244,12 @@ void sndfile_node_t::be_io_thread()
             return;
         }
 
-        auto buffer = jackalope::make_shared<audio_buffer_t>(num_channels * read_size);
+        auto buffer = jackalope::make_shared<audio_buffer_t>(num_channels * read_size_samples);
+
+        object_log_info("read_ahead: ", read_ahead_bytes, " bytes; read_size: ", read_size_bytes, " bytes; min_thread_work_size: ", min_thread_work_size_buffers, " samples");
         assert(source_file != nullptr);
-        size_t frames_read = sndfile::sf_readf_float(source_file, buffer->get_pointer(), read_size);
-        object_log_info("sndfile io thread read: ", frames_read);
+        size_t frames_read = sndfile::sf_readf_float(source_file, buffer->get_pointer(), read_size_samples);
+        object_log_info("sndfile io thread frames read: ", frames_read);
 
         if (frames_read == 0) {
             close_file();
@@ -257,8 +259,8 @@ void sndfile_node_t::be_io_thread()
             auto p = buffer->get_pointer();
 
             while(samples_left > 0) {
-                auto buffer = jackalope::make_shared<audio_buffer_t>(num_channels * buffer_size);
-                auto copy_num = num_channels * buffer_size;
+                auto buffer = jackalope::make_shared<audio_buffer_t>(read_buffer_size_samples);
+                auto copy_num = read_buffer_size_samples;
 
                 if (samples_left < copy_num) {
                     copy_num = samples_left;
