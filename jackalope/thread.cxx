@@ -16,10 +16,18 @@
 #include <iostream>
 #include <pthread.h>
 
+#include <jackalope/jackalope.h>
 #include <jackalope/logging.h>
 #include <jackalope/thread.h>
 
 namespace jackalope {
+
+void _assert_mutex_owner(mutex_t& mutex_in, const char * file_in, const size_t line_in)
+{
+    if (mutex_in.get_owner_id() != std::this_thread::get_id()) {
+        jackalope_panic(file_in, ":", line_in, ": thread did not own mutex");
+    }
+}
 
 // from https://stackoverflow.com/a/31652324
 void set_thread_priority(thread_t& thread_in, const thread_priority_t priority_in)

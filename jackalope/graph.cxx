@@ -19,9 +19,10 @@ namespace jackalope {
 shared_t<graph_t> graph_t::make(const init_args_t& init_args_in)
 {
     auto graph = jackalope::make_shared<graph_t>(init_args_in);
-    auto lock = graph->get_object_lock();
 
-    graph->init();
+    guard_object(graph, {
+        graph->init();
+    });
 
     return graph;
 }
@@ -34,9 +35,10 @@ shared_t<graph_t> graph_t::make(const init_args_t* init_args_in)
 shared_t<graph_t> graph_t::make(const prop_args_t& prop_args_in)
 {
     auto graph = jackalope::make_shared<graph_t>(prop_args_in);
-    auto lock = graph->get_object_lock();
 
-    graph->init();
+    guard_object(graph, {
+        graph->init();
+    });
 
     return graph;
 }
@@ -70,7 +72,6 @@ graph_t::graph_t(const prop_args_t& prop_args_in)
 void graph_t::add_node(shared_t<node_t> node_in)
 {
     assert_lockable_owner();
-    assert_object_owner(node_in);
 
     assert(init_flag);
 
@@ -80,25 +81,27 @@ void graph_t::add_node(shared_t<node_t> node_in)
         throw_runtime_error("Can not add node with duplicate name to graph: ", node_in->name);
     }
 
-    if (node_in->get_graph() != shared_this) {
-        throw_runtime_error("Can not add an activated node to a graph if the node's graph is not us");
-    }
+    guard_object(node_in, {
+        if (node_in->get_graph() != shared_this) {
+            throw_runtime_error("Can not add an activated node to a graph if the node's graph is not us");
+        }
 
-    if (! node_in->is_activated()) {
-        bool activate_flag = true;
+        if (! node_in->is_activated()) {
+            bool activate_flag = true;
 
-        if (init_args_has("node.activate", node_in->init_args)) {
-            string_t should_activate = init_args_get("node.activate", node_in->init_args);
+            if (init_args_has("node.activate", node_in->init_args)) {
+                string_t should_activate = init_args_get("node.activate", node_in->init_args);
 
-            if (should_activate != "true") {
-                activate_flag = false;
+                if (should_activate != "true") {
+                    activate_flag = false;
+                }
+            }
+
+            if (activate_flag) {
+                node_in->activate();
             }
         }
-
-        if (activate_flag) {
-            node_in->activate();
-        }
-    }
+    });
 
     nodes[node_in->name] = node_in;
 }
@@ -109,8 +112,10 @@ shared_t<node_t> graph_t::make_node(const init_args_t& init_args_in)
     assert(init_flag);
 
     auto new_node = object_t::make<node_t>(init_args_in);
-    auto new_node_lock = new_node->get_object_lock();
-    new_node->set_graph(shared_obj<graph_t>());
+
+    guard_object(new_node, {
+        new_node->set_graph(shared_obj<graph_t>());
+    });
 
     add_node(new_node);
 
@@ -124,10 +129,11 @@ shared_t<network_t> graph_t::make_network(const init_args_t& init_args_in)
     assert(init_flag);
 
     auto new_network = network_t::make(init_args_in);
-    auto new_network_lock = new_network->get_object_lock();
 
-    new_network->set_graph(shared_obj<graph_t>());
-    new_network->activate();
+    guard_object(new_network, {
+        new_network->set_graph(shared_obj<graph_t>());
+        new_network->activate();
+    });
 
     add_node(new_network);
 
@@ -151,8 +157,7 @@ void graph_t::start()
 
     for(auto i : nodes) {
         auto node = i.second;
-        auto lock = node->get_object_lock();
-        node->start();
+        guard_object(node, { node->start(); });
     }
 }
 
@@ -165,12 +170,13 @@ void graph_t::stop()
 
     for(auto i : nodes) {
         auto node = i.second;
-        auto lock = node->get_object_lock();
 
-        if (! node->is_stopped()) {
-            object_log_info("stopping node: ", node->name);
-            node->stop();
-        }
+        guard_object(node, {
+            if (! node->is_stopped()) {
+                object_log_info("stopping node: ", node->name);
+                node->stop();
+            }
+        });
     }
 
     object_t::stop();

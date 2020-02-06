@@ -32,8 +32,9 @@ shared_t<network_t> network_t::make(const init_args_t& init_args_in)
 {
     auto new_network = jackalope::make_shared<network_t>(JACKALOPE_OBJECT_TYPE_NETWORK, init_args_in);
 
-    auto lock = new_network->get_object_lock();
-    new_network->init();
+    guard_object(new_network, {
+        new_network->init();
+    });
 
     return new_network;
 }
@@ -61,9 +62,10 @@ void network_t::activate()
     }
 
     network_graph = graph_t::make(get_graph()->init_args);
-    auto network_graph_lock = network_graph->get_object_lock();
 
-    network_graph->subscribe(JACKALOPE_SIGNAL_OBJECT_STOPPED, shared_obj(), JACKALOPE_SLOT_OBJECT_STOP);
+    guard_object(network_graph, {
+        network_graph->subscribe(JACKALOPE_SIGNAL_OBJECT_STOPPED, shared_obj(), JACKALOPE_SLOT_OBJECT_STOP);
+    });
 
     node_t::activate();
 }
@@ -72,8 +74,7 @@ void network_t::start()
 {
     assert_lockable_owner();
 
-    auto graph_lock = network_graph->get_object_lock();
-    network_graph->start();
+    guard_object(network_graph, { network_graph->start(); });
 
     node_t::start();
 }
@@ -82,13 +83,11 @@ void network_t::stop()
 {
     assert_lockable_owner();
 
-    {
-        auto network_graph_lock = network_graph->get_object_lock();
-
+    guard_object(network_graph, {
         if (! network_graph->is_stopped()) {
             network_graph->stop();
         }
-    }
+    });
 
     node_t::stop();
 }
@@ -111,8 +110,9 @@ shared_t<node_t> network_t::make_node(const init_args_t& init_args_in)
 {
     assert_lockable_owner();
 
-    auto graph_lock = network_graph->get_object_lock();
-    return network_graph->make_node(init_args_in);
+    return guard_object(network_graph, {
+        return network_graph->make_node(init_args_in);
+    });
 }
 
 shared_t<source_t> network_t::add_source(const string_t& source_name_in, const string_t& type_in)

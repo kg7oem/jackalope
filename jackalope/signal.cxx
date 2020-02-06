@@ -62,11 +62,10 @@ void signal_t::wait()
 {
     future_t<void> wakeup_future;
 
-    {
-        auto lock = get_object_lock();
+    guard_lockable({
         auto& wakeup_promise = waiters.emplace_back();
         wakeup_future = wakeup_promise.get_future();
-    }
+    });
 
    wakeup_future.get();
 }

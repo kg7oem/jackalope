@@ -117,17 +117,13 @@ bool audio_link_t::is_ready()
 
 void audio_link_t::reset()
 {
-    shared_t<source_t> source;
-
-    {
-        auto lock = get_object_lock();
-
+    auto source = guard_lockable({
         assert(buffer != nullptr);
 
         buffer = nullptr;
 
-        source = get_from();
-    }
+        return get_from();
+    });
 
     source->link_available(shared_obj());
 }

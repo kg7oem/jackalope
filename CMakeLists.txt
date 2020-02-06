@@ -53,7 +53,7 @@ add_definitions(-Wfatal-errors -Werror)
 add_definitions(-Wall -Wextra)
 
 if (${CMAKE_BUILD_TYPE} STREQUAL Debug)
-    add_definitions(-Og)
+#    add_definitions(-Og)
 endif (${CMAKE_BUILD_TYPE} STREQUAL Debug)
 
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")

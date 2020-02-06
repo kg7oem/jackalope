@@ -224,27 +224,32 @@ void sndfile_node_t::wait_work_available()
 void sndfile_node_t::be_io_thread()
 {
     while(true) {
-        auto lock = get_object_lock();
+        size_t num_channels, buffer_size_samples, read_size_samples, read_ahead_bytes, read_size_bytes;
+        size_t min_thread_work_size_buffers, buffer_size_bytes;
 
-        auto read_ahead_bytes = get_property(JACKALOPE_AUDIO_SNDFILE_PROPERTY_READ_AHEAD)->get_size();
-        auto read_size_bytes = get_property(JACKALOPE_AUDIO_SNDFILE_PROPERTY_READ_SIZE)->get_size();
-        auto read_size_samples = read_size_bytes / sizeof(real_t);
-        auto buffer_size_samples = get_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE)->get_size();
-        auto buffer_size_bytes = buffer_size_samples * sizeof(real_t);
-        size_t num_channels = source_info.channels;
-        auto min_thread_work_size_buffers = read_ahead_bytes / buffer_size_bytes;
+        {
+            auto lock = get_object_lock();
 
-        if(read_ahead_bytes % buffer_size_bytes) {
-            throw_runtime_error("read_ahead_bytes(", read_ahead_bytes, ") must be evenly divisible by buffer_size_butes(", buffer_size_bytes, ")");
-        }
+            read_ahead_bytes = get_property(JACKALOPE_AUDIO_SNDFILE_PROPERTY_READ_AHEAD)->get_size();
+            read_size_bytes = get_property(JACKALOPE_AUDIO_SNDFILE_PROPERTY_READ_SIZE)->get_size();
+            read_size_samples = read_size_bytes / sizeof(real_t);
+            buffer_size_samples = get_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE)->get_size();
+            buffer_size_bytes = buffer_size_samples * sizeof(real_t);
+            num_channels = source_info.channels;
+            min_thread_work_size_buffers = read_ahead_bytes / buffer_size_bytes;
 
-        object_log_info("waiting for sndfile io thread to have work to do");
-        thread_work_cond.wait(lock, [&] { return stopped_flag || thread_work.size() < min_thread_work_size_buffers; });
-        object_log_info("sndfile io thread woke up");
+            if(read_ahead_bytes % buffer_size_bytes) {
+                throw_runtime_error("read_ahead_bytes(", read_ahead_bytes, ") must be evenly divisible by buffer_size_butes(", buffer_size_bytes, ")");
+            }
 
-        if (stopped_flag) {
-            object_log_info("sndfile io node is exiting because the node is stopped");
-            return;
+            object_log_info("waiting for sndfile io thread to have work to do");
+            thread_work_cond.wait(lock, [&] { return stopped_flag || thread_work.size() < min_thread_work_size_buffers; });
+            object_log_info("sndfile io thread woke up");
+
+            if (stopped_flag) {
+                object_log_info("sndfile io node is exiting because the node is stopped");
+                return;
+            }
         }
 
         auto buffer = jackalope::make_shared<audio_buffer_t>(num_channels * read_size_samples);
@@ -256,8 +261,11 @@ void sndfile_node_t::be_io_thread()
 
         if (frames_read == 0) {
             object_log_info("sndfile got EOF");
-            add_work(nullptr);
-            close_file();
+
+            guard_lockable({
+                add_work(nullptr);
+                close_file();
+            });
 
             return;
         } else {
@@ -279,7 +287,8 @@ void sndfile_node_t::be_io_thread()
                 }
 
                 pcm_copy(p, buffer->get_pointer(), copy_size);
-                add_work(buffer);
+
+                guard_lockable({ add_work(buffer); });
 
                 samples_left -= copy_size;
                 p += copy_size;
