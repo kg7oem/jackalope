@@ -21,7 +21,7 @@ namespace jackalope {
 
 namespace audio {
 
-static shared_t<jackaudio_node_t> jackaudio_node_constructor(const string_t& type_in, const init_args_t init_args_in)
+static shared_t<jackaudio_node_t> jackaudio_node_constructor(NDEBUG_UNUSED const string_t& type_in, const init_args_t init_args_in)
 {
     assert(type_in == JACKALOPE_AUDIO_JACKAUDIO_OBJECT_TYPE);
 
@@ -173,7 +173,7 @@ int_t jackaudio_node_t::handle_jack_process(const jackaudio_nframes_t nframes_in
         auto buffer = jackalope::make_shared<audio_buffer_t>(buffer_size);
 
         pcm_copy(portbuffer, buffer->get_pointer(), buffer_size);
-        source->notify(buffer);
+        source->notify_buffer(buffer);
     }
 
     object_log_info("jackaudio thread is waiting for sinks to become ready");

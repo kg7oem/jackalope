@@ -201,7 +201,7 @@ void node_t::link(const string_t& source_name_in, shared_t<node_t> target_node_i
     source->link(target_sink);
 }
 
-void node_t::forward(const string_t& source_name_in, shared_t<network_t> target_node_in, const string_t& target_source_name_in)
+void node_t::forward(const string_t& source_name_in, shared_t<node_t> target_node_in, const string_t& target_source_name_in)
 {
     assert_lockable_owner();
 
@@ -213,6 +213,16 @@ void node_t::forward(const string_t& source_name_in, shared_t<network_t> target_
     auto source = get_source(source_name_in);
 
     source->link(target_sink);
+}
+
+shared_t<sink_t> node_t::_get_forward_sink(const string_t&)
+{
+    throw_runtime_error("can not get forward sink for a jackalope::node");
+}
+
+shared_t<source_t> node_t::_get_forward_source(const string_t&)
+{
+    throw_runtime_error("can not get forward source for a jackalope::node");
 }
 
 void node_t::init()

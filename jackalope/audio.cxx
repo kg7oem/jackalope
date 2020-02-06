@@ -185,13 +185,13 @@ void audio_source_t::link(shared_t<sink_t> sink_in)
     source_t::link(sink_in);
 }
 
-void audio_source_t::notify(shared_t<audio_buffer_t> buffer_in)
+void audio_source_t::notify_buffer(shared_t<audio_buffer_t> buffer_in)
 {
     auto lock = get_object_lock();
-    _notify(buffer_in);
+    _notify_buffer(buffer_in);
 }
 
-void audio_source_t::_notify(shared_t<audio_buffer_t> buffer_in)
+void audio_source_t::_notify_buffer(shared_t<audio_buffer_t> buffer_in)
 {
     assert_lockable_owner();
 
@@ -290,7 +290,7 @@ void audio_sink_t::_forward(shared_t<source_t> source_in)
 
     auto buffer = _get_buffer();
 
-    source_in->shared_obj<audio_source_t>()->notify(buffer);
+    source_in->shared_obj<audio_source_t>()->notify_buffer(buffer);
 }
 
 } //namespace jackalope

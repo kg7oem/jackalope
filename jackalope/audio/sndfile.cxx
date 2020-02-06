@@ -20,7 +20,7 @@ namespace jackalope {
 
 namespace audio {
 
-static shared_t<sndfile_node_t> sndfile_object_constructor(const string_t& type_in, const init_args_t init_args_in)
+static shared_t<sndfile_node_t> sndfile_object_constructor(NDEBUG_UNUSED const string_t& type_in, const init_args_t init_args_in)
 {
     assert(type_in == JACKALOPE_AUDIO_SNDFILE_OBJECT_TYPE);
 
@@ -192,7 +192,7 @@ void sndfile_node_t::execute()
         auto source = get_source(i)->shared_obj<audio_source_t>();
 
         pcm_extract_interleave(buffer->get_pointer(), source_buffer->get_pointer(), i, source_info.channels, buffer_size);
-        source->notify(source_buffer);
+        source->notify_buffer(source_buffer);
     }
 }
 

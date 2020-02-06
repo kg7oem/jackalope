@@ -70,6 +70,8 @@ public:
     virtual shared_t<sink_t> add_sink(const string_t& sink_name_in, const string_t& type_in);
     virtual shared_t<sink_t> _get_sink(const string_t& sink_name_in);
     virtual shared_t<sink_t> _get_sink(const size_t sink_num_in);
+    virtual shared_t<sink_t> _get_forward_sink(const string_t& source_name_in);
+    virtual shared_t<source_t> _get_forward_source(const string_t& sink_name_in);
 
     template <class T = sink_t, typename... Args>
     shared_t<T> get_sink(Args... args)
@@ -77,8 +79,20 @@ public:
         return dynamic_pointer_cast<T>(_get_sink(args...));
     }
 
+    template<class T = sink_t, typename... Args>
+    shared_t<T> get_forward_sink(Args... args)
+    {
+        return dynamic_pointer_cast<T>(_get_forward_sink(args...));
+    }
+
+    template<class T = source_t, typename... Args>
+    shared_t<T> get_forward_source(Args... args)
+    {
+        return dynamic_pointer_cast<T>(_get_forward_source(args...));
+    }
+
     virtual void link(const string_t& source_name_in, shared_t<node_t> target_node_in, const string_t& target_sink_name_in);
-    virtual void forward(const string_t& source_name_in, shared_t<network_t> target_network_in, const string_t& target_source_name_in);
+    virtual void forward(const string_t& source_name_in, shared_t<node_t> target_network_in, const string_t& target_source_name_in);
     virtual void init() override;
     virtual void activate();
     virtual void start() override;

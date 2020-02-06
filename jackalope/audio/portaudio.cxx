@@ -28,7 +28,7 @@ static lock_t get_portaudio_lock()
     return lock_t(portaudio_mutex);
 }
 
-static shared_t<portaudio_node_t> portaudio_driver_constructor(const string_t& type_in, const init_args_t init_args_in)
+static shared_t<portaudio_node_t> portaudio_driver_constructor(NDEBUG_UNUSED const string_t& type_in, const init_args_t init_args_in)
 {
     assert(type_in == JACKALOPE_AUDIO_PORTAUDIO_OBJECT_TYPE);
 
@@ -188,7 +188,7 @@ int portaudio_node_t::process(const void * input_buffer_in, void * output_buffer
         auto buffer = jackalope::make_shared<audio_buffer_t>(frames_per_buffer_in);
 
         pcm_extract_interleave(input_buffer, buffer->get_pointer(), i, num_sources, frames_per_buffer_in);
-        source->notify(buffer);
+        source->notify_buffer(buffer);
     }
 
     object_log_info("PortAudio thread is waiting to run");

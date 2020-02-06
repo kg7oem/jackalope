@@ -18,7 +18,7 @@ namespace jackalope {
 
 namespace audio {
 
-static shared_t<gain_node_t> gain_node_constructor(const string_t& type_in, const init_args_t init_args_in)
+static shared_t<gain_node_t> gain_node_constructor(NDEBUG_UNUSED const string_t& type_in, const init_args_t init_args_in)
 {
     assert(type_in == JACKALOPE_AUDIO_GAIN_OBJECT_TYPE);
 
@@ -71,7 +71,7 @@ void gain_node_t::execute()
     pcm_copy(input_buffer->get_pointer(), output_buffer->get_pointer(), output_buffer->num_samples);
     pcm_multiply(output_buffer->get_pointer(), scale_by, output_buffer->num_samples);
 
-    source->notify(output_buffer);
+    source->notify_buffer(output_buffer);
 }
 
 } // namespace audio

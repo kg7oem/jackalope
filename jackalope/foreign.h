@@ -47,7 +47,7 @@ unsigned int jackalope_node_get_num_sinks(struct jackalope_object_t * object_in)
 void jackalope_node_link(struct jackalope_object_t * object_in, const char * source_in, struct jackalope_object_t * target_object_in, const char * sink_in);
 void jackalope_node_forward(struct jackalope_object_t * object_in, const char * from_name_in, struct jackalope_object_t * target_object_in, const char * to_name_in);
 
-struct jackalope_object_t jackalope_network_make_node(const char * init_args_in[]);
+struct jackalope_object_t * jackalope_network_make_node(const char * init_args_in[]);
 
 #ifdef __cplusplus
 }
@@ -132,7 +132,7 @@ struct jackalope_node_t : public jackalope_object_t {
     virtual jackalope::size_t get_num_sinks();
     virtual void activate();
     virtual void link(const jackalope::string_t& source_name_in, jackalope_object_t& target_object_in, const jackalope::string_t& target_sink_name_in);
-    virtual void forward(const jackalope::string_t& source_name_in, jackalope_network_t& target_object_in, const jackalope::string_t& target_sink_name_in);
+    virtual void forward(const jackalope::string_t& source_name_in, jackalope_node_t& target_node_in, const jackalope::string_t& target_sink_name_in);
 };
 
 struct jackalope_network_t : public jackalope_node_t {
@@ -141,7 +141,6 @@ struct jackalope_network_t : public jackalope_node_t {
     virtual jackalope_node_t make_node(const jackalope::init_args_t& init_args_in);
     virtual void add_property(const jackalope::string_t& name_in, jackalope::property_t::type_t type_in);
     virtual void add_property(const jackalope::string_t& name_in, jackalope::property_t::type_t type_in, const jackalope::init_args_t * init_args_in);
-    virtual void forward(const jackalope::string_t& source_name_in, jackalope_node_t& target_node_in, const jackalope::string_t& target_source_name_in);
 };
 
 #endif // __cplusplus

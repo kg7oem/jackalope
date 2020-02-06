@@ -16,7 +16,7 @@
 
 namespace jackalope {
 
-static shared_t<network_t> network_node_constructor(const string_t& type_in, const init_args_t& init_args_in)
+static shared_t<network_t> network_node_constructor(NDEBUG_UNUSED const string_t& type_in, const init_args_t& init_args_in)
 {
     assert(type_in == JACKALOPE_OBJECT_TYPE_NETWORK);
 

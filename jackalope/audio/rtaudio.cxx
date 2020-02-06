@@ -19,7 +19,7 @@ namespace jackalope {
 
 namespace audio {
 
-static shared_t<rtaudio_node_t> rtaudio_node_constructor(const string_t& type_in, const init_args_t init_args_in)
+static shared_t<rtaudio_node_t> rtaudio_node_constructor(NDEBUG_UNUSED const string_t& type_in, const init_args_t init_args_in)
 {
     assert(type_in == JACKALOPE_AUDIO_RTAUDIO_OBJECT_TYPE);
 
@@ -165,7 +165,7 @@ int rtaudio_node_t::handle_rtaudio_process(void * output_buffer_in, void * input
         auto buffer = jackalope::make_shared<audio_buffer_t>(buffer_size);
 
         pcm_extract_interleave(input_buffer, buffer->get_pointer(), i, num_sources, num_frames_in);
-        source->notify(buffer);
+        source->notify_buffer(buffer);
     }
 
     for(size_t i = 0; i < num_sinks; i++) {
