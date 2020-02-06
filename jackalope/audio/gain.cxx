@@ -60,7 +60,7 @@ void gain_node_t::execute()
 {
     assert_lockable_owner();
 
-    float gain = get_property("config.gain")->get_real();
+    auto scale_by = pcm_db_scale_factor(get_property("config.gain")->get_real());
     auto sink = get_sink<audio_sink_t>(0);
     auto source = get_source<audio_source_t>(0);
 
@@ -69,7 +69,7 @@ void gain_node_t::execute()
 
     auto output_buffer = make_shared<audio_buffer_t>(input_buffer->num_samples);
     pcm_copy(input_buffer->get_pointer(), output_buffer->get_pointer(), output_buffer->num_samples);
-    pcm_multiply(output_buffer->get_pointer(), gain, output_buffer->num_samples);
+    pcm_multiply(output_buffer->get_pointer(), scale_by, output_buffer->num_samples);
 
     source->notify(output_buffer);
 }

@@ -67,6 +67,9 @@ int main(int argc_in, char ** argv_in)
     tube_simulator.link("left", system_audio, "left");
     tube_simulator.link("right", system_audio, "right");
 
+    tube_simulator.poke("config.drive", 0);
+    tube_simulator.poke("config.gain", -3);
+
     graph.run();
 
     return(0);
@@ -121,9 +124,6 @@ jackalope_network_t make_tube_simulator(jackalope_graph_t& graph_in)
         tube_node.link("Audio Output 1", gain_node, "input");
         gain_node.forward("output", tube_simulator, i);
     }
-
-    tube_simulator.poke("config.drive", 0);
-    tube_simulator.poke("config.gain", 1);
 
     return tube_simulator;
 }

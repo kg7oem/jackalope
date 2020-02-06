@@ -26,6 +26,13 @@
 
 namespace jackalope {
 
+// calculate the value to mulitply PCM by to achieve the
+// specified amount of gain in dB
+inline real_t pcm_db_scale_factor(const real_t db_in)
+{
+    return pow(10.0f, db_in / 20.0f);
+}
+
 template <typename T>
 void pcm_copy(const T * source_in, T * dest_in, const size_t num_samples_in)
 {
