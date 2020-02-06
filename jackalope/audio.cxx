@@ -15,6 +15,7 @@
 
 #include <jackalope/async.h>
 #include <jackalope/audio.h>
+#include <jackalope/audio/gain.h>
 #include <jackalope/node.h>
 #include <jackalope/pcm.h>
 
@@ -54,6 +55,8 @@ void audio_init()
 {
     add_source_constructor(JACKALOPE_TYPE_AUDIO, audio_source_constructor);
     add_sink_constructor(JACKALOPE_TYPE_AUDIO, audio_sink_constructor);
+
+    audio::gain_init();
 
 #ifdef CONFIG_ENABLE_JACKAUDIO
     audio::jackaudio_init();

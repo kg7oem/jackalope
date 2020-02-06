@@ -43,6 +43,14 @@ void pcm_zero(T * pcm_in, const size_t num_samples_in)
 }
 
 template <typename T>
+void pcm_multiply(T * pcm_in, T value_in, const size_t num_samples_in)
+{
+    for(size_t i = 0; i < num_samples_in; i++) {
+        pcm_in[i] = pcm_in[i] * value_in;
+    }
+}
+
+template <typename T>
 void pcm_extract_interleave(const T * source_in, T * dest_in, const size_t extract_channel_in, const size_t num_channels_in, const size_t num_samples_in)
 {
     for(size_t i = 0; i < num_samples_in; i++) {

@@ -14,6 +14,7 @@
 #pragma once
 
 #include <jackalope/channel.h>
+#include <jackalope/pcm.h>
 #include <jackalope/types.h>
 
 #define JACKALOPE_TYPE_AUDIO "audio"

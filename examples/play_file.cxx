@@ -78,31 +78,52 @@ jackalope_network_t make_tube_simulator(jackalope_graph_t& graph_in)
         { "node.name", "tube simulator" },
     });
 
-    tube_simulator.add_property("config.drive", jackalope::property_t::type_t::real);
-    tube_simulator.poke("config.drive", 0);
+    std::map<jackalope::string_t, jackalope::string_t> tube_property_name_map({
+        { "config.Tube Drive", "config.drive" },
+        { "config.Bass", "config.bass" },
+        { "config.Mids", "config.mids" },
+        { "config.Treble", "config.treble" },
+    });
+
+    for(auto property_name : { "config.gain", "config.drive", "config.bass", "config.mids", "config.treble" }) {
+        tube_simulator.add_property(property_name, jackalope::property_t::type_t::real);
+    }
 
     for(auto i : { "left", "right" }) {
-        auto tube_name = jackalope::to_string(i, " tube");
         auto tube_node = tube_simulator.make_node({
             { "object.type", "audio::ladspa" },
             { "node.activate", "false" },
-            { "node.name", tube_name },
+            { "node.name", jackalope::to_string(i, " tube") },
             { "plugin.id", jackalope::to_string(LADSPA_ZAMTUBE_ID) },
+        });
+
+        auto gain_node = tube_simulator.make_node({
+            { "object.type", "audio::gain" },
+            { "node.activate", "false" },
+            { "node.name", jackalope::to_string(i, " gain") },
+            { "pcm.sample_rate", jackalope::to_string(SAMPLE_RATE) },
+            { "pcm.buffer_size", jackalope::to_string(BUFFER_SIZE) },
         });
 
         tube_simulator.add_source(i, "audio");
         tube_simulator.add_sink(i, "audio");
 
-        tube_node.alias_property("config.Tube Drive", tube_simulator, "config.drive");
-        // tube_node.alias_property("config.Bass", tube_simulator, "config.bass");
-        // tube_node.alias_property("config.Mids", tube_simulator, "config.mids");
-        // tube_node.alias_property("config.Treble", tube_simulator, "config.treble");
+        for(auto i : tube_property_name_map) {
+            tube_node.alias_property(i.first, tube_simulator, i.second);
+        }
+
+        gain_node.alias_property("config.gain", tube_simulator, "config.gain");
 
         tube_node.activate();
+        gain_node.activate();
 
         tube_simulator.forward(i, tube_node, "Audio Input 1");
-        tube_node.forward("Audio Output 1", tube_simulator, i);
+        tube_node.link("Audio Output 1", gain_node, "input");
+        gain_node.forward("output", tube_simulator, i);
     }
+
+    tube_simulator.poke("config.drive", 0);
+    tube_simulator.poke("config.gain", 1);
 
     return tube_simulator;
 }
