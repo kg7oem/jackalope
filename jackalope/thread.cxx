@@ -44,22 +44,22 @@ void debug_mutex_t::lock() noexcept
 {
     debug_mutex_t::lock_t lock(mutex);
 
-    if (! is_available__e()) {
-        wait__e(lock);
+    if (! _is_available()) {
+        _wait(lock);
     }
 
-    take__e();
+    _take();
 }
 
 bool debug_mutex_t::try_lock() noexcept
 {
     debug_mutex_t::lock_t lock(mutex);
 
-    if (! is_available__e()) {
+    if (! _is_available()) {
         return false;
     }
 
-    take__e();
+    _take();
     return true;
 }
 
@@ -67,7 +67,7 @@ void debug_mutex_t::unlock() noexcept
 {
     debug_mutex_t::lock_t lock(mutex);
 
-    release__e();
+    _release();
 }
 
 thread_t::id debug_mutex_t::get_owner_id() noexcept
@@ -80,21 +80,21 @@ thread_t::id debug_mutex_t::get_owner_id() noexcept
 bool debug_mutex_t::is_available() noexcept
 {
     debug_mutex_t::lock_t lock(mutex);
-    return is_available__e();
+    return _is_available();
 }
 
-bool debug_mutex_t::is_available__e() noexcept
+bool debug_mutex_t::_is_available() noexcept
 {
     return owner == thread_t::id();
 }
 
-void debug_mutex_t::take__e() noexcept
+void debug_mutex_t::_take() noexcept
 {
     assert(owner == thread_t::id());
     owner = std::this_thread::get_id();
 }
 
-void debug_mutex_t::release__e() noexcept
+void debug_mutex_t::_release() noexcept
 {
     assert(owner == std::this_thread::get_id());
 
@@ -102,14 +102,14 @@ void debug_mutex_t::release__e() noexcept
     available_cond.notify_one();
 }
 
-void debug_mutex_t::wait__e(lock_t& lock_in) noexcept
+void debug_mutex_t::_wait(lock_t& lock_in) noexcept
 {
     auto this_thread_id = std::this_thread::get_id();
     assert(owner != this_thread_id);
     assert(waiters.find(this_thread_id) == waiters.end());
 
     waiters[this_thread_id] = true;
-    available_cond.wait(lock_in, [this]{ return is_available__e(); });
+    available_cond.wait(lock_in, [this]{ return _is_available(); });
     waiters.erase(this_thread_id);
 }
 

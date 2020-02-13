@@ -25,7 +25,7 @@
 #define assert_object_owner(object) assert(object->thread_owns_mutex())
 #define assert_lockable_owner() assert_object_owner(this)
 
-#define guard_object(object, block) [&] { auto ___guard_object_lock = object->get_object_lock(); return [&] block(); }()
+#define guard_object(object, block) [&] { auto ___guard_object_lock = object->get_object_lock(); return [&block] block(); }()
 #define guard_lockable(block) guard_object(this, block)
 
 namespace jackalope {
@@ -57,10 +57,10 @@ protected:
     condition_t available_cond;
     thread_t::id owner = std::thread::id();
     waiters_t waiters;
-    bool is_available__e() noexcept;
-    void take__e() noexcept;
-    void release__e() noexcept;
-    void wait__e(lock_t& lock_in) noexcept;
+    bool _is_available() noexcept;
+    void _take() noexcept;
+    void _release() noexcept;
+    void _wait(lock_t& lock_in) noexcept;
 
 public:
     void lock() noexcept;
