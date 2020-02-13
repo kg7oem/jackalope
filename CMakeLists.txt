@@ -80,6 +80,7 @@ add_library(
     jackalope/log/engine.cxx
     jackalope/module.cxx
     jackalope/object.cxx
+    jackalope/project.cxx
     jackalope/string.cxx
     jackalope/thread.cxx
 )

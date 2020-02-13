@@ -23,18 +23,15 @@
 
 namespace jackalope {
 
-class object_t : public shared_obj_t<object_t>, public lock_obj_t {
+class object_t : protected shared_obj_t<object_t>, public lock_obj_t {
 
 protected:
+    const init_args_t init_args;
     bool initialized_flag = false;
     bool activated_flag = false;
 
-    static size_t next_object_id()
-    {
-        atomic_t<size_t> current_id = ATOMIC_VAR_INIT(0);
-        return ++current_id;
-    }
-
+    static size_t next_object_id();
+    object_t(const init_args_t& init_args_in);
     virtual void will_init();
     virtual void did_init();
     virtual void will_activate();
@@ -43,20 +40,11 @@ protected:
 public:
     const size_t id = next_object_id();
 
-    template <class T, typename... Args>
-    static shared_t<T> make(Args... args_in)
-    {
-        return dynamic_pointer_cast<T>(make(args_in...));
-    }
-
-    static shared_t<object_t> make();
-    object_t() = default;
     virtual ~object_t() = default;
-
     virtual void init();
     virtual void activate();
     virtual string_t description();
-    // virtual const string_t& get_type();
+    virtual const string_t& get_type() = 0;
 };
 
 } //namespace jackalope

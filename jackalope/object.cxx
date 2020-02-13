@@ -17,6 +17,16 @@
 
 namespace jackalope {
 
+size_t object_t::next_object_id()
+{
+    atomic_t<size_t> current_id = ATOMIC_VAR_INIT(0);
+    return ++current_id;
+}
+
+object_t::object_t(const init_args_t& init_args_in)
+: init_args(init_args_in)
+{ }
+
 void object_t::init()
 {
     assert_lockable_owner();
