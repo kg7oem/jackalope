@@ -19,7 +19,7 @@ namespace jackalope {
 
 size_t object_t::next_object_id()
 {
-    atomic_t<size_t> current_id = ATOMIC_VAR_INIT(0);
+    static atomic_t<size_t> current_id = ATOMIC_VAR_INIT(0);
     return ++current_id;
 }
 
