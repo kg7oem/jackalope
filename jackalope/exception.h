@@ -16,8 +16,8 @@
 #include <jackalope/string.h>
 #include <jackalope/types.h>
 
-#define jackalope_throw_vargs(exception_type, ...) { throw exception_type(jackalope::to_string(__VA_ARGS__).c_str()); }
-#define jackalope_throw_runtime_error(...) jackalope_throw_vargs(jackalope::runtime_error_t, jackalope::to_string(__FILE__, ":", __LINE__, " ", __VA_ARGS__))
+#define throw_vargs(exception_type, ...) { throw exception_type(jackalope::to_string(__VA_ARGS__).c_str()); }
+#define throw_runtime_error(...) throw_vargs(jackalope::runtime_error_t, jackalope::to_string(__FILE__, ":", __LINE__, " ", __VA_ARGS__))
 #define jackalope_panic(...) { auto message = jackalope::to_string(__VA_ARGS__); std::cerr << message << std::endl; abort(); }
 
 namespace jackalope {

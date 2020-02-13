@@ -33,15 +33,18 @@ endif ("${CMAKE_BUILD_TYPE}" STREQUAL "")
 option(VERBOSE "Verbose builds" OFF)
 option(DOWNLOAD_OK "Enable downloading of missing dependencies" OFF)
 option(DOWNLOAD_BOOST_OK "Enable downloading of missing Boost" ${DOWNLOAD_OK})
-option(FULL_BUILD "Enable testing for optional components by default" OFF)
+option(LOCAL_BOOST "Download and build a copy of Boost local to this project" OFF)
+
+option(FULL_BUILD "Test for and build all optional components if possible" OFF)
 option(ENABLE_DBUS "Enable DBUS IPC" OFF)
 option(ENABLE_PERL "Enable Perl language support" ${FULL_BUILD})
-option(ENABLE_JACKAUDIO "Enable JackAudio system support" ${FULL_BUILD})
-option(ENABLE_LADSPA "Enable LADSPA audio plugin support" ${FULL_BUILD})
-option(ENABLE_PORTAUDIO "Enable Portaudio support" ${FULL_BUILD})
-option(ENABLE_RTAUDIO "Enable RtAudio support" ${FULL_BUILD})
-option(ENABLE_SNDFILE "Enable libsndfile support" ${FULL_BUILD})
-option(LOCAL_BOOST "Download and build a copy of Boost local to this project" OFF)
+
+option(ENABLE_AUDIO_MODULE "Enable support for audio" ${FULL_BUILD})
+option(ENABLE_JACKAUDIO "Enable JackAudio system support" ${ENABLE_AUDIO_MODULE})
+option(ENABLE_LADSPA "Enable LADSPA audio plugin support" ${ENABLE_AUDIO_MODULE})
+option(ENABLE_PORTAUDIO "Enable Portaudio support" ${ENABLE_AUDIO_MODULE})
+option(ENABLE_RTAUDIO "Enable RtAudio support" ${ENABLE_AUDIO_MODULE})
+option(ENABLE_SNDFILE "Enable libsndfile support" ${ENABLE_AUDIO_MODULE})
 
 if (VERBOSE)
     set(CMAKE_VERBOSE_MAKEFILE ON)
@@ -72,8 +75,11 @@ add_library(
     ${JACKALOPE_LIB_TARGET} SHARED
 
     jackalope/exception.cxx
+    jackalope/jackalope.cxx
     jackalope/log/dest.cxx
     jackalope/log/engine.cxx
+    jackalope/module.cxx
+    jackalope/object.cxx
     jackalope/string.cxx
     jackalope/thread.cxx
 )
@@ -159,6 +165,22 @@ if (ENABLE_PERL)
 
     endif (PERLLIBS_FOUND)
 endif (ENABLE_PERL)
+
+if (ENABLE_AUDIO_MODULE)
+    message("Enabling audio module")
+
+    add_definitions(-DMODULE_AUDIO_ENABLED)
+
+    if ("${MODULE_AUDIO_LINK}" STREQUAL "")
+        set(MODULE_AUDIO_LINK "static")
+    endif ("${MODULE_AUDIO_LINK}" STREQUAL "")
+
+    if (${MODULE_AUDIO_LINK} STREQUAL "static")
+        add_definitions(-DMODULE_AUDIO_LINK_STATIC)
+    endif (${MODULE_AUDIO_LINK} STREQUAL "static")
+
+    target_sources(${JACKALOPE_LIB_TARGET} PRIVATE jackalope/audio/module.cxx)
+endif (ENABLE_AUDIO_MODULE)
 
 if (ENABLE_JACKAUDIO)
     message("Checking for JACK audio")

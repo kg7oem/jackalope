@@ -74,7 +74,7 @@ void engine_t::add_destination__e(shared_t<dest_t> dest_in)
     assert_lockable_owner();
 
     if (dest_in->get_min_level() == level_t::uninit) {
-        jackalope_throw_runtime_error("dest min_level_t was not initialized");
+        throw_runtime_error("dest min_level_t was not initialized");
     }
 
     destinations.push_back(dest_in);

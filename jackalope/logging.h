@@ -21,3 +21,4 @@
 // #define JACKALOPE_LOG_LAMBDA(logname, level_t, block) jackalope::send_lambda_event(logname, level_t, __PRETTY_FUNCTION__, __FILE__, __LINE__, [&]() -> jackalope::string_t block)
 
 #define log_info(...)     JACKALOPE_LOG_VARGS(JACKALOPE_LOG_NAME, jackalope::log::level_t::info, __VA_ARGS__)
+#define log_trace(...)     JACKALOPE_LOG_VARGS(JACKALOPE_LOG_NAME, jackalope::log::level_t::trace, __VA_ARGS__)

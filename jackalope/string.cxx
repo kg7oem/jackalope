@@ -73,7 +73,7 @@ string_t init_args_get(const char * name_in, const init_args_t * init_args_in)
         }
     }
 
-    jackalope_throw_runtime_error("could not find init arg: ", name_in);
+    throw_runtime_error("could not find init arg: ", name_in);
 }
 
 init_args_t init_args_find(const char * prefix_in, const init_args_t * init_args_in)

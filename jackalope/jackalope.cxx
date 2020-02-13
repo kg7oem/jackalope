@@ -11,32 +11,14 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
-#include <chrono>
-#include <iostream>
-#include <string>
-
-#include <jackalope/exception.h>
 #include <jackalope/jackalope.h>
-#include <jackalope/log/dest.h>
-#include <jackalope/logging.h>
 #include <jackalope/module.h>
-#include <jackalope/object.h>
 
-#define BUFFER_SIZE 512
-#define SAMPLE_RATE 48000
-#define LADSPA_ZAMTUBE_ID 1515476290
+namespace jackalope {
 
-using namespace jackalope;
-using namespace jackalope::log;
-
-int main(UNUSED int argc_in, UNUSED char ** argv_in)
+void init()
 {
-    auto dest = jackalope::make_shared<console_dest_t>(level_t::info);
-    get_engine()->add_destination(dest);
-
-    init();
-
-    log_info("Done");
-
-    return(0);
+    module_init();
 }
+
+} // namespace jackalope
