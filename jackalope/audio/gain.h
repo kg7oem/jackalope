@@ -13,15 +13,20 @@
 
 #pragma once
 
+#include <jackalope/plugin.h>
+#include <jackalope/project.h>
+#include <jackalope/types.h>
+
 namespace jackalope {
 
-class filter_plugin_t;
-class module_info_t;
-class node_t;
-class object_t;
-class plugin_t;
-class project_t;
-class sink_t;
-class source_t;
+class audio_gain_plugin_t : public filter_plugin_t {
 
-} // namespace jackalope
+public:
+    static const string_t type;
+
+    static shared_t<audio_gain_plugin_t> make(shared_t<project_t> project_in, const init_args_t& init_args_in);
+    audio_gain_plugin_t(shared_t<project_t> project_in, const init_args_t& init_args_in);
+    virtual const string_t& get_type() override;
+};
+
+} //namespace jackalope

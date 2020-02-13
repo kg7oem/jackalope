@@ -13,15 +13,21 @@
 
 #pragma once
 
+#include <jackalope/forward.h>
+#include <jackalope/object.h>
+#include <jackalope/string.h>
+#include <jackalope/types.h>
+
+#define JACKALOPE_PROPERTY_NODE_TYPE "node.type"
+
 namespace jackalope {
 
-class filter_plugin_t;
-class module_info_t;
-class node_t;
-class object_t;
-class plugin_t;
-class project_t;
-class sink_t;
-class source_t;
+class node_t : public object_t {
 
-} // namespace jackalope
+protected:
+    weak_t<project_t> weak_project;
+
+    node_t(shared_t<project_t> project_in, const init_args_t& init_args_in);
+};
+
+} //namespace jackalope

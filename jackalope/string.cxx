@@ -50,11 +50,11 @@ init_args_t make_init_args(const pool_map_t<string_t, string_t>& map_in) {
     return init_args;
 }
 
-bool init_args_has(const char * name_in, const init_args_t * init_args_in)
+bool init_args_has(const char * name_in, const init_args_t& init_args_in)
 {
     const auto name = to_string(name_in);
 
-    for(auto&& i : *init_args_in) {
+    for(auto&& i : init_args_in) {
         if (name == i.first) {
             return true;
         }
@@ -63,11 +63,11 @@ bool init_args_has(const char * name_in, const init_args_t * init_args_in)
     return false;
 }
 
-string_t init_args_get(const char * name_in, const init_args_t * init_args_in)
+string_t init_args_get(const char * name_in, const init_args_t& init_args_in)
 {
     const auto name = to_string(name_in);
 
-    for(auto&& i : *init_args_in) {
+    for(auto&& i : init_args_in) {
         if (name == i.first) {
             return i.second;
         }
@@ -76,12 +76,12 @@ string_t init_args_get(const char * name_in, const init_args_t * init_args_in)
     throw_runtime_error("could not find init arg: ", name_in);
 }
 
-init_args_t init_args_find(const char * prefix_in, const init_args_t * init_args_in)
+init_args_t init_args_find(const char * prefix_in, const init_args_t& init_args_in)
 {
     auto prefix = to_string(prefix_in);
     init_args_t found;
 
-    for (auto& i : *init_args_in) {
+    for (auto& i :init_args_in) {
         auto parts = split_string(i.first, '.');
 
         if (parts.front() == prefix) {

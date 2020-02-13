@@ -19,13 +19,14 @@
 
 namespace jackalope {
 
+using module_info_constructor = function_t<module_info_t *>();
+using plugin_constructor_t = function_t<shared_t<plugin_t> (shared_t<project_t>, const init_args_t&)>;
+using sink_constructor_t = function_t<shared_t<sink_t> ()>;
+using source_constructor_t = function_t<shared_t<source_t> ()>;
+
 void module_init();
 void module_load(module_info_t * info_in);
-
-using module_info_constructor = function_t<module_info_t *>();
-using plugin_constructor_t = function_t<shared_t<plugin_t> ()>;
-using sink_constructor_t = function_t<shared_t<sink_t>> ();
-using source_constructor_t = function_t<shared_t<source_t> ()>;
+plugin_constructor_t module_get_plugin_constructor(const string_t& type_in);
 
 class module_info_t : base_obj_t {
 
@@ -33,7 +34,7 @@ public:
     virtual const string_t& get_name() = 0;
     virtual const pool_map_t<string_t, plugin_constructor_t>& get_plugin_constructors() = 0;
     virtual const pool_map_t<string_t, sink_constructor_t>& get_sink_constructors() = 0;
-    virtual const pool_map_t<string_t, sink_constructor_t>& get_source_constructors() = 0;
+    virtual const pool_map_t<string_t, source_constructor_t>& get_source_constructors() = 0;
 };
 
 } //namespace jackalope

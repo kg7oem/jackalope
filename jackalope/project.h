@@ -13,6 +13,7 @@
 
 #pragma once
 
+#include <jackalope/forward.h>
 #include <jackalope/object.h>
 #include <jackalope/string.h>
 #include <jackalope/types.h>
@@ -26,6 +27,7 @@ private:
 
 protected:
     pool_map_t<string_t, string_t> variables_map;
+    pool_list_t<shared_t<node_t>> nodes;
 
 public:
     static const string_t type;
@@ -42,6 +44,7 @@ public:
     const string_t& get_type();
     virtual void add_variable(const string_t& name_in, const string_t& value_in);
     virtual const string_t& get_variable(const string_t& name_in);
+    shared_t<node_t> make_node(const init_args_t& init_args_in);
 };
 
 } //namespace jackalope

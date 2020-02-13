@@ -20,6 +20,7 @@
 #include <jackalope/log/dest.h>
 #include <jackalope/logging.h>
 #include <jackalope/module.h>
+#include <jackalope/node.h>
 #include <jackalope/project.h>
 
 #define BUFFER_SIZE 512
@@ -38,12 +39,17 @@ int main(UNUSED int argc_in, UNUSED char ** argv_in)
 
     auto project = project_t::make();
     // auto system_audio = project->make_plugin("audio::jack");
-
     // for(auto i : { "audio.sample_rate", "audio.buffer_size" }) {
     //     project->add_variable(i, system_audio->peek(i));
     // }
 
-    log_info("buffer size: ", project->get_variable("audio.buffer_size"));
+    auto gain = guard_object(project, {
+        return project->make_node({
+            { JACKALOPE_PROPERTY_NODE_TYPE, "audio::gain" },
+        });
+    });
+
+    // log_info("buffer size: ", project->get_variable("audio.buffer_size"));
     log_info("Done");
 
     return(0);

@@ -13,15 +13,22 @@
 
 #pragma once
 
+#include <jackalope/node.h>
+#include <jackalope/project.h>
+#include <jackalope/types.h>
+
 namespace jackalope {
 
-class filter_plugin_t;
-class module_info_t;
-class node_t;
-class object_t;
-class plugin_t;
-class project_t;
-class sink_t;
-class source_t;
+class plugin_t : public node_t {
 
-} // namespace jackalope
+protected:
+    plugin_t(shared_t<project_t> project_in, const init_args_t& init_args_in);
+};
+
+class filter_plugin_t : public plugin_t {
+
+protected:
+    filter_plugin_t(shared_t<project_t> project_in, const init_args_t& init_args_in);
+};
+
+} //namespace jackalope

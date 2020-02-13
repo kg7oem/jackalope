@@ -27,6 +27,15 @@ object_t::object_t(const init_args_t& init_args_in)
 : init_args(init_args_in)
 { }
 
+void object_t::add_property()
+{
+    assert_lockable_owner();
+
+    // all properties have to be added before activate() is called so
+    // they can have default values set
+    assert(activated_flag == false);
+}
+
 void object_t::init()
 {
     assert_lockable_owner();
@@ -93,7 +102,7 @@ void object_t::did_activate()
 // even from a subclass
 string_t object_t::description()
 {
-    return to_string("object #", id);
+    return to_string("object #", id, " ", get_type());
 }
 
 } //namespace jackalope

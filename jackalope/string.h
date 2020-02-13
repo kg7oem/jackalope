@@ -57,8 +57,8 @@ pool_vector_t<string_t> split_string(const string_t& string_in, const char delim
 
 init_args_t make_init_args(const init_list_t& init_list_in);
 init_args_t make_init_args(const pool_map_t<string_t, string_t>& map_in);
-bool init_args_has(const char * name_in, const init_args_t * init_args_in);
-string_t init_args_get(const char * name_in, const init_args_t * init_args_in);
-init_args_t init_args_find(const char * prefix_in, const init_args_t * init_args_in);
+bool init_args_has(const char * name_in, const init_args_t& init_args_in);
+string_t init_args_get(const char * name_in, const init_args_t& init_args_in);
+init_args_t init_args_find(const char * prefix_in, const init_args_t& init_args_in);
 
 }

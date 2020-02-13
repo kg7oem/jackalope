@@ -79,7 +79,9 @@ add_library(
     jackalope/log/dest.cxx
     jackalope/log/engine.cxx
     jackalope/module.cxx
+    jackalope/node.cxx
     jackalope/object.cxx
+    jackalope/plugin.cxx
     jackalope/project.cxx
     jackalope/string.cxx
     jackalope/thread.cxx
@@ -180,7 +182,12 @@ if (ENABLE_AUDIO_MODULE)
         add_definitions(-DMODULE_AUDIO_LINK_STATIC)
     endif (${MODULE_AUDIO_LINK} STREQUAL "static")
 
-    target_sources(${JACKALOPE_LIB_TARGET} PRIVATE jackalope/audio/module.cxx)
+    target_sources(
+        ${JACKALOPE_LIB_TARGET} PRIVATE
+
+        jackalope/audio/gain.cxx
+        jackalope/audio/module.cxx
+    )
 endif (ENABLE_AUDIO_MODULE)
 
 if (ENABLE_JACKAUDIO)

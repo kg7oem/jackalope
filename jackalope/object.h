@@ -23,7 +23,7 @@
 
 namespace jackalope {
 
-class object_t : protected shared_obj_t<object_t>, public lock_obj_t {
+class object_t : public shared_obj_t<object_t>, public lock_obj_t {
 
 protected:
     const init_args_t init_args;
@@ -32,6 +32,7 @@ protected:
 
     static size_t next_object_id();
     object_t(const init_args_t& init_args_in);
+    virtual void add_property();
     virtual void will_init();
     virtual void did_init();
     virtual void will_activate();

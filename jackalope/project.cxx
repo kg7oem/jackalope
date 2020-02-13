@@ -12,11 +12,14 @@
 // GNU Lesser General Public License for more details.
 
 #include <jackalope/exception.h>
+#include <jackalope/module.h>
+#include <jackalope/node.h>
+#include <jackalope/plugin.h>
 #include <jackalope/project.h>
 
 namespace jackalope {
 
-const string_t project_t::type = "jackalope::project";
+const string_t project_t::type = "project";
 
 project_t::project_t(const init_args_t& init_args_in)
 : object_t(init_args_in)
@@ -51,6 +54,19 @@ const string_t& project_t::get_variable(const string_t& name_in)
     }
 
     return variables_map[name_in];
+}
+
+shared_t<node_t> project_t::make_node(const init_args_t& init_args_in)
+{
+    assert_lockable_owner();
+
+    if (! init_args_has(JACKALOPE_PROPERTY_NODE_TYPE, init_args_in)) {
+        throw_runtime_error("missing argument: ", JACKALOPE_PROPERTY_NODE_TYPE);
+    }
+
+    auto type = init_args_get(JACKALOPE_PROPERTY_NODE_TYPE, init_args_in);
+    auto constructor = module_get_plugin_constructor(type);
+    return constructor(shared_obj<project_t>(), init_args_in);
 }
 
 } //namespace jackalope

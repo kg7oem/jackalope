@@ -11,17 +11,16 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
-#pragma once
+#include <jackalope/plugin.h>
 
 namespace jackalope {
 
-class filter_plugin_t;
-class module_info_t;
-class node_t;
-class object_t;
-class plugin_t;
-class project_t;
-class sink_t;
-class source_t;
+plugin_t::plugin_t(shared_t<project_t> project_in, const init_args_t& init_args_in)
+: node_t(project_in, init_args_in)
+{ }
 
-} // namespace jackalope
+filter_plugin_t::filter_plugin_t(shared_t<project_t> project_in, const init_args_t& init_args_in)
+: plugin_t(project_in, init_args_in)
+{ }
+
+} //namespace jackalope

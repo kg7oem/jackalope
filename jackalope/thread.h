@@ -25,7 +25,7 @@
 #define assert_object_owner(object) assert(object->thread_owns_mutex())
 #define assert_lockable_owner() assert_object_owner(this)
 
-#define guard_object(object, block) [&] { auto ___guard_object_lock = object->get_object_lock(); return [&object] block(); }()
+#define guard_object(object, block) [&] { auto ___guard_object_lock = object->get_object_lock(); return [&] block(); }()
 #define guard_lockable(block) guard_object(this, block)
 
 namespace jackalope {
