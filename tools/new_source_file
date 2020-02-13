@@ -21,7 +21,7 @@ main() {
 make_copyright() {
     cat <<EOF
 // Jackalope Audio Engine
-// Copyright 2019 Tyler Riddle <kg7oem@gmail.com>
+// Copyright 2020 Tyler Riddle <kg7oem@gmail.com>
 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
