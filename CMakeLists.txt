@@ -15,6 +15,7 @@ project(${PROJECT})
 set(JACKALOPE_VERSION ${JACKALOPE_VERSION_MAJOR}.${JACKALOPE_VERSION_MINOR}.${JACKALOPE_VERSION_PATCH})
 add_definitions(-DJACKALOPE_VERSION=${JACKALOPE_VERSION})
 
+set(JACKALOPE_DEV_TARGET ${PROJECT}-dev)
 #set(JACKALOPE_BIN_TARGET ${PROJECT}-bin)
 set(JACKALOPE_LIB_TARGET ${PROJECT}-lib)
 set(JACKALOPE_SO_FILE ${PROJECT}.so)
@@ -89,6 +90,9 @@ set_target_properties(${JACKALOPE_LIB_TARGET} PROPERTIES OUTPUT_NAME ${PROJECT})
 
 enable_testing()
 add_subdirectory(tests/stage-1)
+
+add_executable(jackalope-dev jackalope/jackalope-dev.cxx)
+target_link_libraries(jackalope-dev ${JACKALOPE_LIB_TARGET})
 
 #add_executable(jackalope-bin jackalope/jackalope-bin.cxx)
 #target_link_libraries(jackalope-bin ${JACKALOPE_LIB_TARGET})
