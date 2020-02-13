@@ -63,6 +63,8 @@ public:
     void set_string(const string_t& string_in);
 };
 
+using prop_args_t = pool_vector_t<std::pair<const string_t, property_t::type_t>>;
+
 class prop_obj_t {
 
     pool_map_t<string_t, shared_t<property_t>> properties;

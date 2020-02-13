@@ -186,6 +186,7 @@ if (ENABLE_AUDIO_MODULE)
     target_sources(
         ${JACKALOPE_LIB_TARGET} PRIVATE
 
+        jackalope/audio/channel.cxx
         jackalope/audio/gain.cxx
         jackalope/audio/module.cxx
     )

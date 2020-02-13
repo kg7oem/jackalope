@@ -13,6 +13,7 @@
 
 #pragma once
 
+#include <jackalope/property.h>
 #include <jackalope/module.h>
 #include <jackalope/types.h>
 
@@ -26,6 +27,7 @@ public:
     static const pool_map_t<string_t, plugin_constructor_t> plugin_constructors;
     static const pool_map_t<string_t, sink_constructor_t> sink_constructors;
     static const pool_map_t<string_t, source_constructor_t> source_constructors;
+    static const pool_map_t<string_t, prop_args_t> channel_properties;
 
     static const string_t name;
 

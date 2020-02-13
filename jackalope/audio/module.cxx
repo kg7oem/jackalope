@@ -11,6 +11,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
+#include <jackalope/audio/channel.h>
 #include <jackalope/exception.h>
 #include <jackalope/audio/gain.h>
 #include <jackalope/audio/module.h>
@@ -21,6 +22,10 @@ const string_t audio_module_info_t::name = "jackalope::audio";
 
 const pool_map_t<string_t, plugin_constructor_t> audio_module_info_t::plugin_constructors = {
     { audio_gain_plugin_t::type, audio_gain_plugin_t::make },
+};
+
+const pool_map_t<string_t, prop_args_t> audio_module_info_t::channel_properties = {
+    { JACKALOPE_CHANNEL_TYPE_AUDIO,  audio_channel_properties },
 };
 
 const pool_map_t<string_t, sink_constructor_t> audio_module_info_t::sink_constructors;
