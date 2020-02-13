@@ -72,29 +72,29 @@ shared_t<T> make_shared(Args&&... args)
 template <class T>
 using weak_t = std::weak_ptr<T>;
 
+struct base_obj_t {
+    base_obj_t(const base_obj_t&) = delete;
+    base_obj_t(const base_obj_t&&) = delete;
+    // base_obj_t& operator=(const base_obj_t&);
+
+    base_obj_t() = default;
+    virtual ~base_obj_t() = default;
+};
+
 template<typename T>
-struct shared_obj_t : public std::enable_shared_from_this<T> {
+struct shared_obj_t : public base_obj_t, public std::enable_shared_from_this<T> {
     shared_t<T> shared_from_this() = delete;
 
-    template <class U = T>
+    inline shared_t<T> shared_obj()
+    {
+        return std::enable_shared_from_this<T>::shared_from_this();
+    }
+
+    template <class U>
     shared_t<U> shared_obj()
     {
-        return dynamic_pointer_cast<U>(std::enable_shared_from_this<T>::shared_from_this());
+        return dynamic_pointer_cast<U>(shared_obj());
     }
-};
-
-struct runtime_error_t : public std::runtime_error {
-    runtime_error_t(const std::string& what_in);
-    runtime_error_t(const char * what_in);
-};
-
-struct base_t {
-    base_t(const base_t&) = delete;
-    base_t(const base_t&&) = delete;
-    base_t& operator=(const base_t&);
-
-    base_t() = default;
-    virtual ~base_t() = default;
 };
 
 }

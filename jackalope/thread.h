@@ -47,7 +47,7 @@ enum class thread_priority_t : int {
 
 void set_thread_priority(thread_t& thread_in, const thread_priority_t priority_in);
 
-class debug_mutex_t : public base_t {
+class debug_mutex_t : public base_obj_t {
 public:
     using lock_t = std::unique_lock<std::mutex>;
     using waiters_t = pool_map_t<thread_t::id, bool>;
@@ -73,7 +73,7 @@ public:
 using mutex_t = debug_mutex_t;
 using lock_t = std::unique_lock<mutex_t>;
 
-class lockable_t {
+class lock_obj_t {
 
 protected:
     mutex_t object_mutex;

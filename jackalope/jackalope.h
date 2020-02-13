@@ -13,14 +13,6 @@
 
 #pragma once
 
-#include <iostream>
-
-#include <jackalope/foreign.h>
-#include <jackalope/string.h>
-#include <jackalope/types.h>
-
-#define jackalope_panic(...) { auto message = jackalope::to_string(__VA_ARGS__); std::cerr << message << std::endl; abort(); }
-
 namespace jackalope {
 
 void init();

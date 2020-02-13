@@ -16,6 +16,7 @@
 #include <cstdlib>
 #include <iostream>
 
+#include <jackalope/exception.h>
 #include <jackalope/jackalope.h>
 #include <jackalope/string.h>
 #include <jackalope/types.h>
