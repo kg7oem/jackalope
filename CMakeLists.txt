@@ -15,7 +15,7 @@ project(${PROJECT})
 set(JACKALOPE_VERSION ${JACKALOPE_VERSION_MAJOR}.${JACKALOPE_VERSION_MINOR}.${JACKALOPE_VERSION_PATCH})
 add_definitions(-DJACKALOPE_VERSION=${JACKALOPE_VERSION})
 
-set(JACKALOPE_BIN_TARGET ${PROJECT}-bin)
+#set(JACKALOPE_BIN_TARGET ${PROJECT}-bin)
 set(JACKALOPE_LIB_TARGET ${PROJECT}-lib)
 set(JACKALOPE_SO_FILE ${PROJECT}.so)
 set(JACKALOPE_LIBS -l${PROJECT})
@@ -32,8 +32,8 @@ endif ("${CMAKE_BUILD_TYPE}" STREQUAL "")
 option(VERBOSE "Verbose builds" OFF)
 option(DOWNLOAD_OK "Enable downloading of missing dependencies" OFF)
 option(DOWNLOAD_BOOST_OK "Enable downloading of missing Boost" ${DOWNLOAD_OK})
-option(FULL_BUILD "Enable testing for optional components by default" ON)
-option(ENABLE_DBUS "Enable DBUS IPC" ${FULL_BUILD})
+option(FULL_BUILD "Enable testing for optional components by default" OFF)
+option(ENABLE_DBUS "Enable DBUS IPC" OFF)
 option(ENABLE_PERL "Enable Perl language support" ${FULL_BUILD})
 option(ENABLE_JACKAUDIO "Enable JackAudio system support" ${FULL_BUILD})
 option(ENABLE_LADSPA "Enable LADSPA audio plugin support" ${FULL_BUILD})
@@ -70,25 +70,11 @@ find_package(PkgConfig REQUIRED)
 add_library(
     ${JACKALOPE_LIB_TARGET} SHARED
 
-    jackalope/async.cxx
-    jackalope/audio.cxx
-    jackalope/audio/gain.cxx
-    jackalope/channel.cxx
-    jackalope/foreign.cxx
-    jackalope/graph.cxx
-    jackalope/jackalope.cxx
+    jackalope/exception.cxx
     jackalope/log/dest.cxx
     jackalope/log/engine.cxx
-    jackalope/message.cxx
-    jackalope/network.cxx
-    jackalope/node.cxx
-    jackalope/object.cxx
-    jackalope/plugin.cxx
-    jackalope/property.cxx
-    jackalope/signal.cxx
     jackalope/string.cxx
     jackalope/thread.cxx
-    jackalope/types.cxx
 )
 
 if (LOCAL_BOOST)
@@ -104,15 +90,15 @@ set_target_properties(${JACKALOPE_LIB_TARGET} PROPERTIES OUTPUT_NAME ${PROJECT})
 enable_testing()
 add_subdirectory(tests/stage-1)
 
-add_executable(jackalope-bin jackalope/jackalope-bin.cxx)
-target_link_libraries(jackalope-bin ${JACKALOPE_LIB_TARGET})
-set_target_properties(jackalope-bin PROPERTIES OUTPUT_NAME "jackalope")
+#add_executable(jackalope-bin jackalope/jackalope-bin.cxx)
+#target_link_libraries(jackalope-bin ${JACKALOPE_LIB_TARGET})
+#set_target_properties(jackalope-bin PROPERTIES OUTPUT_NAME "jackalope")
 
-add_executable(jackalope-example-c examples/play_file.c)
-target_link_libraries(jackalope-example-c ${JACKALOPE_LIB_TARGET})
+#add_executable(jackalope-example-c examples/play_file.c)
+#target_link_libraries(jackalope-example-c ${JACKALOPE_LIB_TARGET})
 
-add_executable(jackalope-example-c++ examples/play_file.cxx)
-target_link_libraries(jackalope-example-c++ ${JACKALOPE_LIB_TARGET})
+#add_executable(jackalope-example-c++ examples/play_file.cxx)
+#target_link_libraries(jackalope-example-c++ ${JACKALOPE_LIB_TARGET})
 
 if(ENABLE_DBUS)
     message("Checking for dbus-c++")
