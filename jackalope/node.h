@@ -28,6 +28,10 @@ protected:
     weak_t<project_t> weak_project;
 
     node_t(shared_t<project_t> project_in, const init_args_t& init_args_in);
+    std::pair<bool, string_t> get_property_default(const string_t& name_in);
+
+public:
+    shared_t<project_t> get_project();
 };
 
 } //namespace jackalope

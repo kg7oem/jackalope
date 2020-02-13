@@ -63,6 +63,11 @@ bool init_args_has(const char * name_in, const init_args_t& init_args_in)
     return false;
 }
 
+bool init_args_has(const string_t& name_in, const init_args_t& init_args_in)
+{
+    return init_args_has(name_in.c_str(), init_args_in);
+}
+
 string_t init_args_get(const char * name_in, const init_args_t& init_args_in)
 {
     const auto name = to_string(name_in);
@@ -74,6 +79,11 @@ string_t init_args_get(const char * name_in, const init_args_t& init_args_in)
     }
 
     throw_runtime_error("could not find init arg: ", name_in);
+}
+
+string_t init_args_get(const string_t& name_in, const init_args_t& init_args_in)
+{
+    return init_args_get(name_in.c_str(), init_args_in);
 }
 
 init_args_t init_args_find(const char * prefix_in, const init_args_t& init_args_in)
@@ -90,6 +100,11 @@ init_args_t init_args_find(const char * prefix_in, const init_args_t& init_args_
     }
 
     return found;
+}
+
+init_args_t init_args_find(const string_t& prefix_in, const init_args_t& init_args_in)
+{
+    return init_args_find(prefix_in.c_str(), init_args_in);
 }
 
 } // namespace jackalope

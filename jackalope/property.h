@@ -19,7 +19,7 @@
 
 namespace jackalope {
 
-class property_t : public base_t, protected lockable_t {
+class property_t : public base_obj_t, protected lock_obj_t {
 
 public:
     enum class type_t { unknown, size, integer, real, string };
@@ -59,7 +59,7 @@ public:
     void set_integer(const int_t integer_in);
     void set_real(const real_t real_in);
     real_t& get_real();
-    string_t& get_string();
+    string_t get_string();
     void set_string(const string_t& string_in);
 };
 
@@ -68,19 +68,21 @@ class prop_obj_t {
     pool_map_t<string_t, shared_t<property_t>> properties;
     mutex_t property_mutex;
     virtual lock_t get_property_lock();
-    virtual shared_t<property_t> _add_property(const string_t& name_in, shared_t<property_t> property_in);
+    virtual shared_t<property_t> _add_property(const string_t& name_in, const property_t::type_t type_in);
+    virtual shared_t<property_t> _add_property(const string_t& name_in, const property_t::type_t type_in, const double value_in);
+    virtual shared_t<property_t> _add_property(const string_t& name_in, const property_t::type_t type_in, const string_t& value_in);
     virtual shared_t<property_t> _get_property(const string_t& name_in);
     virtual bool _has_property(const string_t& name_in);
 
 protected:
-    virtual shared_t<property_t> add_property(const string_t& name_in, shared_t<property_t> property_in);
-    virtual shared_t<property_t> add_property(const string_t& name_in, property_t::type_t type_in);
-    virtual shared_t<property_t> add_property(const string_t& name_in, property_t::type_t type_in, const init_args_t * init_args_in);
+    virtual shared_t<property_t> add_property(const string_t& name_in, const property_t::type_t type_in);
+    virtual shared_t<property_t> add_property(const string_t& name_in, const property_t::type_t type_in, const double value_in);
+    virtual shared_t<property_t> add_property(const string_t& name_in, const property_t::type_t type_in, const string_t& value_in);
 
 public:
     virtual bool has_property(const string_t& name_in);
     virtual shared_t<property_t> get_property(const string_t& name_in);
-    virtual const pool_map_t<string_t, shared_t<property_t>>& get_properties();
+    virtual pool_vector_t<string_t> get_property_names();
 };
 
 } // namespace jackalope

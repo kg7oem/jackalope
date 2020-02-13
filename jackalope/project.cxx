@@ -45,6 +45,13 @@ void project_t::add_variable(const string_t& name_in, const string_t& value_in)
     variables_map[name_in] = value_in;
 }
 
+bool project_t::has_variable(const string_t& name_in)
+{
+    lock_t variables_lock(variables_mutex);
+
+    return variables_map.count(name_in) != 0;
+}
+
 const string_t& project_t::get_variable(const string_t& name_in)
 {
     lock_t variables_lock(variables_mutex);

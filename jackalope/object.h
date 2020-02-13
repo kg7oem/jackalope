@@ -13,6 +13,7 @@
 
 #pragma once
 
+#include <jackalope/property.h>
 #include <jackalope/string.h>
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
@@ -23,7 +24,8 @@
 
 namespace jackalope {
 
-class object_t : public shared_obj_t<object_t>, public lock_obj_t {
+class object_t :
+    public shared_obj_t<object_t>, public lock_obj_t, public prop_obj_t {
 
 protected:
     const init_args_t init_args;
@@ -32,7 +34,8 @@ protected:
 
     static size_t next_object_id();
     object_t(const init_args_t& init_args_in);
-    virtual void add_property();
+    virtual shared_t<property_t> add_property(const string_t& name_in, const property_t::type_t type_in);
+    virtual std::pair<bool, string_t> get_property_default(const string_t& name_in);
     virtual void will_init();
     virtual void did_init();
     virtual void will_activate();

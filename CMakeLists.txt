@@ -82,6 +82,7 @@ add_library(
     jackalope/node.cxx
     jackalope/object.cxx
     jackalope/plugin.cxx
+    jackalope/property.cxx
     jackalope/project.cxx
     jackalope/string.cxx
     jackalope/thread.cxx
