@@ -44,20 +44,8 @@ shared_t<async_engine_t> async_engine_t::make(const init_args_t& init_args_in)
     return jackalope::make_shared<async_engine_t>(init_args_in);
 }
 
-async_engine_t::async_engine_t(const init_args_t& init_args_in)
+async_engine_t::async_engine_t(const init_args_t&)
 {
-    add_property(JACKALOPE_ASYNC_PROPERTY_THREADS, property_t::type_t::size);
-
-    for(auto i : init_args_in) {
-        auto property = get_property(i.first);
-        property->set(i.second);
-    }
-
-    auto threads_property = get_property(JACKALOPE_ASYNC_PROPERTY_THREADS);
-    if (! threads_property->is_defined()) {
-        threads_property->set(detect_num_threads());
-    }
-
     asio_work = new boost::asio::io_service::work(asio_io);
 
     init_threads();
@@ -79,10 +67,10 @@ async_engine_t::~async_engine_t()
 
 void async_engine_t::init_threads()
 {
-    auto num_threads = get_property(JACKALOPE_ASYNC_PROPERTY_THREADS)->get_size();
+    auto num_threads = detect_num_threads();
 
     if (num_threads == 0) {
-        throw_runtime_error("Number of threads must be non-zero");
+        num_threads = 1;
     }
 
     for(size_t i = 0; i < num_threads; i++) {

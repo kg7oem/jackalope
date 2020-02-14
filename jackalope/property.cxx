@@ -231,7 +231,7 @@ shared_t<property_t> prop_obj_t::_add_property(const string_t& name_in, const pr
 {
     assert_mutex_owner(property_mutex);
 
-    auto property = add_property(name_in, type_in);
+    auto property = _add_property(name_in, type_in);
     property->set(value_in);
 
     return property;

@@ -74,16 +74,20 @@ find_package(PkgConfig REQUIRED)
 add_library(
     ${JACKALOPE_LIB_TARGET} SHARED
 
+    jackalope/async.cxx
+    jackalope/channel.cxx
     jackalope/exception.cxx
     jackalope/jackalope.cxx
     jackalope/log/dest.cxx
     jackalope/log/engine.cxx
+    jackalope/message.cxx
     jackalope/module.cxx
     jackalope/node.cxx
     jackalope/object.cxx
     jackalope/plugin.cxx
     jackalope/property.cxx
     jackalope/project.cxx
+    jackalope/signal.cxx
     jackalope/string.cxx
     jackalope/thread.cxx
 )

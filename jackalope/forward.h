@@ -15,7 +15,9 @@
 
 namespace jackalope {
 
+struct channel_t;
 class filter_plugin_t;
+struct link_t;
 class module_info_t;
 class node_t;
 class object_t;

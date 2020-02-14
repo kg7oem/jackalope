@@ -20,15 +20,12 @@
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
 
-#define JACKALOPE_ASYNC_PROPERTY_NAME "name"
-#define JACKALOPE_ASYNC_PROPERTY_THREADS "threads"
-
 namespace jackalope {
 
 template <typename T>
 using async_job_t = function_t<T ()>;
 
-class async_engine_t : public base_t, public shared_obj_t<async_engine_t>, public prop_obj_t {
+class async_engine_t : public shared_obj_t<async_engine_t>, public prop_obj_t {
 
 protected:
     boost::asio::io_context asio_io;
@@ -47,7 +44,6 @@ public:
     void submit_job(async_job_t<void> job_in);
 };
 
-void set_async_config(const string_t& value_in);
 shared_t<async_engine_t> get_async_engine();
 
 } // namespace jackalope

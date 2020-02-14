@@ -13,22 +13,22 @@
 
 #pragma once
 
+#include <jackalope/forward.h>
 #include <jackalope/message.h>
-#include <jackalope/object.forward.h>
 #include <jackalope/string.h>
 #include <jackalope/types.h>
 
-#define JACKALOPE_MESSAGE_OBJECT_INVOKE_SLOT "object.invoke_slot"
-
 namespace jackalope {
-
-struct signal_t;
-struct slot_t;
 
 using slot_function_t = function_t<void ()>;
 
+struct invoke_slot_message_t : public message_t<const string_t> {
+    inline static const string_t message_name = "object.invoke_slot";
+    invoke_slot_message_t(const string_t& slot_name_in);
+};
+
 // Thread safe with out user requirements
-struct signal_t : public base_t, public shared_obj_t<signal_t>, lockable_t {
+struct signal_t : public shared_obj_t<signal_t>, lock_obj_t {
 
 public:
     struct subscription_t {
@@ -52,7 +52,7 @@ public:
 };
 
 // Thread safe because everything is const
-struct slot_t : public base_t, public shared_obj_t<slot_t> {
+struct slot_t : public shared_obj_t<slot_t> {
     const string_t name;
     const slot_function_t handler;
 

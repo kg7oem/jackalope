@@ -13,10 +13,9 @@
 
 #pragma once
 
-#include <jackalope/channel.forward.h>
+#include <jackalope/forward.h>
 #include <jackalope/library.h>
-#include <jackalope/object.forward.h>
-#include <jackalope/signal.h>
+#include <jackalope/message.h>
 #include <jackalope/string.h>
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
@@ -55,7 +54,7 @@ struct source_available_message_t : public message_t<shared_t<source_t>> {
 void add_source_constructor(const string_t& type_name_in, source_library_t::constructor_t constructor_in);
 void add_sink_constructor(const string_t& type_name_in, sink_library_t::constructor_t constructor_in);
 
-struct link_t : public base_t, public shared_obj_t<link_t> {
+struct link_t : public shared_obj_t<link_t> {
 
 protected:
     const weak_t<source_t> from;
@@ -82,7 +81,7 @@ public:
     virtual string_t description();
 };
 
-struct channel_t : public base_t, protected lockable_t {
+struct channel_t : public base_obj_t, protected lock_obj_t {
 
 protected:
     const weak_t<object_t> parent;

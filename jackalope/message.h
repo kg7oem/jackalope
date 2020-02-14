@@ -13,14 +13,14 @@
 
 #pragma once
 
-#include <jackalope/object.forward.h>
+#include <jackalope/forward.h>
 #include <jackalope/string.h>
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
 
 namespace jackalope {
 
-class abstract_message_t : public base_t, public shared_obj_t<abstract_message_t> {
+class abstract_message_t : public shared_obj_t<abstract_message_t> {
 
 public:
     const string_t name;
@@ -28,7 +28,7 @@ public:
     abstract_message_t(const string_t& name_in);
 };
 
-class abstract_message_handler_t : public base_t, public shared_obj_t<abstract_message_handler_t> {
+class abstract_message_handler_t : public shared_obj_t<abstract_message_handler_t> {
 
 public:
     virtual void invoke(shared_t<abstract_message_t> message_in) = 0;

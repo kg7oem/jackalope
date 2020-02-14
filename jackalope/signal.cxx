@@ -19,6 +19,12 @@
 
 namespace jackalope {
 
+invoke_slot_message_t::invoke_slot_message_t(const string_t& slot_name_in)
+: message_t(invoke_slot_message_t::message_name, slot_name_in)
+{
+    assert(slot_name_in != "");
+}
+
 signal_t::subscription_t::subscription_t(shared_t<object_t> subscriber_in, const string_t& slot_name_in)
 : weak_subscriber(subscriber_in), slot_name(slot_name_in)
 {

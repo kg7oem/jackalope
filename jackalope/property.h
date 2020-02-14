@@ -67,6 +67,7 @@ using prop_args_t = pool_vector_t<std::pair<const string_t, property_t::type_t>>
 
 class prop_obj_t {
 
+protected:
     pool_map_t<string_t, shared_t<property_t>> properties;
     mutex_t property_mutex;
     virtual lock_t get_property_lock();
@@ -76,7 +77,6 @@ class prop_obj_t {
     virtual shared_t<property_t> _get_property(const string_t& name_in);
     virtual bool _has_property(const string_t& name_in);
 
-protected:
     virtual shared_t<property_t> add_property(const string_t& name_in, const property_t::type_t type_in);
     virtual shared_t<property_t> add_property(const string_t& name_in, const property_t::type_t type_in, const double value_in);
     virtual shared_t<property_t> add_property(const string_t& name_in, const property_t::type_t type_in, const string_t& value_in);
