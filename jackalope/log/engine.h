@@ -72,7 +72,7 @@ public:
 engine_t * get_engine();
 
 template<typename... Args>
-void send_vargs_event(const char * source_in, const level_t& level_in, const char *function_in, const char *path_in, const int& line_in, Args&&... args_in)
+void send_vargs_event(const char * source_in, const level_t& level_in, const char * function_in, const char * path_in, const int line_in, Args&&... args_in)
 {
     if (get_engine()->should_log(level_in, source_in)) {
         auto when = std::chrono::system_clock::now();

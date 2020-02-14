@@ -32,13 +32,14 @@ struct signal_t : public shared_obj_t<signal_t>, lock_obj_t {
 
 public:
     struct subscription_t {
-        const weak_t<object_t> weak_subscriber;
+        const shared_t<object_t> subscriber;
         const string_t slot_name;
 
         subscription_t(shared_t<object_t> subscriber_in, const string_t& slot_name_in);
     };
 
 protected:
+    bool shutdown_flag = false;
     pool_list_t<subscription_t> subscriptions;
     pool_list_t<promise_t<void>> waiters;
 
@@ -46,6 +47,8 @@ public:
     const string_t name;
 
     signal_t(const string_t& name_in);
+    virtual ~signal_t();
+    void shutdown();
     void subscribe(shared_t<object_t> object_in, const string_t& name_in);
     void send();
     void wait();

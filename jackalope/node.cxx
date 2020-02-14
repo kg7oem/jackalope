@@ -20,6 +20,13 @@ node_t::node_t(shared_t<project_t> project_in, const init_args_t& init_args_in)
 : object_t(init_args_in), weak_project(project_in)
 { }
 
+void node_t::did_stop()
+{
+    assert_lockable_owner();
+
+    get_project()->send_message<project_node_stopped_message_t>(shared_obj<node_t>());
+}
+
 shared_t<project_t> node_t::get_project()
 {
     assert_lockable_owner();

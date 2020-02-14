@@ -43,13 +43,19 @@ int main(UNUSED int argc_in, UNUSED char ** argv_in)
     //     project->add_variable(i, system_audio->peek(i));
     // }
 
-    auto gain = guard_object(project, {
-        return project->make_node({
-            { JACKALOPE_PROPERTY_NODE_TYPE, "audio::gain" },
-        });
+    // log_info("buffer size: ", project->get_variable("audio.buffer_size"));
+
+    auto project_lock = project->get_object_lock();
+
+    project->make_node({
+        { JACKALOPE_PROPERTY_NODE_TYPE, "audio::gain" },
     });
 
-    // log_info("buffer size: ", project->get_variable("audio.buffer_size"));
+    project->start();
+    project->post_slot("object.stop");
+
+    log_info("Waiting for project to stop");
+    project->wait_stopped();
     log_info("Done");
 
     return(0);

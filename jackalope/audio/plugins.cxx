@@ -18,7 +18,7 @@ namespace jackalope {
 shared_t<audio_gain_plugin_t> audio_gain_plugin_t::make(shared_t<project_t> project_in, const init_args_t& init_args_in)
 {
     auto gain_plugin = jackalope::make_shared<audio_gain_plugin_t>(project_in, init_args_in);
-    guard_object(gain_plugin, { gain_plugin->init(); });
+    guard_object(gain_plugin, { gain_plugin->init(); gain_plugin->activate(); });
     return gain_plugin;
 }
 

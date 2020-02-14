@@ -26,16 +26,33 @@ invoke_slot_message_t::invoke_slot_message_t(const string_t& slot_name_in)
 }
 
 signal_t::subscription_t::subscription_t(shared_t<object_t> subscriber_in, const string_t& slot_name_in)
-: weak_subscriber(subscriber_in), slot_name(slot_name_in)
+: subscriber(subscriber_in), slot_name(slot_name_in)
 {
-    assert(subscriber_in != nullptr);
-    assert(! weak_subscriber.expired());
+    assert(subscriber != nullptr);
     assert(slot_name_in != "");
 }
 
 signal_t::signal_t(const string_t& name_in)
 : name(name_in)
 { }
+
+signal_t::~signal_t()
+{
+    assert(shutdown_flag);
+}
+
+void signal_t::shutdown()
+{
+    auto lock = get_object_lock();
+
+    if (shutdown_flag) {
+        return;
+    }
+
+    subscriptions.empty();
+
+    shutdown_flag = true;
+}
 
 void signal_t::subscribe(shared_t<object_t> object_in, const string_t& name_in)
 {
@@ -55,7 +72,7 @@ void signal_t::send()
 
     for (auto i = subscriptions.begin(); i != subscriptions.end(); i++) {
         try {
-            auto subscriber = i->weak_subscriber.lock();
+            auto subscriber = i->subscriber;
             subscriber->send_message<invoke_slot_message_t>(i->slot_name);
         } catch (const std::bad_weak_ptr&) {
             subscriptions.erase(i);

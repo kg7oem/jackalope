@@ -12,6 +12,7 @@
 // GNU Lesser General Public License for more details.
 
 #include <jackalope/exception.h>
+#include <jackalope/logging.h>
 #include <jackalope/module.h>
 #include <jackalope/node.h>
 #include <jackalope/plugin.h>
@@ -19,7 +20,11 @@
 
 namespace jackalope {
 
-const string_t project_t::type = "project";
+project_node_stopped_message_t::project_node_stopped_message_t(shared_t<node_t> node_in)
+: message_t(project_node_stopped_message_t::message_name, node_in)
+{
+    assert(node_in != nullptr);
+}
 
 project_t::project_t(const init_args_t& init_args_in)
 : object_t(init_args_in)
@@ -27,6 +32,66 @@ project_t::project_t(const init_args_t& init_args_in)
     for(auto i : init_args_in) {
         add_variable(i.first, i.second);
     }
+}
+
+project_t::~project_t()
+{
+    if (! shutdown_flag) {
+        guard_lockable({
+            shutdown();
+        });
+    }
+}
+
+void project_t::will_init()
+{
+    assert_lockable_owner();
+
+    auto shared_this = shared_obj<project_t>();
+    add_message_handler<project_node_stopped_message_t>([shared_this] (shared_t<node_t> node_in) { shared_this->message_project_node_stopped(node_in); });
+
+    object_t::will_init();
+}
+
+void project_t::did_start()
+{
+    assert_lockable_owner();
+    assert(running_flag);
+
+    for(auto i : nodes) {
+        i->post_slot(JACKALOPE_SLOT_OBJECT_START);
+    }
+}
+
+void project_t::will_stop()
+{
+    assert_lockable_owner();
+    assert(running_flag);
+
+    object_log_trace("stopping all owned nodes");
+
+    for(auto i : nodes) {
+        guard_object(i, { i->stop(); });
+    }
+
+    object_t::will_stop();
+}
+
+void project_t::will_shutdown()
+{
+    assert_lockable_owner();
+    assert(! shutdown_flag);
+
+    for (auto i : nodes) {
+        guard_object(i, { i->shutdown(); });
+    }
+}
+
+void project_t::message_project_node_stopped(shared_t<node_t> node_in)
+{
+    assert_lockable_owner();
+
+    object_log_info("owned node stopped: ", node_in->description());
 }
 
 const string_t& project_t::get_type()
@@ -73,7 +138,11 @@ shared_t<node_t> project_t::make_node(const init_args_t& init_args_in)
 
     auto type = init_args_get(JACKALOPE_PROPERTY_NODE_TYPE, init_args_in);
     auto constructor = get_plugin_constructor(type);
-    return constructor(shared_obj<project_t>(), init_args_in);
+    auto node = constructor(shared_obj<project_t>(), init_args_in);
+
+    nodes.push_back(node);
+
+    return node;
 }
 
 } //namespace jackalope

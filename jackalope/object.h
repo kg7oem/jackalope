@@ -23,9 +23,13 @@
 
 #define JACKALOPE_PROPERTY_OBJECT_TYPE "object.type"
 #define JACKALOPE_SIGNAL_OBJECT_DID_ACTIVATE "object.did_activate"
-#define JACKALOPE_SIGNAL_OBJECT_WILL_ACTTIVATE "object.will_activate"
 #define JACKALOPE_SIGNAL_OBJECT_DID_INIT "object.did_init"
+#define JACKALOPE_SIGNAL_OBJECT_DID_SHUTDOWN "object.did_shutdown"
+#define JACKALOPE_SIGNAL_OBJECT_WILL_ACTTIVATE "object.will_activate"
 #define JACKALOPE_SIGNAL_OBJECT_WILL_INIT "object.will_init"
+#define JACKALOPE_SIGNAL_OBJECT_WILL_SHUTDOWN "object.will_shutdown"
+#define JACKALOPE_SLOT_OBJECT_START "object.start"
+#define JACKALOPE_SLOT_OBJECT_STOP "object.stop"
 
 #define JACKALOPE_OBJECT_LOG_VARGS(level, ...) JACKALOPE_LOG_VARGS(JACKALOPE_LOG_NAME, jackalope::log::level_t::level, "(", this->description(), ") ", __VA_ARGS__)
 #define object_log_info(...) JACKALOPE_OBJECT_LOG_VARGS(info, __VA_ARGS__)
@@ -41,7 +45,10 @@ protected:
     const init_args_t init_args;
     bool initialized_flag = false;
     bool activated_flag = false;
+    bool running_flag = false;
+    condition_t running_condition;
     bool stopped_flag = false;
+    bool shutdown_flag = false;
     const shared_t<async_engine_t> async_engine = get_async_engine();
 
     static size_t next_object_id();
@@ -52,17 +59,28 @@ protected:
     virtual void did_init();
     virtual void will_activate();
     virtual void did_activate();
+    virtual void will_start();
+    virtual void did_start();
+    virtual void will_stop();
+    virtual void did_stop();
+    virtual void will_shutdown();
+    virtual void did_shutdown();
     virtual bool should_deliver() override;
+    void deliver_one_message(shared_t<abstract_message_t> message_in) override;
     virtual void message_invoke_slot(const string_t slot_name_in);
 
 public:
     const size_t id = next_object_id();
 
-    virtual ~object_t() = default;
+    virtual ~object_t();
     virtual void init();
     virtual void activate();
+    virtual void start();
+    virtual void stop();
+    virtual void shutdown();
     virtual string_t description();
     virtual const string_t& get_type() = 0;
+    virtual bool is_running();
     virtual void _send_message(shared_t<abstract_message_t> message_in);
 
     template <typename T, typename... Args>
@@ -71,6 +89,9 @@ public:
         auto message = jackalope::make_shared<T>(args...);
         _send_message(message);
     }
+
+    virtual void post_slot(const string_t& name_in);
+    void wait_stopped();
 };
 
 } //namespace jackalope

@@ -19,7 +19,13 @@ namespace jackalope {
 
 static const pool_vector_t<string_t> object_signal_names = {
      JACKALOPE_SIGNAL_OBJECT_DID_ACTIVATE, JACKALOPE_SIGNAL_OBJECT_WILL_ACTTIVATE,
-     JACKALOPE_SIGNAL_OBJECT_DID_INIT, JACKALOPE_SIGNAL_OBJECT_WILL_INIT
+     JACKALOPE_SIGNAL_OBJECT_DID_INIT, JACKALOPE_SIGNAL_OBJECT_WILL_INIT,
+     JACKALOPE_SIGNAL_OBJECT_DID_SHUTDOWN, JACKALOPE_SIGNAL_OBJECT_WILL_SHUTDOWN,
+};
+
+static const pool_vector_t<std::pair<string_t, void (object_t::*)()>> object_slot_handlers = {
+    { JACKALOPE_SLOT_OBJECT_START, &object_t::start },
+    { JACKALOPE_SLOT_OBJECT_STOP, &object_t::stop },
 };
 
 size_t object_t::next_object_id()
@@ -31,6 +37,11 @@ size_t object_t::next_object_id()
 object_t::object_t(const init_args_t& init_args_in)
 : init_args(init_args_in)
 { }
+
+object_t::~object_t()
+{
+    assert(shutdown_flag);
+}
 
 void object_t::init()
 {
@@ -56,10 +67,15 @@ void object_t::will_init()
 
     add_property(JACKALOPE_PROPERTY_OBJECT_TYPE, property_t::type_t::string, get_type());
 
-    add_message_handler<invoke_slot_message_t>([&] (const string_t& slot_name_in) { this->message_invoke_slot(slot_name_in); });
+    auto shared_this = shared_obj();
+    add_message_handler<invoke_slot_message_t>([shared_this] (const string_t& slot_name_in) { shared_this->message_invoke_slot(slot_name_in); });
 
     for(auto& i : object_signal_names) {
         add_signal(i);
+    }
+
+    for(auto& i : object_slot_handlers) {
+        add_slot(i.first, std::bind(i.second, this));
     }
 }
 
@@ -102,11 +118,113 @@ void object_t::did_activate()
     assert(activated_flag);
 }
 
+void object_t::start()
+{
+    assert_lockable_owner();
+
+    if (! activated_flag) {
+        throw_runtime_error("can't start an object that is not activated");
+    }
+
+    if (running_flag) {
+        throw_runtime_error("can't start an object that is already running");
+    }
+
+    object_log_info("starting object");
+
+    will_start();
+    running_flag = true;
+    running_condition.notify_all();
+    did_start();
+}
+
+void object_t::will_start()
+{
+    assert_lockable_owner();
+    assert(running_flag == false);
+}
+
+void object_t::did_start()
+{
+    assert_lockable_owner();
+    assert(running_flag == true);
+}
+
+void object_t::stop()
+{
+    assert_lockable_owner();
+
+    if (! running_flag) {
+        return;
+    }
+
+    object_log_info("stopping object");
+
+    will_stop();
+    running_flag = false;
+    running_condition.notify_all();
+    did_stop();
+}
+
+void object_t::will_stop()
+{
+    assert_lockable_owner();
+    assert(running_flag == true);
+}
+
+void object_t::did_stop()
+{
+    assert_lockable_owner();
+    assert(running_flag == false);
+}
+
+void object_t::shutdown()
+{
+    assert_lockable_owner();
+
+    if (shutdown_flag) {
+        return;
+    }
+
+    if (! stopped_flag) {
+        stop();
+    }
+
+    object_log_info("Shutting down object");
+
+    will_shutdown();
+    shutdown_flag = true;
+    did_shutdown();
+}
+
+void object_t::will_shutdown()
+{
+    assert_lockable_owner();
+    assert(shutdown_flag == false);
+}
+
+void object_t::did_shutdown()
+{
+    assert_lockable_owner();
+    assert(shutdown_flag == true);
+
+    for(auto i : signals) {
+        i.second->shutdown();
+    }
+}
+
 // description() must never require a lock
 // even from a subclass
 string_t object_t::description()
 {
     return to_string("object #", id, " ", get_type());
+}
+
+bool object_t::is_running()
+{
+    assert_lockable_owner();
+
+    return running_flag;
 }
 
 shared_t<property_t> object_t::_add_property(const string_t& name_in, const property_t::type_t type_in)
@@ -156,11 +274,22 @@ bool object_t::should_deliver()
 {
     auto lock = get_object_lock();
 
+    if (! initialized_flag) {
+        return false;
+    }
+
     if (stopped_flag) {
         return false;
     }
 
     return true;
+}
+
+void object_t::deliver_one_message(shared_t<abstract_message_t> message_in)
+{
+    guard_lockable({
+        message_obj_t::deliver_one_message(message_in);
+    });
 }
 
 void object_t::message_invoke_slot(const string_t slot_name_in)
@@ -169,6 +298,18 @@ void object_t::message_invoke_slot(const string_t slot_name_in)
 
     auto slot = get_slot(slot_name_in);
     slot->invoke();
+}
+
+void object_t::post_slot(const string_t& name_in)
+{
+    send_message<invoke_slot_message_t>(name_in);
+}
+
+void object_t::wait_stopped()
+{
+    assert_lockable_owner();
+
+    running_condition.wait(object_mutex, [&] { return running_flag == false; });
 }
 
 } //namespace jackalope
