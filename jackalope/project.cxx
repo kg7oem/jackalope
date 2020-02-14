@@ -72,7 +72,7 @@ shared_t<node_t> project_t::make_node(const init_args_t& init_args_in)
     }
 
     auto type = init_args_get(JACKALOPE_PROPERTY_NODE_TYPE, init_args_in);
-    auto constructor = module_get_plugin_constructor(type);
+    auto constructor = get_plugin_constructor(type);
     return constructor(shared_obj<project_t>(), init_args_in);
 }
 

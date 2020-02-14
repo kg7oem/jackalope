@@ -13,11 +13,16 @@
 
 #pragma once
 
+#include <jackalope/forward.h>
 #include <jackalope/node.h>
-#include <jackalope/project.h>
 #include <jackalope/types.h>
 
 namespace jackalope {
+
+using plugin_constructor_t = function_t<shared_t<plugin_t> (shared_t<project_t>, const init_args_t&)>;
+
+void add_plugin_constructor(const string_t& type_in, plugin_constructor_t constructor_in);
+plugin_constructor_t get_plugin_constructor(const string_t& type_in);
 
 class plugin_t : public node_t {
 

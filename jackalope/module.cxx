@@ -23,10 +23,10 @@ namespace jackalope {
 
 static mutex_t module_mutex;
 pool_map_t<string_t, module_info_t *> loaded_modules;
-pool_map_t<string_t, plugin_constructor_t> plugin_constructors;
 
 void module_init()
 {
+
 #ifdef MODULE_AUDIO_LINK_STATIC
     module_load(audio_module_info_constructor());
 #endif
@@ -46,24 +46,8 @@ void module_load(module_info_t * info_in)
     }
 
     for(auto i : info_in->get_plugin_constructors()) {
-        if (plugin_constructors.count(i.first)) {
-            throw_runtime_error("Module had duplicate plugin constructor: ", i.first);
-        }
-
-        log_info("Found plugin constructor in module: ", i.first);
-        plugin_constructors[i.first] = i.second;
+        add_plugin_constructor(i.first, i.second);
     }
-}
-
-plugin_constructor_t module_get_plugin_constructor(const string_t& type_in)
-{
-    lock_t module_lock(module_mutex);
-
-    if (plugin_constructors.count(type_in) == 0) {
-        throw_runtime_error("No constructor is known for plugin type: ", type_in);
-    }
-
-    return plugin_constructors[type_in];
 }
 
 } //namespace jackalope

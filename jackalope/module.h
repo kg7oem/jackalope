@@ -14,19 +14,18 @@
 #pragma once
 
 #include <jackalope/forward.h>
+#include <jackalope/plugin.h>
 #include <jackalope/string.h>
 #include <jackalope/types.h>
 
 namespace jackalope {
 
-using module_info_constructor = function_t<module_info_t *>();
-using plugin_constructor_t = function_t<shared_t<plugin_t> (shared_t<project_t>, const init_args_t&)>;
+using module_info_constructor = function_t<module_info_t * ()>;
 using sink_constructor_t = function_t<shared_t<sink_t> ()>;
 using source_constructor_t = function_t<shared_t<source_t> ()>;
 
 void module_init();
 void module_load(module_info_t * info_in);
-plugin_constructor_t module_get_plugin_constructor(const string_t& type_in);
 
 class module_info_t : base_obj_t {
 
