@@ -52,7 +52,7 @@ public:
     }
 
     project_t(const init_args_t& init_args_in = init_args_t());
-    ~project_t();
+    virtual ~project_t() = default;
     virtual const string_t& get_type();
     virtual void add_variable(const string_t& name_in, const string_t& value_in);
     virtual bool has_variable(const string_t& name_in);

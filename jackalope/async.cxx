@@ -28,69 +28,6 @@ static lock_t get_async_lock()
     return lock_t(async_mutex);
 }
 
-size_t async_engine_t::detect_num_threads()
-{
-    size_t num_threads = std::thread::hardware_concurrency();
-
-    if (num_threads == 0) {
-        num_threads = 1;
-    }
-
-    return num_threads;
-}
-
-shared_t<async_engine_t> async_engine_t::make(const init_args_t& init_args_in)
-{
-    return jackalope::make_shared<async_engine_t>(init_args_in);
-}
-
-async_engine_t::async_engine_t(const init_args_t&)
-{
-    asio_work = new boost::asio::io_service::work(asio_io);
-
-    init_threads();
-}
-
-async_engine_t::~async_engine_t()
-{
-    if (asio_work != nullptr) {
-        delete asio_work;
-        asio_work = nullptr;
-    }
-
-    for(auto& i : asio_threads) {
-        i.join();
-    }
-
-    asio_threads.clear();
-}
-
-void async_engine_t::init_threads()
-{
-    auto num_threads = detect_num_threads();
-
-    if (num_threads == 0) {
-        num_threads = 1;
-    }
-
-    for(size_t i = 0; i < num_threads; i++) {
-        auto thread = asio_threads.emplace(asio_threads.begin(), std::bind(&async_engine_t::asio_thread, this));
-        set_thread_priority(*thread, thread_priority_t::normal);
-    }
-}
-
-void async_engine_t::asio_thread()
-{
-    log_info("New ASIO thread has been started");
-    asio_io.run();
-    log_info("ASIO thread is done running");
-}
-
-void async_engine_t::submit_job(async_job_t<void> job_in)
-{
-    asio_io.post(job_in);
-}
-
 void set_async_config(const string_t& name_in, const string_t& value_in)
 {
     auto lock = get_async_lock();
@@ -126,6 +63,118 @@ shared_t<async_engine_t> get_async_engine()
     assert(engine != nullptr);
 
     return engine;
+}
+
+void async_shutdown()
+{
+    auto lock = get_async_lock();
+
+    try {
+        auto engine = async_engine_cache.lock();
+
+        if (engine != nullptr) {
+            log_trace("shutting down async engine");
+            engine->shutdown();
+        }
+    } catch (const std::bad_weak_ptr&) {
+        // nothing to do
+    }
+}
+
+size_t async_engine_t::detect_num_threads()
+{
+    size_t num_threads = std::thread::hardware_concurrency();
+
+    if (num_threads == 0) {
+        num_threads = 1;
+    }
+
+    return num_threads;
+}
+
+shared_t<async_engine_t> async_engine_t::make(const init_args_t& init_args_in)
+{
+    return jackalope::make_shared<async_engine_t>(init_args_in);
+}
+
+async_engine_t::async_engine_t(const init_args_t&)
+{
+    asio_work = new boost::asio::io_service::work(asio_io);
+
+    init_threads();
+}
+
+async_engine_t::~async_engine_t()
+{
+    shutdown();
+}
+
+void async_engine_t::shutdown()
+{
+    guard_lockable({ _shutdown(); });
+}
+
+void async_engine_t::_shutdown()
+{
+    assert_lockable_owner();
+
+    if (asio_work != nullptr) {
+        delete asio_work;
+        asio_work = nullptr;
+    }
+
+    _join();
+}
+
+void async_engine_t::join()
+{
+    guard_lockable({
+        _join();
+    });
+}
+
+void async_engine_t::_join()
+{
+    assert_lockable_owner();
+
+    for(auto& i : asio_threads) {
+        i.join();
+    }
+
+    asio_threads.clear();
+}
+
+void async_engine_t::init_threads()
+{
+    auto num_threads = detect_num_threads();
+
+    if (num_threads == 0) {
+        num_threads = 1;
+    }
+
+    for(size_t i = 0; i < num_threads; i++) {
+        auto thread = asio_threads.emplace(asio_threads.begin(), std::bind(&async_engine_t::asio_thread, this));
+        set_thread_priority(*thread, thread_priority_t::normal);
+    }
+}
+
+void async_engine_t::asio_thread()
+{
+    log_info("New ASIO thread has been started");
+    asio_io.run();
+    log_info("ASIO thread is done running");
+}
+
+void async_engine_t::submit_job(async_job_t<void> job_in)
+{
+    guard_lockable({ _submit_job(job_in); });
+}
+
+void async_engine_t::_submit_job(async_job_t<void> job_in)
+{
+    assert_lockable_owner();
+
+    asio_io.post(job_in);
 }
 
 } // namespace jackalope

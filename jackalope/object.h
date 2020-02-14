@@ -43,12 +43,12 @@ class object_t :
 
 protected:
     const init_args_t init_args;
-    bool initialized_flag = false;
-    bool activated_flag = false;
-    bool running_flag = false;
+    atomic_t<bool> initialized_flag = ATOMIC_VAR_INIT(false);
+    atomic_t<bool> activated_flag = ATOMIC_VAR_INIT(false);
+    atomic_t<bool> running_flag = ATOMIC_VAR_INIT(false);
     condition_t running_condition;
-    bool stopped_flag = false;
-    bool shutdown_flag = false;
+    atomic_t<bool> stopped_flag = ATOMIC_VAR_INIT(false);
+    atomic_t<bool> shutdown_flag = ATOMIC_VAR_INIT(false);
     const shared_t<async_engine_t> async_engine = get_async_engine();
 
     static size_t next_object_id();
@@ -65,6 +65,7 @@ protected:
     virtual void did_stop();
     virtual void will_shutdown();
     virtual void did_shutdown();
+    virtual void submit_job(async_job_t<void> job_in);
     virtual bool should_deliver() override;
     void deliver_one_message(shared_t<abstract_message_t> message_in) override;
     virtual void message_invoke_slot(const string_t slot_name_in);

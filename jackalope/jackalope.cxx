@@ -12,6 +12,7 @@
 // GNU Lesser General Public License for more details.
 
 #include <jackalope/jackalope.h>
+#include <jackalope/logging.h>
 #include <jackalope/module.h>
 
 namespace jackalope {
@@ -19,6 +20,12 @@ namespace jackalope {
 void init()
 {
     module_init();
+}
+
+void shutdown()
+{
+    log_info("Shutting down Jackalope");
+    async_shutdown();
 }
 
 } // namespace jackalope

@@ -251,6 +251,14 @@ std::pair<bool, string_t> object_t::get_property_default(const string_t& name_in
     return { false, "" };
 }
 
+// locking is not needed because the async_engine is const
+void object_t::submit_job(async_job_t<void> job_in)
+{
+    // make sure a shared pointer is held inside the thread queue
+    auto shared_this = shared_obj();
+    async_engine->submit_job([shared_this, job_in] { job_in(); });
+}
+
 // this method has special locking requirements
 void object_t::_send_message(shared_t<abstract_message_t> message_in)
 {
@@ -259,12 +267,10 @@ void object_t::_send_message(shared_t<abstract_message_t> message_in)
     message_queue.push_back(message_in);
 
     if (! message_delivering_flag) {
-        auto shared_this = shared_obj();
-
         message_delivering_flag = true;
 
-        async_engine->submit_job([shared_this] {
-            shared_this->deliver_messages();
+        submit_job([this] {
+            deliver_messages();
         });
     }
 }

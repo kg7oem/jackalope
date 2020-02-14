@@ -15,7 +15,7 @@
 
 #include <boost/asio.hpp>
 
-#include <jackalope/property.h>
+#include <jackalope/forward.h>
 #include <jackalope/string.h>
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
@@ -25,7 +25,10 @@ namespace jackalope {
 template <typename T>
 using async_job_t = function_t<T ()>;
 
-class async_engine_t : public shared_obj_t<async_engine_t>, public prop_obj_t {
+void async_shutdown();
+shared_t<async_engine_t> get_async_engine();
+
+class async_engine_t : public shared_obj_t<async_engine_t>, protected lock_obj_t {
 
 protected:
     boost::asio::io_context asio_io;
@@ -35,15 +38,18 @@ protected:
 
     virtual void init_threads();
     virtual void asio_thread();
+    virtual void _shutdown();
+    virtual void _join();
+    virtual void _submit_job(async_job_t<void> job_in);
 
 public:
     static size_t detect_num_threads();
     static shared_t<async_engine_t> make(const init_args_t& init_args_in);
     async_engine_t(const init_args_t& init_args_in);
     virtual ~async_engine_t();
+    void shutdown();
+    void join();
     void submit_job(async_job_t<void> job_in);
 };
-
-shared_t<async_engine_t> get_async_engine();
 
 } // namespace jackalope

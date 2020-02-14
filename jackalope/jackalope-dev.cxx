@@ -27,6 +27,7 @@
 #define SAMPLE_RATE 48000
 #define LADSPA_ZAMTUBE_ID 1515476290
 
+using namespace std::chrono_literals;
 using namespace jackalope;
 using namespace jackalope::log;
 
@@ -37,7 +38,6 @@ int main(UNUSED int argc_in, UNUSED char ** argv_in)
 
     init();
 
-    auto project = project_t::make();
     // auto system_audio = project->make_plugin("audio::jack");
     // for(auto i : { "audio.sample_rate", "audio.buffer_size" }) {
     //     project->add_variable(i, system_audio->peek(i));
@@ -45,18 +45,22 @@ int main(UNUSED int argc_in, UNUSED char ** argv_in)
 
     // log_info("buffer size: ", project->get_variable("audio.buffer_size"));
 
-    auto project_lock = project->get_object_lock();
+    auto project = project_t::make();
+    guard_object(project, {
+        project->make_node({
+            { JACKALOPE_PROPERTY_NODE_TYPE, "audio::gain" },
+        });
 
-    project->make_node({
-        { JACKALOPE_PROPERTY_NODE_TYPE, "audio::gain" },
+        project->start();
+        project->post_slot("object.stop");
+
+        log_info("Waiting for project to stop");
+        project->wait_stopped();
+        log_info("Done waiting for project");
+
+        project->shutdown();
     });
 
-    project->start();
-    project->post_slot("object.stop");
-
-    log_info("Waiting for project to stop");
-    project->wait_stopped();
-    log_info("Done");
-
+    shutdown();
     return(0);
 }

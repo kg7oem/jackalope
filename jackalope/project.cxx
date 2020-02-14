@@ -34,15 +34,6 @@ project_t::project_t(const init_args_t& init_args_in)
     }
 }
 
-project_t::~project_t()
-{
-    if (! shutdown_flag) {
-        guard_lockable({
-            shutdown();
-        });
-    }
-}
-
 void project_t::will_init()
 {
     assert_lockable_owner();

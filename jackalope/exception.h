@@ -13,6 +13,8 @@
 
 #pragma once
 
+#include <iostream>
+
 #include <jackalope/string.h>
 #include <jackalope/types.h>
 
