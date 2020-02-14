@@ -57,7 +57,7 @@ public:
     virtual void add_variable(const string_t& name_in, const string_t& value_in);
     virtual bool has_variable(const string_t& name_in);
     virtual const string_t& get_variable(const string_t& name_in);
-    shared_t<node_t> make_node(const init_args_t& init_args_in);
+    shared_t<node_t> make_plugin(const init_args_t& init_args_in);
 };
 
 } //namespace jackalope

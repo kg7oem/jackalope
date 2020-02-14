@@ -120,7 +120,7 @@ const string_t& project_t::get_variable(const string_t& name_in)
     return variables_map[name_in];
 }
 
-shared_t<node_t> project_t::make_node(const init_args_t& init_args_in)
+shared_t<node_t> project_t::make_plugin(const init_args_t& init_args_in)
 {
     assert_lockable_owner();
 

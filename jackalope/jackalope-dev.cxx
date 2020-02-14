@@ -47,7 +47,7 @@ int main(UNUSED int argc_in, UNUSED char ** argv_in)
 
     auto project = project_t::make();
     guard_object(project, {
-        project->make_node({
+        project->make_plugin({
             { JACKALOPE_PROPERTY_NODE_TYPE, "audio::gain" },
         });
 
