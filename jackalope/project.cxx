@@ -47,8 +47,7 @@ void project_t::will_init()
 {
     assert_lockable_owner();
 
-    auto shared_this = shared_obj<project_t>();
-    add_message_handler<project_node_stopped_message_t>([shared_this] (shared_t<node_t> node_in) { shared_this->message_project_node_stopped(node_in); });
+    add_message_handler<project_node_stopped_message_t>([this] (shared_t<node_t> node_in) { message_project_node_stopped(node_in); });
 
     object_t::will_init();
 }
@@ -85,6 +84,8 @@ void project_t::will_shutdown()
     for (auto i : nodes) {
         guard_object(i, { i->shutdown(); });
     }
+
+    nodes.empty();
 }
 
 void project_t::message_project_node_stopped(shared_t<node_t> node_in)

@@ -67,8 +67,7 @@ void object_t::will_init()
 
     add_property(JACKALOPE_PROPERTY_OBJECT_TYPE, property_t::type_t::string, get_type());
 
-    auto shared_this = shared_obj();
-    add_message_handler<invoke_slot_message_t>([shared_this] (const string_t& slot_name_in) { shared_this->message_invoke_slot(slot_name_in); });
+    add_message_handler<invoke_slot_message_t>([this] (const string_t& slot_name_in) { message_invoke_slot(slot_name_in); });
 
     for(auto& i : object_signal_names) {
         add_signal(i);
