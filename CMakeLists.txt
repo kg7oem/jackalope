@@ -187,8 +187,8 @@ if (ENABLE_AUDIO_MODULE)
         ${JACKALOPE_LIB_TARGET} PRIVATE
 
         jackalope/audio/channel.cxx
-        jackalope/audio/gain.cxx
-        jackalope/audio/module.cxx
+        jackalope/audio/info.cxx
+        jackalope/audio/plugins.cxx
     )
 endif (ENABLE_AUDIO_MODULE)
 

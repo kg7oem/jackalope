@@ -11,11 +11,9 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
-#include <jackalope/audio/gain.h>
+#include <jackalope/audio/plugins.h>
 
 namespace jackalope {
-
-const string_t audio_gain_plugin_t::type = "audio::gain";
 
 shared_t<audio_gain_plugin_t> audio_gain_plugin_t::make(shared_t<project_t> project_in, const init_args_t& init_args_in)
 {

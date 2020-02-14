@@ -16,7 +16,7 @@
 #include <jackalope/module.h>
 
 #ifdef MODULE_AUDIO_LINK_STATIC
-#include <jackalope/audio/module.h>
+#include <jackalope/audio/info.h>
 #endif
 
 namespace jackalope {
@@ -46,6 +46,7 @@ void module_load(module_info_t * info_in)
     }
 
     for(auto i : info_in->get_plugin_constructors()) {
+        log_info("Module ", name, ": adding constructor for plugin: ", i.first);
         add_plugin_constructor(i.first, i.second);
     }
 }

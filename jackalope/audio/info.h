@@ -24,12 +24,11 @@ module_info_t * audio_module_info_constructor();
 class audio_module_info_t : public module_info_t {
 
 public:
+    inline static const string_t name = "jackalope::audio";
     static const pool_map_t<string_t, plugin_constructor_t> plugin_constructors;
     static const pool_map_t<string_t, sink_constructor_t> sink_constructors;
     static const pool_map_t<string_t, source_constructor_t> source_constructors;
     static const pool_map_t<string_t, prop_args_t> channel_properties;
-
-    static const string_t name;
 
     virtual const string_t& get_name() override;
     virtual const pool_map_t<string_t, plugin_constructor_t>& get_plugin_constructors() override;

@@ -14,7 +14,7 @@
 #pragma once
 
 #include <jackalope/plugin.h>
-#include <jackalope/project.h>
+#include <jackalope/forward.h>
 #include <jackalope/types.h>
 
 namespace jackalope {
@@ -22,7 +22,7 @@ namespace jackalope {
 class audio_gain_plugin_t : public filter_plugin_t {
 
 public:
-    static const string_t type;
+    inline static const string_t type = "audio::gain";
 
     static shared_t<audio_gain_plugin_t> make(shared_t<project_t> project_in, const init_args_t& init_args_in);
     audio_gain_plugin_t(shared_t<project_t> project_in, const init_args_t& init_args_in);
