@@ -23,8 +23,8 @@ namespace log {
 
 engine_t * get_engine()
 {
-    static engine_t global_engine;
-    return &global_engine;
+    static auto global_engine = new engine_t();
+    return global_engine;
 }
 
 event_t::event_t(const char * source_in, const level_t& level_in, const timestamp_t& when_in, const thread_t::id& tid_in, const char* function_in, const char *file_in, const int& line_in, const string_t& message_in)
