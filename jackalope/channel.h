@@ -16,6 +16,7 @@
 #include <jackalope/forward.h>
 #include <jackalope/library.h>
 #include <jackalope/message.h>
+#include <jackalope/property.h>
 #include <jackalope/string.h>
 #include <jackalope/thread.h>
 #include <jackalope/types.h>
@@ -28,8 +29,20 @@
 
 namespace jackalope {
 
-using source_library_t = library_t<source_t, const string_t&, shared_t<object_t>>;
-using sink_library_t = library_t<sink_t, const string_t&, shared_t<object_t>>;
+using source_constructor_t = function_t<shared_t<source_t> (const string_t&, shared_t<object_t>)>;
+using sink_constructor_t = function_t<shared_t<sink_t> (const string_t&, shared_t<object_t>)>;
+
+void add_channel_info(const channel_info_t& info_in);
+const prop_args_t get_channel_properties(const string_t& type_in);
+source_constructor_t get_source_constructor(const string_t& type_in);
+sink_constructor_t get_sink_constructor(const string_t& type_in);
+
+struct channel_info_t {
+    virtual const string_t& get_type() const = 0;
+    virtual const prop_args_t& get_properties() const = 0;
+    virtual source_constructor_t get_source_constructor() const = 0;
+    virtual sink_constructor_t get_sink_constructor() const = 0;
+};
 
 struct link_available_message_t : public message_t<shared_t<link_t>> {
     static const string_t message_name;
@@ -50,9 +63,6 @@ struct source_available_message_t : public message_t<shared_t<source_t>> {
     static const string_t message_name;
     source_available_message_t(shared_t<source_t> source_in);
 };
-
-void add_source_constructor(const string_t& type_name_in, source_library_t::constructor_t constructor_in);
-void add_sink_constructor(const string_t& type_name_in, sink_library_t::constructor_t constructor_in);
 
 struct link_t : public shared_obj_t<link_t> {
 

@@ -45,10 +45,29 @@ void module_load(module_info_t * info_in)
         throw_runtime_error("Duplicate module name during load: ", name);
     }
 
+    for(auto i : info_in->get_channel_info()) {
+        log_info("Module ", name, ": found channel type: ", i.first);
+    }
+
     for(auto i : info_in->get_plugin_constructors()) {
-        log_info("Module ", name, ": adding constructor for plugin: ", i.first);
+        log_info("Module ", name, ": found plugin: ", i.first);
         add_plugin_constructor(i.first, i.second);
     }
+}
+
+const string_t& module_info_t::get_name()
+{
+    throw_runtime_error("Can't call this method (why does it need to exist?)");
+}
+
+const pool_map_t<string_t, channel_info_t *>& module_info_t::get_channel_info()
+{
+    throw_runtime_error("Can't call this method (why does it need to exist?)");
+}
+
+const pool_map_t<string_t, plugin_constructor_t>& module_info_t::get_plugin_constructors()
+{
+    throw_runtime_error("Can't call this method (why does it need to exist?)");
 }
 
 } //namespace jackalope

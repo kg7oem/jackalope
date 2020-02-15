@@ -17,6 +17,7 @@ namespace jackalope {
 
 class async_engine_t;
 struct channel_t;
+struct channel_info_t;
 class filter_plugin_t;
 struct link_t;
 class module_info_t;

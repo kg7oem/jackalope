@@ -24,16 +24,16 @@ module_info_t * audio_module_info_constructor();
 class audio_module_info_t : public module_info_t {
 
 public:
+    audio_module_info_t() = default;
+    virtual ~audio_module_info_t() = default;
+
     inline static const string_t name = "jackalope::audio";
+    static const pool_map_t<string_t, channel_info_t *> channel_info;
     static const pool_map_t<string_t, plugin_constructor_t> plugin_constructors;
-    static const pool_map_t<string_t, sink_constructor_t> sink_constructors;
-    static const pool_map_t<string_t, source_constructor_t> source_constructors;
-    static const pool_map_t<string_t, prop_args_t> channel_properties;
 
     virtual const string_t& get_name() override;
+    virtual const pool_map_t<string_t, channel_info_t *>& get_channel_info() override;
     virtual const pool_map_t<string_t, plugin_constructor_t>& get_plugin_constructors() override;
-    virtual const pool_map_t<string_t, sink_constructor_t>& get_sink_constructors() override;
-    virtual const pool_map_t<string_t, source_constructor_t>& get_source_constructors() override;
 };
 
 } //namespace jackalope

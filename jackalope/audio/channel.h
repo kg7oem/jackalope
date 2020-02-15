@@ -13,15 +13,78 @@
 
 #pragma once
 
-#include <jackalope/property.h>
+#include <jackalope/channel.h>
+#include <jackalope/forward.h>
 #include <jackalope/types.h>
-
-#define JACKALOPE_CHANNEL_TYPE_AUDIO "audio"
-#define JACKALOPE_PROPERTY_AUDIO_BUFFER_SIZE "audio.buffer_size"
-#define JACKALOPE_PROPERTY_AUDIO_SAMPLE_RATE "audio.sample_rate"
 
 namespace jackalope {
 
-extern const prop_args_t audio_channel_properties;
+class audio_buffer_t : public shared_obj_t<audio_buffer_t> {
+
+protected:
+    pool_vector_t<real_t> buffer;
+
+public:
+    const size_t num_samples;
+
+    audio_buffer_t(const size_t num_samples_in);
+    virtual ~audio_buffer_t();
+    real_t * get_pointer();
+};
+
+class audio_link_t : public link_t, lock_obj_t {
+
+protected:
+    shared_t<audio_buffer_t> buffer = nullptr;
+
+public:
+    audio_link_t(shared_t<source_t> from_in, shared_t<sink_t> to_in);
+    virtual void reset();
+    virtual bool is_available() override;
+    virtual bool is_ready() override;
+    virtual shared_t<audio_buffer_t> get_buffer();
+    virtual void set_buffer(shared_t<audio_buffer_t> buffer_in);
+};
+
+class audio_source_t : public source_t {
+
+public:
+    static shared_t<audio_source_t> make(const string_t name_in, shared_t<object_t> parent_in);
+    audio_source_t(const string_t name_in, shared_t<object_t> parent_in);
+    virtual bool _is_available() override;
+    virtual shared_t<link_t> make_link(shared_t<source_t> from_in, shared_t<sink_t> to_in) override;
+    virtual void link(shared_t<sink_t> sink_in) override;
+    virtual void notify_buffer(shared_t<audio_buffer_t> buffer_in);
+    virtual void _notify_buffer(shared_t<audio_buffer_t> buffer_in);
+};
+
+class audio_sink_t : public sink_t {
+
+public:
+    static shared_t<audio_sink_t> make(const string_t name_in, shared_t<object_t> parent_in);
+    audio_sink_t(const string_t name_in, shared_t<object_t> parent_in);
+    virtual shared_t<audio_buffer_t> get_buffer();
+    virtual shared_t<audio_buffer_t> _get_buffer();
+    virtual bool _is_available() override;
+    virtual bool _is_ready() override;
+    virtual void _start() override;
+    virtual void _reset() override;
+    virtual void _forward(shared_t<source_t> source_in) override;
+};
+
+struct audio_channel_info_t : public channel_info_t {
+    inline static const string_t type = "audio";
+    inline static source_constructor_t source_constructor = audio_source_t::make;
+    inline static sink_constructor_t sink_constructor = audio_sink_t::make;
+    inline static const prop_args_t properties = {
+        { "audio.buffer_size", property_t::type_t::size },
+        { "audio.sample_rate", property_t::type_t::size },
+    };
+
+    virtual const string_t& get_type() const override;
+    virtual const prop_args_t& get_properties() const override;
+    virtual source_constructor_t get_source_constructor() const override;
+    virtual sink_constructor_t get_sink_constructor() const override;
+};
 
 } //namespace jackalope

@@ -21,19 +21,19 @@
 namespace jackalope {
 
 using module_info_constructor = function_t<module_info_t * ()>;
-using sink_constructor_t = function_t<shared_t<sink_t> ()>;
-using source_constructor_t = function_t<shared_t<source_t> ()>;
 
 void module_init();
 void module_load(module_info_t * info_in);
 
-class module_info_t : base_obj_t {
+class module_info_t {
 
 public:
-    virtual const string_t& get_name() = 0;
-    virtual const pool_map_t<string_t, plugin_constructor_t>& get_plugin_constructors() = 0;
-    virtual const pool_map_t<string_t, sink_constructor_t>& get_sink_constructors() = 0;
-    virtual const pool_map_t<string_t, source_constructor_t>& get_source_constructors() = 0;
+    module_info_t() = default;
+    virtual ~module_info_t() = default;
+
+    virtual const string_t& get_name();
+    virtual const pool_map_t<string_t, channel_info_t *>& get_channel_info();
+    virtual const pool_map_t<string_t, plugin_constructor_t>& get_plugin_constructors();
 };
 
 } //namespace jackalope

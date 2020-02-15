@@ -18,40 +18,32 @@
 
 namespace jackalope {
 
+const pool_map_t<string_t, channel_info_t *> audio_module_info_t::channel_info = {
+    { "audio", new audio_channel_info_t() },
+};
+
 const pool_map_t<string_t, plugin_constructor_t> audio_module_info_t::plugin_constructors = {
     { audio_gain_plugin_t::type, audio_gain_plugin_t::make },
 };
-
-const pool_map_t<string_t, prop_args_t> audio_module_info_t::channel_properties = {
-    { JACKALOPE_CHANNEL_TYPE_AUDIO,  audio_channel_properties },
-};
-
-const pool_map_t<string_t, sink_constructor_t> audio_module_info_t::sink_constructors;
-const pool_map_t<string_t, source_constructor_t> audio_module_info_t::source_constructors;
 
 module_info_t * audio_module_info_constructor()
 {
     return new audio_module_info_t();
 }
 
+const string_t& audio_module_info_t::get_name()
+{
+    return audio_module_info_t::name;
+}
+
+const pool_map_t<string_t, channel_info_t *>& audio_module_info_t::get_channel_info()
+{
+    return channel_info;
+}
+
 const pool_map_t<string_t, plugin_constructor_t>& audio_module_info_t::get_plugin_constructors()
 {
     return plugin_constructors;
-}
-
-const pool_map_t<string_t, sink_constructor_t>& audio_module_info_t::get_sink_constructors()
-{
-    return sink_constructors;
-}
-
-const pool_map_t<string_t, source_constructor_t>& audio_module_info_t::get_source_constructors()
-{
-    return source_constructors;
-}
-
-const string_t& audio_module_info_t::get_name()
-{
-    return name;
 }
 
 } //namespace jackalope

@@ -20,8 +20,54 @@
 
 namespace jackalope {
 
-static source_library_t * source_library = new source_library_t();
-static sink_library_t * sink_library = new sink_library_t();
+static mutex_t channel_info_mutex;
+static pool_map_t<string_t, const channel_info_t *> channel_info;
+
+void add_channel_info(const channel_info_t * info_in)
+{
+    auto&& type = info_in->get_type();
+
+    guard_mutex(channel_info_mutex, {
+        if (channel_info.count(type) != 0) {
+            throw_runtime_error("Can't add duplicate channel type: ", type);
+        }
+
+        channel_info[type] = info_in;
+    });
+}
+
+const prop_args_t get_channel_properties(const string_t& type_in)
+{
+    lock_t lock(channel_info_mutex);
+
+    if (channel_info.count(type_in) == 0) {
+        throw_runtime_error("Could not find channel info: ", type_in);
+    }
+
+    return channel_info[type_in]->get_properties();
+}
+
+source_constructor_t get_source_constructor(const string_t& type_in)
+{
+    return guard_mutex(channel_info_mutex, {
+        if (channel_info.count(type_in) == 0) {
+            throw_runtime_error("Could not find channel info: ", type_in);
+        }
+
+        return channel_info[type_in]->get_source_constructor();
+    });
+}
+
+sink_constructor_t get_sink_constructor(const string_t& type_in)
+{
+    return guard_mutex(channel_info_mutex, {
+        if (channel_info.count(type_in) == 0) {
+            throw_runtime_error("Could not find channel info: ", type_in);
+        }
+
+        return channel_info[type_in]->get_sink_constructor();
+    });
+}
 
 const string_t link_available_message_t::message_name = JACKALOPE_MESSAGE_OBJECT_LINK_AVAILABLE;
 
@@ -53,16 +99,6 @@ source_available_message_t::source_available_message_t(shared_t<source_t> source
 : message_t(JACKALOPE_MESSAGE_OBJECT_SOURCE_AVAILABLE, source_in)
 {
     assert(source_in != nullptr);
-}
-
-void add_source_constructor(const string_t& class_name_in, source_library_t::constructor_t constructor_in)
-{
-    source_library->add_constructor(class_name_in, constructor_in);
-}
-
-void add_sink_constructor(const string_t& class_name_in, sink_library_t::constructor_t constructor_in)
-{
-    sink_library->add_constructor(class_name_in, constructor_in);
 }
 
 link_t::link_t(shared_t<source_t> from_in, shared_t<sink_t> to_in)
@@ -110,7 +146,7 @@ void channel_t::start()
 
 shared_t<source_t> source_t::make(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)
 {
-    auto constructor = source_library->get_constructor(type_in);
+    auto constructor = get_source_constructor(type_in);
     return constructor(name_in, parent_in);
 }
 
@@ -177,7 +213,7 @@ void source_t::_notify()
 
 shared_t<sink_t> sink_t::make(const string_t& name_in, const string_t& type_in, shared_t<object_t> parent_in)
 {
-    auto constructor = sink_library->get_constructor(type_in);
+    auto constructor = get_sink_constructor(type_in);
     return constructor(name_in, parent_in);
 }
 
