@@ -237,6 +237,15 @@ shared_t<property_t> prop_obj_t::_add_property(const string_t& name_in, const pr
     return property;
 }
 
+void prop_obj_t::_add_properties(const prop_args_t& properties_in)
+{
+    assert_mutex_owner(property_mutex);
+
+    for(auto&& i : properties_in) {
+        _add_property(i.first, i.second);
+    }
+}
+
 shared_t<property_t> prop_obj_t::add_property(const string_t& name_in, const property_t::type_t type_in)
 {
     auto lock = get_property_lock();
@@ -253,6 +262,12 @@ shared_t<property_t> prop_obj_t::add_property(const string_t& name_in, const pro
 {
     auto lock = get_property_lock();
     return _add_property(name_in, type_in, value_in);
+}
+
+void prop_obj_t::add_properties(const prop_args_t& properties_in)
+{
+    auto lock = get_property_lock();
+    return _add_properties(properties_in);
 }
 
 bool prop_obj_t::has_property(const string_t& name_in)

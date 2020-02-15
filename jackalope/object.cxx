@@ -11,6 +11,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
+#include <jackalope/channel.h>
 #include <jackalope/exception.h>
 #include <jackalope/logging.h>
 #include <jackalope/object.h>
@@ -232,12 +233,13 @@ shared_t<property_t> object_t::_add_property(const string_t& name_in, const prop
     assert_mutex_owner(property_mutex);
 
     auto property_default = get_property_default(name_in);
+    auto property = prop_obj_t::_add_property(name_in, type_in);
 
     if (property_default.first) {
-        return prop_obj_t::_add_property(name_in, type_in, property_default.second);
+        property->set(property_default.second);
     }
 
-    return prop_obj_t::_add_property(name_in, type_in);
+    return property;
 }
 
 std::pair<bool, string_t> object_t::get_property_default(const string_t& name_in)
@@ -249,6 +251,16 @@ std::pair<bool, string_t> object_t::get_property_default(const string_t& name_in
     }
 
     return { false, "" };
+}
+
+void object_t::add_channel_type(const string_t& type_in)
+{
+    assert_lockable_owner();
+
+    object_log_trace("Adding channel type: ", type_in);
+
+    auto properties = get_channel_properties(type_in);
+    add_properties(properties);
 }
 
 // locking is not needed because the async_engine is const

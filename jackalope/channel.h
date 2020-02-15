@@ -32,7 +32,7 @@ namespace jackalope {
 using source_constructor_t = function_t<shared_t<source_t> (const string_t&, shared_t<object_t>)>;
 using sink_constructor_t = function_t<shared_t<sink_t> (const string_t&, shared_t<object_t>)>;
 
-void add_channel_info(const channel_info_t& info_in);
+void add_channel_info(const channel_info_t * info_in);
 const prop_args_t get_channel_properties(const string_t& type_in);
 source_constructor_t get_source_constructor(const string_t& type_in);
 sink_constructor_t get_sink_constructor(const string_t& type_in);

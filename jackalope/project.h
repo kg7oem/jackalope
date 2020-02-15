@@ -43,15 +43,15 @@ protected:
 public:
     inline static const string_t type = "project";
 
-    template <class T = project_t, typename... Args>
-    static shared_t<T> make(Args... args_in)
+    template <class T = project_t>
+    static shared_t<T> make(const init_args_t& init_args_in)
     {
-        auto project = jackalope::make_shared<project_t>(args_in...);
+        auto project = jackalope::make_shared<project_t>(init_args_in);
         guard_object(project, { project->init(); project->activate(); });
         return project;
     }
 
-    project_t(const init_args_t& init_args_in = init_args_t());
+    project_t(const init_args_t& init_args_in);
     virtual ~project_t() = default;
     virtual const string_t& get_type();
     virtual void add_variable(const string_t& name_in, const string_t& value_in);

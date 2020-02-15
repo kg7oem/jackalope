@@ -11,6 +11,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
+#include <jackalope/channel.h>
 #include <jackalope/exception.h>
 #include <jackalope/logging.h>
 #include <jackalope/module.h>
@@ -47,6 +48,7 @@ void module_load(module_info_t * info_in)
 
     for(auto i : info_in->get_channel_info()) {
         log_info("Module ", name, ": found channel type: ", i.first);
+        add_channel_info(i.second);
     }
 
     for(auto i : info_in->get_plugin_constructors()) {

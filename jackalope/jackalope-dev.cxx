@@ -45,7 +45,11 @@ int main(UNUSED int argc_in, UNUSED char ** argv_in)
 
     // log_info("buffer size: ", project->get_variable("audio.buffer_size"));
 
-    auto project = project_t::make();
+    auto project = project_t::make({
+        { "audio.buffer_size", to_string(BUFFER_SIZE) },
+        { "audio.sample_rate", to_string(SAMPLE_RATE) },
+    });
+
     guard_object(project, {
         project->make_plugin({
             { JACKALOPE_PROPERTY_NODE_TYPE, "audio::gain" },

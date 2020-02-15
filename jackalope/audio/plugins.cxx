@@ -11,6 +11,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 
+#include <jackalope/audio/channel.h>
 #include <jackalope/audio/plugins.h>
 
 namespace jackalope {
@@ -25,6 +26,15 @@ shared_t<audio_gain_plugin_t> audio_gain_plugin_t::make(shared_t<project_t> proj
 audio_gain_plugin_t::audio_gain_plugin_t(shared_t<project_t> project_in, const init_args_t& init_args_in)
 : filter_plugin_t(project_in, init_args_in)
 { }
+
+void audio_gain_plugin_t::will_init()
+{
+    assert_lockable_owner();
+
+    add_channel_type(audio_channel_info_t::type);
+
+    filter_plugin_t::will_init();
+}
 
 const string_t& audio_gain_plugin_t::get_type()
 {

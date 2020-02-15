@@ -55,6 +55,7 @@ protected:
     object_t(const init_args_t& init_args_in);
     virtual shared_t<property_t> _add_property(const string_t& name_in, const property_t::type_t type_in) override;
     virtual std::pair<bool, string_t> get_property_default(const string_t& name_in);
+    virtual void add_channel_type(const string_t& type_in);
     virtual void will_init();
     virtual void did_init();
     virtual void will_activate();
