@@ -28,11 +28,13 @@ protected:
     weak_t<project_t> weak_project;
 
     node_t(shared_t<project_t> project_in, const init_args_t& init_args_in);
-    void did_stop() override;
-    std::pair<bool, string_t> get_property_default(const string_t& name_in);
+    virtual void did_stop() override;
+    virtual std::pair<bool, string_t> get_property_default(const string_t& name_in);
+    virtual shared_t<sink_t> add_input(const string_t& type_in, const string_t& name_in);
+    virtual shared_t<source_t> add_output(const string_t& type_in, const string_t& name_in);
 
 public:
-    shared_t<project_t> get_project();
+    virtual shared_t<project_t> get_project();
 };
 
 } //namespace jackalope

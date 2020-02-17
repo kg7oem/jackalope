@@ -69,6 +69,8 @@ void object_t::will_init()
     add_property(JACKALOPE_PROPERTY_OBJECT_TYPE, property_t::type_t::string, get_type());
 
     add_message_handler<invoke_slot_message_t>([this] (const string_t& slot_name_in) { message_invoke_slot(slot_name_in); });
+    add_message_handler<link_available_message_t>([this] (shared_t<link_t> link_in) { message_link_available(link_in); });
+    add_message_handler<link_ready_message_t>([this] (shared_t<link_t> link_in) { message_link_ready(link_in); });
 
     for(auto& i : object_signal_names) {
         add_signal(i);
@@ -253,6 +255,12 @@ std::pair<bool, string_t> object_t::get_property_default(const string_t& name_in
     return { false, "" };
 }
 
+void object_t::invoke_slot(const string_t& name_in)
+{
+    auto slot = get_slot(name_in);
+    slot->invoke();
+}
+
 void object_t::add_channel_type(const string_t& type_in)
 {
     assert_lockable_owner();
@@ -261,6 +269,64 @@ void object_t::add_channel_type(const string_t& type_in)
 
     auto properties = get_channel_properties(type_in);
     add_properties(properties);
+}
+
+shared_t<source_t> object_t::add_source(const string_t& type_in, const string_t& name_in)
+{
+    assert_lockable_owner();
+
+    if (sources.count(name_in) != 0) {
+        throw_runtime_error("can't add duplicate source: ", name_in);
+    }
+
+    return sources[name_in] = source_t::make(type_in, name_in, shared_obj());
+}
+
+shared_t<source_t> object_t::get_source(const string_t& name_in)
+{
+    assert_lockable_owner();
+
+    if (sources.count(name_in) == 0) {
+        throw_runtime_error("can't find source: ", name_in);
+    }
+
+    return sources[name_in];
+}
+
+void object_t::source_available(shared_t<source_t> source_in)
+{
+    assert_lockable_owner();
+
+    object_log_trace("source available: ", source_in->name);
+}
+
+void object_t::sink_ready(shared_t<sink_t> sink_in)
+{
+    assert_lockable_owner();
+
+    object_log_trace("sink ready: ", sink_in->name);
+}
+
+shared_t<sink_t> object_t::add_sink(const string_t& type_in, const string_t& name_in)
+{
+    assert_lockable_owner();
+
+    if (sinks.count(name_in)) {
+        throw_runtime_error("can't add duplicate sink: ", name_in);
+    }
+
+    return sinks[name_in] = sink_t::make(type_in, name_in, shared_obj());
+};
+
+shared_t<sink_t> object_t::get_sink(const string_t& name_in)
+{
+    assert_lockable_owner();
+
+    if (sinks.count(name_in) == 0) {
+        throw_runtime_error("can't add duplicate sink: ", name_in);
+    }
+
+    return sinks[name_in];
 }
 
 // locking is not needed because the async_engine is const
@@ -312,9 +378,25 @@ void object_t::deliver_one_message(shared_t<abstract_message_t> message_in)
 void object_t::message_invoke_slot(const string_t slot_name_in)
 {
     assert_lockable_owner();
+    return invoke_slot(slot_name_in);
+}
 
-    auto slot = get_slot(slot_name_in);
-    slot->invoke();
+void object_t::message_link_ready(shared_t<link_t> link_in)
+{
+    if (! link_in->is_ready()) {
+        return;
+    }
+
+    sink_ready(link_in->get_to());
+}
+
+void object_t::message_link_available(shared_t<link_t> link_in)
+{
+    if (! link_in->is_available()) {
+        return;
+    }
+
+    source_available(link_in->get_from());
 }
 
 void object_t::post_slot(const string_t& name_in)

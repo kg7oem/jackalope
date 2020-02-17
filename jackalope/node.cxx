@@ -14,6 +14,9 @@
 #include <jackalope/node.h>
 #include <jackalope/project.h>
 
+#define INPUT_PREFIX "input:"
+#define OUTPUT_PREFIX "output:"
+
 namespace jackalope {
 
 node_t::node_t(shared_t<project_t> project_in, const init_args_t& init_args_in)
@@ -51,6 +54,20 @@ std::pair<bool, string_t> node_t::get_property_default(const string_t& name_in)
     }
 
     return { false, "" };
+}
+
+shared_t<sink_t> node_t::add_input(const string_t& type_in, const string_t& name_in)
+{
+    assert_lockable_owner();
+
+    return add_sink(type_in, to_string(INPUT_PREFIX, name_in));
+}
+
+shared_t<source_t> node_t::add_output(const string_t& type_in, const string_t& name_in)
+{
+    assert_lockable_owner();
+
+    return add_source(type_in, to_string(OUTPUT_PREFIX, name_in));
 }
 
 } //namespace jackalope

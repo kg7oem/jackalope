@@ -37,13 +37,6 @@ const prop_args_t get_channel_properties(const string_t& type_in);
 source_constructor_t get_source_constructor(const string_t& type_in);
 sink_constructor_t get_sink_constructor(const string_t& type_in);
 
-struct channel_info_t {
-    virtual const string_t& get_type() const = 0;
-    virtual const prop_args_t& get_properties() const = 0;
-    virtual source_constructor_t get_source_constructor() const = 0;
-    virtual sink_constructor_t get_sink_constructor() const = 0;
-};
-
 struct link_available_message_t : public message_t<shared_t<link_t>> {
     static const string_t message_name;
     link_available_message_t(shared_t<link_t> link_in);
@@ -52,16 +45,6 @@ struct link_available_message_t : public message_t<shared_t<link_t>> {
 struct link_ready_message_t : public message_t<shared_t<link_t>> {
     static const string_t message_name;
     link_ready_message_t(shared_t<link_t> link_in);
-};
-
-struct sink_ready_message_t : public message_t<shared_t<sink_t>> {
-    static const string_t message_name;
-    sink_ready_message_t(shared_t<sink_t> sink_in);
-};
-
-struct source_available_message_t : public message_t<shared_t<source_t>> {
-    static const string_t message_name;
-    source_available_message_t(shared_t<source_t> source_in);
 };
 
 struct link_t : public shared_obj_t<link_t> {
@@ -89,6 +72,13 @@ public:
     virtual bool is_available() = 0;
     virtual bool is_ready() = 0;
     virtual string_t description();
+};
+
+struct channel_info_t {
+    virtual const string_t& get_type() const = 0;
+    virtual const prop_args_t& get_properties() const = 0;
+    virtual source_constructor_t get_source_constructor() const = 0;
+    virtual sink_constructor_t get_sink_constructor() const = 0;
 };
 
 struct channel_t : public base_obj_t, protected lock_obj_t {

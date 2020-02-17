@@ -28,12 +28,28 @@ class plugin_t : public node_t {
 
 protected:
     plugin_t(shared_t<project_t> project_in, const init_args_t& init_args_in);
+    virtual bool should_execute();
+    virtual void execute_if_needed();
+    virtual void execute() = 0;
+    virtual void invoke_slot(const string_t& name_in) override;
+    virtual void sink_ready(shared_t<sink_t> sink_in) override;
+    virtual void source_available(shared_t<source_t> source_in) override;
 };
 
+// a driver plugin executes when all sources are available
+class driver_plugin_t : public plugin_t {
+
+protected:
+    driver_plugin_t(shared_t<project_t> project_in, const init_args_t& init_args_in);
+    virtual bool should_execute() override;
+};
+
+// a filter plugin executes when all sinks are ready all sources are available
 class filter_plugin_t : public plugin_t {
 
 protected:
     filter_plugin_t(shared_t<project_t> project_in, const init_args_t& init_args_in);
+    virtual bool should_execute() override;
 };
 
 } //namespace jackalope

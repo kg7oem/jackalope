@@ -28,6 +28,7 @@ public:
     audio_gain_plugin_t(shared_t<project_t> project_in, const init_args_t& init_args_in);
     void will_init() override;
     virtual const string_t& get_type() override;
+    virtual void execute() override;
 };
 
 } //namespace jackalope

@@ -39,4 +39,9 @@ const string_t& audio_gain_plugin_t::get_type()
     return type;
 }
 
+void audio_gain_plugin_t::execute()
+{
+    throw_runtime_error("can't execute yet");
+}
+
 } //namespace jackalope

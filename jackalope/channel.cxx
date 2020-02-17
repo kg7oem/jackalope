@@ -85,22 +85,6 @@ link_ready_message_t::link_ready_message_t(shared_t<link_t> link_in)
     assert(link_in != nullptr);
 }
 
-const string_t sink_ready_message_t::message_name = JACKALOPE_MESSAGE_OBJECT_SINK_READY;
-
-sink_ready_message_t::sink_ready_message_t(shared_t<sink_t> sink_in)
-: message_t(JACKALOPE_MESSAGE_OBJECT_SINK_READY, sink_in)
-{
-    assert(sink_in != nullptr);
-}
-
-const string_t source_available_message_t::message_name = JACKALOPE_MESSAGE_OBJECT_SOURCE_AVAILABLE;
-
-source_available_message_t::source_available_message_t(shared_t<source_t> source_in)
-: message_t(JACKALOPE_MESSAGE_OBJECT_SOURCE_AVAILABLE, source_in)
-{
-    assert(source_in != nullptr);
-}
-
 link_t::link_t(shared_t<source_t> from_in, shared_t<sink_t> to_in)
 : from(from_in), to(to_in)
 {
@@ -187,12 +171,10 @@ void source_t::link_available(NDEBUG_UNUSED shared_t<link_t> link_in)
 {
     auto lock = get_object_lock();
 
-    auto us = shared_obj();
-
-    assert(link_in->get_from() == us);
+    assert(link_in->get_from() == shared_obj());
 
     if (_is_available()) {
-        get_parent()->send_message<source_available_message_t>(us);
+        get_parent()->send_message<link_available_message_t>(link_in);
     }
 }
 
@@ -259,12 +241,10 @@ void sink_t::link_ready(NDEBUG_UNUSED shared_t<link_t> link_in)
 {
     auto lock = get_object_lock();
 
-    auto us = shared_obj();
-
     assert(link_in->get_to() == shared_obj());
 
     if (_is_ready()) {
-        get_parent()->send_message<sink_ready_message_t>(us);
+        get_parent()->send_message<link_ready_message_t>(link_in);
     }
 }
 

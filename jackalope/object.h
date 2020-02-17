@@ -50,6 +50,8 @@ protected:
     atomic_t<bool> stopped_flag = ATOMIC_VAR_INIT(false);
     atomic_t<bool> shutdown_flag = ATOMIC_VAR_INIT(false);
     const shared_t<async_engine_t> async_engine = get_async_engine();
+    pool_map_t<string_t, shared_t<source_t>> sources;
+    pool_map_t<string_t, shared_t<sink_t>> sinks;
 
     template <class T, typename... Args>
     static shared_t<T> make(Args... args)
@@ -66,7 +68,14 @@ protected:
     object_t(const init_args_t& init_args_in);
     virtual shared_t<property_t> _add_property(const string_t& name_in, const property_t::type_t type_in) override;
     virtual std::pair<bool, string_t> get_property_default(const string_t& name_in);
+    virtual void invoke_slot(const string_t& name_in);
     virtual void add_channel_type(const string_t& type_in);
+    virtual shared_t<source_t> add_source(const string_t& type_in, const string_t& name_in);
+    virtual shared_t<source_t> get_source(const string_t& name_in);
+    virtual void source_available(shared_t<source_t> source_in);
+    virtual shared_t<sink_t> add_sink(const string_t& type_in, const string_t& name_in);
+    virtual shared_t<sink_t> get_sink(const string_t& name_in);
+    virtual void sink_ready(shared_t<sink_t> sink_in);
     virtual void will_init();
     virtual void did_init();
     virtual void will_activate();
@@ -81,6 +90,8 @@ protected:
     virtual bool should_deliver() override;
     void deliver_one_message(shared_t<abstract_message_t> message_in) override;
     virtual void message_invoke_slot(const string_t slot_name_in);
+    virtual void message_link_available(shared_t<link_t> link_in);
+    virtual void message_link_ready(shared_t<link_t> link_in);
 
 public:
     const size_t id = next_object_id();
