@@ -24,10 +24,8 @@
 #define JACKALOPE_PROPERTY_OBJECT_TYPE "object.type"
 #define JACKALOPE_SIGNAL_OBJECT_DID_ACTIVATE "object.did_activate"
 #define JACKALOPE_SIGNAL_OBJECT_DID_INIT "object.did_init"
-#define JACKALOPE_SIGNAL_OBJECT_DID_SHUTDOWN "object.did_shutdown"
-#define JACKALOPE_SIGNAL_OBJECT_WILL_ACTTIVATE "object.will_activate"
-#define JACKALOPE_SIGNAL_OBJECT_WILL_INIT "object.will_init"
-#define JACKALOPE_SIGNAL_OBJECT_WILL_SHUTDOWN "object.will_shutdown"
+#define JACKALOPE_SIGNAL_OBJECT_DID_START "object.did_start"
+#define JACKALOPE_SIGNAL_OBJECT_DID_STOP "object.did_stop"
 #define JACKALOPE_SLOT_OBJECT_START "object.start"
 #define JACKALOPE_SLOT_OBJECT_STOP "object.stop"
 

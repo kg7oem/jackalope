@@ -19,9 +19,8 @@
 namespace jackalope {
 
 static const pool_vector_t<string_t> object_signal_names = {
-     JACKALOPE_SIGNAL_OBJECT_DID_ACTIVATE, JACKALOPE_SIGNAL_OBJECT_WILL_ACTTIVATE,
-     JACKALOPE_SIGNAL_OBJECT_DID_INIT, JACKALOPE_SIGNAL_OBJECT_WILL_INIT,
-     JACKALOPE_SIGNAL_OBJECT_DID_SHUTDOWN, JACKALOPE_SIGNAL_OBJECT_WILL_SHUTDOWN,
+     JACKALOPE_SIGNAL_OBJECT_DID_ACTIVATE, JACKALOPE_SIGNAL_OBJECT_DID_INIT,
+     JACKALOPE_SIGNAL_OBJECT_DID_START, JACKALOPE_SIGNAL_OBJECT_DID_STOP
 };
 
 static const pool_vector_t<std::pair<string_t, void (object_t::*)()>> object_slot_handlers = {
@@ -57,6 +56,8 @@ void object_t::init()
     will_init();
     initialized_flag = true;
     did_init();
+
+    send_signal(JACKALOPE_SIGNAL_OBJECT_DID_INIT);
 
     object_log_trace("Done initializing object");
 }
@@ -105,6 +106,8 @@ void object_t::activate()
     activated_flag = true;
     did_activate();
 
+    send_signal(JACKALOPE_SIGNAL_OBJECT_DID_ACTIVATE);
+
     log_trace("done activating object");
 }
 
@@ -138,6 +141,8 @@ void object_t::start()
     running_flag = true;
     running_condition.notify_all();
     did_start();
+
+    send_signal(JACKALOPE_SIGNAL_OBJECT_DID_START);
 }
 
 void object_t::will_start()
@@ -166,6 +171,8 @@ void object_t::stop()
     running_flag = false;
     running_condition.notify_all();
     did_stop();
+
+    send_signal(JACKALOPE_SIGNAL_OBJECT_DID_STOP);
 }
 
 void object_t::will_stop()

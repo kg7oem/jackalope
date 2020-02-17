@@ -127,6 +127,12 @@ shared_t<signal_t> signal_obj_t::get_signal(const string_t& name_in)
     return found->second;
 }
 
+void signal_obj_t::send_signal(const string_t& name_in)
+{
+    auto signal = get_signal(name_in);
+    signal->send();
+}
+
 shared_t<slot_t> signal_obj_t::add_slot(shared_t<slot_t> slot_in)
 {
     auto name = slot_in->name;

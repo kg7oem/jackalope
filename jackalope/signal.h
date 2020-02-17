@@ -70,6 +70,7 @@ protected:
     pool_map_t<string_t, shared_t<slot_t>> slots;
 
     virtual shared_t<signal_t> add_signal(const string_t& name_in);
+    virtual void send_signal(const string_t& name_in);
     virtual shared_t<slot_t> add_slot(shared_t<slot_t> slot_in);
     virtual shared_t<slot_t> add_slot(const string_t& name_in, slot_function_t handler_in);
 
