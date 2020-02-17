@@ -51,6 +51,17 @@ protected:
     atomic_t<bool> shutdown_flag = ATOMIC_VAR_INIT(false);
     const shared_t<async_engine_t> async_engine = get_async_engine();
 
+    template <class T, typename... Args>
+    static shared_t<T> make(Args... args)
+    {
+        auto object = jackalope::make_shared<T>(args...);
+        guard_object(object, {
+            object->init();
+            object->activate();
+        });
+        return object;
+    }
+
     static size_t next_object_id();
     object_t(const init_args_t& init_args_in);
     virtual shared_t<property_t> _add_property(const string_t& name_in, const property_t::type_t type_in) override;
