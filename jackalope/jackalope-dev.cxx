@@ -50,6 +50,7 @@ int main(int argc_in, char ** argv_in)
         auto file = project->make_plugin({
             { JACKALOPE_PROPERTY_NODE_TYPE, "audio::sndfile" },
             { "config.path", argv_in[1] },
+            { "source.output", "audio" },
         });
 
         project->add_variable("audio.sample_rate", file->get_property("audio.sample_rate")->get());
@@ -60,6 +61,13 @@ int main(int argc_in, char ** argv_in)
             { "source.right", "audio" },
             { "sink.left", "audio" },
             { "sink.right", "audio" },
+        });
+
+        guard_object(file, {
+            auto lock = system_audio->get_object_lock();
+
+            file->link("output", system_audio, "left");
+            file->link("output", system_audio, "right");
         });
 
         project->start();

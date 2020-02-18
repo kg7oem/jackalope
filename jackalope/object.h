@@ -92,6 +92,7 @@ protected:
     }
 
     virtual void sink_ready(shared_t<sink_t> sink_in);
+
     virtual void will_init();
     virtual void did_init();
     virtual void will_activate();
@@ -130,6 +131,7 @@ public:
         _send_message(message);
     }
 
+    virtual void link(const string_t& source_name_in, shared_t<object_t> target_in, const string_t& sink_name_in);
     virtual void post_slot(const string_t& name_in);
     void wait_stopped();
 };

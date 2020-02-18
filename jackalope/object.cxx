@@ -331,6 +331,16 @@ void object_t::sink_ready(shared_t<sink_t> sink_in)
     object_log_trace("sink ready: ", sink_in->name);
 }
 
+void object_t::link(const string_t& source_name_in, shared_t<object_t> target_in, const string_t& sink_name_in)
+{
+    assert_lockable_owner();
+
+    auto source = get_source(source_name_in);
+    auto sink = target_in->get_sink(sink_name_in);
+
+    source->link(sink);
+}
+
 shared_t<sink_t> object_t::add_sink(const string_t& type_in, const string_t& name_in)
 {
     assert_lockable_owner();
