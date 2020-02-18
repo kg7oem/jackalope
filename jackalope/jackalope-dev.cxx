@@ -31,8 +31,12 @@ using namespace std::chrono_literals;
 using namespace jackalope;
 using namespace jackalope::log;
 
-int main(UNUSED int argc_in, UNUSED char ** argv_in)
+int main(int argc_in, char ** argv_in)
 {
+    if (argc_in != 2) {
+        jackalope_panic("must specify a filename to play");
+    }
+
     auto dest = jackalope::make_shared<console_dest_t>(level_t::trace);
     get_engine()->add_destination(dest);
 
@@ -47,11 +51,17 @@ int main(UNUSED int argc_in, UNUSED char ** argv_in)
 
     auto project = project_t::make({
         { "audio.buffer_size", to_string(BUFFER_SIZE) },
-        { "audio.sample_rate", to_string(SAMPLE_RATE) },
     });
 
     guard_object(project, {
-        project->make_plugin({
+        auto file = project->make_plugin({
+            { JACKALOPE_PROPERTY_NODE_TYPE, "audio::sndfile" },
+            { "config.path", argv_in[1] },
+        });
+
+        project->add_variable("audio.sample_rate", file->get_property("audio.sample_rate")->get());
+
+        auto gain = project->make_plugin({
             { JACKALOPE_PROPERTY_NODE_TYPE, "audio::gain" },
         });
 

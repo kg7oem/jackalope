@@ -77,11 +77,19 @@ protected:
     virtual shared_t<property_t> _get_property(const string_t& name_in);
     virtual void _add_properties(const prop_args_t& properties_in);
     virtual bool _has_property(const string_t& name_in);
+    virtual void _set_property(const string_t& name_in, const double value_in);
+    virtual void _set_undef_property(const string_t& name_in, const double value_in);
+    virtual void _set_property(const string_t& name_in, const string_t& value_in);
+    virtual void _set_undef_property(const string_t& name_in, const string_t& value_in);
 
     virtual shared_t<property_t> add_property(const string_t& name_in, const property_t::type_t type_in);
     virtual shared_t<property_t> add_property(const string_t& name_in, const property_t::type_t type_in, const double value_in);
     virtual shared_t<property_t> add_property(const string_t& name_in, const property_t::type_t type_in, const string_t& value_in);
     virtual void add_properties(const prop_args_t& properties_in);
+    virtual void set_property(const string_t& name_in, const double value_in);
+    virtual void set_undef_property(const string_t& name_in, const double value_in);
+    virtual void set_property(const string_t& name_in, const string_t& value_in);
+    virtual void set_undef_property(const string_t& name_in, const string_t& value_in);
 
 public:
     virtual bool has_property(const string_t& name_in);

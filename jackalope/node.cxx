@@ -70,4 +70,25 @@ shared_t<source_t> node_t::add_output(const string_t& type_in, const string_t& n
     return add_source(type_in, to_string(OUTPUT_PREFIX, name_in));
 }
 
+void node_t::add_init_args_channels()
+{
+    assert_lockable_owner();
+
+    for(auto i : init_args_find("source", init_args)) {
+        auto parts = split_string(i.first, '.');
+        auto name = parts[1];
+        auto type = i.second;
+
+        add_source(type, name);
+    }
+
+    for(auto i : init_args_find("sink", init_args)) {
+        auto parts = split_string(i.first, '.');
+        auto name = parts[1];
+        auto type = i.second;
+
+        add_sink(type, name);
+    }
+}
+
 } //namespace jackalope

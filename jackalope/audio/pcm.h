@@ -16,14 +16,6 @@
 #include <jackalope/property.h>
 #include <jackalope/types.h>
 
-#define JACKALOPE_PROPERTY_PCM_BUFFER_SIZE   "pcm.buffer_size"
-#define JACKALOPE_PROPERTY_PCM_SAMPLE_RATE   "pcm.sample_rate"
-
-#define JACKALOPE_PCM_PROPERTIES { \
-    { JACKALOPE_PROPERTY_PCM_BUFFER_SIZE, property_t::type_t::size }, \
-    { JACKALOPE_PROPERTY_PCM_SAMPLE_RATE, property_t::type_t::size }, \
-}
-
 namespace jackalope {
 
 // calculate the value to mulitply PCM by to achieve the

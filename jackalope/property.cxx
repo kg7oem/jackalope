@@ -49,6 +49,10 @@ string_t property_t::get()
 {
     auto lock = get_object_lock();
 
+    if (! defined_flag) {
+        throw_runtime_error("Use of undefined property");
+    }
+
     switch(type) {
         case type_t::unknown: throw_runtime_error("property type was not known");
         case type_t::size: return to_string(value.size);
@@ -314,6 +318,64 @@ pool_vector_t<string_t> prop_obj_t::get_property_names()
     }
 
     return names;
+}
+
+void prop_obj_t::set_property(const string_t& name_in, const double value_in)
+{
+    auto lock = get_property_lock();
+    _set_property(name_in, value_in);
+}
+
+void prop_obj_t::_set_property(const string_t& name_in, const double value_in)
+{
+    assert_mutex_owner(property_mutex);
+    _get_property(name_in)->set(value_in);
+}
+
+void prop_obj_t::set_property(const string_t& name_in, const string_t& value_in)
+{
+    auto lock = get_property_lock();
+    _set_property(name_in, value_in);
+}
+
+void prop_obj_t::_set_property(const string_t& name_in, const string_t& value_in)
+{
+    assert_mutex_owner(property_mutex);
+    _get_property(name_in)->set(value_in);
+}
+
+void prop_obj_t::set_undef_property(const string_t& name_in, const double value_in)
+{
+    auto lock = get_property_lock();
+    _set_undef_property(name_in, value_in);
+}
+
+void prop_obj_t::_set_undef_property(const string_t& name_in, const double value_in)
+{
+    assert_mutex_owner(property_mutex);
+
+    auto property = _get_property(name_in);
+
+    if (! property->is_defined()) {
+        property->set(value_in);
+    }
+}
+
+void prop_obj_t::set_undef_property(const string_t& name_in, const string_t& value_in)
+{
+    auto lock = get_property_lock();
+    _set_undef_property(name_in, value_in);
+}
+
+void prop_obj_t::_set_undef_property(const string_t& name_in, const string_t& value_in)
+{
+    assert_mutex_owner(property_mutex);
+
+    auto property = _get_property(name_in);
+
+    if (! property->is_defined()) {
+        property->set(value_in);
+    }
 }
 
 } // namespace jackalope

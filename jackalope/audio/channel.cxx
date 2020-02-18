@@ -163,7 +163,7 @@ shared_t<audio_buffer_t> audio_sink_t::_get_buffer()
 {
     assert_lockable_owner();
 
-    auto buffer_size = get_parent()->get_property(JACKALOPE_PROPERTY_PCM_BUFFER_SIZE)->get_size();
+    auto buffer_size = get_parent()->get_property(JACKALOPE_PROPERTY_AUDIO_BUFFER_SIZE)->get_size();
     auto links_size = links.size();
 
     if (links_size == 0) {

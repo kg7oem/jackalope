@@ -17,6 +17,9 @@
 #include <jackalope/forward.h>
 #include <jackalope/types.h>
 
+#define JACKALOPE_PROPERTY_AUDIO_BUFFER_SIZE "audio.buffer_size"
+#define JACKALOPE_PROPERTY_AUDIO_SAMPLE_RATE "audio.sample_rate"
+
 namespace jackalope {
 
 class audio_buffer_t : public shared_obj_t<audio_buffer_t> {
@@ -77,8 +80,8 @@ struct audio_channel_info_t : public channel_info_t {
     inline static source_constructor_t source_constructor = audio_source_t::make;
     inline static sink_constructor_t sink_constructor = audio_sink_t::make;
     inline static const prop_args_t properties = {
-        { "audio.buffer_size", property_t::type_t::size },
-        { "audio.sample_rate", property_t::type_t::size },
+        { JACKALOPE_PROPERTY_AUDIO_BUFFER_SIZE, property_t::type_t::size },
+        { JACKALOPE_PROPERTY_AUDIO_SAMPLE_RATE, property_t::type_t::size },
     };
 
     virtual const string_t& get_type() const override;

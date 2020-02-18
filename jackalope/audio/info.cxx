@@ -16,6 +16,10 @@
 #include <jackalope/audio/info.h>
 #include <jackalope/audio/plugins.h>
 
+#ifdef CONFIG_ENABLE_SNDFILE
+#include <jackalope/audio/sndfile.h>
+#endif
+
 namespace jackalope {
 
 const pool_map_t<string_t, channel_info_t *> audio_module_info_t::channel_info = {
@@ -24,6 +28,11 @@ const pool_map_t<string_t, channel_info_t *> audio_module_info_t::channel_info =
 
 const pool_map_t<string_t, plugin_constructor_t> audio_module_info_t::plugin_constructors = {
     { audio_gain_plugin_t::type, audio_gain_plugin_t::make },
+
+#ifdef CONFIG_ENABLE_SNDFILE
+    { audio::sndfile_plugin_t::type, audio::sndfile_plugin_t::make },
+#endif
+
 };
 
 module_info_t * audio_module_info_constructor()
