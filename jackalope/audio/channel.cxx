@@ -19,6 +19,11 @@
 
 namespace jackalope {
 
+shared_t<audio_buffer_t> audio_buffer_t::make(const size_t num_samples_in)
+{
+    return jackalope::make_shared<audio_buffer_t>(num_samples_in);
+}
+
 audio_buffer_t::audio_buffer_t(const size_t num_samples_in)
 : num_samples(num_samples_in)
 {

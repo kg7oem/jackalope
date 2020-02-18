@@ -282,22 +282,37 @@ shared_t<source_t> object_t::add_source(const string_t& type_in, const string_t&
 {
     assert_lockable_owner();
 
-    if (sources.count(name_in) != 0) {
+    if (sources_by_name.count(name_in) != 0) {
         throw_runtime_error("can't add duplicate source: ", name_in);
     }
 
-    return sources[name_in] = source_t::make(type_in, name_in, shared_obj());
+    auto source = source_t::make(type_in, name_in, shared_obj());
+    sources_by_name[name_in] = source;
+    sources.push_back(source);
+
+    return source;
 }
 
 shared_t<source_t> object_t::get_source(const string_t& name_in)
 {
     assert_lockable_owner();
 
-    if (sources.count(name_in) == 0) {
+    if (sources_by_name.count(name_in) == 0) {
         throw_runtime_error("can't find source: ", name_in);
     }
 
-    return sources[name_in];
+    return sources_by_name[name_in];
+}
+
+shared_t<source_t> object_t::get_source(const size_t num_in)
+{
+    assert_lockable_owner();
+
+    if (num_in > sources.size()) {
+        throw_runtime_error("invalid source number: ", num_in);
+    }
+
+    return sources[num_in];
 }
 
 void object_t::source_available(shared_t<source_t> source_in)
@@ -318,22 +333,37 @@ shared_t<sink_t> object_t::add_sink(const string_t& type_in, const string_t& nam
 {
     assert_lockable_owner();
 
-    if (sinks.count(name_in)) {
+    if (sinks_by_name.count(name_in)) {
         throw_runtime_error("can't add duplicate sink: ", name_in);
     }
 
-    return sinks[name_in] = sink_t::make(type_in, name_in, shared_obj());
+    auto sink = sink_t::make(type_in, name_in, shared_obj());
+    sinks_by_name[name_in] = sink;
+    sinks.push_back(sink);
+
+    return sink;
 };
 
 shared_t<sink_t> object_t::get_sink(const string_t& name_in)
 {
     assert_lockable_owner();
 
-    if (sinks.count(name_in) == 0) {
+    if (sinks_by_name.count(name_in) == 0) {
         throw_runtime_error("can't add duplicate sink: ", name_in);
     }
 
-    return sinks[name_in];
+    return sinks_by_name[name_in];
+}
+
+shared_t<sink_t> object_t::get_sink(const size_t num_in)
+{
+    assert_lockable_owner();
+
+    if (num_in > sinks.size()) {
+        throw_runtime_error("invalid sink number: ", num_in);
+    }
+
+    return sinks[num_in];
 }
 
 // locking is not needed because the async_engine is const

@@ -30,6 +30,7 @@ protected:
 public:
     const size_t num_samples;
 
+    static shared_t<audio_buffer_t> make(const size_t num_samples_in);
     audio_buffer_t(const size_t num_samples_in);
     virtual ~audio_buffer_t();
     real_t * get_pointer();

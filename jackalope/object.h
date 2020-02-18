@@ -48,8 +48,10 @@ protected:
     atomic_t<bool> stopped_flag = ATOMIC_VAR_INIT(false);
     atomic_t<bool> shutdown_flag = ATOMIC_VAR_INIT(false);
     const shared_t<async_engine_t> async_engine = get_async_engine();
-    pool_map_t<string_t, shared_t<source_t>> sources;
-    pool_map_t<string_t, shared_t<sink_t>> sinks;
+    pool_map_t<string_t, shared_t<source_t>> sources_by_name;
+    pool_vector_t<shared_t<source_t>> sources;
+    pool_map_t<string_t, shared_t<sink_t>> sinks_by_name;
+    pool_vector_t<shared_t<sink_t>> sinks;
 
     template <class T, typename... Args>
     static shared_t<T> make(Args... args)
@@ -69,10 +71,26 @@ protected:
     virtual void invoke_slot(const string_t& name_in);
     virtual void add_channel_type(const string_t& type_in);
     virtual shared_t<source_t> add_source(const string_t& type_in, const string_t& name_in);
+
+    template <class T, typename... Args>
+    shared_t<T> get_source(Args... args)
+    {
+        return dynamic_pointer_cast<T>(get_source(args...));
+    }
+
     virtual shared_t<source_t> get_source(const string_t& name_in);
+    virtual shared_t<source_t> get_source(const size_t num_in);
     virtual void source_available(shared_t<source_t> source_in);
     virtual shared_t<sink_t> add_sink(const string_t& type_in, const string_t& name_in);
     virtual shared_t<sink_t> get_sink(const string_t& name_in);
+    virtual shared_t<sink_t> get_sink(const size_t num_in);
+
+    template <class T, typename... Args>
+    shared_t<T> get_sink(Args... args)
+    {
+        return dynamic_pointer_cast<T>(get_sink(args...));
+    }
+
     virtual void sink_ready(shared_t<sink_t> sink_in);
     virtual void will_init();
     virtual void did_init();

@@ -98,7 +98,7 @@ bool driver_plugin_t::should_execute()
     }
 
     for(auto i : sources) {
-        if (! i.second->is_available()) {
+        if (! i->is_available()) {
             return false;
         }
     }
@@ -119,13 +119,13 @@ bool filter_plugin_t::should_execute()
     }
 
     for(auto i : sinks) {
-        if (! i.second->is_ready()) {
+        if (! i->is_ready()) {
             return false;
         }
     }
 
     for(auto i : sources) {
-        if (! i.second->is_available()) {
+        if (! i->is_available()) {
             return false;
         }
     }

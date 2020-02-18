@@ -164,7 +164,28 @@ void sndfile_plugin_t::execute()
 {
     assert_lockable_owner();
 
-    throw_runtime_error("Can't execute yet");
+    object_log_trace("sndfile node is executing");
+
+    auto buffer_size = get_property("audio.buffer_size")->get_size();
+    auto num_sources = sources.size();
+    auto sndfile_buffer_size_samples = source_info.channels * buffer_size;
+
+    auto sndfile_buffer = audio_buffer_t::make(sndfile_buffer_size_samples);
+    size_t frames_read = sndfile::sf_readf_float(source_file, sndfile_buffer->get_pointer(), buffer_size);
+
+    if (frames_read == 0) {
+        object_log_info("Got EOF from sndfile");
+        stop();
+        return;
+    }
+
+    assert((int)num_sources == source_info.channels);
+    for(size_t i = 0; i < num_sources; i++) {
+        auto source_buffer = audio_buffer_t::make(buffer_size);
+
+        pcm_extract_interleave(sndfile_buffer->get_pointer(), source_buffer->get_pointer(), i, source_info.channels, frames_read);
+        get_source<audio_source_t>(i)->notify_buffer(source_buffer);
+    }
 }
 
 } // namespace audio

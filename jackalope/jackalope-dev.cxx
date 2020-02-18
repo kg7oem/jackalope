@@ -42,13 +42,6 @@ int main(int argc_in, char ** argv_in)
 
     init();
 
-    // auto system_audio = project->make_plugin("audio::jack");
-    // for(auto i : { "audio.sample_rate", "audio.buffer_size" }) {
-    //     project->add_variable(i, system_audio->peek(i));
-    // }
-
-    // log_info("buffer size: ", project->get_variable("audio.buffer_size"));
-
     auto project = project_t::make({
         { "audio.buffer_size", to_string(BUFFER_SIZE) },
     });
@@ -61,12 +54,11 @@ int main(int argc_in, char ** argv_in)
 
         project->add_variable("audio.sample_rate", file->get_property("audio.sample_rate")->get());
 
-        auto gain = project->make_plugin({
-            { JACKALOPE_PROPERTY_NODE_TYPE, "audio::gain" },
-        });
+        // auto gain = project->make_plugin({
+        //     { JACKALOPE_PROPERTY_NODE_TYPE, "audio::gain" },
+        // });
 
         project->start();
-        project->post_slot("object.stop");
 
         log_info("Waiting for project to stop");
         project->wait_stopped();
