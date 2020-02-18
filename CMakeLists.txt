@@ -42,7 +42,7 @@ option(ENABLE_PERL "Enable Perl language support" OFF)
 option(ENABLE_AUDIO_MODULE "Enable support for audio" ${FULL_BUILD})
 option(ENABLE_JACKAUDIO "Enable JackAudio system support" OFF)
 option(ENABLE_LADSPA "Enable LADSPA audio plugin support" OFF)
-option(ENABLE_PORTAUDIO "Enable Portaudio support" OFF)
+option(ENABLE_PORTAUDIO "Enable Portaudio support" ${ENABLE_AUDIO_MODULE})
 option(ENABLE_RTAUDIO "Enable RtAudio support" OFF)
 option(ENABLE_SNDFILE "Enable libsndfile support" ${ENABLE_AUDIO_MODULE})
 

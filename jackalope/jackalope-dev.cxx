@@ -54,9 +54,13 @@ int main(int argc_in, char ** argv_in)
 
         project->add_variable("audio.sample_rate", file->get_property("audio.sample_rate")->get());
 
-        // auto gain = project->make_plugin({
-        //     { JACKALOPE_PROPERTY_NODE_TYPE, "audio::gain" },
-        // });
+        auto system_audio = project->make_plugin({
+            { JACKALOPE_PROPERTY_NODE_TYPE, "audio::portaudio" },
+            { "source.left", "audio" },
+            { "source.right", "audio" },
+            { "sink.left", "audio" },
+            { "sink.right", "audio" },
+        });
 
         project->start();
 

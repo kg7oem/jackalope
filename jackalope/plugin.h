@@ -33,7 +33,9 @@ protected:
     virtual void execute() = 0;
     virtual void invoke_slot(const string_t& name_in) override;
     virtual void sink_ready(shared_t<sink_t> sink_in) override;
+    virtual bool sinks_are_ready();
     virtual void source_available(shared_t<source_t> source_in) override;
+    virtual bool sources_are_available();
 };
 
 // a driver plugin executes when all sources are available

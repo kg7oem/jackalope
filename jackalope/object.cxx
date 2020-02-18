@@ -282,11 +282,13 @@ shared_t<source_t> object_t::add_source(const string_t& type_in, const string_t&
 {
     assert_lockable_owner();
 
+    object_log_trace("Adding source: ", name_in, " = ", type_in);
+
     if (sources_by_name.count(name_in) != 0) {
         throw_runtime_error("can't add duplicate source: ", name_in);
     }
 
-    auto source = source_t::make(type_in, name_in, shared_obj());
+    auto source = source_t::make(name_in, type_in, shared_obj());
     sources_by_name[name_in] = source;
     sources.push_back(source);
 
@@ -333,11 +335,13 @@ shared_t<sink_t> object_t::add_sink(const string_t& type_in, const string_t& nam
 {
     assert_lockable_owner();
 
+    object_log_trace("Adding sink: ", name_in, " = ", type_in);
+
     if (sinks_by_name.count(name_in)) {
         throw_runtime_error("can't add duplicate sink: ", name_in);
     }
 
-    auto sink = sink_t::make(type_in, name_in, shared_obj());
+    auto sink = sink_t::make(name_in, type_in, shared_obj());
     sinks_by_name[name_in] = sink;
     sinks.push_back(sink);
 

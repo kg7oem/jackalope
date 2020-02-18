@@ -138,7 +138,7 @@ void sndfile_plugin_t::open_file()
     if (sources_count == 0) {
         for (size_t i = 0; i < channel_count; i++) {
             auto source_name = to_string("Output ", i + 1);
-            add_source(source_name, audio_channel_info_t::type);
+            add_source(audio_channel_info_t::type, source_name);
         }
     } else if (sources_count != channel_count) {
         throw_runtime_error("sources count did not match channel count from file");

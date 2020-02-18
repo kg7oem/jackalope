@@ -34,6 +34,32 @@ plugin_t::plugin_t(shared_t<project_t> project_in, const init_args_t& init_args_
 : node_t(project_in, init_args_in)
 { }
 
+bool plugin_t::sinks_are_ready()
+{
+    assert_lockable_owner();
+
+    for(auto i : sinks) {
+        if (! i->is_ready()) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool plugin_t::sources_are_available()
+{
+    assert_lockable_owner();
+
+    for(auto i : sources) {
+        if (! i->is_available()) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 void plugin_t::execute_if_needed()
 {
     assert_lockable_owner();
@@ -97,10 +123,8 @@ bool driver_plugin_t::should_execute()
         return false;
     }
 
-    for(auto i : sources) {
-        if (! i->is_available()) {
-            return false;
-        }
+    if (! sources_are_available()) {
+        return false;
     }
 
     return true;
@@ -118,16 +142,12 @@ bool filter_plugin_t::should_execute()
         return false;
     }
 
-    for(auto i : sinks) {
-        if (! i->is_ready()) {
-            return false;
-        }
+    if (! sinks_are_ready()) {
+        return false;
     }
 
-    for(auto i : sources) {
-        if (! i->is_available()) {
-            return false;
-        }
+    if (! sources_are_available()) {
+        return false;
     }
 
     return true;
